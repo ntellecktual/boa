@@ -15,7 +15,7 @@ from pathlib import Path
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -78,9 +78,8 @@ WSGI_APPLICATION = "boa.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default='postgresql://boadb_user:smsxxbKl4aq0PE368GZ0zcmuanZ77ylz@dpg-cs016ja3esus7398urv0-a.virginia-postgres.render.com/boadb'
-    )
+    "default": dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+}
 
 
 # Password validation
