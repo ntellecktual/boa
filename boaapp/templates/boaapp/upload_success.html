@@ -1,0 +1,57 @@
+{% extends "boaapp/base_generic.html" %}{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Success</title>
+
+    <!-- Include jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Include Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+
+    <!-- Include your custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{% static 'css/index.css' %}?v={{ timestamp }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Include Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Include your custom JavaScript -->
+    <script src="{% static 'js/index.js' %}"></script>
+
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+  </head>
+  <body>
+    {% block content %}
+    <div class="container custom-container">
+      <div class="alert alert-success" role="alert">
+        <!-- The full file name (hidden input) -->
+        <input type="hidden" id="file_name" value="{{ file_name }}" />
+        <h4 class="alert-heading">Success!</h4>
+        <span>You have uploaded:</span>
+        <!-- Display the extracted part of the file name here -->
+        <h4 id="displayedFileName">{{ file_name }}</h4>
+        <span>Your document has been successfully uploaded and processed.</sp>
+        <br>
+        <span class="mb-0">
+          You can now view the processed results or upload another document.
+        </span>
+      </div>
+      <button type="submit" class="btn upload">
+        <a href="{% url 'upload_document' %}">Upload More Files</a>
+      </button>
+    </div>
+    {% endblock %}
+  </body>
+</html>

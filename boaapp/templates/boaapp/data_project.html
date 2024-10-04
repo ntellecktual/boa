@@ -1,0 +1,306 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}thenumerix | NumPy Course{% endblock %}</title>
+
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Include Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Include custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/index.css' %}?v={{ timestamp }}">
+
+  <style>
+    /* Custom CSS to center the accordion and limit its width */
+    .custom-accordion-container {
+      max-width: 800px;
+      margin: 0 auto;
+      /* Center the accordion horizontally */
+    }
+  </style>
+</head>
+
+<body>
+  {% block content %}
+  <div class="container custom-container mt-5">
+    <!-- Accordion for NumPy Courses -->
+    <div class="accordion custom-accordion-container" id="mainAccordion">
+
+      <!-- Section for NumPy Course Overview Title -->
+      <div class="card">
+        <div class="card-header" id="headingMain">
+          <h2 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseMain"
+              aria-expanded="false" aria-controls="collapseMain">
+              NumPy Course Overview
+            </button>
+          </h2>
+        </div>
+        <div id="collapseMain" class="collapse" aria-labelledby="headingMain" data-parent="#mainAccordion">
+          <div class="card-body">
+            <!-- Nested accordion for NumPy Course Overview -->
+            <div class="accordion" id="numpyAccordion">
+
+              <!-- Section 1: Introduction to NumPy -->
+              <div class="card">
+                <div class="card-header" id="headingOne">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
+                      aria-expanded="true" aria-controls="collapseOne">
+                      Introduction to NumPy
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#numpyAccordion">
+                  <div class="card-body">
+                    NumPy is a core library for linear algebra in Python and is essential for Data Science. Many
+                    libraries in the PyData ecosystem rely on NumPy. It is highly optimized with bindings to C libraries
+                    for fast computations.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2: Installation Instructions -->
+              <div class="card">
+                <div class="card-header" id="headingTwo">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                      data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      Installation
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#numpyAccordion">
+                  <div class="card-body">
+                    It's recommended to install NumPy via Anaconda for easy dependency management:
+                    <code>conda install numpy</code>. You can also refer to the official NumPy documentation for
+                    alternative installation methods.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 3: Creating Arrays -->
+              <div class="card">
+                <div class="card-header" id="headingThree">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                      data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      Creating Arrays
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#numpyAccordion">
+                  <div class="card-body">
+                    You can create arrays by converting Python lists into NumPy arrays: <code>np.array([1, 2, 3])</code>
+                    or matrices: <code>np.array([[1,2,3],[4,5,6]])</code>.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 4: Built-in Methods -->
+              <div class="card">
+                <div class="card-header" id="headingFour">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                      data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                      Built-in Methods
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#numpyAccordion">
+                  <div class="card-body">
+                    NumPy provides several built-in methods to generate arrays like <code>np.arange()</code>,
+                    <code>np.zeros()</code>, <code>np.ones()</code>, and <code>np.linspace()</code> for evenly spaced
+                    values.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 5: Special Arrays -->
+              <div class="card">
+                <div class="card-header" id="headingFive">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                      data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                      Special Arrays
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#numpyAccordion">
+                  <div class="card-body">
+                    Create identity matrices using <code>np.eye()</code> or generate random values using functions like
+                    <code>np.random.rand()</code>, <code>np.random.randn()</code>, and <code>np.random.randint()</code>.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 6: Array Attributes & Methods -->
+              <div class="card">
+                <div class="card-header" id="headingSix">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                      data-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                      Array Attributes & Methods
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#numpyAccordion">
+                  <div class="card-body">
+                    NumPy arrays have attributes such as shape, and methods like <code>reshape()</code>,
+                    <code>max()</code>, <code>min()</code>, and <code>argmax()</code> to extract useful information.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 7: Reshaping & Data Types -->
+              <div class="card">
+                <div class="card-header" id="headingSeven">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                      data-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                      Reshaping & Data Types
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseSeven" class="collapse" aria-labelledby="headingSeven" data-parent="#numpyAccordion">
+                  <div class="card-body">
+                    Arrays can be reshaped using <code>arr.reshape()</code>, and you can check the data type of an array
+                    using <code>arr.dtype</code>.
+                  </div>
+                </div>
+              </div>
+
+            </div> <!-- End of nested accordion -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Section for NumPy Indexing and Selection Title -->
+      <div class="card">
+        <div class="card-header" id="headingIndexing">
+          <h2 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseIndexing"
+              aria-expanded="false" aria-controls="collapseIndexing">
+              NumPy Indexing and Selection
+            </button>
+          </h2>
+        </div>
+        <div id="collapseIndexing" class="collapse" aria-labelledby="headingIndexing" data-parent="#mainAccordion">
+          <div class="card-body">
+            <a href='http://www.pieriandata.com'><img src='../Pierian_Data_Logo.png' alt="Pierian Data Logo" /></a>
+            <h3>NumPy Indexing and Selection</h3>
+            <p>In this lecture we will discuss how to select elements or groups of elements from an array.</p>
+            <code># Creating sample array</code><br />
+            <code>arr = np.arange(0,11)</code><br />
+            <code># Show</code><br />
+            <code>arr</code>
+
+            <h3>Bracket Indexing and Selection</h3>
+            <p>The simplest way to pick one or some elements of an array looks very similar to Python lists:</p>
+            <code># Get a value at an index</code><br />
+            <code>arr[8]</code><br />
+            <code># Get values in a range</code><br />
+            <code>arr[1:5]</code><br />
+            <code># Get values in a range</code><br />
+            <code>arr[0:5]</code>
+
+            <h3>Broadcasting</h3>
+            <p>Numpy arrays differ from a normal Python list because of their ability to broadcast:</p>
+            <code># Setting a value with index range (Broadcasting)</code><br />
+            <code>arr[0:5]=100</code><br />
+            <code># Show</code><br />
+            <code>arr</code><br />
+            <code># Reset array, we'll see why I had to reset in a moment</code><br />
+            <code>arr = np.arange(0,11)</code><br />
+            <code># Show</code><br />
+            <code>arr</code>
+
+            <h3>Important Notes on Slices</h3>
+            <code>slice_of_arr = arr[0:6]</code><br />
+            <code># Show slice</code><br />
+            <code>slice_of_arr</code><br />
+            <code># Change Slice</code><br />
+            <code>slice_of_arr[:]=99</code><br />
+            <code># Show Slice again</code><br />
+            <code>slice_of_arr</code><br />
+            <p>Now note the changes also occur in our original array!</p>
+            <code>arr</code><br />
+            <p>Data is not copied; it's a view of the original array! This avoids memory problems!</p>
+            <code># To get a copy, need to be explicit</code><br />
+            <code>arr_copy = arr.copy()</code><br />
+            <code>arr_copy</code>
+
+            <h3>Indexing a 2D Array (Matrices)</h3>
+            <p>The general format is <code>arr_2d[row][col]</code> or <code>arr_2d[row,col]</code>. I recommend usually
+              using the comma notation for clarity.</p>
+            <code>arr_2d = np.array(([5,10,15],[20,25,30],[35,40,45]))</code><br />
+            <code># Show</code><br />
+            <code>arr_2d</code><br />
+            <code># Indexing row</code><br />
+            <code>arr_2d[1]</code><br />
+            <code># Format is arr_2d[row][col] or arr_2d[row,col]</code><br />
+            <code># Getting individual element value</code><br />
+            <code>arr_2d[1][0]</code><br />
+            <code># Getting individual element value</code><br />
+            <code>arr_2d[1,0]</code><br />
+            <code># 2D array slicing</code><br />
+            <code># Shape (2,2) from top right corner</code><br />
+            <code>arr_2d[:2,1:]</code><br />
+            <code># Shape bottom row</code><br />
+            <code>arr_2d[2]</code><br />
+            <code># Shape bottom row</code><br />
+            <code>arr_2d[2,:]</code>
+
+            <h3>Fancy Indexing</h3>
+            <p>Fancy indexing allows you to select entire rows or columns out of order. To show this, let's quickly
+              build out a NumPy array:</p>
+            <code># Set up matrix</code><br />
+            <code>arr2d = np.zeros((10,10))</code><br />
+            <code># Length of array</code><br />
+            <code>arr_length = arr2d.shape[1]</code><br />
+            <code># Set up array</code><br />
+            <code>for i in range(arr_length):</code><br />
+            <code>arr2d[i] = i</code><br />
+            <code>arr2d</code><br />
+            <p>Fancy indexing allows the following:</p>
+            <code>arr2d[[2,4,6,8]]</code><br />
+            <p>Allows in any order:</p>
+            <code>arr2d[[6,4,2,7]]</code>
+
+            <h3>More Indexing Help</h3>
+            <p>Indexing a 2D matrix can be a bit confusing at first, especially when you start to add in step size. Try
+              Google image searching NumPy indexing to find useful images, like this one:</p>
+            <img src='http://memory.osu.edu/classes/python/_images/numpy_indexing.png' width=500 />
+
+            <h3>Selection</h3>
+            <p>Let's briefly go over how to use brackets for selection based on comparison operators.</p>
+            <code>arr = np.arange(1,11)</code><br />
+            <code>arr</code><br />
+            <code>arr > 4</code><br />
+            <code>bool_arr = arr>4</code><br />
+            <code>bool_arr</code><br />
+            <code>arr[bool_arr]</code><br />
+            <code>arr[arr>2]</code><br />
+            <code>x = 2</code><br />
+            <code>arr[arr>x]</code><br />
+            <p>Great Job!</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+{% extends 'boaapp/base_generic.html' %} {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}thenumerix | DataScience{% endblock %}</title>
+
+  <!-- Include jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- Include your custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/index.css' %}?v={{ timestamp }}" />
+
+  <!-- Include Bootstrap JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Include your custom JavaScript -->
+  <script src="{% static 'js/index.js' %}"></script>
+
+  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+</head>
+
+<body>
+  {% block content %}
+  <div class="container custom-container">
+    <h1 class="text-center">Data Engineering & Data Science Projects</h1>
+    {% if user.is_authenticated %}
+    <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'home' %}'">
+      Upload It! <span class="badge badge-success badge-pill">New!</span>
+    </button>
+    <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'data_project' %}'">
+      Nummy Nummy Numpy <span class="badge badge-success badge-pill">New!</span>
+    </button>
+    {% endif %}
+  </div>
+  {% endblock %}
+</body>
+
+</html>

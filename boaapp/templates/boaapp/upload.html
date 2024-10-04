@@ -1,0 +1,46 @@
+{% extends 'boaapp/base_generic.html' %} {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>thenumerix | Upload Now</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'css/index.css' %}?v={{ timestamp }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+  </head>
+  <body>
+    {% block content %}
+    <div class="container custom-container">
+      <h1>Upload Data Course</h1>
+      {% if user.is_authenticated %}
+      <span
+        >You, {{ user.username }}, are now uploading your very own course.</span
+      >
+      {% endif %}
+      <form
+        class="form"
+        method="post"
+        enctype="multipart/form-data"
+        action="{% url 'upload_document' %}"
+      >
+        {% csrf_token %} {{ form.as_p }}
+        <button type="submit" class="btn upload btn-primary">Upload</button>
+      </form>
+    </div>
+    {% endblock %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
+</html>

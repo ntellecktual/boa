@@ -1,0 +1,111 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}thenumerix | Projects{% endblock %}</title>
+
+  <!-- Include jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+
+  <!-- Include your custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/index.css' %}?v={{ timestamp }}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Include Bootstrap JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Include your custom JavaScript -->
+  <script src="{% static 'js/index.js' %}"></script>
+
+  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+</head>
+
+<body>
+
+  <body>
+    {% block content %}
+
+    <!-- Data Architecture Section -->
+    <div class="container custom-container">
+      <h1 class="text-center">Data Architecture | in Real Time</h1>
+      <div class="row justify-content-center">
+        {% for item in portfolio_items %}
+        {% if item.videos.all or item.ppt_file %}
+        <div class="mb-4 d-flex justify-content-center">
+          <div class="card h-100">
+            <a href="{{ item.project_url }}" class="btn btn-primary" target="_blank">
+              <img src="{{ item.companylogo.url }}" class="card-img-top portfolio-img" alt="{{ item.title }}" />
+            </a>
+
+            {% if item.image %}
+            <img src="{{ item.image.url }}" class="card-img-top portfolio-img" alt="{{ item.title }}" />
+            {% endif %}
+
+            <div class="card-body">
+              <!-- Loop through all the videos associated with the portfolio item -->
+              {% for video in item.videos.all %}
+              <div class="video-wrapper mb-3">
+                <video width="100%" height="262" controls>
+                  <source src="{{ video.video_file.url }}" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+                {% if video.title %}
+                <p class="video-title">{{ video.title }}</p>
+                {% endif %}
+              </div>
+              {% endfor %}
+
+              <!-- Check if the item has a PPT file and display it -->
+              {% if item.ppt_file %}
+              <a href="{{ item.ppt_file.url }}" class="btn btn-primary" target="_blank">Download PPT</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+
+    <!-- DevOps Architecture Section -->
+    <div class="container custom-container">
+      <h1 class="text-center">DevOps Architecture | in Detail</h1>
+      <div class="row justify-content-center">
+        {% for item in devops_items %}
+        {% if item.vid or item.ppt %}
+        <div class=" mb-4 d-flex justify-content-center">
+          <div class="card h-100">
+            <a href="{{ item.link }}" class="btn btn-primary" target="_blank">
+              <img src="{{ item.logo.url }}" class="card-img-top portfolio-img" alt="{{ item.title }}" /></a>
+            {% if item.img %}
+            <img src="{{ item.img.url }}" class="card-img-top portfolio-img" alt="{{ item.name }}" />
+            {% endif %}
+            <div class="card-body">
+              {% if item.vid %}
+              <video width="100%" height="262" controls>
+                <source src="{{ item.vid.url }}" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              {% endif %}
+              {% if item.ppt %}
+              <a href="{{ item.ppt.url }}" class="btn btn-primary portfolio" target="_blank">Download PPT</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endblock %}
+  </body>
+
+</html>

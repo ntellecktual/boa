@@ -1,0 +1,199 @@
+{% extends 'boaapp/base_generic.html' %} {% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}thenumerix | Portfolio{% endblock %}</title>
+
+    <!-- Include jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Include Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+
+    <!-- Include your custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{% static 'css/index.css' %}?v={{ timestamp }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Include Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Include your custom JavaScript -->
+    <script src="{% static 'js/index.js' %}"></script>
+
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+  </head>
+  <body>
+    {% block content %}
+    <!-- ------------------------------------------------------------------------------------ -->
+    <div class="container custom-container col-md-6">
+      <h1 class="text-center">Data Architecture</h1>
+      <br />
+      <span
+        >With extensive experience in Data Architecture, I design and implement
+        high-performance data pipelines and systems that optimize storage,
+        access, and analysis. My expertise in creating scalable data solutions
+        aligns with our project goals of showcasing practical skills in
+        developing robust, data-driven applications, reinforcing my role as a
+        leader in the data engineering and architecture field.</span
+      >
+      <br />
+      <div class="row justify-content-center">
+        {% for item in portfolio_items %}
+        <div class="col-md-4 mb-4 d-flex justify-content-center">
+          <div class="card h-100">
+            {% if item.companylogo %}
+            <img
+              src="{{ item.companylogo.url }}"
+              class="card-img-top portfolio-img"
+              alt="{{ item.title }}"
+            />
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ item.title }}</h5>
+
+              <div class="row justify-content-center">
+                <p class="card-text">{{ item.description }}</p>
+                {% if item.project_url %}
+                <a href="{{ item.project_url }}" class="btn portfolio"
+                  >Learn More</a
+                >
+                {% endif %}{% if item.ppt_file %}
+                <a
+                  href="{{ item.ppt_file.url }}"
+                  target="_blank"
+                  class="btn portfolio mt-3"
+                >
+                  View Overview
+                </a>
+                {% endif %}
+                <br />
+                <!-- Only display the carousel if there are images -->
+                {% if item.scrolling_images.all %}
+                <div
+                  id="carousel-{{ item.id }}"
+                  class="carousel slide"
+                  data-ride="carousel"
+                  data-interval="3000"
+                >
+                  <div class="carousel-inner">
+                    {% for image in item.scrolling_images.all %}
+                    <div
+                      class="carousel-item {% if forloop.first %}active{% endif %}"
+                    >
+                      <img
+                        src="{{ image.image.url }}"
+                        class="d-block w-100"
+                        alt="{{ caption }}"
+                      />
+                      {% if image.caption %}
+                      <div class="carousel-caption d-none d-md-block">
+                        <p>{{ image.caption }}</p>
+                      </div>
+                      {% endif %}
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% else %}
+                <p>No images available for this portfolio item.</p>
+                {% endif %}
+                <!-- End of scrolling images -->
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- ------------------------------------------------------------------------------------ -->
+    <div class="container custom-container col-md-6">
+      <h1 class="text-center">DevOps Architecture</h1>
+      <br />
+      <span
+        >As a seasoned professional in DevOps Architecture, I specialize in
+        creating efficient, scalable systems that streamline development and
+        operations. My experience in leading teams and architecting end-to-end
+        solutions aligns with our project goals of building robust, user-centric
+        applications that demonstrate real-world expertise in the DevOps
+        field.</span
+      >
+      <br />
+      <div class="row justify-content-center">
+        {% for item in devops_items %}
+        <div class="col-md-4 mb-4 d-flex justify-content-center">
+          <div class="card h-100">
+            {% if item.logo %}
+            <img
+              src="{{ item.logo.url }}"
+              class="card-img-top portfolio-img"
+              alt="{{ item.title }}"
+            />
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ item.name }}</h5>
+              <div class="row justify-content-center">
+                <p class="card-text">{{ item.details }}</p>
+                {% if item.link %}
+                <a href="{{ item.link }}" class="btn portfolio">Learn More</a>
+                {% endif %} {% if item.ppt %}
+                <a
+                  href="{{ item.ppt.url }}"
+                  target="_blank"
+                  class="btn portfolio mt-3"
+                  >View Overview</a
+                >
+                {% endif %}
+                <!-- Only display the carousel if there are images -->
+                {% if item.scrolling_images.all %}
+                <div
+                  id="carousel-{{ item.id }}"
+                  class="carousel slide"
+                  data-ride="carousel"
+                  data-interval="3000"
+                >
+                  <div class="carousel-inner">
+                    {% for image in item.scrolling_images.all %}
+                    <div
+                      class="carousel-item {% if forloop.first %}active{% endif %}"
+                    >
+                      <img
+                        src="{{ image.image.url }}"
+                        class="d-block w-100"
+                        alt="{{ caption }}"
+                      />
+                      {% if image.caption %}
+                      <div class="carousel-caption d-none d-md-block">
+                        <p>{{ image.caption }}</p>
+                      </div>
+                      {% endif %}
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% else %}
+                <p>No images available for this portfolio item.</p>
+                {% endif %}
+                <!-- End of scrolling images -->
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- ------------------------------------------------------------------------------------ -->
+    {% endblock %}
+  </body>
+</html>
