@@ -275,6 +275,7 @@ python-nvd3==0.16.0
 python-pptx==1.0.2
 python-slugify==8.0.4
 pypiwin32==223
+
 pyttsx3==2.90
 pytz==2024.1
 PyYAML==6.0.1
