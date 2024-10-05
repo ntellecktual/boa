@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from docx import Document
@@ -37,9 +37,6 @@ def home(request):
     context = {'uploaded_files': uploaded_files}
     return render(request, 'boaapp/home.html', context)
 
-
-def boashedskin_view(request):
-    return HttpResponse("Health check successful!")
 
 def register(request):
     """Handle user registration."""

@@ -38,9 +38,6 @@ def home(request):
     return render(request, 'boaapp/home.html', context)
 
 
-def boashedskin_view(request):
-    return HttpResponse("Health check successful!")
-
 def register(request):
     """Handle user registration."""
     if request.method == 'POST':

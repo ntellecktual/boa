@@ -26,8 +26,7 @@ urlpatterns = [
     path('live_demos/', boaapp_views.live_demos, name='live_demos'),
     path('skills/', boaapp_views.skills_section, name='skills_section'),
     path('upload/progress/<str:file_name>/', boaapp_views.upload_progress,
-         name='upload_progress'),
-    path('boashedskin', boaapp_views.boashedskin_view, name='boashedskin'),
+         name='upload_progress')
 ]
 
 # Serve media files in development
