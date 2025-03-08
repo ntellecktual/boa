@@ -4,7 +4,7 @@
 }
 
 body {
-    font-family: "Roboto Condensed", sans-serif;
+    font-family: "Inter", sans-serif;
     background: linear-gradient(
         to right,
         #e73276,
@@ -36,6 +36,16 @@ body {
     min-height: 100vh;
 }
 
+
+.btn-upload {
+    width: 100%;
+    padding: 10px;
+    font-weight: bold;
+  }
+.spinner-border {
+    display: none;
+    margin-left: 10px;
+  }
 /* Button styles */
 .btn {
     background-color: transparent !important;
@@ -94,6 +104,8 @@ progress {
     justify-content: center;
     display: grid;
     align-self: baseline !important;
+    max-width: 600px;
+    margin: 50px auto;
 }
 
 .login-list {
@@ -145,6 +157,8 @@ a {
     max-width: 300px; /* Set a max-width for the card */
     background-color: transparent;
     border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card-body {
