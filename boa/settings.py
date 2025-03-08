@@ -78,9 +78,9 @@ WSGI_APPLICATION = "boa.wsgi.application"
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'boadb',
-        'USER': 'boauser',
-        'PASSWORD': 'boapassword',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'thenumerix1',
         'HOST': 'localhost',
         'PORT': '5432',
     }
