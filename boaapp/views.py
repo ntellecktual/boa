@@ -17,8 +17,8 @@ from docx import Document
 
 from .create_video import create_video_parallel
 from .forms import DocumentForm, UserRegisterForm
-from .models import AudioFile  # Ensure you import your model
-from .models import DevopsItem, PortfolioItem, ResumeDocument
+from .models import AudioFile, Document  # Updated to ensure Document model is imported
+from .models import DevopsItem, PortfolioItem, ResumeDocument, Document
 from .process_notebook import (handle_uploaded_file, process_notebook,
                                process_notebook_and_create_audio)
 
@@ -85,7 +85,7 @@ def upload_progress(request, file_name):
     })
 
 
-def handle_audio_creation(file_path, file_name):
+def handle_audio_creation(file_path, file_name, request, document_reference):
     global progress_data, log_data
     audio_files = list(process_notebook_and_create_audio(file_path))
     total_files = len(audio_files)
@@ -93,32 +93,41 @@ def handle_audio_creation(file_path, file_name):
     log_data[file_name] = []  # Initialize log storage
     progress_data[file_name] = {'progress': 0}  # Initialize progress
 
+    audio_dir = os.path.join(settings.MEDIA_ROOT, 'audio')
+    os.makedirs(audio_dir, exist_ok=True)
+
+    generated_audio_names = []
+
     if total_files == 0:
         log_data[file_name].append("No audio files to process.")
-        return []  # Return an empty list if no audio files were created
-
-    generated_audio_names = []  # Store the names of generated audio files
+        return []
 
     for idx, audio_file in enumerate(audio_files):
         title = audio_file.get('title')
-        if title:
-            audio_file_path = os.path.join('audio', title + '.mp3')
-            with open(audio_file_path, 'w') as f:
-                f.write(audio_file['content'])
+        if not title:
+            continue
 
-            log_data[file_name].append(
-                f"Audio content written to {audio_file_path}")
+        audio_file_path = os.path.join(audio_dir, title + '.mp3')
+        if os.path.exists(audio_file_path):
+            log_data[file_name].append(f"Audio already exists at {audio_file_path}")
+        else:
+            log_data[file_name].append(f"Audio file missing: {audio_file_path}")
 
-            # Collect audio file names
-            generated_audio_names.append(title + '.mp3')
+        AudioFile.objects.create(
+            title=title,
+            name=title,
+            file=os.path.join('audio', title + '.mp3'),
+            user=request.user,
+            document=document_reference
+        )
 
-            # Update progress
-            progress_percentage = int((idx + 1) / total_files * 100)
-            progress_data[file_name]['progress'] = progress_percentage
+        generated_audio_names.append(title + '.mp3')
+        progress_percentage = int((idx + 1) / total_files * 100)
+        progress_data[file_name]['progress'] = progress_percentage
+        time.sleep(0.5)
 
-            time.sleep(0.5)  # Simulate delay (optional)
+    return generated_audio_names
 
-    return generated_audio_names  # Return the list of generated audio names
 
 
 @login_required
@@ -127,13 +136,14 @@ def upload_document(request):
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
             file_path = handle_uploaded_file(request.FILES['uploaded_file'])
-            document = form.save()
-
+            document = form.save(commit=False)
+            document.user = request.user
+            document.save()
             # Get the name of the uploaded file
             file_name = document.uploaded_file.name
             cleaned_file_name = file_name.split('/')[-1]
             # Call handle_audio_creation and get the generated audio file names
-            audio_file_names = handle_audio_creation(file_path, file_name)
+            audio_file_names = handle_audio_creation(file_path, file_name, request, document)
 
             # Pass the audio file names to the success page
             return render(request, 'boaapp/upload_success.html', {
@@ -155,21 +165,18 @@ def upload_progress_page(request, file_name):
 
 def upload_success(request):
     """Render upload success page with processed audio file names."""
-    # Assuming audio_file_names is a list of the generated audio file names
     audio_file_names = request.POST.getlist('audio_file_names', [])
 
-    # Process file names: remove numbers, underscores, and ".mp3"
     cleaned_file_names = [
         re.sub(r'^[0-9]+__', '', file_name).replace('_',
                                                     ' ').replace('.mp3', '')
         for file_name in audio_file_names
     ]
 
-    # Join names with a comma or any desired separator
     joined_file_names = ', '.join(cleaned_file_names)
 
     return render(request, 'boaapp/upload_success.html', {
-        'file_name': joined_file_names,  # Pass the cleaned names to the template
+        'file_name': joined_file_names,
     })
 
 
@@ -188,7 +195,6 @@ def handle_uploaded_file(f):
 
 
 def portfolio_showcase(request):
-    """Render portfolio showcase with related items."""
     portfolio_items = PortfolioItem.objects.prefetch_related(
         'scrolling_images').all()
     devops_items = DevopsItem.objects.prefetch_related(
@@ -200,7 +206,6 @@ def portfolio_showcase(request):
 
 
 def project_pages(request):
-    """Render project pages with portfolio and devops items."""
     portfolio_items = PortfolioItem.objects.all()
     devops_items = DevopsItem.objects.all()
     return render(request, 'boaapp/project_pages.html', {
@@ -210,27 +215,22 @@ def project_pages(request):
 
 
 def data_start(request):
-    """Render the data start page."""
     return render(request, 'boaapp/data_start.html')
 
 
 def data_project(request):
-    """Render the data project page."""
     return render(request, 'boaapp/data_project.html')
 
 
 def live_demos(request):
-    """Render the live demos page."""
     return render(request, 'boaapp/live_demos.html')
 
 
 def skills_section(request):
-    """Render the skills section page."""
     return render(request, 'boaapp/skills_section.html')
 
 
 def display_resume(request):
-    """Display the latest resume document."""
     try:
         resume = ResumeDocument.objects.latest('id')
     except ResumeDocument.DoesNotExist:
@@ -240,7 +240,6 @@ def display_resume(request):
 
 
 def process_audio_and_create_videos(audio_dir, video_dir, logo_path, background_path):
-    """Process audio files to create videos."""
     audio_files = sorted([os.path.join(audio_dir, file)
                          for file in os.listdir(audio_dir) if file.endswith('.mp3')])
 
@@ -255,3 +254,29 @@ def process_audio_and_create_videos(audio_dir, video_dir, logo_path, background_
                               logo_path, background_path, text_sync_file)
 
     logger.info("Video creation complete.")
+
+
+@login_required
+def dashboard(request):
+    documents = Document.objects.filter(user=request.user).order_by('-uploaded_at')
+
+    # Count all audio files
+    all_audio_path = os.path.join(settings.MEDIA_ROOT, 'audio')
+    total_audio = len(os.listdir(all_audio_path)) if os.path.exists(all_audio_path) else 0
+
+    # Show only latest doc if audio folder was empty when starting
+    latest_doc = documents.first()
+    latest_only = True
+
+    if total_audio > 0:
+        latest_only = False  # Don't limit if audio files already exist
+
+    context = {
+        'document_count': documents.count(),
+        'audio_file_count': total_audio,
+        'latest_doc': latest_doc,
+        'all_docs': documents,
+        'latest_only': latest_only,
+    }
+
+    return render(request, 'boaapp/dashboard.html', context)

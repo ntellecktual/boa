@@ -29,17 +29,18 @@
 
 <body>
   {% block content %}
-  <div class="container custom-container custom-margin-bottom">
+  <div class="container login-custom-container custom-margin-bottom">
     <h2>Welcome to thenumerix</h2>
-    {% if not user.is_authenticated %}
-    <span>Kieth's Portfolio, Projects, Data Engineering, all in one!</span>
     {% if user.is_authenticated %}
-    <span>Logged in as, {{ user.username }}</span>
-    {% endif %} {% endif %}
+  <span>{{ user.username }}'s Portfolio, Projects, Data Engineering, all in one!</span>
+  <span>Logged in as {{ user.username }}</span>
+{% else %}
+  <span>Explore Portfolio, Projects, and Data Engineering insights.</span>
+{% endif %}
   </div>
 
   {% if user.is_authenticated %}
-  <div class="container login-list custom-margin-bottom">
+  <div class="container login-list login-custom-container custom-margin-bottom">
     <div class="login-list-border">
       <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'portfolio_showcase' %}'">
         Enterprise Architecture/Engineering
@@ -51,13 +52,6 @@
         Business Analytics
       </button>
     </div>
-    <!-- <button
-        type="button"
-        class="btn btn-primary"
-        onclick="window.location.href='{% url 'resume' %}'"
-      >
-        Resume
-      </button> -->
     <ul class="list-group mx-auto" style="max-width: 500px">
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'live_demos' %}'">
@@ -65,9 +59,8 @@
         </button>
         <button type="button" class="badge badge-success badge-pill">New!</button>
         <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'data_start' %}'">
-          Data | Projects
+          Data | Projects <span class="badge badge-success badge-pill">New!</span>
         </button>
-        <button type="button" class="badge badge-success badge-pill">New!</button>
         <button type="button" class="btn btn-primary details" onclick="window.location.href='{% url 'home' %}'">
           Upload It! <span class="badge badge-success badge-pill">New!</span>
         </button>
@@ -87,7 +80,7 @@
         <label for="password">Password:</label>
         <input type="password" class="form-control" id="password" name="password" />
       </div>
-      <button type="submit" class="btn btn-primary">Login</button>
+      <button type="submit" class="btn login btn-primary">Login</button>
     </form>
   </div>
   {% endif %} {% endblock %}

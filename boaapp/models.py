@@ -15,12 +15,8 @@ class Profile(models.Model):
 
 
 class Document(models.Model):
-    uploaded_file = models.FileField(
-        upload_to='',
-        verbose_name='Upload A File',  # Custom label for the field
-        # Help text
-        help_text=''
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    uploaded_file = models.FileField(upload_to='documents/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -28,12 +24,13 @@ class Document(models.Model):
 
 
 class AudioFile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # ✅ Added user tracking
     title = models.CharField(max_length=100, default="Untitled")
     name = models.CharField(max_length=100)
     file = models.FileField(upload_to='audio/')
     metadata = models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    document = models.ForeignKey("Document", on_delete=models.CASCADE, null=True, related_name="audio_files")
     def __str__(self):
         return f"{self.name} - {self.title}"
 
@@ -74,7 +71,6 @@ class PortfolioItem(models.Model):
 
     def __str__(self):
         return self.title
-
 
 
 class DevopsItem(models.Model):

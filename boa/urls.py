@@ -28,6 +28,8 @@ urlpatterns = [
     path('upload/progress/<str:file_name>/', boaapp_views.upload_progress,
          name='upload_progress'),
     path('boashedskin', boaapp_views.boashedskin_view, name='boashedskin'),
+    path('dashboard/', boaapp_views.dashboard, name='dashboard'),
+
 ]
 
 # Serve media files in development

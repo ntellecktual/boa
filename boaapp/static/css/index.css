@@ -1,6 +1,6 @@
 /* Global styles */
 * {
-    /* border: dotted rgb(0, 255, 30) 0.5px !important; */
+    border: dotted rgb(0, 255, 30) 0.5px !important;
 }
 
 body {
@@ -36,7 +36,6 @@ body {
     min-height: 100vh;
 }
 
-
 .btn-upload {
     width: 100%;
     padding: 10px;
@@ -63,6 +62,11 @@ body {
 }
 
 .upload {
+    background-color: #67469c !important;
+    color: #f8ad84;
+}
+
+.login {
     background-color: #67469c !important;
     color: #f8ad84;
 }
@@ -106,6 +110,14 @@ progress {
     align-self: baseline !important;
     max-width: 600px;
     margin: 50px auto;
+}
+
+.login-custom-container {
+    text-align: center;
+    justify-content: center;
+    display: grid;
+    align-self: baseline !important;
+    max-width: 600px;
 }
 
 .login-list {

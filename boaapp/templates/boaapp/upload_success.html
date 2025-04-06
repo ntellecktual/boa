@@ -42,11 +42,21 @@
         <span>You have uploaded:</span>
         <!-- Display the extracted part of the file name here -->
         <h4 id="displayedFileName">{{ file_name }}</h4>
-        <span>Your document has been successfully uploaded and processed.</sp>
-        <br>
+        <span>Your document has been successfully uploaded and processed.</span>
+        <br />
         <span class="mb-0">
           You can now view the processed results or upload another document.
         </span>
+        {% if audio_names %}
+        <div class="mt-4">
+          <h5>Generated Audio Files:</h5>
+          <ul>
+            {% for file in audio_names %}
+            <li>{{ file|slice:"5:"|cut:".mp3"|cut:"_"|title }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
       </div>
       <button type="submit" class="btn upload">
         <a href="{% url 'upload_document' %}">Upload More Files</a>
