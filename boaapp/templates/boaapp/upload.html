@@ -1,4 +1,6 @@
 {% extends 'boaapp/base_generic.html' %} {% load static %}
+{% load camel_filters %}
+{% get_media_prefix as MEDIA_URL %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -39,6 +41,20 @@
       </form>
     </div>
     {% endblock %}
+    <script>
+      document.querySelector('#uploadForm').addEventListener('submit', function (e) {
+        const fileInput = document.querySelector('input[type="file"]');
+        const fileName = fileInput.files[0]?.name;
+    
+        const uploadedFiles = {{ existing_filenames|safe }};  // passed from backend
+    
+        if (uploadedFiles.includes(fileName)) {
+          e.preventDefault();
+          alert("A file with this name already exists. Please rename and try again.");
+        }
+      });
+    </script>
+    
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

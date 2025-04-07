@@ -18,7 +18,7 @@ from docx import Document
 from .create_video import create_video_parallel
 from .forms import DocumentForm, UserRegisterForm
 from .models import AudioFile, Document  # Updated to ensure Document model is imported
-from .models import DevopsItem, PortfolioItem, ResumeDocument, Document
+from .models import DevopsItem, PortfolioItem, ResumeDocument, Document, AudioFile
 from .process_notebook import (handle_uploaded_file, process_notebook,
                                process_notebook_and_create_audio)
 
@@ -135,24 +135,35 @@ def upload_document(request):
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
+            # Check for duplicate file before saving
+            existing_file_path = os.path.join(settings.MEDIA_ROOT, 'documents', request.FILES['uploaded_file'].name)
+            if os.path.exists(existing_file_path):
+                messages.error(request, "A file with this name already exists. Please rename your file or upload a different one.")
+                return redirect('upload_document')
+
             file_path = handle_uploaded_file(request.FILES['uploaded_file'])
             document = form.save(commit=False)
             document.user = request.user
             document.save()
-            # Get the name of the uploaded file
+
             file_name = document.uploaded_file.name
             cleaned_file_name = file_name.split('/')[-1]
-            # Call handle_audio_creation and get the generated audio file names
+
             audio_file_names = handle_audio_creation(file_path, file_name, request, document)
 
-            # Pass the audio file names to the success page
             return render(request, 'boaapp/upload_success.html', {
                 'file_name': cleaned_file_name,
-                'audio_names': audio_file_names  # Pass the list of generated names
+                'audio_names': audio_file_names
             })
     else:
         form = DocumentForm()
-    return render(request, 'boaapp/upload.html', {'form': form})
+        documents_dir = os.path.join(settings.MEDIA_ROOT, 'documents')
+        existing_files = os.listdir(documents_dir) if os.path.exists(documents_dir) else []
+
+    return render(request, 'boaapp/upload.html', {
+        'form': form,
+        'existing_filenames': json.dumps(existing_files)
+    })
 
 
 @login_required
@@ -280,3 +291,52 @@ def dashboard(request):
     }
 
     return render(request, 'boaapp/dashboard.html', context)
+
+    
+@login_required
+def delete_orphaned_files(request):
+    deleted = 0
+    for doc in Document.objects.all():
+        ipynb_path = os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file))
+        audio_files = AudioFile.objects.filter(document=doc)
+
+        audio_exists = any(os.path.exists(os.path.join(settings.MEDIA_ROOT, str(audio.file))) for audio in audio_files)
+        doc_exists = os.path.exists(ipynb_path)
+
+        if not audio_exists or not doc_exists:
+            for audio in audio_files:
+                file_path = os.path.join(settings.MEDIA_ROOT, str(audio.file))
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                audio.delete()
+            if os.path.exists(ipynb_path):
+                os.remove(ipynb_path)
+            doc.delete()
+            deleted += 1
+    return JsonResponse({'deleted': deleted})
+
+@login_required
+def delete_all_files(request):
+    for doc in Document.objects.all():
+        ipynb_path = os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file))
+        if os.path.exists(ipynb_path):
+            os.remove(ipynb_path)
+        doc.delete()
+
+    for audio in AudioFile.objects.all():
+        audio_path = os.path.join(settings.MEDIA_ROOT, str(audio.file))
+        if os.path.exists(audio_path):
+            os.remove(audio_path)
+        audio.delete()
+
+    return JsonResponse({'status': 'All files deleted'})
+
+@login_required
+def delete_ipynb_files(request):
+    deleted = 0
+    for doc in Document.objects.all():
+        ipynb_path = os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file))
+        if os.path.exists(ipynb_path):
+            os.remove(ipynb_path)
+            deleted += 1
+    return JsonResponse({'deleted_ipynb_files': deleted})

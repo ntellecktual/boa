@@ -1,281 +1,305 @@
 /* Global styles */
 * {
-    /* border: dotted rgb(0, 255, 30) 0.5px !important; */
+  /* border: dotted rgb(0, 255, 30) 0.5px !important; */
 }
 
 body {
-    font-family: "Inter", sans-serif;
-    background: linear-gradient(
-        to right,
-        #e73276,
-        #e84177,
-        #ea4b78,
-        #eb5679,
-        #ed617a,
-        #ee6b7c,
-        #f0777d,
-        #f2827f,
-        #f38d80,
-        #f59881,
-        #f7a382,
-        #f8ad84,
-        #feb191,
-        #d98ab0,
-        #b364c0,
-        #a75fba,
-        #9a5ab4,
-        #8d55ae,
-        #8050a8,
-        #734ba2,
-        #67469c,
-        #5a4196,
-        #4d3c90,
-        #40378a,
-        #4a3e9e
-    );
-    min-height: 100vh;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(
+    to right,
+    #e73276,
+    #e83c77,
+    #e84177,
+    #ea4578,
+    #ea4b78,
+    #eb5179,
+    #eb5679,
+    #ec5c7a,
+    #ed617a,
+    #ed667b,
+    #ee6b7c,
+    #ef717d,
+    #f0777d,
+    #f17c7e,
+    #f2827f,
+    #f38c80,
+    #f38d80,
+    #f49680,
+    #f59881,
+    #f69f81,
+    #f7a382,
+    #f8a982,
+    #f8ad84,
+    #fab497,
+    #feb191,
+    #e7a0a5,
+    #d98ab0,
+    #c277b9,
+    #b364c0,
+    #ac61bd,
+    #a75fba,
+    #a05cb7,
+    #9a5ab4,
+    #9458b1,
+    #8d55ae,
+    #8753ab,
+    #8050a8,
+    #7a4ea5,
+    #734ba2,
+    #6e489f,
+    #67469c,
+    #604499,
+    #5a4196,
+    #543e93,
+    #4d3c90,
+    #473a8d,
+    #40378a,
+    #453c94,
+    #4a3e9e
+  );
+  min-height: 100vh;
 }
 
 .btn-upload {
-    width: 100%;
-    padding: 10px;
-    font-weight: bold;
-  }
+  width: 100%;
+  padding: 10px;
+  font-weight: bold;
+}
 .spinner-border {
-    display: none;
-    margin-left: 10px;
-  }
+  display: none;
+  margin-left: 10px;
+}
 /* Button styles */
 .btn {
-    background-color: transparent !important;
-    border: none !important;
-    color: #ffffff !important;
+  background-color: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
 }
 
 .login-list-border {
-    border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #eee;
 }
 
 .portfolio {
-    background-color: #67469c !important;
-    color: #f8ad84;
+  background-color: #67469c !important;
+  color: #f8ad84;
 }
 
 .upload {
-    background-color: #67469c !important;
-    color: #f8ad84;
+  background-color: #67469c !important;
+  color: #f8ad84;
 }
 
 .login {
-    background-color: #67469c !important;
-    color: #f8ad84;
+  background-color: #67469c !important;
+  color: #f8ad84;
 }
 /* Navbar styles */
 .navbar {
-    z-index: 1;
-    background-color: transparent !important;
+  z-index: 1;
+  background-color: transparent !important;
 }
 
 progress {
-    width: 100%;
-    height: 20px; /* Adjust height as needed */
-    /* Additional styles can be added here */
+  width: 100%;
+  height: 20px; /* Adjust height as needed */
+  /* Additional styles can be added here */
 }
 
 .container {
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    height: 100vh;
-    flex-direction: row;
-    margin-bottom: 10px;
-    color: #ffffff !important;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  height: 100vh;
+  flex-direction: row;
+  margin-bottom: 10px;
+  color: #ffffff !important;
 }
 
 .login-container {
-    display: grid !important;
-    align-content: center;
-    justify-content: center;
-    height: 100vh;
-    flex-direction: row;
-    margin-bottom: 10px;
-    color: #ffffff !important;
-    text-align: center;
+  display: grid !important;
+  align-content: center;
+  justify-content: center;
+  height: 100vh;
+  flex-direction: row;
+  margin-bottom: 10px;
+  color: #ffffff !important;
+  text-align: center;
 }
 /* Custom Container */
 .custom-container {
-    text-align: center;
-    justify-content: center;
-    display: grid;
-    align-self: baseline !important;
-    max-width: 600px;
-    margin: 50px auto;
+  text-align: center;
+  justify-content: center;
+  display: grid;
+  align-self: baseline !important;
+  max-width: 600px;
+  margin: 50px auto;
 }
 
 .login-custom-container {
-    text-align: center;
-    justify-content: center;
-    display: grid;
-    align-self: baseline !important;
-    max-width: 600px;
+  text-align: center;
+  justify-content: center;
+  display: grid;
+  align-self: baseline !important;
+  max-width: 600px;
 }
 
 .login-list {
-    padding: 20px;
-    text-align: center;
-    display: grid;
+  padding: 20px;
+  text-align: center;
+  display: grid;
 }
 
 .upload-container {
-    padding: 20px;
-    text-align: center;
-    display: grid;
+  padding: 20px;
+  text-align: center;
+  display: grid;
 }
 
 .row {
-    display: flex;
-    justify-content: center; /* Centers the cards horizontally */
-    flex-wrap: wrap; /* Allows wrapping of cards on smaller screens */
+  display: flex;
+  justify-content: center; /* Centers the cards horizontally */
+  flex-wrap: wrap; /* Allows wrapping of cards on smaller screens */
 }
 
 .portfolio-img {
-    object-fit: cover; /* Cover ensures the image covers the container without stretching */
+  object-fit: cover; /* Cover ensures the image covers the container without stretching */
 }
 
 .form {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .form-control {
-    border: none;
-    text-align: center;
+  border: none;
+  text-align: center;
 }
 
 p {
-    text-align: center;
-    align-content: center;
+  text-align: center;
+  align-content: center;
 }
 
 .details {
-    display: none;
+  display: none;
 }
 
 a {
-    color: #ffffff !important;
+  color: #ffffff !important;
 }
 
 .card {
-    width: 100%;
-    max-width: 300px; /* Set a max-width for the card */
-    background-color: transparent;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 300px; /* Set a max-width for the card */
+  background-color: transparent;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card-body {
-    text-align: center; /* Center the text inside the card */
+  text-align: center; /* Center the text inside the card */
 }
 
 /* Make the list group background transparent */
 .list-group {
-    background-color: transparent; /* Set background to transparent */
+  background-color: transparent; /* Set background to transparent */
 }
 
 /* Make each list item have a transparent background and add a border */
 .list-group-item {
-    background-color: transparent;
-    border: none; /* Light border for better visibility */
-    border-radius: 5px; /* Optional: rounded corners */
-    margin-bottom: 10px; /* Space between list items */
-    padding: 10px; /* Add padding for better readability */
+  background-color: transparent;
+  border: none; /* Light border for better visibility */
+  border-radius: 5px; /* Optional: rounded corners */
+  margin-bottom: 10px; /* Space between list items */
+  padding: 10px; /* Add padding for better readability */
 }
 
 .ppt-carousel-container {
-    width: 100%;
-    overflow-x: auto;
-    white-space: nowrap;
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .ppt-slide {
-    display: inline-block;
-    margin-right: 10px;
+  display: inline-block;
+  margin-right: 10px;
 }
 
 .ppt-slide img {
-    width: 500px; /* Set a fixed width for the slides */
-    height: 262px; /* Set the height */
+  width: 500px; /* Set a fixed width for the slides */
+  height: 262px; /* Set the height */
 }
 
 .scrolling-image-container {
-    width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-    margin-top: 20px;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-top: 20px;
 }
 
 .scrolling-image-wrapper {
-    display: inline-block;
-    animation: scroll-images 10s linear infinite;
+  display: inline-block;
+  animation: scroll-images 10s linear infinite;
 }
 
 .scrolling-image {
-    height: 60px;
-    margin-right: 10px;
+  height: 60px;
+  margin-right: 10px;
 }
 
 @keyframes scroll-images {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 .pictureAA {
-    background-image: url("/static/css/AAlogo.png");
-    background-size: 200px;
-    background-repeat: no-repeat;
-    background-position: top;
-    text-align: center;
-    display: flex;
-    padding-left: 0px;
-    padding-right: 0px;
-    z-index: 2;
-    border: #40378a 2px;
+  background-image: url("/static/css/AAlogo.png");
+  background-size: 200px;
+  background-repeat: no-repeat;
+  background-position: top;
+  text-align: center;
+  display: flex;
+  padding-left: 0px;
+  padding-right: 0px;
+  z-index: 2;
+  border: #40378a 2px;
 }
 
 .pictureCiti {
-    background-image: url("/static/css/Citilogo.png");
-    background-size: 200px;
-    background-repeat: no-repeat;
-    background-position: top;
-    text-align: center;
-    display: flex;
-    padding-left: 0px;
-    padding-right: 0px;
-    z-index: 1;
+  background-image: url("/static/css/Citilogo.png");
+  background-size: 200px;
+  background-repeat: no-repeat;
+  background-position: top;
+  text-align: center;
+  display: flex;
+  padding-left: 0px;
+  padding-right: 0px;
+  z-index: 1;
 }
 
 .haze {
-    color: black !important;
-    margin-bottom: 0% !important;
+  color: black !important;
+  margin-bottom: 0% !important;
 }
 
 .haze-how {
-    color: #ffffff !important;
+  color: #ffffff !important;
 }
 
 .stack-container {
-    display: flex;
-    flex-direction: column; /* Stack the elements vertically */
-    align-items: center; /* Optional: center the divs horizontally */
-    width: 100%;
-    margin-top: 100px;
+  display: flex;
+  flex-direction: column; /* Stack the elements vertically */
+  align-items: center; /* Optional: center the divs horizontally */
+  width: 100%;
+  margin-top: 100px;
 }
 
 ul,
 ol {
-    padding: 0%;
+  padding: 0%;
 }

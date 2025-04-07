@@ -1,4 +1,6 @@
+import re
 from django import template
+import os
 
 register = template.Library()
 
@@ -15,14 +17,33 @@ def camelcase_filename(value):
 @register.filter
 def camelcase_file(value):
     """
-    Converts file names like '02-linear_regression_project.ipynb'
-    to 'LinearRegressionProject'
+    Converts '02-linear_regression_project.ipynb' → 'Linear Regression Project'
     """
-    import os
     if not isinstance(value, str):
         return value
 
-    name = os.path.splitext(os.path.basename(value))[0]  # strip folder and extension
-    name = name.lstrip("0123456789-_")  # remove leading digits or hyphens
+    name = os.path.splitext(os.path.basename(value))[0]  # Remove extension
+    name = name.lstrip("0123456789-_")  # Remove leading numbers/dashes
     parts = name.replace('-', '_').split('_')
-    return ''.join(part.capitalize() for part in parts if part)
+    camel = ''.join(part.capitalize() for part in parts if part)
+    spaced = re.sub(r'(?<!^)(?=[A-Z])', ' ', camel)  # Add spaces
+    return spaced
+
+@register.filter
+def basename(value):
+    """
+    Extracts just the filename from a full path like 'C:\\path\\to\\media\\audio\\file.mp3'
+    Returns: 'file.mp3'
+    """
+    return os.path.basename(value).replace("\\", "/")
+
+
+@register.filter
+def relative_media_path(value):
+    """
+    Cleans full file path to be relative to MEDIA_ROOT.
+    For example: 'boa/media/audio/file.mp3' -> 'audio/file.mp3'
+    """
+    import os
+    parts = value.replace("\\", "/").split("media/")
+    return parts[-1] if len(parts) > 1 else value

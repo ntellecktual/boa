@@ -17,65 +17,54 @@
 
 <body>
 {% block content %}
-<div class="container mt-5 d-flex justify-content-center">
-  <div class="col-lg-10 text-center">
+<div class="container dashboard-container flex-column">
+  <div class="text-center mb-5">
     <h1 class="mb-4">📊 My Dashboard</h1>
+  </div>
 
-    <div class="row justify-content-center mb-3">
-      <div class="col-md-4 mb-3">
-        <div class="card border-primary">
-          <div class="card-body">
-            <h5 class="card-title">📁 Uploaded Files</h5>
-            <p class="card-text">{{ document_count }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 mb-3">
-        <div class="card border-info">
-          <div class="card-body">
-            <h5 class="card-title">🎧 Audio Files Generated</h5>
-            <p class="card-text">{{ audio_file_count }}</p>
-          </div>
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-5 mb-3">
+      <div class="card border-primary card-summary">
+        <div class="card-body">
+          <h5 class="card-title">📁 Uploaded Files</h5>
+          <p class="card-text display-4">{{ document_count }}</p>
         </div>
       </div>
     </div>
+    <div class="col-md-5 mb-3">
+      <div class="card border-info card-summary">
+        <div class="card-body">
+          <h5 class="card-title">🎧 Audio Files Generated</h5>
+          <p class="card-text display-4">{{ audio_file_count }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <h3 class="mt-4">My Uploaded Documents</h3>
+  <div class="text-center mb-3">
+    <h3>📄 My Uploaded Documents</h3>
+  </div>
 
-    <div class="table-responsive mt-3" id="doc-table-container" style="max-height: 220px; overflow-y: auto;">
-      <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
+  <div class="table-responsive mb-5" id="doc-table-container" style="max-height: 500px; overflow-y: auto;">
+    <table class="table table-striped table-bordered align-middle">
+      <thead>
+        <tr>
+          <th style="width: 25%;">File Name</th>
+          <th style="width: 20%;">Uploaded At</th>
+          <th style="width: 55%;">Audio Files</th>
+        </tr>
+      </thead>
+      <tbody id="doc-table-body">
+        {% if latest_only and latest_doc %}
           <tr>
-            <th>File Name</th>
-            <th>Uploaded At</th>
-            <th>Audio Files</th>
-          </tr>
-        </thead>
-        <tbody id="doc-table-body">
-          {% if latest_only and latest_doc %}
-            <tr>
-              <td>{{ latest_doc.uploaded_file.name|cut:"documents/" }}</td>
-              <td>{{ latest_doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
-              <td>
-                {% if latest_doc.audio_files.all %}
-                  {% for audio in latest_doc.audio_files.all %}
-                    <span class="badge badge-info">{{ audio.file.name|cut:"audio/" }}</span>{% if not forloop.last %}, {% endif %}
-                  {% endfor %}
-                {% else %}
-                  <span class="text-muted">No audio files</span>
-                {% endif %}
-              </td>
-            </tr>
-          {% else %}
-            {% for doc in all_docs %}
-            <tr class="{% if forloop.counter > 2 %}d-none extra-row{% endif %}">
-              <td>{{ doc.uploaded_file.name|cut:"documents/" }}</td>
-              <td>{{ doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
-              <td>
-                {% if doc.audio_files.all %}
-                  {% for audio in doc.audio_files.all %}
-                    <div class="mb-2">
-                      <strong>{{ audio.file.name|cut:"audio/" }}</strong><br>
+            <td>{{ latest_doc.uploaded_file.name|cut:"documents/" }}</td>
+            <td>{{ latest_doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
+            <td>
+              {% if latest_doc.audio_files.all %}
+                {% for audio in latest_doc.audio_files.all %}
+                  <div class="audio-entry">
+                    <strong>{{ audio.file.name|cut:"audio/" }}</strong><br>
+                    {% if audio.file.url %}
                       <audio controls style="width: 100%; max-width: 300px;">
                         <source src="{{ audio.file.url }}" type="audio/mpeg">
                         Your browser does not support the audio element.
@@ -83,24 +72,66 @@
                       <a href="{{ audio.file.url }}" class="btn btn-sm btn-outline-secondary mt-1" download>
                         ⬇️ Download
                       </a>
-                    </div>
-                  {% endfor %}
-                {% else %}
-                  <span class="text-muted">No audio files</span>
-                {% endif %}
-              </td>
-              
-            </tr>
-            {% endfor %}
-          {% endif %}
-        </tbody>
-      </table>
-    </div>
-
-    {% if not latest_only and all_docs|length > 2 %}
-    <button class="btn btn-primary mt-3" id="toggle-btn" onclick="toggleTableRows()">Show All</button>
-    {% endif %}
+                    {% else %}
+                      <span class="text-muted">Audio not available</span>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">No audio files</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          {% for doc in all_docs %}
+          <tr class="{% if forloop.counter > 2 %}d-none extra-row{% endif %}">
+            <td>{{ doc.uploaded_file.name|cut:"documents/" }}</td>
+            <td>{{ doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
+            <td>
+              {% if doc.audio_files.all %}
+                {% for audio in doc.audio_files.all %}
+                  <div class="audio-entry">
+                    <strong>{{ audio.file.name|cut:"audio/" }}</strong><br>
+                    {% if audio.file.url %}
+                      <audio controls style="width: 100%; max-width: 300px;">
+                        <source src="{{ audio.file.url }}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                      </audio><br>
+                      <a href="{{ audio.file.url }}" class="btn btn-sm btn-outline-secondary mt-1" download>
+                        ⬇️ Download
+                      </a>
+                    {% else %}
+                      <span class="text-muted">Audio not available</span>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">No audio files</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
   </div>
+
+  {% if not latest_only and all_docs|length > 2 %}
+  <div class="text-center mb-5">
+    <button class="btn btn-primary" id="toggle-btn" onclick="toggleTableRows()">Show All</button>
+  </div>
+  <div class="text-center mt-4">
+    <button class="btn btn-danger mb-2" onclick="confirmAndDelete('{% url 'delete_orphaned_files' %}')">
+      🗑 Delete Orphaned Files
+    </button>
+    <button class="btn btn-danger mb-2" onclick="confirmAndDelete('{% url 'delete_all_files' %}')">
+      🔥 Delete All Files
+    </button>
+    <button class="btn btn-warning" onclick="confirmAndDelete('{% url 'delete_ipynb_files' %}')">
+      📄 Delete Only .ipynb Files
+    </button>
+  </div>
+  {% endif %}
 </div>
 
 <script>
@@ -108,12 +139,22 @@
     const extraRows = document.querySelectorAll('.extra-row');
     const btn = document.getElementById('toggle-btn');
     const showing = extraRows[0].classList.contains('d-none');
-
-    extraRows.forEach(row => {
-      row.classList.toggle('d-none');
-    });
-
+    extraRows.forEach(row => row.classList.toggle('d-none'));
     btn.innerText = showing ? 'Show Less' : 'Show All';
+  };
+  function confirmAndDelete(url) {
+    if (confirm("Are you sure you want to proceed? This action cannot be undone.")) {
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          alert('Action completed.');
+          location.reload();
+        })
+        .catch(err => {
+          alert('There was an error.');
+          console.error(err);
+        });
+    }
   }
 </script>
 {% endblock %}

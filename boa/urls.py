@@ -29,10 +29,11 @@ urlpatterns = [
          name='upload_progress'),
     path('boashedskin', boaapp_views.boashedskin_view, name='boashedskin'),
     path('dashboard/', boaapp_views.dashboard, name='dashboard'),
+     path('dashboard/delete_orphaned/', boaapp_views.delete_orphaned_files, name='delete_orphaned_files'),
+     path('dashboard/delete_all/', boaapp_views.delete_all_files, name='delete_all_files'),
+     path('dashboard/delete_ipynb/', boaapp_views.delete_ipynb_files, name='delete_ipynb_files'),
 
 ]
 
-# Serve media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL,
+urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)

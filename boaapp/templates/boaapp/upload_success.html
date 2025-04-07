@@ -1,6 +1,7 @@
 {% extends "boaapp/base_generic.html" %}
 {% load static %}
 {% load camel_filters %}
+{% get_media_prefix as MEDIA_URL %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -26,36 +27,27 @@
     <div class="container custom-container mt-4">
       <div class="alert alert-success" role="alert">
         <input type="hidden" id="file_name" value="{{ file_name }}" />
-        <h4 class="alert-heading">Success!</h4>
+        <h4 class="alert-heading">Done!</h4>
         <span>You have uploaded:</span>
         <h4 id="displayedFileName">{{ file_name|camelcase_file }}</h4>
         <span>Your document has been successfully uploaded and processed.</span>
-        <br />
-        
-
+        <br/>
         {% if audio_names %}
-        <div class="mt-4">
-          <h5>Generated Audio Files:</h5>
-          <ul>
-            {% for file in audio_names %}
-              <li>
-                {{ file|slice:"5:"|camelcase_filename }}
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
+        <div class="list-group">
+          {% for file in audio_names %}
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>🎧 {{ file|slice:"5:"|camelcase_filename }}</div>
+              <a href="/media/audio/{{ file }}" class="btn upload btn-primary" download>
+                ⬇️ Download
+              </a>
+            </div>
+          {% endfor %}
+        </div>        
         {% endif %}
       </div>
-
       <div class="d-flex flex-column align-items-center gap-3">
-        <span>
-          You can now view the processed results below in the dashboard below.
-        </span>
         <a href="{% url 'upload_document' %}" class="btn upload btn-primary">📤 Upload More Files</a>
-        <hr>
-        <span>
-          You can upload another file below.
-        </span>
+        <br/>
         <a href="{% url 'dashboard' %}" class="btn upload btn-primary">📊 Go to Dashboard</a>
       </div>
     </div>
