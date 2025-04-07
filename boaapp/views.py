@@ -269,26 +269,31 @@ def process_audio_and_create_videos(audio_dir, video_dir, logo_path, background_
 
 @login_required
 def dashboard(request):
-    documents = Document.objects.filter(user=request.user).order_by('-uploaded_at')
+    all_documents = Document.objects.filter(user=request.user).order_by('-uploaded_at')
+
+# Filter only documents that still exist on disk
+    documents = [doc for doc in all_documents if os.path.exists(os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file)))]
+
 
     # Count all audio files
     all_audio_path = os.path.join(settings.MEDIA_ROOT, 'audio')
     total_audio = len(os.listdir(all_audio_path)) if os.path.exists(all_audio_path) else 0
 
     # Show only latest doc if audio folder was empty when starting
-    latest_doc = documents.first()
+    latest_doc = documents[0] if documents else None
     latest_only = True
 
     if total_audio > 0:
         latest_only = False  # Don't limit if audio files already exist
 
     context = {
-        'document_count': documents.count(),
+        'document_count': len(documents),
         'audio_file_count': total_audio,
-        'latest_doc': latest_doc,
+        'latest_doc': documents[0] if documents else None,
         'all_docs': documents,
         'latest_only': latest_only,
     }
+
 
     return render(request, 'boaapp/dashboard.html', context)
 

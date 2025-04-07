@@ -2,88 +2,130 @@
 
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}thenumerix | Home{% endblock %}</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}thenumerix | Home{% endblock %}</title>
+    <!-- Include jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-  <!-- Include jQuery -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Include Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- Include Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet" />
+    <!-- Include your custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{% static 'css/index.css' %}?v={{ timestamp }}"
+    />
 
-  <!-- Include your custom CSS -->
-  <link rel="stylesheet" href="{% static 'css/index.css' %}?v={{ timestamp }}" />
+    <!-- Include Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-  <!-- Include Bootstrap JS -->
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Include your custom JavaScript -->
+    <script src="{% static 'js/index.js' %}"></script>
 
-  <!-- Include your custom JavaScript -->
-  <script src="{% static 'js/index.js' %}"></script>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+  </head>
 
-  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-</head>
-
-<body>
-  {% block content %}
-  <div class="container login-custom-container custom-margin-bottom">
-    <h2>Welcome to thenumerix</h2>
-    {% if user.is_authenticated %}
-  <span>{{ user.username }}'s Portfolio, Projects, Data Engineering, all in one!</span>
-  <span>Logged in as {{ user.username }}</span>
-{% else %}
-  <span>Explore Portfolio, Projects, and Data Engineering insights.</span>
-{% endif %}
-  </div>
-
-  {% if user.is_authenticated %}
-  <div class="container login-list login-custom-container custom-margin-bottom">
-    <div class="login-list-border">
-      <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'portfolio_showcase' %}'">
-        Enterprise Architecture/Engineering
-      </button>
-      <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'project_pages' %}'">
-        Technical
-      </button>
-      <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'companyandme' %}'">
-        Business Analytics
-      </button>
+  <body>
+    {% block content %}
+    <div class="container login-custom-container custom-margin-bottom">
+      <h2>Welcome to thenumerix</h2>
+      {% if user.is_authenticated %}
+      <span
+        >{{ user.username }}'s Portfolio, Projects, Data Engineering, all in
+        one!</span
+      >
+      <span>Logged in as {{ user.username }}</span>
+      {% else %}
+      <span>Explore Portfolio, Projects, and Data Engineering insights.</span>
+      {% endif %}
     </div>
-    <ul class="list-group mx-auto" style="max-width: 500px">
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'live_demos' %}'">
-          Engineering | at a Glance
-        </button>
-        <button type="button" class="badge badge-success badge-pill">New!</button>
-        <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'data_start' %}'">
-          Data | Projects <span class="badge badge-success badge-pill">New!</span>
-        </button>
-        <button type="button" class="btn btn-primary details" onclick="window.location.href='{% url 'home' %}'">
-          Upload It! <span class="badge badge-success badge-pill">New!</span>
-        </button>
-      </li>
 
-
-  </div>
-  {% endif %} {% if not user.is_authenticated %}
-  <div class="container login-list custom-margin-bottom">
-    <form class="form" method="POST">
-      {% csrf_token %}
-      <div class="form-group">
-        <label for="username">Username:</label>
-        <input type="text" class="form-control" id="username" name="username" />
-      </div>
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" class="form-control" id="password" name="password" />
-      </div>
-      <button type="submit" class="btn login btn-primary">Login</button>
-    </form>
-  </div>
-  {% endif %} {% endblock %}
-</body>
-
+    {% if user.is_authenticated %}
+    <div class="container login-custom-container custom-margin-bottom">
+      <ul class="list-group mx-auto" style="max-width: 500px">
+        <div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="window.location.href='{% url 'portfolio_showcase' %}'"
+          >
+            Enterprise Architecture/Engineering
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="window.location.href='{% url 'project_pages' %}'"
+          >
+            Technical
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="window.location.href='{% url 'companyandme' %}'"
+          >
+            Business Analytics
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="window.location.href='{% url 'live_demos' %}'"
+          >
+            Engineering | at a Glance
+            <span class="badge badge-success badge-pill">New!</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="window.location.href='{% url 'data_start' %}'"
+          >
+            Data | Projects
+            <span class="badge badge-success badge-pill">New!</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary details"
+            onclick="window.location.href='{% url 'home' %}'"
+          >
+            Upload It! <span class="badge badge-success badge-pill">New!</span>
+          </button>
+        </div>
+      </ul>
+    </div>
+    {% endif %} {% if not user.is_authenticated %}
+    <div class="container login-list custom-margin-bottom">
+      <form class="form" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            name="username"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+          />
+        </div>
+        <button type="submit" class="btn login btn-primary">Login</button>
+      </form>
+    </div>
+    {% endif %} {% endblock %}
+  </body>
 </html>
