@@ -1,151 +1,178 @@
 import json
 import os
+os.environ["IMAGEMAGICK_BINARY"] = "C:\\Users\\Kieth\\ImageMagick-7.1.1-Q16-HDRI\\magick.exe"
 import time
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from moviepy.editor import (
+    AudioFileClip, ColorClip, CompositeVideoClip,
+    ImageClip, TextClip, VideoFileClip
+)
+from .process_notebook import process_notebook
+from PIL import Image
 
-from moviepy.editor import (AudioFileClip, ColorClip, CompositeVideoClip,
-                            ImageClip, TextClip, VideoFileClip)
+if not hasattr(Image, 'ANTIALIAS'):
+    Image.ANTIALIAS = Image.Resampling.LANCZOS
 
-from .process_notebook import process_notebook  # Adjust if necessary
+def to_camel_case(filename):
+    base = os.path.splitext(os.path.basename(filename))[0]
+    parts = re.split(r'[\s_\-]+', base)
+    return ''.join(p.capitalize() for p in parts)
 
-def create_video_parallel(section, audio_file, output_file, logo_path, background_path, text_sync_file, 
+def find_latest_notebook(media_dir='boa/boa/media'):
+    notebooks = [
+        os.path.join(media_dir, f)
+        for f in os.listdir(media_dir)
+        if f.endswith('.ipynb')
+    ]
+    if not notebooks:
+        raise FileNotFoundError("No .ipynb notebooks found in media directory.")
+    return max(notebooks, key=os.path.getctime)
+
+def get_audio_files(media_dir='boa/boa/media/audio'):
+    if not os.path.exists(media_dir):
+        raise FileNotFoundError("Audio directory not found.")
+    return sorted([
+        os.path.join(media_dir, f)
+        for f in os.listdir(media_dir)
+        if f.endswith('.mp3') and f.lower() != 'great_job!.mp3'
+    ])
+
+def create_video_parallel(section, audio_file, output_file, logo_path, background_path, text_sync_file,
                           font_styles, typewriter_effect=True):
-    """
-    Creates a video from code text and an audio file with a dimmed background in parallel,
-    synchronized with the spoken words.
-
-    Args:
-    section (tuple): Tuple containing (title, code) extracted from the notebook.
-    audio_file (str): The path to the audio file.
-    output_file (str): The path to save the video file.
-    logo_path (str): The path to the logo image file.
-    background_path (str): The path to the background video file.
-    text_sync_file (str): The path to the JSON file storing text synchronization data.
-    font_styles (dict): Dictionary containing font, font_size, and text_color.
-    typewriter_effect (bool): Whether to apply a typewriter effect.
-    """
     title, code = section
-
     try:
         print(f'Processing section: {title}')
-
-        # Ensure the video directory exists
-        video_dir = os.path.dirname(output_file)
-        if not os.path.exists(video_dir):
-            os.makedirs(video_dir)
-            print(f'Created video directory: {video_dir}')
+        is_great_job = 'great job' in title.lower()
 
         audio = AudioFileClip(audio_file)
-        bg_clip = VideoFileClip(background_path).subclip(0, audio.duration)
-        dimming = ColorClip(size=bg_clip.size, color=[0, 0, 0]).set_duration(
-            audio.duration).set_opacity(0.7)
-        logo = ImageClip(logo_path, transparent=True).set_duration(audio.duration).set_position(
-            ("right", "top")).resize(height=100).margin(right=8, top=8)
+        bg_clip_raw = VideoFileClip(background_path).resize((1080, 1920))
+        loops = int(audio.duration // bg_clip_raw.duration) + 1
+        bg_clip = bg_clip_raw.loop(n=loops).subclip(0, audio.duration)
 
-        # Split code text into words
-        words = code.split()
-        text_sync_data = []
-        word_clips = []
-        word_durations = audio.duration / max(1, len(words))
-        padding_time = 0.05
+        dimming = ColorClip(size=bg_clip.size, color=[0, 0, 0]).set_duration(audio.duration).set_opacity(0.7)
 
-        # Extract font styles
-        font = font_styles.get("font", "Arial-Bold")
-        font_size = font_styles.get("font_size", 24)
-        text_color = font_styles.get("text_color", "white")
+        clips = [bg_clip, dimming]
 
-        if typewriter_effect:
-            cumulative_duration = 0
-            for i, word in enumerate(words):
-                start_time = cumulative_duration + padding_time
-                word_duration = word_durations
-                end_time = start_time + word_duration
-                
-                word_clip = (TextClip(word, fontsize=font_size, color=text_color, font=font, size=(1080, None))
-                             .set_position('center')
-                             .set_start(start_time)
-                             .set_end(end_time)
-                             .crossfadein(0.3))
-                word_clips.append(word_clip)
-                text_sync_data.append({
-                    "text": word,
-                    "start_time": start_time,
-                    "end_time": end_time
-                })
-                cumulative_duration = end_time
+        if is_great_job:
+            # Great Job visual override
+            logo = (ImageClip(logo_path, transparent=True)
+                    .set_duration(audio.duration)
+                    .resize(height=600)
+                    .set_position("center"))
+
+            text_clip = (TextClip("Thank you for learning with the numerix",
+                                  fontsize=72, font="Arial-Bold", color="white",
+                                  method="caption", size=(1000, None))
+                         .set_duration(audio.duration)
+                         .set_position(("center", 250)))
+
+            clips += [logo, text_clip]
         else:
-            full_text_clip = (TextClip(code, fontsize=font_size, color=text_color, font=font, size=(1080, None))
-                              .set_position('center')
-                              .set_duration(audio.duration))
-            word_clips.append(full_text_clip)
+            # Logo in upper-right with 10px margins
+            logo = (ImageClip(logo_path, transparent=True)
+                    .set_duration(audio.duration)
+                    .resize(height=100)
+                    .margin(top=10, right=10, opacity=0)
+                    .set_position(("right", "top")))
 
-        video = CompositeVideoClip([bg_clip, dimming, logo] + word_clips).set_duration(audio.duration).set_audio(audio)
-        print(f'Saving video at: {output_file}')
-        video.write_videofile(output_file, fps=24, codec='libx264', audio_codec='aac', preset='ultrafast', threads=4)
-        print(f'Video saved at: {output_file}')
+            # Split text into 4-word chunks
+            words = code.split()
+            chunk_size = 4
+            chunks = [' '.join(words[i:i + chunk_size]) for i in range(0, len(words), chunk_size)]
+            chunk_duration = audio.duration / max(1, len(chunks))
 
-        with open(text_sync_file, 'w') as f:
-            json.dump(text_sync_data, f, indent=4)
-        print(f'Text synchronization data saved at: {text_sync_file}')
+            font = font_styles.get("font", "Arial-Bold")
+            font_size = font_styles.get("font_size", 36)
+            text_color = font_styles.get("text_color", "white")
 
-    except MemoryError as me:
-        print(f'Memory Error creating video for {output_file}: {str(me)}')
+            text_sync_data = []
+            word_clips = []
+
+            for i, chunk in enumerate(chunks):
+                start = i * chunk_duration
+                end = start + chunk_duration
+                clip = (TextClip(chunk, fontsize=font_size, color=text_color, font=font, size=(1000, None), method='caption')
+                        .set_position(("center", 250))  # <-- same position as great job text
+                        .set_start(start)
+                        .set_end(end))
+                word_clips.append(clip)
+                text_sync_data.append({
+                    "text": chunk,
+                    "start_time": start,
+                    "end_time": end
+                })
+
+            clips += [logo] + word_clips
+
+            with open(text_sync_file, 'w') as f:
+                json.dump(text_sync_data, f, indent=4)
+
+        final_video = CompositeVideoClip(clips).set_duration(audio.duration).set_audio(audio)
+        final_video.write_videofile(output_file, fps=24, codec='libx264', audio_codec='aac', preset='ultrafast', threads=4)
+
+        print(f"✅ Finished video: {output_file}")
+
     except Exception as e:
-        print(f'Error creating video for {output_file}: {str(e)}')
+        print(f"❌ Error creating video for {output_file}: {e}")
         raise e
+
+    finally:
+        audio.close()
+        bg_clip_raw.close()
+        bg_clip.close()
+        if 'final_video' in locals():
+            final_video.close()
+
 
 if __name__ == "__main__":
     start_time = time.time()
-    notebook_path = os.path.join('Numpy', '01-NumPy Arrays.ipynb')
+    try:
+        notebook_path = find_latest_notebook()
+        print(f"📓 Using latest notebook: {notebook_path}")
 
-    if not os.path.exists(notebook_path):
-        print(f"Error: The file {notebook_path} does not exist.")
-        exit(1)
-    else:
-        print(f"Notebook file found at: {notebook_path}")
+        sections = process_notebook(notebook_path)
+        print(f"✂️ Extracted {len(sections)} sections.")
 
-    sections = process_notebook(notebook_path)
-    print(f'Extracted {len(sections)} sections from the notebook.')
+        audio_files = get_audio_files()
+        print(f"🔉 Found {len(audio_files)} .mp3 files.")
 
-    audio_dir = 'audio'
-    video_dir = 'video'
-    logo_path = os.path.join('static', 'logo.png')
-    background_path = os.path.join('video', 'background.mp4')
-    text_sync_file = os.path.join(video_dir, 'text_sync.json')
+        if len(sections) != len(audio_files):
+            print("⚠️ Warning: Mismatch between sections and audio files.")
 
-    audio_files = sorted([os.path.join(root, file) for root, dirs, files in os.walk(
-        audio_dir) for file in files if file.endswith('.mp3')])
+        # New: subfolder for videos
+        camel_folder = to_camel_case(notebook_path)
+        video_dir = os.path.join('boa', 'boaapp', 'media', 'video', camel_folder)
+        os.makedirs(video_dir, exist_ok=True)
 
-    print(f'Found {len(audio_files)} audio files.')
+        logo_path = os.path.join('boa', 'boaapp', 'static', 'logo.png')
+        background_path = os.path.join('boa', 'video', 'background.mp4')
+        font_styles = {"font": "Arial-Bold", "font_size": 36, "text_color": "white"}
 
-    if not os.path.exists(video_dir):
-        os.makedirs(video_dir)
-        print(f'Created video directory: {video_dir}')
+        batch_size = os.cpu_count() or 6
+        for batch_start in range(0, len(sections), batch_size):
+            batch_sections = sections[batch_start:batch_start + batch_size]
+            batch_audio_files = audio_files[batch_start:batch_start + batch_size]
 
-    batch_size = 4
-    font_styles = {"font": "Arial-Bold", "font_size": 24, "text_color": "white"}  # Default styles
+            with ThreadPoolExecutor(max_workers=batch_size) as executor:
+                futures = []
+                for section, audio in zip(batch_sections, batch_audio_files):
+                    name = os.path.splitext(os.path.basename(audio))[0]
+                    output_path = os.path.join(video_dir, f"{name}.mp4")
+                    sync_path = os.path.join(video_dir, f"{name}_sync.json")
+                    futures.append(executor.submit(
+                        create_video_parallel, section, audio, output_path,
+                        logo_path, background_path, sync_path,
+                        font_styles, typewriter_effect=True
+                    ))
 
-    for batch_start in range(0, len(sections), batch_size):
-        batch_sections = sections[batch_start:batch_start + batch_size]
-        batch_audio_files = audio_files[batch_start:batch_start + batch_size]
+                for future in as_completed(futures):
+                    try:
+                        future.result()
+                    except Exception as e:
+                        print(f"❌ Error in batch: {e}")
 
-        with ThreadPoolExecutor(max_workers=batch_size) as executor:
-            futures = []
-            for section, audio in zip(batch_sections, batch_audio_files):
-                title, content = section
-                code = content.replace("\n", " ")
-                sanitized_title = os.path.basename(audio).replace(".mp3", "")
-                output_file = os.path.join(video_dir, f'{sanitized_title}.mp4')
-                future = executor.submit(
-                    create_video_parallel, section, audio, output_file, logo_path, background_path, text_sync_file, font_styles, True)
-                futures.append(future)
+        print(f"✅ All videos created in {time.time() - start_time:.2f} seconds.")
 
-            for future in as_completed(futures):
-                try:
-                    future.result()
-                except Exception as e:
-                    print(f'Error in task: {str(e)}')
-
-    end_time = time.time()
-    duration = end_time - start_time
-    print(f'Total time taken: {duration:.2f} seconds')
+    except Exception as e:
+        print(f"🚫 Setup failed: {e}")
