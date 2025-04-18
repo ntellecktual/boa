@@ -1,12 +1,30 @@
-/* Global styles */
+/* =========================
+    GLOBAL RESET & BASE
+========================= */
 * {
+  box-sizing: border-box;
   outline: 1px dotted red;
 }
 
 body {
   font-family: "Inter", sans-serif;
   padding-top: 70px;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+@media (max-width: 767px) {
+  body {
+    padding-top: 90px;
+  }
+}
+
+/* =========================
+    THEME VARIABLES
+========================= */
+:root {
   background: linear-gradient(
     to right,
     #e73276,
@@ -59,36 +77,129 @@ body {
     #453c94,
     #4a3e9e
   );
+  --text-color: #ffffff;
+  --border-color: #cccccc;
+  --button-bg: #40378a;
+  --button-text: #ffffff;
+}
+
+body[data-theme="dark"] {
+  --background: linear-gradient(
+    to right,
+    #e73276,
+    #e83c77,
+    #e84177,
+    #ea4578,
+    #ea4b78,
+    #eb5179,
+    #eb5679,
+    #ec5c7a,
+    #ed617a,
+    #ed667b,
+    #ee6b7c,
+    #ef717d,
+    #f0777d,
+    #f17c7e,
+    #f2827f,
+    #f38c80,
+    #f38d80,
+    #f49680,
+    #f59881,
+    #f69f81,
+    #f7a382,
+    #f8a982,
+    #f8ad84,
+    #fab497,
+    #feb191,
+    #e7a0a5,
+    #d98ab0,
+    #c277b9,
+    #b364c0,
+    #ac61bd,
+    #a75fba,
+    #a05cb7,
+    #9a5ab4,
+    #9458b1,
+    #8d55ae,
+    #8753ab,
+    #8050a8,
+    #7a4ea5,
+    #734ba2,
+    #6e489f,
+    #67469c,
+    #604499,
+    #5a4196,
+    #543e93,
+    #4d3c90,
+    #473a8d,
+    #40378a,
+    #453c94,
+    #4a3e9e
+  );
+  --text-color: #f8f9fa;
+  --card-bg: transparent;
+  --border-color: #444;
+}
+
+body[data-theme="light"] {
+  --bg-color: #fffaf0;
+  --text-color: #000000;
+  --card-bg: #ffffff;
+  --border-color: #ccc;
+}
+
+/* =========================
+    CONTAINERS & UTILITIES
+========================= */
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+  position: relative;
   min-height: 100vh;
-}
-
-@media (min-width: 768px) {
-  body {
-    padding-top: 70px;
-  }
-}
-
-@media (max-width: 767px) {
-  body {
-    padding-top: 90px; /* for collapsed mobile navbar */
-  }
-}
-
-.card,
-.table,
-.btn,
-.audio-entry {
-  transition: background-color 0.4s ease, color 0.4s ease,
-    border-color 0.4s ease;
-}
-
-.fixed-header-section {
-  position: sticky;
-  top: 80px;
+  color: var(--text-color);
+  padding: 0 !important;
   z-index: 0;
 }
 
-.table thead th {
+.custom-container,
+.login-custom-container,
+.login-container,
+.upload-container,
+.login-list {
+  display: grid;
+  justify-content: center;
+  text-align: center;
+}
+
+.login-custom-container {
+  max-width: 600px;
+}
+
+.dashboard-container {
+  margin-top: 90px;
+}
+
+/* =========================
+    NAVIGATION
+========================= */
+.navbar {
+  z-index: 1050 !important;
+  background-color: transparent !important;
+}
+
+.navbar .nav-link {
+  color: var(--text-color) !important;
+}
+
+/* =========================
+    BUTTONS
+========================= */
+.btn {
+  color: var(--button-text) !important;
+  border: none !important;
+  transition: background-color 0.4s ease, color 0.4s ease;
   text-align: center;
 }
 
@@ -97,160 +208,192 @@ body {
   padding: 10px;
   font-weight: bold;
 }
-.spinner-border {
-  display: none;
-  margin-left: 10px;
+
+#theme-toggle-btn {
+  transition: all 0.4s ease;
 }
-/* Button styles */
-.btn {
-  background-color: transparent !important;
-  border: none !important;
-  color: #ffffff !important;
+#theme-toggle-btn.rotating {
+  transform: rotate(180deg);
 }
 
-.login-list-border {
-  border-bottom: 1px solid #eee;
+/* =========================
+    TABLES & CARDS
+========================= */
+.card,
+.table,
+.audio-entry,
+.list-group-item {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color) !important;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-.portfolio {
-  background-color: #67469c !important;
-  color: #f8ad84;
+.card {
+  max-width: 300px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
-.upload {
-  background-color: #67469c !important;
-  color: #f8ad84;
-}
-
-.login {
-  background-color: #67469c !important;
-  color: #f8ad84;
-}
-/* Navbar styles */
-.navbar {
-  z-index: 1050 !important;
-  background-color: transparent !important;
-}
-
-progress {
-  width: 100%;
-  height: 20px; /* Adjust height as needed */
-  /* Additional styles can be added here */
-}
-
-.container {
-  display: flex;
-  align-content: center;
-  justify-content: center;
-  min-height: 100vh;
-  flex-direction: row;
-  margin-bottom: 10px;
-  color: #ffffff !important;
-  position: relative;
-  z-index: 0;
-}
-
-.login-container {
-  display: grid !important;
-  align-content: center;
-  justify-content: center;
-  height: 100vh;
-  flex-direction: row;
-  margin-bottom: 10px;
-  color: #ffffff !important;
+.card-body {
   text-align: center;
 }
-/* Custom Container */
-.custom-container {
+.card-header {
+  padding: 0px;
+}
+.table thead th {
   text-align: center;
-  justify-content: center;
-  display: grid;
-  align-self: baseline !important;
-  max-width: 600px;
-  margin: 50px auto;
 }
 
-.dashboard-container {
-  margin-top: 90px;
-}
-
-.login-custom-container {
-  text-align: center;
-  justify-content: center;
-  display: grid;
-  align-self: baseline !important;
-  max-width: 600px;
-}
-
-.login-list {
-  padding: 20px;
-  text-align: center;
-  display: grid;
-}
-
-.upload-container {
-  padding: 20px;
-  text-align: center;
-  display: grid;
-}
-
-.row {
-  display: flex;
-  justify-content: center; /* Centers the cards horizontally */
-  flex-wrap: wrap; /* Allows wrapping of cards on smaller screens */
-}
-
-.portfolio-img {
-  object-fit: cover; /* Cover ensures the image covers the container without stretching */
-}
-
+/* =========================
+    FORMS & INPUTS
+========================= */
 .form {
   background-color: transparent !important;
 }
-
 .form-control {
   border: none;
   text-align: center;
 }
 
-p {
+/* =========================
+    TYPOGRAPHY
+========================= */
+body,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+a,
+span,
+strong,
+ul,
+ol,
+li,
+label,
+button,
+.accordion .card-body,
+.card-title,
+.card-text,
+.table,
+.form,
+.form-control,
+.navbar .nav-link,
+.badge,
+.details {
+  color: var(--text-color) !important;
+}
+
+p,
+ul,
+ol {
   text-align: center;
-  align-content: center;
+  padding: 0;
 }
 
 .details {
   display: none;
 }
 
-a {
-  color: #ffffff !important;
+/* =========================
+    ACCORDIONS
+========================= */
+.accordion .collapse {
+  transition: height 0.3s ease;
 }
 
-.card {
+/* =========================
+    TOASTS & OVERLAYS
+========================= */
+#theme-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 9999;
+}
+
+.flash-light {
+  background-color: white;
+}
+.flash-dark {
+  background-color: black;
+}
+
+.toast-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #222;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+  z-index: 3000;
+}
+
+.toast-message.show {
+  opacity: 1;
+}
+
+/* =========================
+    MISC ELEMENTS
+========================= */
+.pictureAA,
+.pictureCiti {
+  background-size: 200px;
+  background-repeat: no-repeat;
+  background-position: top;
+  display: flex;
+  padding: 0;
+  z-index: 2;
+}
+
+.pictureAA {
+  background-image: url("/static/css/AAlogo.png");
+  border: 2px solid #40378a;
+}
+
+.pictureCiti {
+  background-image: url("/static/css/Citilogo.png");
+}
+
+.stack-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  max-width: 300px; /* Set a max-width for the card */
-  background-color: transparent;
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 100px;
 }
 
-.card-body {
-  text-align: center; /* Center the text inside the card */
+.portfolio-img {
+  object-fit: cover;
 }
 
-/* Make the list group background transparent */
-.list-group {
-  background-color: transparent; /* Set background to transparent */
+.progress {
+  width: 100%;
+  height: 20px;
 }
 
-/* Make each list item have a transparent background and add a border */
-.list-group-item {
-  background-color: transparent;
-  border: none; /* Light border for better visibility */
-  border-radius: 5px; /* Optional: rounded corners */
-  margin-bottom: 10px; /* Space between list items */
-  padding: 10px; /* Add padding for better readability */
+.spinner-border {
+  display: none;
+  margin-left: 10px;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0 !important;
 }
 
 .ppt-carousel-container {
@@ -265,8 +408,8 @@ a {
 }
 
 .ppt-slide img {
-  width: 500px; /* Set a fixed width for the slides */
-  height: 262px; /* Set the height */
+  width: 500px;
+  height: 262px;
 }
 
 .scrolling-image-container {
@@ -295,158 +438,11 @@ a {
   }
 }
 
-.pictureAA {
-  background-image: url("/static/css/AAlogo.png");
-  background-size: 200px;
-  background-repeat: no-repeat;
-  background-position: top;
-  text-align: center;
-  display: flex;
-  padding-left: 0px;
-  padding-right: 0px;
-  z-index: 2;
-  border: #40378a 2px;
-}
-
-.pictureCiti {
-  background-image: url("/static/css/Citilogo.png");
-  background-size: 200px;
-  background-repeat: no-repeat;
-  background-position: top;
-  text-align: center;
-  display: flex;
-  padding-left: 0px;
-  padding-right: 0px;
-  z-index: 1;
-}
-
 .haze {
   color: black !important;
-  margin-bottom: 0% !important;
+  margin-bottom: 0 !important;
 }
 
 .haze-how {
   color: #ffffff !important;
-}
-
-.stack-container {
-  display: flex;
-  flex-direction: column; /* Stack the elements vertically */
-  align-items: center; /* Optional: center the divs horizontally */
-  width: 100%;
-  margin-top: 100px;
-}
-
-ul,
-ol {
-  padding: 0%;
-}
-
-:root {
-  --bg-color: #ffffff;
-  --text-color: #000000;
-  --card-bg: rgba(255, 255, 255, 0.9);
-  --border-color: #cccccc;
-  --button-bg: #40378a;
-  --button-text: #ffffff;
-}
-
-[data-theme="dark"] {
-  --bg-color: #121212;
-  --text-color: #f1f1f1;
-  --card-bg: #1f1f1f;
-  --border-color: #2c2c2c;
-  --button-bg: #4a3e9e;
-  --button-text: #f8ad84;
-}
-
-/* Apply the theme colors globally */
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
-
-.card,
-.list-group-item,
-.table,
-.btn {
-  background-color: var(--card-bg);
-  color: var(--text-color);
-  border-color: var(--border-color) !important;
-}
-
-.btn {
-  background-color: var(--button-bg) !important;
-  color: var(--button-text) !important;
-}
-
-body[data-theme="light"] {
-  background-color: #f8ad84;
-  color: #000000;
-}
-
-body[data-theme="dark"] {
-  background-color: #1e1e2f;
-  color: #f8f9fa;
-}
-
-body[data-theme="dark"] .card,
-body[data-theme="dark"] .table,
-body[data-theme="dark"] .audio-entry {
-  background-color: #2c2f4a;
-  color: #ffffff;
-  border-color: #444;
-}
-
-body[data-theme="light"] .card,
-body[data-theme="light"] .table,
-body[data-theme="light"] .audio-entry {
-  background-color: #ffffff;
-  color: #000000;
-  border-color: #ccc;
-}
-
-#theme-toggle-btn {
-  transition: all 0.4s ease;
-}
-#theme-toggle-btn.rotating {
-  transform: rotate(180deg);
-}
-
-#theme-transition-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  z-index: 9999;
-}
-
-.flash-light {
-  background-color: white;
-}
-
-.flash-dark {
-  background-color: black;
-}
-
-.toast-message {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: #222;
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 6px;
-  z-index: 3000;
-  opacity: 0;
-  transition: opacity 0.4s ease-in-out;
-  font-weight: bold;
-}
-
-.toast-message.show {
-  opacity: 1;
 }

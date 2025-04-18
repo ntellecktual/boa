@@ -86,7 +86,7 @@ def process_notebook_and_create_audio(file_path):
                 # ✅ Always overwrite the last section with your custom message
                 if index == total_sections:
                     print(f"🔁 Overriding last section audio for: {audio_filename}")
-                    content = "Thank you for learning with the numerix"
+                    content = "Thank you for learning with thenumerix!"
 
                 # ✅ Force overwrite every time
                 text_to_speech(content, audio_file_path)

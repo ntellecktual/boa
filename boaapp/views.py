@@ -32,10 +32,25 @@ log_data = {}
 
 
 def home(request):
-    """Render home page with all uploaded audio files."""
-    uploaded_files = AudioFile.objects.all()
-    context = {'uploaded_files': uploaded_files}
-    return render(request, 'boaapp/home.html', context)
+    uploaded_files = AudioFile.objects.filter(user=request.user)
+    context = {
+        'uploaded_files': uploaded_files,
+        'welcome_title': "Welcome to Thenumerix",
+        'description': "Upload Jupyter Notebooks. Convert them to audio. Watch them come to life as videos. All in one place."
+    }
+    items = [
+    ("🧾 User Upload", "You upload a Jupyter notebook file (.ipynb) using our secure Django-powered form."),
+    ("💾 File Storage", "The uploaded file is saved on the server, checked for duplicates, and assigned to your user account."),
+    ("📖 Notebook Parsing", "We extract markdown headers, text, and code blocks from your notebook using nbformat."),
+    ("🔊 Audio Generation", "Each section is converted into an MP3 using Google Text-to-Speech (gTTS) and saved in a structured folder."),
+    ("🎞️ Video Rendering", "Each MP3 is combined with a looped background video, synchronized text overlays, and a logo using MoviePy."),
+    ("📝 Synchronized Text", "Text is chunked into natural sentences and aligned to the audio duration for clear, readable display."),
+    ("📈 Progress Tracking", "While the upload and processing runs, logs and progress percentages are tracked and updated in real-time."),
+    ("📂 Dashboard + Download", "After completion, your files appear in your personal dashboard where you can play, download, or delete them.")
+]
+
+
+    return render(request, 'boaapp/home.html', {'items': items})
 
 
 def boashedskin_view(request):

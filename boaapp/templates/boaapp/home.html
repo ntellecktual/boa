@@ -1,114 +1,74 @@
-{% extends 'boaapp/base_generic.html' %} {% load static %}
+{% extends 'boaapp/base_generic.html' %} {% load static %} {% block content %}
+<div class="container login-custom-container custom-margin-bottom text-center">
+  <h1
+    class="display-4 mb-4 d-flex flex-column align-items-center justify-content-center"
+  >
+    <span
+      >Welcome to
+      <span class="text-primary">
+        <img
+          src="{% static 'css\uploadit!logo.png' %}"
+          alt="uploadit! Logo"
+          height="200" /></span
+    ></span>
+  </h1>
+  <p class="lead mb-4">
+    Effortlessly convert your course content into audio for modern formats like
+    reels.
+  </p>
+  <a href="{% url 'upload_document' %}" class="btn btn-lg px-5 py-3 shadow">
+    🚀 Upload Your Course File
+  </a>
+</div>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>thenumerix | Home</title>
-
-  <!-- Include jQuery -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-  <!-- Include Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet" />
-
-  <!-- Include your custom CSS -->
-  <link rel="stylesheet" href="{% static 'css/index.css' %}?v={{ timestamp }}" />
-
-  <!-- Include Bootstrap JS -->
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-  <!-- Include your custom JavaScript -->
-  <script src="{% static 'js/index.js' %}"></script>
-  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-</head>
-
-<body>
-  {% block content %}
-  <div class="container upload-container">
-    <button type="submit" class="btn upload">
-      <a href="{% url 'upload_document' %}">Upload Files</a>
-    </button>
+<div class="container login-custom-container custom-margin-bottom">
+  <h2 class="text-center mb-4">📚 How It Works</h2>
+  <div class="accordion" id="uploadInfoAccordion">
+    {% for item in items %}
+    <div class="card mb-2">
+      <div class="card-header" id="heading{{ forloop.counter }}">
+        <h2 class="mb-0">
+          <button
+            class="btn btn-link btn-block"
+            type="button"
+            data-toggle="collapse"
+            data-target="#collapse{{ forloop.counter }}"
+            aria-expanded="false"
+            aria-controls="collapse{{ forloop.counter }}"
+          >
+            {{ item.0 }}
+          </button>
+        </h2>
+      </div>
+      <div
+        id="collapse{{ forloop.counter }}"
+        class="collapse"
+        aria-labelledby="heading{{ forloop.counter }}"
+        data-parent="#uploadInfoAccordion"
+      >
+        <div class="card-body">{{ item.1 }}</div>
+      </div>
+    </div>
+    {% endfor %}
   </div>
+</div>
 
-  <div class="container custom-container">
-    <h2 class="text-center mt-5">What Does the Upload Files Button Do?</h2>
-    <span class="d-block text-center mb-4">
-      When you click the "Upload Files" button, it triggers a function in the
-      backend of this application, written in Python using Django framework.
-    </span>
-    <ul class="list-group mx-auto" style="max-width: 500px">
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>✅ Python Backend</span>
-        <span class="badge badge-success badge-pill">Details</span>
-        <span class="details">The button is linked to a Python function defined in a Django
-          view.py file. The backend handles requests and orchestrates the logic for
-          file uploads, user interactions, and audio file generation.</span>
-      </li>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const accordion = document.getElementById("uploadInfoAccordion");
 
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>✅ File Handling</span>
-        <span class="badge badge-success badge-pill">Details</span>
-        <span class="details">The Python function handles data science course uploads, processes the
-          files, and converts them into audio files for social media reels. The
-          uploaded file is saved in a predefined path, and further processed using
-          custom functions.</span>
-      </li>
+    accordion.addEventListener("click", function (e) {
+      const btn = e.target.closest("[data-toggle='collapse']");
+      if (!btn) return;
 
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>✅ Functionality</span>
-        <span class="badge badge-success badge-pill">Details</span>
-        <span class="details">This button allows users to upload files, which are then processed or
-          stored based on backend logic written in Python. It also initiates the
-          process of creating audio files using the uploaded data.</span>
-      </li>
+      const targetId = btn.getAttribute("data-target");
+      const target = document.querySelector(targetId);
 
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>✅ Audio Generation</span>
-        <span class="badge badge-success badge-pill">Details</span>
-        <span class="details">The uploaded course content is automatically transformed into several
-          audio files in MP3 format using the backend Python logic. Each generated
-          audio file is stored in the "boa/audio" directory.</span>
-      </li>
-
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>✅ Audio File Management</span>
-        <span class="badge badge-success badge-pill">Details</span>
-        <span class="details">The system retrieves and lists the generated audio files for the user to
-          view after the upload and audio creation process is complete. Audio file
-          names are cleaned and displayed on the success page.</span>
-      </li>
-
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>✅ Progress Tracking</span>
-        <span class="badge badge-success badge-pill">Details</span>
-        <span class="details">Progress and logging are tracked for each file being uploaded. The system
-          updates users with the progress percentage and logs the status of audio
-          file creation in real-time, using thread-safe data handling.</span>
-      </li>
-
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>✅ Form Handling</span>
-        <span class="badge badge-success badge-pill">Details</span>
-        <span class="details">Django forms are used to handle user input and file uploads. The form
-          ensures that data is sanitized and validated before being processed. Any
-          invalid data triggers user-friendly error messages.</span>
-      </li>
-
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>✅ User Authentication</span>
-        <span class="badge badge-success badge-pill">Details</span>
-        <span class="details">The application uses Django's built-in authentication system to allow users
-          to log in, register, and manage their session securely. Users must be
-          authenticated to upload files and view their results.</span>
-      </li>
-
-    </ul>
-  </div>
-  {% endblock %}
-</body>
-
-</html>
+      if (target.classList.contains("show")) {
+        $(target).collapse("hide");
+        e.stopImmediatePropagation();
+      }
+    });
+  });
+</script>
+{% endblock %}

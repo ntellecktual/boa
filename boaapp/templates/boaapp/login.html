@@ -38,7 +38,20 @@
   <body>
     {% block content %}
     <div class="container login-custom-container custom-margin-bottom">
-      <h2>Welcome to thenumerix</h2>
+      <h1
+        class="display-4 mb-4 d-flex flex-column align-items-center justify-content-center"
+      >
+        <span
+          >Welcome to
+          <span class="text-primary">
+            <img
+              src="{% static 'logo.png' %}"
+              alt="thenumerix Logo"
+              height="150"
+            />
+          </span>
+        </span>
+      </h1>
       {% if user.is_authenticated %}
       <span
         >{{ user.username }}'s Portfolio, Projects, Data Engineering, all in
@@ -52,54 +65,214 @@
 
     {% if user.is_authenticated %}
     <div class="container login-custom-container custom-margin-bottom">
-      <ul class="list-group mx-auto" style="max-width: 500px">
-        <div>
-          <button
-            type="button"
-            class="btn btn-primary"
-            onclick="window.location.href='{% url 'portfolio_showcase' %}'"
+      <div
+        class="accordion"
+        id="dashboardAccordion"
+        style="max-width: 500px; margin: auto"
+      >
+        {% comment %} Enterprise Architecture {% endcomment %}
+        <div class="card mb-2">
+          <div class="card-header" id="headingOne">
+            <h2 class="mb-0">
+              <button
+                class="btn btn-link btn-block"
+                type="button"
+                data-toggle="collapse"
+                data-target="#collapseOne"
+                aria-expanded="false"
+                aria-controls="collapseOne"
+              >
+                Enterprise Architecture / Engineering
+              </button>
+            </h2>
+          </div>
+          <div
+            id="collapseOne"
+            class="collapse"
+            aria-labelledby="headingOne"
+            data-parent="#dashboardAccordion"
           >
-            Enterprise Architecture/Engineering
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            onclick="window.location.href='{% url 'project_pages' %}'"
-          >
-            Technical
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            onclick="window.location.href='{% url 'companyandme' %}'"
-          >
-            Business Analytics
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            onclick="window.location.href='{% url 'live_demos' %}'"
-          >
-            Engineering | at a Glance
-            <span class="badge badge-success badge-pill">New!</span>
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            onclick="window.location.href='{% url 'data_start' %}'"
-          >
-            Data | Projects
-            <span class="badge badge-success badge-pill">New!</span>
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary details"
-            onclick="window.location.href='{% url 'home' %}'"
-          >
-            Upload It! <span class="badge badge-success badge-pill">New!</span>
-          </button>
+            <div class="card-body text-center">
+              <button
+                class="btn btn-primary"
+                onclick="window.location.href='{% url 'portfolio_showcase' %}'"
+              >
+                View Section
+              </button>
+            </div>
+          </div>
         </div>
-      </ul>
+
+        {% comment %} Technical {% endcomment %}
+        <div class="card mb-2">
+          <div class="card-header" id="headingTwo">
+            <h2 class="mb-0">
+              <button
+                class="btn btn-link btn-block"
+                type="button"
+                data-toggle="collapse"
+                data-target="#collapseTwo"
+                aria-expanded="false"
+                aria-controls="collapseTwo"
+              >
+                Technical
+              </button>
+            </h2>
+          </div>
+          <div
+            id="collapseTwo"
+            class="collapse"
+            aria-labelledby="headingTwo"
+            data-parent="#dashboardAccordion"
+          >
+            <div class="card-body text-center">
+              <button
+                class="btn btn-primary"
+                onclick="window.location.href='{% url 'project_pages' %}'"
+              >
+                View Section
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {% comment %} Business Analytics {% endcomment %}
+        <div class="card mb-2">
+          <div class="card-header" id="headingThree">
+            <h2 class="mb-0">
+              <button
+                class="btn btn-link btn-block"
+                type="button"
+                data-toggle="collapse"
+                data-target="#collapseThree"
+                aria-expanded="false"
+                aria-controls="collapseThree"
+              >
+                Business Analytics
+              </button>
+            </h2>
+          </div>
+          <div
+            id="collapseThree"
+            class="collapse"
+            aria-labelledby="headingThree"
+            data-parent="#dashboardAccordion"
+          >
+            <div class="card-body text-center">
+              <button
+                class="btn btn-primary"
+                onclick="window.location.href='{% url 'companyandme' %}'"
+              >
+                View Section
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {% comment %} Engineering At a Glance {% endcomment %}
+        <div class="card mb-2">
+          <div class="card-header" id="headingFour">
+            <h2 class="mb-0">
+              <button
+                class="btn btn-link btn-block"
+                type="button"
+                data-toggle="collapse"
+                data-target="#collapseFour"
+                aria-expanded="false"
+                aria-controls="collapseFour"
+              >
+                Engineering | At a Glance
+              </button>
+            </h2>
+          </div>
+          <div
+            id="collapseFour"
+            class="collapse"
+            aria-labelledby="headingFour"
+            data-parent="#dashboardAccordion"
+          >
+            <div class="card-body text-center">
+              <button
+                class="btn btn-primary"
+                onclick="window.location.href='{% url 'live_demos' %}'"
+              >
+                View Section
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {% comment %} Data Projects {% endcomment %}
+        <div class="card mb-2">
+          <div class="card-header" id="headingFive">
+            <h2 class="mb-0">
+              <button
+                class="btn btn-link btn-block"
+                type="button"
+                data-toggle="collapse"
+                data-target="#collapseFive"
+                aria-expanded="false"
+                aria-controls="collapseFive"
+              >
+                Data | Projects
+              </button>
+            </h2>
+          </div>
+          <div
+            id="collapseFive"
+            class="collapse"
+            aria-labelledby="headingFive"
+            data-parent="#dashboardAccordion"
+          >
+            <div class="card-body text-center">
+              <button
+                class="btn btn-primary"
+                onclick="window.location.href='{% url 'data_start' %}'"
+              >
+                View Section
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {% comment %} Upload It! {% endcomment %}
+        <div class="card mb-2">
+          <div class="card-header" id="headingSix">
+            <h2 class="mb-0">
+              <button
+                class="btn btn-link btn-block"
+                type="button"
+                data-toggle="collapse"
+                data-target="#collapseSix"
+                aria-expanded="false"
+                aria-controls="collapseSix"
+              >
+                <span class="text-primary">
+                  <img
+                    src="{% static 'css/uploadit!logo.png' %}"
+                    alt="UploadIt! Logo"
+                    height="150" /></span
+                ><span class="badge badge-success badge-pill">New!</span>
+              </button>
+            </h2>
+          </div>
+          <div
+            id="collapseSix"
+            class="collapse"
+            aria-labelledby="headingSix"
+            data-parent="#dashboardAccordion"
+          >
+            <div class="card-body text-center">
+              <button
+                class="btn btn-primary"
+                onclick="window.location.href='{% url 'home' %}'"
+              >
+                Upload Your Course File
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     {% endif %} {% if not user.is_authenticated %}
     <div class="container login-list custom-margin-bottom">

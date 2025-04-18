@@ -14,10 +14,16 @@ from PIL import Image
 if not hasattr(Image, 'ANTIALIAS'):
     Image.ANTIALIAS = Image.Resampling.LANCZOS
 
+
 def to_camel_case(filename):
     base = os.path.splitext(os.path.basename(filename))[0]
     parts = re.split(r'[\s_\-]+', base)
     return ''.join(p.capitalize() for p in parts)
+
+
+def split_into_sentences(text):
+    return [s.strip() for s in re.split(r'(?<=[.!?]) +', text) if s.strip()]
+
 
 def find_latest_notebook(media_dir='boa/boa/media'):
     notebooks = [
@@ -29,6 +35,7 @@ def find_latest_notebook(media_dir='boa/boa/media'):
         raise FileNotFoundError("No .ipynb notebooks found in media directory.")
     return max(notebooks, key=os.path.getctime)
 
+
 def get_audio_files(media_dir='boa/boa/media/audio'):
     if not os.path.exists(media_dir):
         raise FileNotFoundError("Audio directory not found.")
@@ -37,6 +44,7 @@ def get_audio_files(media_dir='boa/boa/media/audio'):
         for f in os.listdir(media_dir)
         if f.endswith('.mp3') and f.lower() != 'great_job!.mp3'
     ])
+
 
 def create_video_parallel(section, audio_file, output_file, logo_path, background_path, text_sync_file,
                           font_styles, typewriter_effect=True):
@@ -55,61 +63,75 @@ def create_video_parallel(section, audio_file, output_file, logo_path, backgroun
         clips = [bg_clip, dimming]
 
         if is_great_job:
-            # Great Job visual override
             logo = (ImageClip(logo_path, transparent=True)
                     .set_duration(audio.duration)
                     .resize(height=600)
                     .set_position("center"))
 
             text_clip = (TextClip("Thank you for learning with the numerix",
-                                  fontsize=72, font="Arial-Bold", color="white",
+                                  fontsize=72, font="Inter", color="white",
                                   method="caption", size=(1000, None))
                          .set_duration(audio.duration)
                          .set_position(("center", 250)))
 
             clips += [logo, text_clip]
+
         else:
-            # Logo in upper-right with 10px margins
             logo = (ImageClip(logo_path, transparent=True)
                     .set_duration(audio.duration)
                     .resize(height=100)
                     .margin(top=10, right=10, opacity=0)
                     .set_position(("right", "top")))
 
-            # Split text into 4-word chunks
-            words = code.split()
-            chunk_size = 4
-            chunks = [' '.join(words[i:i + chunk_size]) for i in range(0, len(words), chunk_size)]
-            chunk_duration = audio.duration / max(1, len(chunks))
+            sentences = split_into_sentences(code)
+            if not sentences:
+                sentences = [code]  # fallback
 
-            font = font_styles.get("font", "Arial-Bold")
+            chunk_duration = audio.duration / len(sentences)
+
+            font = font_styles.get("font", "Inter")
             font_size = font_styles.get("font_size", 36)
             text_color = font_styles.get("text_color", "white")
 
             text_sync_data = []
             word_clips = []
 
-            for i, chunk in enumerate(chunks):
-                start = i * chunk_duration
-                end = start + chunk_duration
-                clip = (TextClip(chunk, fontsize=font_size, color=text_color, font=font, size=(1000, None), method='caption')
-                        .set_position(("center", 250))  # <-- same position as great job text
+            for i, sentence in enumerate(sentences):
+                start = round(i * chunk_duration, 2)
+                end = round((i + 1) * chunk_duration, 2)
+                clip = (TextClip(sentence, fontsize=font_size, color=text_color, font=font,
+                                 method='caption', size=(1000, None))
+                        .set_position(("center", 250))
                         .set_start(start)
                         .set_end(end))
                 word_clips.append(clip)
                 text_sync_data.append({
-                    "text": chunk,
+                    "text": sentence,
                     "start_time": start,
                     "end_time": end
                 })
 
+            try:
+                with open(text_sync_file, 'w') as f:
+                    json.dump(text_sync_data, f, indent=4)
+                print(f"📝 Synced text JSON saved: {text_sync_file}")
+            except Exception as jerr:
+                print(f"⚠️ Failed to write sync JSON: {jerr}")
+
             clips += [logo] + word_clips
 
-            with open(text_sync_file, 'w') as f:
-                json.dump(text_sync_data, f, indent=4)
-
         final_video = CompositeVideoClip(clips).set_duration(audio.duration).set_audio(audio)
-        final_video.write_videofile(output_file, fps=24, codec='libx264', audio_codec='aac', preset='ultrafast', threads=4)
+        final_video.write_videofile(
+            output_file,
+            fps=24,
+            codec='libx264',
+            audio_codec='aac',
+            preset='ultrafast',
+            threads=4,
+            temp_audiofile='temp-audio.m4a',
+            remove_temp=True,
+            logger=None
+        )
 
         print(f"✅ Finished video: {output_file}")
 
@@ -140,14 +162,13 @@ if __name__ == "__main__":
         if len(sections) != len(audio_files):
             print("⚠️ Warning: Mismatch between sections and audio files.")
 
-        # New: subfolder for videos
         camel_folder = to_camel_case(notebook_path)
         video_dir = os.path.join('boa', 'boaapp', 'media', 'video', camel_folder)
         os.makedirs(video_dir, exist_ok=True)
 
         logo_path = os.path.join('boa', 'boaapp', 'static', 'logo.png')
         background_path = os.path.join('boa', 'video', 'background.mp4')
-        font_styles = {"font": "Arial-Bold", "font_size": 36, "text_color": "white"}
+        font_styles = {"font": "Inter", "font_size": 36, "text_color": "white"}
 
         batch_size = os.cpu_count() or 6
         for batch_start in range(0, len(sections), batch_size):

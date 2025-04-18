@@ -1,281 +1,173 @@
-{% extends 'boaapp/base_generic.html' %} {% load static %} {% load tz %}
-
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}thenumerix | Dashboard{% endblock %}</title>
-
-    <!-- Bootstrap & Fonts -->
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="{% static 'css/index.css' %}?v={{ timestamp }}"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-
-  <body>
-    {% block content %}
-    <div class="container dashboard-container flex-column pt-3">
-      <div class="text-center mb-4">
-        <h1 class="mb-3">📊 My Dashboard</h1>
-        <div class="mb-3">
-          <button class="btn btn-secondary" id="theme-toggle-btn">
-            🌙 Dark Mode
-          </button>
+{% extends 'boaapp/base_generic.html' %} {% load static %} {% load tz %} {%
+block title %}thenumerix | Dashboard {% block content %}
+<div class="container dashboard-container flex-column pt-3">
+  <div class="text-center mb-4">
+    <h1 class="mb-3">📊 My Dashboard</h1>
+    <div class="row justify-content-center">
+      <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
+        <div class="card border-primary card-summary mx-2">
+          <div class="card-body text-center">
+            <h5 class="card-title">📁 Uploaded Files</h5>
+            <p class="card-text display-4">{{ document_count }}</p>
+          </div>
         </div>
-
-        <div class="row justify-content-center">
-          <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
-            <div class="card border-primary card-summary mx-2">
-              <div class="card-body text-center">
-                <h5 class="card-title">📁 Uploaded Files</h5>
-                <p class="card-text display-4">{{ document_count }}</p>
-              </div>
-            </div>
-            <div class="card border-info card-summary mx-2">
-              <div class="card-body text-center">
-                <h5 class="card-title">🎧 Audio Files Generated</h5>
-                <p class="card-text display-4">{{ audio_file_count }}</p>
-              </div>
-            </div>
+        <div class="card border-info card-summary mx-2">
+          <div class="card-body text-center">
+            <h5 class="card-title">🎧 Audio Files Generated</h5>
+            <p class="card-text display-4">{{ audio_file_count }}</p>
           </div>
         </div>
       </div>
-
-      <div class="text-center">
-        <h3>📄 My Uploaded Documents</h3>
-      </div>
-      {% if not latest_only and all_docs|length > 2 %}
-      <div class="text-center">
-        <button
-          class="btn btn-primary mb-2"
-          id="toggle-btn"
-          onclick="toggleTableRows()"
-        >
-          Show All
-        </button>
-        <br />
-        <button
-          class="btn btn-danger mb-2"
-          onclick="confirmAndDelete('{% url 'delete_orphaned_files' %}')"
-        >
-          🗑 Delete Orphaned Files
-        </button>
-
-        <button
-          class="btn btn-warning mb-2"
-          onclick="confirmAndDelete('{% url 'delete_ipynb_files' %}')"
-        >
-          📄 Delete Only .ipynb Files
-        </button>
-        <button
-          class="btn btn-danger mb-2"
-          onclick="confirmAndDelete('{% url 'delete_all_files' %}')"
-        >
-          🔥 Delete All Files
-        </button>
-      </div>
-      {% endif %}
-      <div
-        class="table-responsive mb-5"
-        id="doc-table-container"
-        style="max-height: 500px; overflow-y: auto"
-      >
-        <table class="table table-striped table-bordered align-middle">
-          <thead class="text-center">
-            <tr>
-              <th style="width: 25%">File Name</th>
-              <th style="width: 20%">Uploaded At</th>
-              <th style="width: 55%">Audio Files</th>
-            </tr>
-          </thead>
-          <tbody id="doc-table-body">
-            {% if latest_only and latest_doc %}
-            <tr>
-              <td>{{ latest_doc.uploaded_file.name|cut:"documents/" }}</td>
-              <td>{{ latest_doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
-              <td>
-                {% if latest_doc.audio_files.all %}
-                <div class="d-flex flex-column">
-                  {% for audio in latest_doc.audio_files.all %}
-                  <div class="audio-entry mb-2">
-                    <strong>{{ audio.file.name|cut:"audio/" }}</strong><br />
-                    {% if audio.file.url %}
-                    <audio controls style="width: 100%; max-width: 300px">
-                      <source src="{{ audio.file.url }}" type="audio/mpeg" />
-                      Your browser does not support the audio element.</audio
-                    ><br />
-                    <a
-                      href="{{ audio.file.url }}"
-                      class="btn btn-sm btn-outline-secondary mt-1"
-                      download
-                    >
-                      ⬇️ Download
-                    </a>
-                    {% else %}
-                    <span class="text-muted">Audio not available</span>
-                    {% endif %}
-                  </div>
-                  {% endfor %}
-                </div>
-                {% else %}
-                <span class="text-muted">No audio files</span>
-                {% endif %}
-              </td>
-            </tr>
-            {% else %} {% for doc in all_docs %}
-            <tr class="{% if forloop.counter > 2 %}d-none extra-row{% endif %}">
-              <td>{{ doc.uploaded_file.name|cut:"documents/" }}</td>
-              <td>{{ doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
-              <td>
-                {% if doc.audio_files.all %}
-                <div class="d-flex flex-column">
-                  {% for audio in doc.audio_files.all %}
-                  <div class="audio-entry mb-2">
-                    <strong>{{ audio.file.name|cut:"audio/" }}</strong><br />
-                    {% if audio.file.url %}
-                    <audio controls style="width: 100%; max-width: 300px">
-                      <source src="{{ audio.file.url }}" type="audio/mpeg" />
-                      Your browser does not support the audio element.</audio
-                    ><br />
-                    <a
-                      href="{{ audio.file.url }}"
-                      class="btn btn-sm btn-outline-secondary mt-1"
-                      download
-                    >
-                      ⬇️ Download
-                    </a>
-                    {% else %}
-                    <span class="text-muted">Audio not available</span>
-                    {% endif %}
-                  </div>
-                  {% endfor %}
-                </div>
-                {% else %}
-                <span class="text-muted">No audio files</span>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %} {% endif %}
-          </tbody>
-        </table>
-      </div>
     </div>
+  </div>
 
-    <div id="theme-transition-overlay"></div>
-    <div id="theme-toast" class="toast-message"></div>
+  <div class="text-center">
+    <h3>📄 My Uploaded Documents</h3>
+  </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        function toggleTableRows() {
-          const extraRows = document.querySelectorAll(".extra-row");
-          const btn = document.getElementById("toggle-btn");
-          const showing =
-            extraRows.length && extraRows[0].classList.contains("d-none");
-          extraRows.forEach((row) => row.classList.toggle("d-none"));
-          if (btn) btn.innerText = showing ? "Show Less" : "Show All";
-        }
+  {% if not latest_only and all_docs|length > 2 %}
+  <div class="text-center">
+    <button
+      class="btn btn-primary mb-2"
+      id="toggle-btn"
+      onclick="toggleTableRows()"
+    >
+      Show All
+    </button>
+    <br />
+    <button
+      class="btn btn-danger mb-2"
+      onclick="confirmAndDelete('{% url 'delete_orphaned_files' %}')"
+    >
+      🗑 Delete Orphaned Files
+    </button>
+    <button
+      class="btn btn-warning mb-2"
+      onclick="confirmAndDelete('{% url 'delete_ipynb_files' %}')"
+    >
+      📄 Delete Only .ipynb Files
+    </button>
+    <button
+      class="btn btn-danger mb-2"
+      onclick="confirmAndDelete('{% url 'delete_all_files' %}')"
+    >
+      🔥 Delete All Files
+    </button>
+  </div>
+  {% endif %}
 
-        function confirmAndDelete(url) {
-          if (
-            confirm(
-              "Are you sure you want to proceed? This action cannot be undone."
-            )
-          ) {
-            fetch(url)
-              .then((res) => res.json())
-              .then(() => {
-                alert("Action completed.");
-                location.reload();
-              })
-              .catch((err) => {
-                alert("There was an error.");
-                console.error(err);
-              });
-          }
-        }
+  <div
+    class="table-responsive mb-5"
+    id="doc-table-container"
+    style="max-height: 500px; overflow-y: auto"
+  >
+    <table class="table table-striped table-bordered align-middle">
+      <thead class="text-center">
+        <tr>
+          <th style="width: 25%">File Name</th>
+          <th style="width: 20%">Uploaded At</th>
+          <th style="width: 55%">Audio Files</th>
+        </tr>
+      </thead>
+      <tbody id="doc-table-body">
+        {% if latest_only and latest_doc %}
+        <tr>
+          <td>{{ latest_doc.uploaded_file.name|cut:"documents/" }}</td>
+          <td>{{ latest_doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
+          <td>
+            {% if latest_doc.audio_files.all %}
+            <div class="d-flex flex-column">
+              {% for audio in latest_doc.audio_files.all %}
+              <div class="audio-entry mb-2">
+                <strong>{{ audio.file.name|cut:"audio/" }}</strong><br />
+                {% if audio.file.url %}
+                <audio controls style="width: 100%; max-width: 300px">
+                  <source src="{{ audio.file.url }}" type="audio/mpeg" />
+                </audio>
+                <a
+                  href="{{ audio.file.url }}"
+                  class="btn btn-sm btn-outline-secondary mt-1"
+                  download
+                >
+                  ⬇️ Download
+                </a>
+                {% else %}
+                <span class="text-muted">Audio not available</span>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <span class="text-muted">No audio files</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %} {% for doc in all_docs %}
+        <tr class="{% if forloop.counter > 2 %}d-none extra-row{% endif %}">
+          <td>{{ doc.uploaded_file.name|cut:"documents/" }}</td>
+          <td>{{ doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
+          <td>
+            {% if doc.audio_files.all %}
+            <div class="d-flex flex-column">
+              {% for audio in doc.audio_files.all %}
+              <div class="audio-entry mb-2">
+                <strong>{{ audio.file.name|cut:"audio/" }}</strong><br />
+                {% if audio.file.url %}
+                <audio controls style="width: 100%; max-width: 300px">
+                  <source src="{{ audio.file.url }}" type="audio/mpeg" />
+                </audio>
+                <a
+                  href="{{ audio.file.url }}"
+                  class="btn btn-sm btn-outline-secondary mt-1"
+                  download
+                >
+                  ⬇️ Download
+                </a>
+                {% else %}
+                <span class="text-muted">Audio not available</span>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <span class="text-muted">No audio files</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %} {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
-        window.toggleTableRows = toggleTableRows;
-        window.confirmAndDelete = confirmAndDelete;
+<script>
+  function toggleTableRows() {
+    const extraRows = document.querySelectorAll(".extra-row");
+    const btn = document.getElementById("toggle-btn");
+    const showing =
+      extraRows.length && extraRows[0].classList.contains("d-none");
+    extraRows.forEach((row) => row.classList.toggle("d-none"));
+    if (btn) btn.innerText = showing ? "Show Less" : "Show All";
+  }
 
-        const toggleBtn = document.getElementById("theme-toggle-btn");
+  function confirmAndDelete(url) {
+    if (
+      confirm("Are you sure you want to proceed? This action cannot be undone.")
+    ) {
+      fetch(url)
+        .then((res) => res.json())
+        .then(() => {
+          alert("Action completed.");
+          location.reload();
+        })
+        .catch((err) => {
+          alert("There was an error.");
+          console.error(err);
+        });
+    }
+  }
 
-        function updateThemeLabel(theme) {
-          if (toggleBtn) {
-            toggleBtn.textContent =
-              theme === "dark"
-                ? "☀️ Switch to Light Mode"
-                : "🌙 Switch to Dark Mode";
-          }
-        }
-
-        function setTheme(theme) {
-          const overlay = document.getElementById("theme-transition-overlay");
-          const currentTheme =
-            document.body.getAttribute("data-theme") || "light";
-
-          if (overlay) {
-            overlay.classList.remove("flash-dark", "flash-light");
-            overlay.classList.add(
-              theme === "light" ? "flash-light" : "flash-dark"
-            );
-            overlay.style.opacity = theme === "light" ? "1" : "0.8";
-          }
-
-          setTimeout(() => {
-            document.body.setAttribute("data-theme", theme);
-            localStorage.setItem("theme", theme);
-            updateThemeLabel(theme);
-            showThemeToast(
-              `Switched to ${
-                theme.charAt(0).toUpperCase() + theme.slice(1)
-              } Mode`
-            );
-            if (overlay) overlay.style.opacity = "0";
-          }, 300);
-        }
-
-        function toggleTheme() {
-          const currentTheme =
-            document.body.getAttribute("data-theme") || "light";
-          const newTheme = currentTheme === "light" ? "dark" : "light";
-          setTheme(newTheme);
-        }
-
-        function showThemeToast(message) {
-          const toast = document.getElementById("theme-toast");
-          if (toast) {
-            toast.textContent = message;
-            toast.classList.add("show");
-            setTimeout(() => {
-              toast.classList.remove("show");
-            }, 2500);
-          }
-        }
-
-        (function initTheme() {
-          const storedTheme = localStorage.getItem("theme");
-          const prefersDark = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-          ).matches;
-          const initialTheme = storedTheme || (prefersDark ? "dark" : "light");
-          setTheme(initialTheme);
-        })();
-
-        if (toggleBtn) {
-          toggleBtn.addEventListener("click", toggleTheme);
-        }
-      });
-    </script>
-    {% endblock %}
-  </body>
-</html>
+  window.toggleTableRows = toggleTableRows;
+  window.confirmAndDelete = confirmAndDelete;
+</script>
+{% endblock %}
