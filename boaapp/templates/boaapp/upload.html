@@ -20,7 +20,7 @@
     />
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
   </head>
-  <body>
+  <body class="{% if page_id %}{{ page_id }}{% endif %}">
     {% block content %}
     <div class="container custom-container text-center">
       <h1 class="mb-3">📤 Upload Your Data Course</h1>

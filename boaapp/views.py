@@ -31,7 +31,7 @@ progress_data = {}
 log_data = {}
 
 
-def home(request):
+def uploadit(request):
     uploaded_files = AudioFile.objects.filter(user=request.user)
     context = {
         'uploaded_files': uploaded_files,
@@ -48,9 +48,7 @@ def home(request):
     ("📈 Progress Tracking", "While the upload and processing runs, logs and progress percentages are tracked and updated in real-time."),
     ("📂 Dashboard + Download", "After completion, your files appear in your personal dashboard where you can play, download, or delete them.")
 ]
-
-
-    return render(request, 'boaapp/home.html', {'items': items})
+    return render(request, 'boaapp/uploadit.html', {'items': items, 'page_id': 'uploadit'})
 
 
 def boashedskin_view(request):
@@ -168,7 +166,8 @@ def upload_document(request):
 
             return render(request, 'boaapp/upload_success.html', {
                 'file_name': cleaned_file_name,
-                'audio_names': audio_file_names
+                'audio_names': audio_file_names,
+         'page_id': 'uploadit'
             })
     else:
         form = DocumentForm()
@@ -177,7 +176,8 @@ def upload_document(request):
 
     return render(request, 'boaapp/upload.html', {
         'form': form,
-        'existing_filenames': json.dumps(existing_files)
+        'existing_filenames': json.dumps(existing_files),
+         'page_id': 'uploadit'
     })
 
 
@@ -185,7 +185,8 @@ def upload_document(request):
 def upload_progress_page(request, file_name):
     # Render the upload progress page without progress updates
     return render(request, 'boaapp/upload_progress.html', {
-        'file_name': file_name  # Pass the file_name to the template
+        'file_name': file_name,
+         'page_id': 'uploadit'
     })
 
 
@@ -203,6 +204,7 @@ def upload_success(request):
 
     return render(request, 'boaapp/upload_success.html', {
         'file_name': joined_file_names,
+         'page_id': 'uploadit'
     })
 
 
@@ -310,7 +312,10 @@ def dashboard(request):
     }
 
 
-    return render(request, 'boaapp/dashboard.html', context)
+    return render(request, 'boaapp/dashboard.html', {
+    **context,
+    'page_id': 'uploadit'
+})
 
     
 @login_required

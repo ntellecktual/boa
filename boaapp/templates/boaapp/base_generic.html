@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,7 +25,7 @@
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
   </head>
 
-  <body data-theme="light">
+  <body class="{% if page_id %}{{ page_id }}{% endif %}">
     <nav class="navbar navbar-expand-lg fixed-top">
       <a class="navbar-brand" href="{% url 'login' %}">
         <img src="{% static 'logo.png' %}" alt="Logo" height="50" />
@@ -83,7 +83,7 @@
         }
 
         function setTheme(theme) {
-          document.body.setAttribute("data-theme", theme);
+          document.documentElement.setAttribute("data-theme", theme); // <html data-theme="dark">
           localStorage.setItem("theme", theme);
           updateThemeLabel(theme);
 
@@ -109,6 +109,7 @@
             ? "dark"
             : "light");
         setTheme(initialTheme);
+
         toggleBtn.addEventListener("click", toggleTheme);
       });
     </script>

@@ -1,7 +1,7 @@
 {% extends 'boaapp/base_generic.html' %} {% load static %} {% block content %}
 <div class="container login-custom-container custom-margin-bottom text-center">
   <h1
-    class="display-4 mb-4 d-flex flex-column align-items-center justify-content-center"
+    class="display-4 d-flex flex-column align-items-center justify-content-center"
   >
     <span
       >Welcome to
@@ -12,17 +12,17 @@
           height="200" /></span
     ></span>
   </h1>
-  <p class="lead mb-4">
+  <p class="lead">
     Effortlessly convert your course content into audio for modern formats like
     reels.
   </p>
-  <a href="{% url 'upload_document' %}" class="btn btn-lg px-5 py-3 shadow">
+  <a href="{% url 'upload_document' %}" class="btn px-5 py-3 shadow">
     🚀 Upload Your Course File
   </a>
 </div>
 
 <div class="container login-custom-container custom-margin-bottom">
-  <h2 class="text-center mb-4">📚 How It Works</h2>
+  <h2 class="text-center">📚 How It Works</h2>
   <div class="accordion" id="uploadInfoAccordion">
     {% for item in items %}
     <div class="card mb-2">

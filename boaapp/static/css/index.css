@@ -83,69 +83,92 @@ body {
   --button-text: #ffffff;
 }
 
-body[data-theme="dark"] {
-  --background: linear-gradient(
-    to right,
-    #e73276,
-    #e83c77,
-    #e84177,
-    #ea4578,
-    #ea4b78,
-    #eb5179,
-    #eb5679,
-    #ec5c7a,
-    #ed617a,
-    #ed667b,
-    #ee6b7c,
-    #ef717d,
-    #f0777d,
-    #f17c7e,
-    #f2827f,
-    #f38c80,
-    #f38d80,
-    #f49680,
-    #f59881,
-    #f69f81,
-    #f7a382,
-    #f8a982,
-    #f8ad84,
-    #fab497,
-    #feb191,
-    #e7a0a5,
-    #d98ab0,
-    #c277b9,
-    #b364c0,
-    #ac61bd,
-    #a75fba,
-    #a05cb7,
-    #9a5ab4,
-    #9458b1,
-    #8d55ae,
-    #8753ab,
-    #8050a8,
-    #7a4ea5,
-    #734ba2,
-    #6e489f,
-    #67469c,
-    #604499,
-    #5a4196,
-    #543e93,
-    #4d3c90,
-    #473a8d,
-    #40378a,
-    #453c94,
-    #4a3e9e
-  );
-  --text-color: #f8f9fa;
-  --card-bg: transparent;
-  --border-color: #444;
+html[data-theme="light"] {
+  --text-color: #000000;
+  --button-text: #ffffff;
+  --bg-color: transparent;
 }
 
-body[data-theme="light"] {
-  --bg-color: #fffaf0;
-  --text-color: #000000;
-  --card-bg: #ffffff;
-  --border-color: #ccc;
+html[data-theme="dark"] {
+  --text-color: #f8f9fa;
+  --button-text: #f8f9fa;
+  --bg-color: transparent;
+}
+
+/* Background overlay for dark mode (visual dim) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  transition: background-color 0.4s ease;
+  background-color: transparent;
+}
+
+body[data-theme="dark"]::before {
+  background-color: rgba(0, 0, 0, 0.4); /* Dark overlay */
+}
+
+body[data-theme="light"]::before {
+  background-color: rgba(0, 0, 0, 0); /* No overlay in light */
+}
+
+body.uploadit {
+  background: linear-gradient(
+    to right,
+    #4a3e9e,
+    #443a93,
+    #3e3689,
+    #48378d,
+    #523b92,
+    #5b4096,
+    #64449a,
+    #6c489d,
+    #754ca1,
+    #7d50a4,
+    #8554a8,
+    #8d59ac,
+    #955db0,
+    #9e62b3,
+    #a666b7,
+    #ae6abb,
+    #b66fbe,
+    #bf73c2,
+    #c778c6,
+    #d07cca,
+    #d980cc,
+    #e184cd,
+    #e98bc6,
+    #f1a3b3,
+    #f5c4c6,
+    #eed7d2,
+    #e7e9dc,
+    #dff4df,
+    #d7f8df,
+    #cefae0,
+    #c5fce1,
+    #bcfce1,
+    #b3fbe0,
+    #aaf9df,
+    #a1f6dd,
+    #97f2da,
+    #8eeed6,
+    #84e2cc,
+    #79d7c2,
+    #6fcbb8,
+    #64bfae,
+    #59b4a4,
+    #4ea999,
+    #439f90,
+    #389587,
+    #2d8b7e,
+    #238175
+  );
+  color: var(--text-color);
 }
 
 /* =========================
@@ -157,7 +180,7 @@ body[data-theme="light"] {
   justify-content: center;
   align-content: center;
   position: relative;
-  min-height: 100vh;
+  min-height: 90vh;
   color: var(--text-color);
   padding: 0 !important;
   z-index: 0;
@@ -259,31 +282,34 @@ body[data-theme="light"] {
 /* =========================
     TYPOGRAPHY
 ========================= */
+/* Global text inheritance */
 body,
-p,
+html,
 h1,
 h2,
 h3,
 h4,
 h5,
 h6,
+p,
 a,
 span,
-strong,
 ul,
 ol,
 li,
 label,
-button,
-.accordion .card-body,
-.card-title,
-.card-text,
-.table,
-.form,
-.form-control,
+input,
+select,
+textarea,
+.card,
+.card-body,
+.accordion,
+.details,
+.btn-link,
 .navbar .nav-link,
-.badge,
-.details {
+.form-control,
+.table,
+.toast-message {
   color: var(--text-color) !important;
 }
 
