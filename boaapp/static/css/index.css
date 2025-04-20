@@ -3,7 +3,7 @@
 ========================= */
 * {
   box-sizing: border-box;
-  outline: 1px dotted red;
+  /* outline: 1px dotted red; */
 }
 
 body {
@@ -27,7 +27,6 @@ body {
 :root {
   background: linear-gradient(
     to right,
-    #e73276,
     #e83c77,
     #e84177,
     #ea4578,

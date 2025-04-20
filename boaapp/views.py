@@ -4,6 +4,7 @@ import os
 import re
 import threading
 import time
+import nbformat
 from threading import Thread
 
 from django.conf import settings
@@ -14,7 +15,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from docx import Document
-
+from django.utils.text import slugify
 from .create_video import create_video_parallel
 from .forms import DocumentForm, UserRegisterForm
 from .models import AudioFile, Document  # Updated to ensure Document model is imported
@@ -47,9 +48,8 @@ def uploadit(request):
     ("📝 Synchronized Text", "Text is chunked into natural sentences and aligned to the audio duration for clear, readable display."),
     ("📈 Progress Tracking", "While the upload and processing runs, logs and progress percentages are tracked and updated in real-time."),
     ("📂 Dashboard + Download", "After completion, your files appear in your personal dashboard where you can play, download, or delete them.")
-]
+  ]
     return render(request, 'boaapp/uploadit.html', {'items': items, 'page_id': 'uploadit'})
-
 
 def boashedskin_view(request):
     return HttpResponse("Health check successful!")
@@ -81,12 +81,10 @@ def login_view(request):
             messages.error(request, 'Invalid username or password')
     return render(request, 'boaapp/login.html')
 
-
 def logout_view(request):
     """Handle user logout."""
     logout(request)
     return redirect('login')
-
 
 @csrf_exempt
 def upload_progress(request, file_name):
@@ -96,7 +94,6 @@ def upload_progress(request, file_name):
         'progress': progress.get('progress', 0),
         'logs': logs,
     })
-
 
 def handle_audio_creation(file_path, file_name, request, document_reference):
     global progress_data, log_data
@@ -141,33 +138,64 @@ def handle_audio_creation(file_path, file_name, request, document_reference):
 
     return generated_audio_names
 
-
-
 @login_required
 def upload_document(request):
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            # Check for duplicate file before saving
-            existing_file_path = os.path.join(settings.MEDIA_ROOT, 'documents', request.FILES['uploaded_file'].name)
-            if os.path.exists(existing_file_path):
-                messages.error(request, "A file with this name already exists. Please rename your file or upload a different one.")
+            uploaded_file = request.FILES['uploaded_file']
+
+            # Step 1: Read notebook content (not yet saved)
+            try:
+                uploaded_nb = nbformat.read(uploaded_file, as_version=4)
+                uploaded_sections = [
+                    cell['source'].strip()
+                    for cell in uploaded_nb.cells
+                    if cell.cell_type == 'markdown' and cell['source'].strip().startswith('#')
+                ]
+                if uploaded_sections:
+                    uploaded_title = uploaded_sections[0].replace("#", "").strip().lower()
+                else:
+                    uploaded_title = os.path.splitext(uploaded_file.name)[0].lower()
+            except Exception as e:
+                messages.error(request, "Failed to read notebook content. Please upload a valid .ipynb file.")
                 return redirect('upload_document')
 
-            file_path = handle_uploaded_file(request.FILES['uploaded_file'])
+            # Step 2: Compare title with existing notebooks
+            existing_titles = []
+            for doc in Document.objects.all():
+                try:
+                    path = os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file))
+                    if os.path.exists(path):
+                        with open(path, 'r', encoding='utf-8') as f:
+                            nb = nbformat.read(f, as_version=4)
+                            for cell in nb.cells:
+                                if cell.cell_type == 'markdown' and cell['source'].strip().startswith('#'):
+                                    existing_titles.append(cell['source'].replace("#", "").strip().lower())
+                                    break
+                except:
+                    continue
+
+            if uploaded_title in existing_titles:
+                messages.error(request, "A notebook with this name has already been uploaded (same title). Please rename or upload a different file.")
+                return redirect('upload_document')
+
+            # Step 3: Save and process as usual
+            uploaded_file.seek(0)  # rewind file after reading
+            file_path = handle_uploaded_file(uploaded_file)
             document = form.save(commit=False)
             document.user = request.user
             document.save()
 
             file_name = document.uploaded_file.name
-            cleaned_file_name = file_name.split('/')[-1]
+            cleaned_file_name = os.path.basename(file_name)
 
             audio_file_names = handle_audio_creation(file_path, file_name, request, document)
 
             return render(request, 'boaapp/upload_success.html', {
                 'file_name': cleaned_file_name,
                 'audio_names': audio_file_names,
-         'page_id': 'uploadit'
+                'page_id': 'uploadit'
             })
     else:
         form = DocumentForm()
@@ -177,9 +205,8 @@ def upload_document(request):
     return render(request, 'boaapp/upload.html', {
         'form': form,
         'existing_filenames': json.dumps(existing_files),
-         'page_id': 'uploadit'
+        'page_id': 'uploadit'
     })
-
 
 @login_required
 def upload_progress_page(request, file_name):
@@ -188,7 +215,6 @@ def upload_progress_page(request, file_name):
         'file_name': file_name,
          'page_id': 'uploadit'
     })
-
 
 def upload_success(request):
     """Render upload success page with processed audio file names."""
@@ -207,11 +233,9 @@ def upload_success(request):
          'page_id': 'uploadit'
     })
 
-
 def companyandme(request):
     """Render 'Company and Me' page."""
     return render(request, 'boaapp/companyandme.html')
-
 
 def handle_uploaded_file(f):
     """Handle the uploaded file and save it to the media directory."""
@@ -220,7 +244,6 @@ def handle_uploaded_file(f):
         for chunk in f.chunks():
             destination.write(chunk)
     return file_path
-
 
 def portfolio_showcase(request):
     portfolio_items = PortfolioItem.objects.prefetch_related(
@@ -232,7 +255,6 @@ def portfolio_showcase(request):
         'devops_items': devops_items,
     })
 
-
 def project_pages(request):
     portfolio_items = PortfolioItem.objects.all()
     devops_items = DevopsItem.objects.all()
@@ -241,22 +263,17 @@ def project_pages(request):
         'devops_items': devops_items,
     })
 
-
 def data_start(request):
     return render(request, 'boaapp/data_start.html')
-
 
 def data_project(request):
     return render(request, 'boaapp/data_project.html')
 
-
 def live_demos(request):
     return render(request, 'boaapp/live_demos.html')
 
-
 def skills_section(request):
     return render(request, 'boaapp/skills_section.html')
-
 
 def display_resume(request):
     try:
@@ -265,7 +282,6 @@ def display_resume(request):
         return render(request, 'boaapp/resume.html', {'error': 'No resume document found'})
 
     return render(request, 'boaapp/resume.html', {'resume': resume})
-
 
 def process_audio_and_create_videos(audio_dir, video_dir, logo_path, background_path):
     audio_files = sorted([os.path.join(audio_dir, file)
@@ -283,14 +299,11 @@ def process_audio_and_create_videos(audio_dir, video_dir, logo_path, background_
 
     logger.info("Video creation complete.")
 
-
 @login_required
 def dashboard(request):
     all_documents = Document.objects.filter(user=request.user).order_by('-uploaded_at')
 
-# Filter only documents that still exist on disk
     documents = [doc for doc in all_documents if os.path.exists(os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file)))]
-
 
     # Count all audio files
     all_audio_path = os.path.join(settings.MEDIA_ROOT, 'audio')
@@ -303,21 +316,24 @@ def dashboard(request):
     if total_audio > 0:
         latest_only = False  # Don't limit if audio files already exist
 
+    displayed_count = 1 if latest_only and latest_doc else len(documents)
+    
     context = {
         'document_count': len(documents),
         'audio_file_count': total_audio,
-        'latest_doc': documents[0] if documents else None,
+        'latest_doc': latest_doc,
         'all_docs': documents,
         'latest_only': latest_only,
+        'displayed_count': displayed_count,
+        'page_id': 'uploadit',
     }
 
 
     return render(request, 'boaapp/dashboard.html', {
     **context,
     'page_id': 'uploadit'
-})
-
-    
+  })
+  
 @login_required
 def delete_orphaned_files(request):
     deleted = 0
@@ -365,3 +381,7 @@ def delete_ipynb_files(request):
             os.remove(ipynb_path)
             deleted += 1
     return JsonResponse({'deleted_ipynb_files': deleted})
+
+def sanitize_filename(name):
+    # Remove suffixes like _jyWIaCC from '01-Intro_abc123.ipynb'
+    return re.sub(r'_[A-Za-z0-9]{6,}(\.ipynb)$', r'\1', name)

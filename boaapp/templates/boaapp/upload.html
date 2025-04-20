@@ -1,66 +1,66 @@
 {% extends 'boaapp/base_generic.html' %} {% load static %} {% load camel_filters
-%} {% get_media_prefix as MEDIA_URL %}
+%} {% load widget_tweaks %} {% get_media_prefix as MEDIA_URL %}
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>thenumerix | Upload Now</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="{% static 'css/index.css' %}?v={{ timestamp }}"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-  </head>
-  <body class="{% if page_id %}{{ page_id }}{% endif %}">
-    {% block content %}
-    <div class="container custom-container text-center">
-      <h1 class="mb-3">📤 Upload Your Data Course</h1>
 
-      {% if user.is_authenticated %}
-      <p class="mb-4">
-        You, <strong>{{ user.username }}</strong>, are now uploading your very
-        own course.
-      </p>
-      {% endif %}
+{% block content %}
+<div class="container upload-container custom-container text-center">
+  <h1 class="mb-4">📤 Upload Your Data Course</h1>
 
-      <form
-        method="post"
-        enctype="multipart/form-data"
-        action="{% url 'upload_document' %}"
-        class="form"
-      >
-        {% csrf_token %}
-        <div class="form-group">{{ form.as_p }}</div>
-        <button type="submit" class="btn btn-lg btn-primary">Upload</button>
-      </form>
+  {% if user.is_authenticated %}
+  <p class="mb-4">
+    You, <strong>{{ user.username }}</strong>, are uploading your course
+    content.
+  </p>
+  {% endif %} {% if messages %}
+  <div class="alert alert-danger">
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <form
+    id="uploadForm"
+    method="post"
+    enctype="multipart/form-data"
+    action="{% url 'upload_document' %}"
+    class="form p-4 shadow rounded bg-light"
+    style="max-width: 500px; margin: auto"
+  >
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="id_uploaded_file" class="font-weight-bold">
+        Choose your Jupyter notebook file (.ipynb)
+      </label>
+      {{ form.uploaded_file|add_class:"form-control-file" }}
     </div>
 
-    {% endblock %}
-    <script>
-      document.querySelector('#uploadForm').addEventListener('submit', function (e) {
-        const fileInput = document.querySelector('input[type="file"]');
-        const fileName = fileInput.files[0]?.name;
+    <button type="submit" class="btn btn-lg btn-primary w-100 mt-3">
+      🚀 Upload File
+    </button>
 
-        const uploadedFiles = {{ existing_filenames|safe }};  // passed from backend
+    <a
+      href="{% url 'dashboard' %}"
+      class="btn btn-outline-secondary btn-block mt-3"
+    >
+      📊 Go to Dashboard
+    </a>
+  </form>
+</div>
 
-        if (uploadedFiles.includes(fileName)) {
-          e.preventDefault();
-          alert("A file with this name already exists. Please rename and try again.");
-        }
-      });
-    </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.querySelector('input[type="file"]');
+    const uploadedFiles = {{ existing_filenames|safe }};
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  </body>
-</html>
+    form.addEventListener("submit", function (e) {
+      const fileName = fileInput.files[0]?.name;
+      if (uploadedFiles.includes(fileName)) {
+        e.preventDefault();
+        alert("🚫 This file has already been uploaded. Please rename and try again.");
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,15 +1,15 @@
 {% extends 'boaapp/base_generic.html' %} {% load static %} {% load tz %}
 <!DOCTYPE html>
 {% block content %}
-<div class="container dashboard-container flex-column pt-3">
-  <div class="text-center mb-4">
+<div class="dashboard-container flex-column pt-3">
+  <div class="text-center">
     <h1 class="mb-3">📊 My Dashboard</h1>
     <div class="row justify-content-center">
-      <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
+      <div class="d-flex justify-content-center flex-wrap gap-3">
         <div class="card border-primary card-summary mx-2">
           <div class="card-body text-center">
             <h5 class="card-title">📁 Uploaded Files</h5>
-            <p class="card-text display-4">{{ document_count }}</p>
+            <p class="card-text display-4">{{ displayed_count }}</p>
           </div>
         </div>
         <div class="card border-info card-summary mx-2">
@@ -21,27 +21,16 @@
       </div>
     </div>
   </div>
-
+  <br />
   <div class="text-center">
     <h3>📄 My Uploaded Documents</h3>
   </div>
 
-  {% if not latest_only and all_docs|length > 2 %}
   <div class="text-center">
-    <button
-      class="btn btn-primary mb-2"
-      id="toggle-btn"
-      onclick="toggleTableRows()"
-    >
+    <button class="btn mb-2" id="toggle-btn" onclick="toggleTableRows()">
       Show All
     </button>
     <br />
-    <button
-      class="btn btn-danger mb-2"
-      onclick="confirmAndDelete('{% url 'delete_orphaned_files' %}')"
-    >
-      🗑 Delete Orphaned Files
-    </button>
     <button
       class="btn btn-warning mb-2"
       onclick="confirmAndDelete('{% url 'delete_ipynb_files' %}')"
@@ -50,12 +39,21 @@
     </button>
     <button
       class="btn btn-danger mb-2"
+      onclick="confirmAndDelete('{% url 'delete_orphaned_files' %}')"
+    >
+      🗑 Delete Orphaned Files
+    </button>
+
+    <button
+      class="btn btn-danger mb-2"
       onclick="confirmAndDelete('{% url 'delete_all_files' %}')"
     >
       🔥 Delete All Files
     </button>
+    <button class="btn btn-success mb-2" onclick="{% url 'uploadit!' %}">
+      🚀 Upload Files
+    </button>
   </div>
-  {% endif %}
 
   <div
     class="table-responsive mb-5"
