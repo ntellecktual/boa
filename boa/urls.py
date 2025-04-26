@@ -6,7 +6,6 @@ from django.urls import path
 from boaapp import views as boaapp_views
 
 urlpatterns = [
-    path('upload/progress/', boaapp_views.upload_progress, name='upload_progress'),
     path('admin/', admin.site.urls),
     path('register/', boaapp_views.register, name='register'),
     path('login/', boaapp_views.login_view, name='login'),
@@ -25,8 +24,6 @@ urlpatterns = [
     path('data_project/', boaapp_views.data_project, name='data_project'),
     path('live_demos/', boaapp_views.live_demos, name='live_demos'),
     path('skills/', boaapp_views.skills_section, name='skills_section'),
-    path('upload/progress/<str:file_name>/', boaapp_views.upload_progress,
-         name='upload_progress'),
     path('boashedskin', boaapp_views.boashedskin_view, name='boashedskin'),
     path('dashboard/', boaapp_views.dashboard, name='dashboard'),
      path('dashboard/delete_orphaned/', boaapp_views.delete_orphaned_files, name='delete_orphaned_files'),

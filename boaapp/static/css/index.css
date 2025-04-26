@@ -3,7 +3,7 @@
 ========================= */
 * {
   box-sizing: border-box;
-  /* outline: 1px dotted red; */
+  outline: 1px dotted red;
 }
 
 body {
@@ -247,7 +247,7 @@ body.uploadit {
 .list-group-item {
   background-color: var(--card-bg);
   color: var(--text-color);
-  border-color: var(--border-color) !important;
+  border-color: none !important;
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 

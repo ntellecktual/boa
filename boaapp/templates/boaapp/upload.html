@@ -32,13 +32,12 @@
       <label for="id_uploaded_file" class="font-weight-bold">
         Choose your Jupyter notebook file (.ipynb)
       </label>
-      {{ form.uploaded_file|add_class:"form-control-file" }}
+      <a> {{ form.uploaded_file|add_class:"form-control-file" }} </a>
     </div>
 
-    <button type="submit" class="btn btn-lg btn-primary w-100 mt-3">
+    <button type="submit" class="btn btn-lg btn-success w-100 mt-3">
       🚀 Upload File
     </button>
-
     <a
       href="{% url 'dashboard' %}"
       class="btn btn-outline-secondary btn-block mt-3"
