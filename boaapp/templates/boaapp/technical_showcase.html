@@ -1,0 +1,98 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}thenumerix | Technical Showcase{% endblock %}
+
+{% block content %}
+<div class="container login-custom-container custom-margin-bottom">
+    <h1 class="text-center mb-4">Technical Showcase</h1>
+
+    <div class="accordion" id="technicalAccordion" style="max-width: 800px; margin: auto;">
+
+        {# American Airlines #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingTechAA">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseTechAA" aria-expanded="false" aria-controls="collapseTechAA">
+                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="accordion-company-logo">
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseTechAA" class="collapse" aria-labelledby="headingTechAA" data-parent="#technicalAccordion">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">Technologies Used at American Airlines</h5>
+                    <div class="d-flex flex-wrap justify-content-center align-items-center">
+                        <img src="{% static 'css/img/kiko_logo.png' %}" alt="Kiko Logo" class="m-2 tech-logo" title="Kiko">
+                        <img src="{% static 'css/img/rovr_logo.png' %}" alt="ROVR Logo" class="m-2 tech-logo" title="ROVR">
+                        <img src="{% static 'css/img/tableau_logo.png' %}" alt="Tableau Logo" class="m-2 tech-logo" title="Tableau">
+                        <img src="{% static 'css/img/python_logo.png' %}" alt="Python Logo" class="m-2 tech-logo" title="Python">
+                        <img src="{% static 'css/img/java_logo.png' %}" alt="Java Logo" class="m-2 tech-logo" title="Java">
+                        <img src="{% static 'css/img/databricks_Logo.png' %}" alt="Databricks Logo" class="m-2 tech-logo" title="Databricks">
+                        <img src="{% static 'css/img/azure_logo.png' %}" alt="Azure Logo" class="m-2 tech-logo" title="Azure">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Citibank #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingTechCiti">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseTechCiti" aria-expanded="false" aria-controls="collapseTechCiti">
+                        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="accordion-company-logo">
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseTechCiti" class="collapse" aria-labelledby="headingTechCiti" data-parent="#technicalAccordion">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">Technologies Used at Citibank</h5>
+                    <div class="d-flex flex-wrap justify-content-center align-items-center">
+                        <img src="{% static 'css/img/snowflake_citi_logo.png' %}" alt="Snowflake Logo" class="m-2 tech-logo" title="Snowflake">
+                        <img src="{% static 'css/img/lti_logo.png' %}" alt="LTI Logo" class="m-2 tech-logo" title="LTI">
+                        <img src="{% static 'css/img/tectia_logo.png' %}" alt="Tectia Logo" class="m-2 tech-logo" title="Tectia">
+                        <img src="{% static 'css/img/hadoop_logo.png' %}" alt="Hadoop Logo" class="m-2 tech-logo" title="Hadoop">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Code Ninjas #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingTechCodeNinjas">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseTechCodeNinjas" aria-expanded="false" aria-controls="collapseTechCodeNinjas">
+                        <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas Logo" class="accordion-company-logo">
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseTechCodeNinjas" class="collapse" aria-labelledby="headingTechCodeNinjas" data-parent="#technicalAccordion">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">Technologies Used at Code Ninjas</h5>
+                    <div class="d-flex flex-wrap justify-content-center align-items-center">
+                        <img src="{% static 'css/img/homebase.png' %}" alt="Homebase Logo" class="m-2 tech-logo" title="Homebase">
+                        <img src="{% static 'css/img/vonage_business_logo.png' %}" alt="Vonage Logo" class="m-2 tech-logo" title="Vonage">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.tech-logo {
+  height: 60px; /* Adjust as needed for tool logos */
+  width: auto;
+  max-width: 150px; /* Prevent very wide tool logos from taking too much space */
+  object-fit: contain; /* Ensures the logo fits well without cropping, good for varied aspect ratios */
+}
+.accordion-company-logo { /* Ensure this is consistent with your portfolio_showcase.html styling */
+  height: 50px; /* Or your preferred height for company logos in accordion headers */
+  width: auto;
+  max-width: 250px;
+  object-fit: contain;
+}
+</style>
+{% endblock %}

@@ -30,7 +30,13 @@ class AudioFile(models.Model):
     file = models.FileField(upload_to='audio/')
     metadata = models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
-    document = models.ForeignKey(Document, related_name='audio_files', on_delete=models.CASCADE)
+    document = models.ForeignKey(
+    Document,
+    related_name='audio_files',
+    on_delete=models.CASCADE,
+    null=True,  # Allow null in the database
+    blank=True  # Allow empty in forms/admin
+    )
     def __str__(self):
         return f"{self.name} - {self.title}"
 

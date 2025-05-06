@@ -1,42 +1,13 @@
 {% extends 'boaapp/base_generic.html' %} {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}thenumerix | Home{% endblock %}</title>
+{% block title %}thenumerix | Login{% endblock %}
 
-    <!-- Include jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+{% block extra_head %}
+{# Add any page-specific head elements here if needed #}
+{% endblock %}
 
-    <!-- Include Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Include your custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{% static 'css/index.css' %}?v={{ timestamp }}"
-    />
-
-    <!-- Include Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    <!-- Include your custom JavaScript -->
-    <script src="{% static 'js/index.js' %}"></script>
-
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-  </head>
-
-  <body>
-    {% block content %}
+{% block content %}
+{# Content starts here, no need for <html>, <head>, <body> tags #}
     <div class="container login-custom-container custom-margin-bottom">
       <h1
         class="display-4 mb-4 d-flex flex-column align-items-center justify-content-center"
@@ -54,12 +25,10 @@
       </h1>
       {% if user.is_authenticated %}
       <span
-        >{{ user.username }}'s Portfolio, Projects, Data Engineering, all in
-        one!</span
+        >{{ user.username }}'s Portfolio, Projects, and Apps</span
       >
-      <span>Logged in as {{ user.username }}</span>
       {% else %}
-      <span>Explore Portfolio, Projects, and Data Engineering insights.</span>
+      <span>Portfolio, Projects, and Apps</span>
       {% endif %}
     </div>
 
@@ -77,30 +46,40 @@
               <button
                 class="btn btn-link btn-block"
                 type="button"
-                data-toggle="collapse"
-                data-target="#collapseOne"
-                aria-expanded="false"
-                aria-controls="collapseOne"
+                onclick="window.location.href='{% url 'portfolio_showcase' %}'"
               >
-                Enterprise Architecture / Engineering
+                Portfolio
               </button>
             </h2>
           </div>
           <div
             id="collapseOne"
-            class="collapse"
+            class="collapse" {# This div will no longer be used for content #}
             aria-labelledby="headingOne"
             data-parent="#dashboardAccordion"
-          >
-            <div class="card-body text-center">
+          ></div>
+        </div>
+
+        {% comment %} Education {% endcomment %}
+        <div class="card mb-2">
+          <div class="card-header" id="headingEducation">
+            <h2 class="mb-0">
               <button
-                class="btn"
-                onclick="window.location.href='{% url 'portfolio_showcase' %}'"
+                class="btn btn-link btn-block"
+                type="button"
+                onclick="window.location.href='{% url 'education_details' %}'"
               >
-                View Section
+                Education
               </button>
-            </div>
+            </h2>
           </div>
+          <div
+            id="collapseEducation"
+            class="collapse"
+            {# This div will no longer be used for content #}
+            aria-labelledby="headingEducation"
+            data-parent="#dashboardAccordion"
+          ></div>
         </div>
 
         {% comment %} Technical {% endcomment %}
@@ -110,10 +89,7 @@
               <button
                 class="btn btn-link btn-block"
                 type="button"
-                data-toggle="collapse"
-                data-target="#collapseTwo"
-                aria-expanded="false"
-                aria-controls="collapseTwo"
+                onclick="window.location.href='{% url 'project_pages' %}'"
               >
                 Technical
               </button>
@@ -122,18 +98,10 @@
           <div
             id="collapseTwo"
             class="collapse"
+            {# This div will no longer be used for content #}
             aria-labelledby="headingTwo"
             data-parent="#dashboardAccordion"
-          >
-            <div class="card-body text-center">
-              <button
-                class="btn"
-                onclick="window.location.href='{% url 'project_pages' %}'"
-              >
-                View Section
-              </button>
-            </div>
-          </div>
+          ></div>
         </div>
 
         {% comment %} Business Analytics {% endcomment %}
@@ -143,10 +111,7 @@
               <button
                 class="btn btn-link btn-block"
                 type="button"
-                data-toggle="collapse"
-                data-target="#collapseThree"
-                aria-expanded="false"
-                aria-controls="collapseThree"
+                onclick="window.location.href='{% url 'companyandme' %}'"
               >
                 Business Analytics
               </button>
@@ -155,18 +120,10 @@
           <div
             id="collapseThree"
             class="collapse"
+            {# This div will no longer be used for content #}
             aria-labelledby="headingThree"
             data-parent="#dashboardAccordion"
-          >
-            <div class="card-body text-center">
-              <button
-                class="btn"
-                onclick="window.location.href='{% url 'companyandme' %}'"
-              >
-                View Section
-              </button>
-            </div>
-          </div>
+          ></div>
         </div>
 
         {% comment %} Engineering At a Glance {% endcomment %}
@@ -176,10 +133,7 @@
               <button
                 class="btn btn-link btn-block"
                 type="button"
-                data-toggle="collapse"
-                data-target="#collapseFour"
-                aria-expanded="false"
-                aria-controls="collapseFour"
+                onclick="window.location.href='{% url 'live_demos' %}'"
               >
                 Engineering | At a Glance
               </button>
@@ -188,18 +142,10 @@
           <div
             id="collapseFour"
             class="collapse"
+            {# This div will no longer be used for content #}
             aria-labelledby="headingFour"
             data-parent="#dashboardAccordion"
-          >
-            <div class="card-body text-center">
-              <button
-                class="btn"
-                onclick="window.location.href='{% url 'live_demos' %}'"
-              >
-                View Section
-              </button>
-            </div>
-          </div>
+          ></div>
         </div>
 
         {% comment %} Data Projects {% endcomment %}
@@ -209,10 +155,7 @@
               <button
                 class="btn btn-link btn-block"
                 type="button"
-                data-toggle="collapse"
-                data-target="#collapseFive"
-                aria-expanded="false"
-                aria-controls="collapseFive"
+                onclick="window.location.href='{% url 'data_start' %}'"
               >
                 Data | Projects
               </button>
@@ -221,18 +164,10 @@
           <div
             id="collapseFive"
             class="collapse"
+            {# This div will no longer be used for content #}
             aria-labelledby="headingFive"
             data-parent="#dashboardAccordion"
-          >
-            <div class="card-body text-center">
-              <button
-                class="btn"
-                onclick="window.location.href='{% url 'data_start' %}'"
-              >
-                View Section
-              </button>
-            </div>
-          </div>
+          ></div>
         </div>
 
         {% comment %} Upload It! {% endcomment %}
@@ -242,14 +177,11 @@
               <button
                 class="btn btn-link btn-block"
                 type="button"
-                data-toggle="collapse"
-                data-target="#collapseSix"
-                aria-expanded="false"
-                aria-controls="collapseSix"
+                onclick="window.location.href='{% url 'uploadit!' %}'"
               >
                 <span class="text-primary">
                   <img
-                    src="{% static 'css/uploadit!logo.png' %}"
+                    src="{% static 'css/img/uploadit!logo.png' %}"
                     alt="UploadIt! Logo"
                     height="150" /></span
                 ><span class="badge badge-success badge-pill">New!</span>
@@ -259,18 +191,10 @@
           <div
             id="collapseSix"
             class="collapse"
+            {# This div will no longer be used for content #}
             aria-labelledby="headingSix"
             data-parent="#dashboardAccordion"
-          >
-            <div class="card-body text-center">
-              <button
-                class="btn"
-                onclick="window.location.href='{% url 'uploadit!' %}'"
-              >
-                Upload Your Course File
-              </button>
-            </div>
-          </div>
+          ></div>
         </div>
       </div>
     </div>

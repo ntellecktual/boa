@@ -3,7 +3,7 @@
 ========================= */
 * {
   box-sizing: border-box;
-  outline: 1px dotted red;
+  /* outline: 1px dotted red; */
 }
 
 body {
@@ -11,7 +11,6 @@ body {
   padding-top: 70px;
   min-height: 100vh;
   background-color: var(--bg-color);
-  color: var(--text-color);
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
@@ -26,58 +25,47 @@ body {
 ========================= */
 :root {
   background: linear-gradient(
-    to right,
-    #e83c77,
-    #e84177,
-    #ea4578,
-    #ea4b78,
-    #eb5179,
-    #eb5679,
-    #ec5c7a,
-    #ed617a,
-    #ed667b,
-    #ee6b7c,
-    #ef717d,
-    #f0777d,
-    #f17c7e,
-    #f2827f,
-    #f38c80,
-    #f38d80,
-    #f49680,
-    #f59881,
-    #f69f81,
-    #f7a382,
-    #f8a982,
-    #f8ad84,
-    #fab497,
-    #feb191,
-    #e7a0a5,
-    #d98ab0,
-    #c277b9,
-    #b364c0,
-    #ac61bd,
-    #a75fba,
-    #a05cb7,
-    #9a5ab4,
-    #9458b1,
-    #8d55ae,
-    #8753ab,
-    #8050a8,
-    #7a4ea5,
-    #734ba2,
-    #6e489f,
-    #67469c,
-    #604499,
-    #5a4196,
-    #543e93,
-    #4d3c90,
-    #473a8d,
-    #40378a,
-    #453c94,
-    #4a3e9e
+      to right,
+      #e83c77, /* Start Pink */
+      #ea5478, /* Added: Smoother Pink Transition */
+      #f0777d, /* Mid Pink/Orange */
+      #f5908a, /* Added: Smoother Orange/Peach Transition */
+      #fab497, /* Peach */
+      #e0a0ab, /* Added: Pink-Purple Transition */
+      #d98ab0, /* Light Purple */
+      #a75fba, /* Mid Purple */
+      #734ba2, /* Deeper Purple */
+      #5e48a0, /* Added: Purple-Blue Transition */
+      #4a3e9e  /* End Blue */
   );
-  --text-color: #ffffff;
   --border-color: #cccccc;
+  --button-bg: #40378a;
+  --button-text: #ffffff; /* Default button text */
+}
+
+/* Add this to your index.css */
+.nav-separator {
+  width: 1px;
+  height: 24px; /* Adjust height as needed */
+  background-color: rgba(255, 255, 255, 0.5); /* Or use theme variables */
+  margin-left: 0.5rem; /* Optional spacing */
+  margin-right: 0.5rem; /* Optional spacing */
+}
+
+
+body.uploadit {
+  /* Fallback for older WebKit browsers */
+  background: -webkit-linear-gradient(
+    left, /* Correct syntax for -webkit- */
+    #4a3e9e, #6c489d, #ae6abb, #e98bc6, #d1c4e9, #64bfae, #238175, #1a685c, #114d44
+  );
+  /* Standard syntax */
+  background: linear-gradient(
+    to right, #4a3e9e, #6c489d, #ae6abb, #e98bc6, #d1c4e9, #64bfae, #238175, #1a685c, #114d44
+  );
+  color: var(--text-color); /* Explicitly apply the theme's text color */
+  /* Theme variables for uploadit */
+  --border-color: #cccccc; /* Specific border color for uploadit */
   --button-bg: #40378a;
   --button-text: #ffffff;
 }
@@ -86,12 +74,16 @@ html[data-theme="light"] {
   --text-color: #000000;
   --button-text: #ffffff;
   --bg-color: transparent;
+  --card-bg: rgba(255, 255, 255, 0.1); /* Example card background for light */
+  color: var(--text-color) !important; /* Apply text color with high priority */
 }
 
 html[data-theme="dark"] {
   --text-color: #f8f9fa;
   --button-text: #f8f9fa;
+  --card-bg: rgba(0, 0, 0, 0.2); /* Example card background for dark */
   --bg-color: transparent;
+  color: var(--text-color) !important; /* Apply text color with high priority */
 }
 
 /* Background overlay for dark mode (visual dim) */
@@ -104,7 +96,6 @@ body::before {
   height: 100vh;
   pointer-events: none;
   z-index: -1;
-  transition: background-color 0.4s ease;
   background-color: transparent;
 }
 
@@ -116,59 +107,7 @@ body[data-theme="light"]::before {
   background-color: rgba(0, 0, 0, 0); /* No overlay in light */
 }
 
-body.uploadit {
-  background: linear-gradient(
-    to right,
-    #4a3e9e,
-    #443a93,
-    #3e3689,
-    #48378d,
-    #523b92,
-    #5b4096,
-    #64449a,
-    #6c489d,
-    #754ca1,
-    #7d50a4,
-    #8554a8,
-    #8d59ac,
-    #955db0,
-    #9e62b3,
-    #a666b7,
-    #ae6abb,
-    #b66fbe,
-    #bf73c2,
-    #c778c6,
-    #d07cca,
-    #d980cc,
-    #e184cd,
-    #e98bc6,
-    #f1a3b3,
-    #f5c4c6,
-    #eed7d2,
-    #e7e9dc,
-    #dff4df,
-    #d7f8df,
-    #cefae0,
-    #c5fce1,
-    #bcfce1,
-    #b3fbe0,
-    #aaf9df,
-    #a1f6dd,
-    #97f2da,
-    #8eeed6,
-    #84e2cc,
-    #79d7c2,
-    #6fcbb8,
-    #64bfae,
-    #59b4a4,
-    #4ea999,
-    #439f90,
-    #389587,
-    #2d8b7e,
-    #238175
-  );
-  color: var(--text-color);
-}
+/* Removed redundant body.uploadit color rule */
 
 /* =========================
     CONTAINERS & UTILITIES
@@ -179,7 +118,7 @@ body.uploadit {
   justify-content: center;
   align-content: center;
   position: relative;
-  min-height: 90vh;
+  min-height: 90vh; /* Inherits color from html[data-theme] */
   color: var(--text-color);
   padding: 0 !important;
   z-index: 0;
@@ -199,9 +138,6 @@ body.uploadit {
   max-width: 600px;
 }
 
-.dashboard-container {
-  margin-top: 90px;
-}
 
 /* =========================
     NAVIGATION
@@ -212,14 +148,14 @@ body.uploadit {
 }
 
 .navbar .nav-link {
-  color: var(--text-color) !important;
+  color: var(--text-color); /* Removed !important */
 }
 
 /* =========================
     BUTTONS
 ========================= */
 .btn {
-  color: var(--button-text) !important;
+  color: var(--button-text); /* Removed !important */
   border: none !important;
   transition: background-color 0.4s ease, color 0.4s ease;
   text-align: center;
@@ -245,9 +181,9 @@ body.uploadit {
 .table,
 .audio-entry,
 .list-group-item {
-  background-color: var(--card-bg);
+  background-color: var(--card-bg, rgba(0,0,0,0.1)); /* Use variable with fallback */
   color: var(--text-color);
-  border-color: none !important;
+  border: none !important; /* Corrected border removal */
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
@@ -273,44 +209,17 @@ body.uploadit {
 .form {
   background-color: transparent !important;
 }
+
 .form-control {
   border: none;
   text-align: center;
+  background-color: transparent !important;
+  color: #000000 !important;
 }
 
 /* =========================
     TYPOGRAPHY
-========================= */
-/* Global text inheritance */
-body,
-html,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-a,
-span,
-ul,
-ol,
-li,
-label,
-input,
-select,
-textarea,
-.card,
-.card-body,
-.accordion,
-.details,
-.btn-link,
-.navbar .nav-link,
-.form-control,
-.table,
-.toast-message {
-  color: var(--text-color) !important;
-}
+========================= */ /* Removed broad typography rule - rely on inheritance */
 
 p,
 ul,
@@ -328,6 +237,12 @@ ol {
 ========================= */
 .accordion .collapse {
   transition: height 0.3s ease;
+}
+
+.accordion-company-logo {
+  height: 50px; /* Standardized logo height */
+  width: auto;   /* Maintain aspect ratio */
+  max-width: 250px; /* Example: Constrain max width for better visual consistency */
 }
 
 /* =========================
@@ -373,6 +288,7 @@ ol {
 /* =========================
     MISC ELEMENTS
 ========================= */
+
 .pictureAA,
 .pictureCiti {
   background-size: 200px;

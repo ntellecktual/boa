@@ -1,42 +1,69 @@
-{% extends 'boaapp/base_generic.html' %} {% load static %}
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}{% load widget_tweaks %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>thenumerix | Register</title>
+    <title>{% block title %}thenumerix | Register{% endblock %}</title>
 
-    <!-- Include jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-    <!-- Include Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-
-    <!-- Include your custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{% static 'css/index.css' %}?v={{ timestamp }}"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Include Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    <!-- Include your custom JavaScript -->
-    <script src="{% static 'js/index.js' %}"></script>
-  </head>
-  <body>
+   </head>
+   <body>
     {% block content %}
-    <h2>Register</h2>
-    <form class="form" method="POST">
-      {% csrf_token %} {{ form.as_p }}
-      <button type="submit">Register</button>
-    </form>
+    <div class="container login-custom-container custom-margin-bottom">
+      <h1 class="display-4 mb-4 d-flex flex-column align-items-center justify-content-center">
+        <span>Register Now:</span>
+      </h1>
+      <span>Join thenumerix community.</span>
+    </div>
+
+    <div class="container login-list custom-margin-bottom">
+      <form class="form" method="POST" style="max-width: 500px; width: 100%;"> {% comment %} Added max-width and width for consistency {% endcomment %}
+        {% csrf_token %}
+
+        {% comment %} Display Non-Field Errors (e.g., password mismatch) {% endcomment %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" role="alert">
+            {% for error in form.non_field_errors %}
+              <p class="mb-0">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% for field in form %}
+          <div class="form-group mb-3">
+            {{ field.label_tag }} {# Use standard label tag helper #}
+            {{ field }} {# Render field with default widget #}
+            {% if field.help_text %}
+              <small class="form-text text-muted">{{ field.help_text }}</small> {# Basic help text display #}
+            {% endif %}
+            {% for error in field.errors %}
+              <div class="invalid-feedback d-block"> {# Show field-specific errors #}
+                  {{ error }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn login btn-block w-100">Register</button>
+      </form>
+    </div>
+    {% endblock %}
+
+    {% block extra_js %}
+    <script>
+      // Ensure Bootstrap JS is loaded before this script runs (usually in base_generic.html)
+      document.addEventListener('DOMContentLoaded', function () {
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+          // Optional: Add configuration options here if needed
+          return new bootstrap.Popover(popoverTriggerEl, {
+             // Example: place popover on top
+             // placement: 'top'
+          });
+        });
+      });
+    </script>
     {% endblock %}
   </body>
 </html>

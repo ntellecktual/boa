@@ -1,0 +1,92 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}thenumerix | Education{% endblock %}
+
+{% block content %}
+<div class="container login-custom-container custom-margin-bottom">
+    <h1 class="text-center mb-4">Education</h1>
+
+    <div class="accordion" id="educationAccordion" style="max-width: 800px; margin: auto;">
+
+        {# University of Texas at Austin #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingUta">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseUta" aria-expanded="false" aria-controls="collapseUta">
+                        <img src="{% static 'css/img/uta_logo.png' %}" alt="University of Texas at Austin Logo" class="mr-2 accordion-company-logo">
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseUta" class="collapse" aria-labelledby="headingUta" data-parent="#educationAccordion">
+                <div class="card-body">
+                    <h5>Post Graduate Doctoral Degree in Cloud Computing</h5>
+                    <ul>
+                        <li>Specialized in Cloud Computing, DevOps, Business Analytics, and Machine Learning, with a strong foundation in Full Stack Development and advanced skills in deploying scalable cloud infrastructure.</li>
+                        <li>Program includes industry-leading training in AI, Deep Learning, and Business Intelligence, supporting a comprehensive understanding of data engineering and deployment practices.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# Python Institute #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingPythonInst">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapsePythonInst" aria-expanded="false" aria-controls="collapsePythonInst">
+                        <img src="{% static 'css/img/python_institute_logo.png' %}" alt="Python Institute Logo" class="mr-2 accordion-company-logo">
+                    </button>
+                </h2>
+            </div>
+            <div id="collapsePythonInst" class="collapse" aria-labelledby="headingPythonInst" data-parent="#educationAccordion">
+                <div class="card-body">
+                    <h5>PCAP – Certified Associate in Python Programming</h5>
+                    <ul>
+                        <li>Professional certification validating the ability to code in Python and apply object-oriented programming principles in data and DevOps projects, ensuring alignment with industry standards for software and deployment practices.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# SMU #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingSmu">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseSmu" aria-expanded="false" aria-controls="collapseSmu">
+                        <img src="{% static 'css/img/smu_logo.png' %}" alt="SMU Logo" class="mr-2 accordion-company-logo">
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseSmu" class="collapse" aria-labelledby="headingSmu" data-parent="#educationAccordion">
+                <div class="card-body">
+                    <h5>Master of Science - Masters (In conjunction with Coding Dojo)</h5>
+                    <ul>
+                        <li>Focused on Python, Spark, and the Hadoop ecosystem, including tools such as Hive, Kafka, and HBase for big data processing. Trained in MapReduce and YARN methodologies, with a competitive program acceptance rate and extensive interview preparation.</li>
+                        <li>Developed skills essential for DevOps, CI/CD, and scalable data architecture, applying these techniques to enhance pipeline automation and performance.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# University of California, Riverside #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingUcr">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseUcr" aria-expanded="false" aria-controls="collapseUcr">
+                        <img src="{% static 'css/img/ucr_logo.png' %}" alt="University of California, Riverside Logo" class="mr-2 accordion-company-logo">
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseUcr" class="collapse" aria-labelledby="headingUcr" data-parent="#educationAccordion">
+                <div class="card-body">
+                    <h5>Bachelor of Science - Management/Finance and Implementation Methodologies</h5>
+                    <ul>
+                        <li>Foundational knowledge in Management and Finance, with practical applications in implementation methodologies, critical for understanding project management and strategic planning within a DevOps framework.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -27,6 +27,9 @@ as MEDIA_URL %} {% load camel_filters %}
             >
               ⬇️ Download
             </a>
+            <a href="/generate_video/{{ file }}" class="btn upload btn-secondary">
+              🎞️ Generate Video
+            </a>
           </div>
           {% endfor %}
         </div>
@@ -37,7 +40,9 @@ as MEDIA_URL %} {% load camel_filters %}
           href="{% url 'upload_document' %}"
           class="btn btn-lg upload btn-success w-100 mt-3"
           >🚀 Upload More Files</a>
-        <br />
+        <a href="{% url 'generate_all_videos' %}" class="btn btn-info w-100 mt-2">
+          🎬 Generate All Videos
+        </a>
         <a href="{% url 'dashboard' %}" class="btn upload"
           >📊 Go to Dashboard</a>
       </div>

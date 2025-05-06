@@ -1,10 +1,11 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}thenumerix | Home{% endblock %}</title>
+    {% block extra_head %}{% endblock %} {# Added block for extra head elements #}
 
     <link
       rel="stylesheet"
@@ -22,10 +23,9 @@
       href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" /> {# Corrected favicon path (adjust if needed) #}
   </head>
-
-  <body class="{% if page_id %}{{ page_id }}{% endif %}">
+  <body class="{% if page_id %}{{ page_id }}{% endif %} {% block body_class %}{% endblock %}"> {# Added body_class block #}
     <nav class="navbar navbar-expand-lg fixed-top">
       <a class="navbar-brand" href="{% url 'login' %}">
         <img src="{% static 'logo.png' %}" alt="Logo" height="50" />
@@ -48,13 +48,7 @@
           </li>
           {% endif %}
           <li class="nav-item d-flex align-items-center px-2">
-            <div
-              style="
-                width: 1px;
-                height: 24px;
-                background-color: rgba(255, 255, 255, 0.5);
-              "
-            ></div>
+            <div class="nav-separator"></div> {# Replaced inline style with class #}
           </li>
           <li class="nav-item">
             <button class="nav-link btn" id="theme-toggle-btn">
@@ -65,53 +59,20 @@
       </div>
     </nav>
 
-    <div class="container">{% block content %}{% endblock %}</div>
+    {# Consider moving container inside block if full-width pages are needed #}
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
 
     <div id="theme-transition-overlay"></div>
     <div id="theme-toast" class="toast-message"></div>
 
+    <!-- jQuery (required for Bootstrap 4) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const toggleBtn = document.getElementById("theme-toggle-btn");
-        const overlay = document.getElementById("theme-transition-overlay");
-
-        function updateThemeLabel(theme) {
-          toggleBtn.textContent =
-            theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
-        }
-
-        function setTheme(theme) {
-          document.documentElement.setAttribute("data-theme", theme); // <html data-theme="dark">
-          localStorage.setItem("theme", theme);
-          updateThemeLabel(theme);
-
-          overlay.classList.remove("flash-dark", "flash-light");
-          overlay.classList.add(
-            theme === "light" ? "flash-light" : "flash-dark"
-          );
-          overlay.style.opacity = "1";
-          setTimeout(() => {
-            overlay.style.opacity = "0";
-          }, 400);
-        }
-
-        function toggleTheme() {
-          const current =
-            document.documentElement.getAttribute("data-theme") || "light";
-          setTheme(current === "light" ? "dark" : "light");
-        }
-
-        const initialTheme =
-          localStorage.getItem("theme") ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        setTheme(initialTheme);
-
-        toggleBtn.addEventListener("click", toggleTheme);
-      });
-    </script>
+    <!-- Bootstrap 4 JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> {# Use bundle for Popper.js #}
+    <!-- Your Custom JS -->
+    <script src="{% static 'js/index.js' %}?v={{ timestamp }}"></script> {# Moved theme toggle logic here #}
+    {% block extra_js %}{% endblock %}
   </body>
 </html>

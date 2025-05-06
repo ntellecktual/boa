@@ -1,190 +1,325 @@
-{% extends 'boaapp/base_generic.html' %} {% load static %} {% load tz %}
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% load tz %}
 <!DOCTYPE html>
+{% block body_class %}uploadit{% endblock %} {# Add 'uploadit' class to the main body #}
+
+{# Remove the extra <body> tag below #}
 {% block content %}
-<div class="dashboard-container flex-column pt-3">
-  <div class="text-center">
-    <h3 class="mb-3">
-      <strong>{{ user.username }}'s</strong>
-      <span class="text-primary">
-        <img
-          src="{% static 'css\uploadit!logo.png' %}"
-          alt="uploadit! Logo"
-          height="80"
-      /></span>
-      Dashboard
-    </h3>
-    <div class="row justify-content-center">
-      <div class="d-flex justify-content-center flex-wrap gap-3">
-        <div class="card border-primary card-summary mx-2">
-          <div class="card-body text-center">
-            <h5 class="card-title">📁 Uploaded Files</h5>
-            <p class="card-text display-4">{{ displayed_count }}</p>
+
+  <div class="dashboard-container text-center flex-column">
+    {# --- Top Summary and Manage Buttons --- #}
+    <div class="text-center">
+      <h2>
+        <strong>{{ user.username }}'s</strong>
+        <span class="text-primary">
+          <img
+            src="{% static 'css/img/uploadit!logo.png' %}" {# Verify this path is correct in your static setup #}
+            alt="uploadit! Logo"
+            height="80"
+        /></span>
+        Home
+        </h2>
+      <div class="row justify-content-center">
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+          <div class="card border-primary card-summary">
+            <div class="card-body text-center">
+              <h5 class="card-title">📁 Uploaded Notebooks</h5>
+              <p class="card-text display-4">{{ document_count }}</p>
+            </div>
           </div>
-        </div>
-        <div class="card border-info card-summary mx-2">
-          <div class="card-body text-center">
-            <h5 class="card-title">🎧 Audio Files Generated</h5>
-            <p class="card-text display-4">{{ audio_file_count }}</p>
+          <div class="card border-info card-summary">
+            <div class="card-body text-center">
+              <h5 class="card-title">🎧 Audio Files Generated</h5>
+              <p class="card-text display-4">{{ total_audio_count }}</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <br />
-  <div class="text-center">
-    <h3>
-      <strong>{{ user.username }}'s</strong>
-      <span class="text-primary">
-        <img
-          src="{% static 'css\uploadit!logo.png' %}"
-          alt="uploadit! Logo"
-          height="80"
-      /></span>
-      Documents
-    </h3>
-  </div>
+  <br>
+    <div class="text-center">
+      <h4>Manage Files</h4>
+      <form method="post" action="{% url 'generate_all_videos' %}" class="d-inline-block mb-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-info mb-2" {% if total_audio_count == 0 %}disabled{% endif %}>🎬 Generate All Missing Videos</button>
+      </form>
+      <button class="btn btn-danger mb-2" {% if document_count == 0 and total_audio_count == 0 %}disabled{% endif %} onclick="confirmAndDelete('{% url 'delete_orphaned_files' %}')">
+        🗑 Delete Orphaned Files
+      </button>
+      <button class="btn btn-danger mb-2" {% if document_count == 0 and total_audio_count == 0 %}disabled{% endif %} onclick="confirmAndDelete('{% url 'delete_all_files' %}')">
+        🔥 Delete All My Files
+      </button>
+      <button
+        class="btn btn-success mb-2"
+        onclick="window.location.href='{% url 'upload_document' %}'"
+      >
+        🚀 Upload Files
+      </button>
+    </div>
+    {# --- End Top Summary --- #}
 
-  <div class="text-center">
-    <button class="btn mb-2" id="toggle-btn" onclick="toggleTableRows()">
-      Show All
-    </button>
-    <br />
-    <button
-      class="btn btn-warning mb-2"{% if document_count == 0 %}disabled{% else %}      onclick="confirmAndDelete('{% url 'delete_ipynb_files' %}')"{% endif %}
-    >
-      📄 Delete Only .ipynb Files
-    </button>
-    <button
-      class="btn btn-danger mb-2" {% if document_count == 0 or audio_file_count == 0 %}disabled{% else %} onclick="confirmAndDelete('{% url 'delete_orphaned_files' %}')"{% endif %}
-    >
-      🗑 Delete Orphaned Files
-    </button>
+    <div class="text-center">
+      <h4>Notebook Details</h4>
+    </div>
 
-    <button
-      class="btn btn-danger mb-2" {% if document_count == 0 and audio_file_count == 0 %}disabled{% else %} onclick="confirmAndDelete('{% url 'delete_all_files' %}')"{% endif %}
+    {# --- TABLE START --- #}
+    <div
+      class="table-responsive mb-5"
+      id="doc-table-container"
+      style="max-height: 600px; overflow-y: auto;" {# Adjusted max-height #}
     >
-      🔥 Delete All Files
-    </button>
-    <button
-      class="btn btn-success mb-2"
-      onclick="window.location.href='{% url 'upload_document' %}'"
-    >
-      🚀 Upload Files
-    </button>
-  </div>
+    {% if dashboard_items %}
+      <table class="table table-striped table-bordered align-middle">
+        <thead class="text-center sticky-top">
+          <tr>
+            <th style="width: 25%;">Notebook</th>
+            <th style="width: 15%;">Uploaded At</th>
+            <th style="width: 35%;">Audio Section</th>
+            <th style="width: 25%;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in dashboard_items %} {# Outer loop for each document #}
+            {% with item.audio_files|length as audio_count %} {# Get count for rowspan #}
+              {% for file_info in item.audio_files %} {# Inner loop for each audio file of the document #}
+              <tr>
+                {# Show Notebook and Date only on the first row for this notebook #}
+                {% if forloop.first %}
+                  <td rowspan="{{ audio_count|default:1 }}">
+                    {{ item.document.uploaded_file.name|cut:"documents/" }}
+                    {% if not item.notebook_exists %}
+                      <br><span class="badge bg-danger ms-2">Notebook File Missing</span>
+                    {% endif %}
+                    <br><small>ID: {{ item.document.pk }}</small>
+                  </td>
+                  <td rowspan="{{ audio_count|default:1 }}" class="text-center">
+                    {{ item.document.uploaded_at|localtime|date:"M d, Y" }}<br>
+                    {{ item.document.uploaded_at|localtime|date:"h:i A" }} {# Use h:i A for AM/PM #}
+                  </td>
+                {% endif %}
 
-  <div
-    class="table-responsive mb-5"
-    id="doc-table-container"
-    style="max-height: 500px; overflow-y: auto"
-  >
-  <table class="table table-striped table-bordered align-middle">
-    <thead class="text-center">
-      <tr>
-        <th style="width: 25%">File Name</th>
-        <th style="width: 20%">Uploaded At</th>
-        <th style="width: 55%">Audio Files</th>
-      </tr>
-    </thead>
-    <tbody id="doc-table-body">
-      {% if latest_only and latest_doc %}
-      <tr>
-        <td>{{ latest_doc.uploaded_file.name|cut:"documents/" }}</td>
-        <td>{{ latest_doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
-        <td>
-          {% if latest_doc.audio_files.all %}
-          <div class="d-flex flex-column">
-            {% for audio in latest_doc.audio_files.all %}
-            <div class="audio-entry mb-2">
-              <strong>{{ audio.file.name|cut:"audio/" }}</strong><br />
-              {% if audio.file.url %}
-              <audio controls style="width: 100%; max-width: 300px">
-                <source src="{{ audio.file.url }}" type="audio/mpeg" />
-              </audio>
-              <a
-                href="{{ audio.file.url }}"
-                class="btn btn-sm btn-outline-secondary mt-1"
-                download
-              >
-                ⬇️ Download
-              </a>
-              {% else %}
-              <span class="text-muted">Audio not available</span>
-              {% endif %}
-            </div>
-            {% endfor %}
-          </div>
-          {% else %}
-          <span class="text-muted">No audio files</span>
-          {% endif %}
-        </td>
-      </tr>
-      {% else %} {% for doc in all_docs %}
-      <tr class="{% if forloop.counter > 2 %}d-none extra-row{% endif %}">
-        <td>{{ doc.uploaded_file.name|cut:"documents/" }}</td>
-        <td>{{ doc.uploaded_at|localtime|date:"M d, Y H:i" }}</td>
-        <td>
-          {% if doc.audio_files.all %}
-          <div class="d-flex flex-column">
-            {% for audio in doc.audio_files.all %}
-            <div class="audio-entry mb-2">
-              <strong>{{ audio.file.name|cut:"audio/" }}</strong><br />
-              {% if audio.file.url %}
-              <audio controls style="width: 100%; max-width: 300px">
-                <source src="{{ audio.file.url }}" type="audio/mpeg" />
-              </audio>
-              <a
-                href="{{ audio.file.url }}"
-                class="btn btn-sm btn-outline-secondary mt-1"
-                download
-              >
-                ⬇️ Download
-              </a>
-              {% else %}
-              <span class="text-muted">Audio not available</span>
-              {% endif %}
-            </div>
-            {% endfor %}
-          </div>
-          {% else %}
-          <span class="text-muted">No audio files</span>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %} {% endif %}
-    </tbody>
-  </table>
-  </div>
-</div>
+                {# Audio Section Details Cell (One per audio file) #}
+                <td>
+                  <strong>{{ file_info.audio.title }}</strong>
+                  <div>
+                    {% if not file_info.audio_exists %}
+                        <span class="badge bg-warning text-dark">Audio File Missing</span>
+                    {% elif file_info.video_exists %}
+                        <span class="badge bg-success">Video Ready</span>
+                    {% else %}
+                         <span class="badge bg-secondary">Video Not Generated</span>
+                    {% endif %}
+                  </div>
+                  <small>Filename: {{ file_info.audio.name }}</small>
+                  {% if file_info.audio_exists and file_info.audio.file.url %}
+                  <div class="mt-1">
+                      <audio controls controlsList="nodownload" style="width: 100%; max-width: 250px; height: 35px;">
+                          <source src="{{ file_info.audio.file.url }}" type="audio/mpeg">
+                          Your browser does not support the audio element.
+                      </audio>
+                  </div>
+                  {% endif %}
+                </td>
+
+                {# Actions Cell (One per audio file) #}
+                <td class="text-center">
+                  <div class="btn-group btn-group-sm" role="group" aria-label="Section Actions for {{ file_info.audio.title }}"> {# Use horizontal group #}
+                      {% if file_info.audio_exists and file_info.audio.file.url %}
+                          {# Download Audio Button #}
+                          <a href="{{ file_info.audio.file.url }}" class="btn" download="{{ file_info.audio.name }}" title="Download Audio">
+                              ⬇️ Audio
+                          </a>
+
+                          {% if file_info.video_exists and file_info.video_url %}
+                              {# Play Video Button #}
+                              <a href="{{ file_info.video_url }}" target="_blank" class="btn btn-success" title="Play Video">
+                                 ▶️ Video
+                              </a>
+                              {# Download Video Button #}
+                              <a href="{{ file_info.video_url }}" class="btn btn-outline-success" download="{{ file_info.video_filename }}" title="Download Video">
+                                 ⬇️ Video
+                              </a>
+                              {# Re-Generate Video Button #}
+                               <form method="post" action="{% url 'generate_video' file_info.audio.pk %}" class="d-inline"> {# d-inline for form #}
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-outline-warning" title="Re-generate Video">
+                                      🔄 Re-Generate
+                                  </button>
+                              </form>
+                          {% else %}
+                              {# Generate Video Button #}
+                              <form method="post" action="{% url 'generate_video' file_info.audio.pk %}" class="d-inline"> {# d-inline for form #}
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-primary" title="Generate Video">
+                                      🎞️ Generate
+                                  </button>
+                              </form>
+                          {% endif %}
+                      {% else %}
+                           <span class="text-muted fst-italic d-block mt-2">Audio Missing</span>
+                      {% endif %}
+                       {# Add Delete Single Audio/Video Button - Requires new view/URL #}
+                       {# <form method="post" action="..." class="d-inline"> ... </form> #}
+                  </div>
+                </td>
+              </tr>
+              {% empty %} {# This block runs ONLY if item.audio_files is empty #}
+                <tr>
+                  {# Document Info - always show this row if no audio files #}
+                  <td> {# rowspan="1" is implicit #}
+                    {{ item.document.uploaded_file.name|cut:"documents/" }}
+                    {% if not item.notebook_exists %}
+                      <br><span class="badge bg-danger ms-2">Notebook File Missing</span>
+                    {% endif %}
+                    <br><small>ID: {{ item.document.pk }}</small>
+                  </td>
+                  <td class="text-center"> {# rowspan="1" is implicit #}
+                    {{ item.document.uploaded_at|localtime|date:"M d, Y" }}<br>
+                    {{ item.document.uploaded_at|localtime|date:"h:i A" }}
+                  </td>
+                  {# Message Cell #}
+                  <td colspan="2">
+                    <p class="mb-0">
+                        {% if item.document.uploaded_at|timesince < "5 minutes" %} {# Check if recently uploaded #}
+                            Audio files are being generated. Please refresh in a moment.
+                            <div class="spinner-border spinner-border-sm text-secondary" role="status">
+                              <span class="visually-hidden">Loading...</span>
+                            </div>
+                        {% else %}
+                            No audio files found or generated.
+                        {% endif %}
+                    </p>
+                  </td>
+                </tr>
+              {% endfor %} {# End inner loop (file_info) #}
+            {% endwith %} {# End with audio_count #}
+          {% empty %} {# Handle case where dashboard_items is empty (outer loop) #}
+            <tr>
+              <td colspan="4">
+                <div class="alert alert-info text-center my-3" role="alert">
+                    You haven't uploaded any notebooks yet.
+                    <a href="{% url 'upload_document' %}" class="alert-link">Upload your first one!</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %} {# End outer loop (item) #}
+        </tbody>
+      </table>
+    {% else %} {# This else corresponds to 'if dashboard_items' #}
+        <div class="alert alert-info text-center my-3" role="alert">
+            You haven't uploaded any notebooks yet.
+            <a href="{% url 'upload_document' %}" class="alert-link">Upload your first one!</a>
+        </div>
+    {% endif %} {# End if dashboard_items #}
+    </div> {# End table-responsive #}
+  </div> {# End dashboard-container #}
+
 
 <script>
-  function toggleTableRows() {
-    const extraRows = document.querySelectorAll(".extra-row");
-    const btn = document.getElementById("toggle-btn");
-    const showing =
-      extraRows.length && extraRows[0].classList.contains("d-none");
-    extraRows.forEach((row) => row.classList.toggle("d-none"));
-    if (btn) btn.innerText = showing ? "Show Less" : "Show All";
-  }
-
+  // Ensure confirmAndDelete uses POST for delete operations for better security
   function confirmAndDelete(url) {
     if (
       confirm("Are you sure you want to proceed? This action cannot be undone.")
     ) {
-      fetch(url)
-        .then((res) => res.json())
-        .then(() => {
-          alert("Action completed.");
-          location.reload();
+      // Get CSRF token from cookie
+      const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+
+      fetch(url, {
+          method: 'POST', // Use POST for delete actions
+          headers: {
+              'X-CSRFToken': csrftoken, // Include CSRF token
+              'Content-Type': 'application/json' // Optional: if sending data
+          },
+          // body: JSON.stringify({}), // Optional: if sending data
+      })
+        .then((res) => {
+            if (!res.ok) {
+                // Handle HTTP errors (like 404, 500)
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json(); // Parse JSON response
+        })
+        .then((data) => {
+          // Display a more informative message if possible
+          let message = data.status || "Action completed successfully.";
+          if (data.deleted) {
+              message = `Deleted ${data.deleted} orphaned file records.`;
+          } else if (data.deleted_docs !== undefined) {
+               message = `Deleted ${data.deleted_docs} documents, ${data.deleted_audio_records} audio records.`;
+          } else if (data.docs !== undefined) {
+               message = `Deleted ${data.docs} documents, ${data.audio} audio files, ${data.videos} videos.`;
+          }
+          alert(message);
+          location.reload(); // Reload the page to reflect changes
         })
         .catch((err) => {
-          alert("There was an error.");
-          console.error(err);
+          alert("An error occurred while performing the action. Please check the console.");
+          console.error("Fetch Error:", err);
         });
     }
   }
 
-  window.toggleTableRows = toggleTableRows;
+  // Make the function globally available if needed, though it's called directly via onclick
   window.confirmAndDelete = confirmAndDelete;
+  
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const audioTaskId = urlParams.get('audio_task_id');
+      const urlPattern = "{% url 'check_task_status' task_id='__TASK_ID__' %}";
+  
+      if (audioTaskId) {
+          console.log(`Polling status for audio task: ${audioTaskId}`);
+          let attempts = 0;
+          const maxAttempts = 30; // Poll for max 2.5 minutes (30 * 5 seconds)
+          const pollInterval = 5000; // 5 seconds
+  
+          const intervalId = setInterval(function () {
+              attempts++;
+              if (attempts > maxAttempts) {
+                  console.warn(`Polling timeout reached for task ${audioTaskId}. Stopping polling.`);
+                  clearInterval(intervalId);
+                  // Optionally display a message to the user that polling stopped
+                  return;
+              }
+  
+              const statusUrl = urlPattern.replace('__TASK_ID__', audioTaskId);
+  
+              fetch(statusUrl)
+                  .then(response => {
+                      if (!response.ok) {
+                          throw new Error(`HTTP error! status: ${response.status}`);
+                      }
+                      return response.json();
+                  })
+                  .then(data => {
+                      console.log(`Task ${data.task_id} status: ${data.status}`);
+                      if (data.status === 'SUCCESS') {
+                          console.log(`Task ${data.task_id} succeeded. Reloading page.`);
+                          clearInterval(intervalId);
+                          // Remove the task ID from URL before reloading to prevent re-polling
+                          const currentUrl = new URL(window.location.href);
+                          currentUrl.searchParams.delete('audio_task_id');
+                          window.location.replace(currentUrl.toString()); // Use replace to avoid back button issues
+                      } else if (data.status === 'FAILURE') {
+                          console.error(`Task ${data.task_id} failed. Stopping polling. Error: ${data.result}`);
+                          clearInterval(intervalId);
+                          // Optionally display an error message to the user
+                      }
+                      // If status is PENDING or PROGRESS, the interval continues
+                  })
+                  .catch(error => {
+                      console.error(`Error polling task status for ${audioTaskId}:`, error);
+                      // Consider stopping polling on fetch errors after a few retries
+                      // clearInterval(intervalId);
+                  });
+  
+          }, pollInterval);
+      } else {
+          console.log("No audio_task_id found in URL, not polling.");
+      }
+  });
+  </script>
 {% endblock %}

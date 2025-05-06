@@ -1,148 +1,186 @@
-{% extends 'boaapp/base_generic.html' %} {% load static %}
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block title %}thenumerix | Portfolio & Work History{% endblock %}
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}thenumerix | Portfolio{% endblock %}</title>
+{% block content %}
+<div class="container login-custom-container custom-margin-bottom">
+    <h1 class="text-center mb-4">Portfolio & Work History</h1>
 
-  <!-- Include jQuery -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <div class="accordion" id="workHistoryAccordion" style="max-width: 800px; margin: auto;">
 
-  <!-- Include Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-
-  <!-- Include your custom CSS -->
-  <link rel="stylesheet" href="{% static 'css/index.css' %}?v={{ timestamp }}" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet" />
-
-  <!-- Include Bootstrap JS -->
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-  <!-- Include your custom JavaScript -->
-  <script src="{% static 'js/index.js' %}"></script>
-
-  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-</head>
-
-<body>
-  {% block content %}
-  <!-- ------------------------------------------------------------------------------------ -->
-  <div class="container custom-container col-md-6">
-    <h1 class="text-center">DevOps Architecture</h1>
-    <br />
-    <span>As a seasoned professional in DevOps Architecture, I specialize in
-      creating efficient, scalable systems that streamline development and
-      operations. My experience in leading teams and architecting end-to-end
-      solutions aligns with our project goals of building robust, user-centric
-      applications that demonstrate real-world expertise in the DevOps
-      field.</span>
-    <br />
-    <div class="row justify-content-center">
-      {% for item in devops_items %}
-      <div class="col-md-4 mb-4 d-flex justify-content-center">
-        <div class="card h-100">
-          {% if item.logo %}
-          <img src="{{ item.logo.url }}" class="card-img-top portfolio-img" alt="{{ item.title }}" />
-          {% endif %}
-          <div class="card-body">
-            <h5 class="card-title">{{ item.name }}</h5>
-            <div class="row justify-content-center">
-              <p class="card-text">{{ item.details }}</p>
-              {% if item.link %}
-              <a href="{{ item.link }}" class="btn portfolio">Learn More</a>
-              {% endif %} {% if item.ppt %}
-              <a href="{{ item.ppt.url }}" target="_blank" class="btn portfolio mt-3">View Overview</a>
-              {% endif %}
-              <!-- Only display the carousel if there are images -->
-              {% if item.scrolling_images.all %}
-              <div id="carousel-{{ item.id }}" class="carousel slide" data-ride="carousel" data-interval="3000">
-                <div class="carousel-inner">
-                  {% for image in item.scrolling_images.all %}
-                  <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                    <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ caption }}" />
-                    {% if image.caption %}
-                    <div class="carousel-caption d-none d-md-block">
-                      <p>{{ image.caption }}</p>
-                    </div>
-                    {% endif %}
-                  </div>
-                  {% endfor %}
-                </div>
-              </div>
-              {% else %}
-              <p>No images available for this portfolio item.</p>
-              {% endif %}
-              <!-- End of scrolling images -->
+        {# Barvin #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingBarvin">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseBarvin" aria-expanded="false" aria-controls="collapseBarvin">
+                        <img src="{% static 'css/img/barvin_logo.png' %}" alt="Barvin Logo" class="mr-2 accordion-company-logo">
+                        
+                    </button>
+                </h2>
             </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-  <!-- ------------------------------------------------------------------------------------ -->
-  <div class="container custom-container col-md-6">
-    <h1 class="text-center">Data Architecture</h1>
-    <br />
-    <span>With extensive experience in Data Architecture, I design and implement
-      high-performance data pipelines and systems that optimize storage,
-      access, and analysis. My expertise in creating scalable data solutions
-      aligns with our project goals of showcasing practical skills in
-      developing robust, data-driven applications, reinforcing my role as a
-      leader in the data engineering and architecture field.</span>
-    <br />
-    <div class="row justify-content-center">
-      {% for item in portfolio_items %}
-      <div class="col-md-4 mb-4 d-flex justify-content-center">
-        <div class="card h-100">
-          {% if item.companylogo %}
-          <img src="{{ item.companylogo.url }}" class="card-img-top portfolio-img" alt="{{ item.title }}" />
-          {% endif %}
-          <div class="card-body">
-            <h5 class="card-title">{{ item.title }}</h5>
-
-            <div class="row justify-content-center">
-              <p class="card-text">{{ item.description }}</p>
-              {% if item.project_url %}
-              <a href="{{ item.project_url }}" class="btn portfolio">Learn More</a>
-              {% endif %}{% if item.ppt_file %}
-              <a href="{{ item.ppt_file.url }}" target="_blank" class="btn portfolio mt-3">
-                View Overview
-              </a>
-              {% endif %}
-              <br />
-              <!-- Only display the carousel if there are images -->
-              {% if item.scrolling_images.all %}
-              <div id="carousel-{{ item.id }}" class="carousel slide" data-ride="carousel" data-interval="3000">
-                <div class="carousel-inner">
-                  {% for image in item.scrolling_images.all %}
-                  <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                    <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ caption }}" />
-                    {% if image.caption %}
-                    <div class="carousel-caption d-none d-md-block">
-                      <p>{{ image.caption }}</p>
-                    </div>
-                    {% endif %}
-                  </div>
-                  {% endfor %}
+            <div id="collapseBarvin" class="collapse" aria-labelledby="headingBarvin" data-parent="#workHistoryAccordion">
+                <div class="card-body">
+                    <h5>Property Manager</h5>
+                    <p class="text-muted"><em>Industry: Property Management</em></p>
+                    <h6>Data Analysis and Reporting</h6>
+                    <ul>
+                        <li><strong>Operational Reporting:</strong> Developed reports using Excel to track occupancy rates, maintenance requests, and financial performance, supporting data-driven property management decisions.</li>
+                        <li><strong>Financial Analysis:</strong> Analyzed budget variances and expense reports to identify cost-saving opportunities and ensure financial accuracy, utilizing SQL to extract and manipulate relevant data.</li>
+                    </ul>
+                    <h6>Process Automation</h6>
+                    <ul>
+                        <li><strong>Automated Workflows:</strong> Implemented automated workflows for rent collection reminders and maintenance request tracking using internal software and scripting, improving response times.</li>
+                        <li><strong>Data Integration:</strong> Standardized data integration from various property management systems into central databases, ensuring consistency and timeliness of data insights.</li>
+                    </ul>
+                    <h6>Stakeholder Collaboration</h6>
+                    <ul>
+                        <li><strong>Tenant Communication:</strong> Managed tenant communications using integrated systems and addressed concerns promptly, ensuring high satisfaction rates.</li>
+                    </ul>
                 </div>
-              </div>
-              {% else %}
-              <p>No images available for this portfolio item.</p>
-              {% endif %}
-              <!-- End of scrolling images -->
             </div>
-          </div>
         </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-  <!-- ------------------------------------------------------------------------------------ -->
-  {% endblock %}
-</body>
 
-</html>
+        {# American Airlines #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingAA">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseAA" aria-expanded="false" aria-controls="collapseAA">
+                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="mr-2 accordion-company-logo">
+                        
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseAA" class="collapse" aria-labelledby="headingAA" data-parent="#workHistoryAccordion">
+                <div class="card-body">
+                    <h5>Engineer/Developer/Project Manager</h5>
+                    <p class="text-muted"><em>Industry: Baggage Technology/Operations Applications</em></p>
+                    <h6>Azure DevOps & Infrastructure Management</h6>
+                    <ul>
+                        <li><strong>Scalable Azure Environments:</strong> Led the design and implementation of Azure environments (Dev, Stage, QA, Prod), ensuring secure, scalable, and high-performing platforms for enterprise-grade employee-facing applications.</li>
+                        <li><strong>CI/CD Pipeline Development:</strong> Built and optimized CI/CD workflows using Azure DevOps, Jenkins, and Python-based automation, enabling continuous integration, reducing deployment cycles by 30%, and minimizing downtime.</li>
+                        <li><strong>Containerization & Orchestration:</strong> Standardized application deployments with Docker and Kubernetes, ensuring reliable and consistent environments across multiple stages, reducing deployment errors by 40%.</li>
+                    </ul>
+                    <h6>Real-Time Data Processing & Architecture</h6>
+                    <ul>
+                        <li><strong>ETL Pipelines for Critical Systems:</strong> Engineered scalable ETL pipelines using Azure Data Factory and Databricks to process real-time baggage data, providing global data accessibility for 20,000+ users and reducing data latency by 25%.</li>
+                        <li><strong>Big Data Integration:</strong> Leveraged Azure Data Lake, HDFS, and Kafka for seamless ingestion, processing, and governance of real-time data streams. Ensured scalability and compliance with corporate data governance standards.</li>
+                        <li><strong>Advanced Data Modeling:</strong> Used predictive analytics in Azure Machine Learning to forecast resource demand, improving operational efficiency.</li>
+                    </ul>
+                    <h6>Automation & Scripting for Efficiency</h6>
+                    <ul>
+                        <li><strong>Security Automation:</strong> Automated vulnerability detection and management for 60+ repositories with Coverity, Black Duck, and Nucleus, reducing manual checks by 90% and ensuring rapid remediation of risks.</li>
+                        <li><strong>Process Automation:</strong> Developed Python and Bash scripts to streamline DevOps tasks like ETL orchestration, resource scaling, and deployment processes, cutting lead time.</li>
+                    </ul>
+                    <h6>Infrastructure as Code (IaC) & DevOps Architecture</h6>
+                    <ul>
+                        <li><strong>IaC Implementation:</strong> Deployed infrastructure using Terraform and Azure Resource Manager, achieving repeatable, automated provisioning of cloud resources and reducing deployment time by 65%.</li>
+                        <li><strong>DevOps Architecture:</strong> Designed high-availability DevOps architectures supporting real-time staff management systems, enabling rapid feature delivery and zero-downtime deployments across environments.</li>
+                    </ul>
+                    <h6>Cross-Functional Collaboration & Agile Delivery</h6>
+                    <ul>
+                        <li><strong>Team Alignment Across Teams:</strong> Collaborated across seven teams (~60 members each) to align on security protocols, deployment strategies, and DevOps best practices, ensuring operational continuity.</li>
+                        <li><strong>Agile & Onboarding Processes:</strong> Introduced CI/CD workflows and onboarding documentation for scalable adoption of DevOps practices, accelerating integration and improving team productivity.</li>
+                    </ul>
+                    <h6>Project Outcomes and Business Impact</h6>
+                    <ul>
+                        <li><strong>Operational Excellence:</strong> Enhanced efficiency in high-risk airport operations by deploying predictive models and resource optimization strategies.</li>
+                        <li><strong>Real-Time Data Access:</strong> Streamlined access to live operational data by integrating Azure Data Fabric and optimizing ETL pipelines.</li>
+                        <li><strong>Deployment Success:</strong> Reduced deployment errors by 40% and accelerated release cycles through standardized containerization and infrastructure automation.</li>
+                    </ul>
+
+                    <hr>
+                    <h4>Client-Facing Activities and Responsibilities</h4>
+                    <h6>FAA: Flight Real-Time Data Mapping</h6>
+                    <ul>
+                        <li><strong>Collaborative Efforts:</strong> Partnered with the FAA’s flight data team to integrate and map real-time flight information to internal applications used by gate agents.</li>
+                        <li><strong>Data Integration:</strong> Designed robust data pipelines for processing FAA flight data, ensuring seamless connections and real-time accessibility for gate operations.</li>
+                        <li><strong>Communication & Coordination:</strong> Conducted bi-weekly sessions with FAA stakeholders to address data accuracy concerns, resolve mapping issues, and enhance system usability for gate agents.</li>
+                    </ul>
+                    <h6>Brock Solutions: Baggage Carousel Visualization</h6>
+                    <ul>
+                        <li><strong>System Integration:</strong> Connected American Airlines' baggage scan and location data to Brock Solutions’ visualization systems, providing real-time awareness of baggage movements across global locations.</li>
+                        <li><strong>API Development:</strong> Built and maintained secure APIs to share scan and location data, enabling second-by-second updates for airport staff.</li>
+                        <li><strong>Client Configuration Support:</strong> Facilitated app and terminal updates by collaborating with Brock Solutions’ engineering team to ensure compatibility and seamless user experiences.</li>
+                        <li><strong>Client Communication:</strong> Engaged in weekly discussions with Brock Solutions to align on feature requirements and provide updates on system configuration progress.</li>
+                    </ul>
+                    <h6>Siemens: Networking Real-Time Feeds</h6>
+                    <ul>
+                        <li><strong>Infrastructure Updates:</strong> Collaborated with Siemens' technical teams to oversee networking configurations, including port upgrades, firewall enhancements, and reconfigurations of NAT and PAT protocols.</li>
+                        <li><strong>Testing & Validation:</strong> Led end-to-end testing of real-time data transmission from Siemens networking feeds to American Airlines systems, ensuring reliability under high traffic conditions.</li>
+                        <li><strong>Technology Upgrades:</strong> Coordinated weekly sessions to discuss network health, implement upgrades, and verify the performance of data feeds.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# Citibank #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingCiti">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseCiti" aria-expanded="false" aria-controls="collapseCiti">
+                        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="mr-2 accordion-company-logo">
+                        
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseCiti" class="collapse" aria-labelledby="headingCiti" data-parent="#workHistoryAccordion">
+                <div class="card-body">
+                    <h5>DevOps/Data Engineer</h5>
+                    <p class="text-muted"><em>Industry: Data Management</em></p>
+                    <h6>Big Data Analytics & Pipeline Optimization</h6>
+                    <ul>
+                        <li><strong>ETL Pipeline Optimization:</strong> Designed and optimized ETL processes using Azure Databricks, PySpark, and Java, improving data ingestion efficiency by 30% and ensuring seamless integration across large-scale datasets.</li>
+                        <li><strong>Advanced Data Processing:</strong> Utilized Azure Data Lake, Hadoop ecosystem tools (HDFS, Hive, Kafka), and SQL for high-performance data transformation and storage, meeting scalability requirements for financial data analytics.</li>
+                        <li><strong>Big Data Integration:</strong> Managed Azure-based data pipelines supporting in-house API integrations, enabling seamless data accessibility and analysis for end-user applications.</li>
+                    </ul>
+                    <h6>DevOps Integration & Automation</h6>
+                    <ul>
+                        <li><strong>CI/CD Pipeline Management:</strong> Automated build, test, and deployment workflows using Azure DevOps, Jenkins, and Kubernetes, ensuring consistent delivery across Big Data Analytics applications.</li>
+                        <li><strong>Infrastructure Automation:</strong> Implemented Infrastructure as Code (IaC) using Terraform and Azure Resource Manager, automating environment setup and improving consistency in deployments.</li>
+                        <li><strong>Quality Assurance:</strong> Enhanced deployment reliability by integrating automated code checks via Maven, SonarQube, and GitBash, reducing deployment errors by 25%.</li>
+                    </ul>
+                    <h6>Containerization & Scalability</h6>
+                    <ul>
+                        <li><strong>Containerized Applications:</strong> Deployed Java-based data analytics applications using Docker and Kubernetes, ensuring robust, scalable, and environment-consistent implementations.</li>
+                        <li><strong>Automation:</strong> Built Python and Bash scripts to streamline recurring ETL tasks, improve system monitoring, and reduce processing time by 20%.</li>
+                    </ul>
+                    <h6>Project Outcomes and Business Impact</h6>
+                    <ul>
+                        <li><strong>Operational Efficiency:</strong> Delivered secure, scalable solutions for processing and storing sensitive financial data, supporting compliance with industry regulations.</li>
+                        <li><strong>Agile Development:</strong> Collaborated with multi-functional teams in Agile settings to accelerate feature delivery, maintaining high-quality outcomes for mission-critical analytics processes.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# Code Ninjas #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingCodeNinjas">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseCodeNinjas" aria-expanded="false" aria-controls="collapseCodeNinjas">
+                        <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas Logo" class="mr-2 accordion-company-logo">
+                        
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseCodeNinjas" class="collapse" aria-labelledby="headingCodeNinjas" data-parent="#workHistoryAccordion">
+                <div class="card-body">
+                    <h5>DevOps Director</h5>
+                    <p class="text-muted"><em>Industry: Business Analytics/Business Development</em></p>
+                    <h6>Agile Project Management & Collaboration</h6>
+                    <ul>
+                        <li><strong>Cross-Functional Leadership:</strong> Streamlined workflows across teams using Azure Boards, ensuring alignment with stakeholder objectives and improving project timelines.</li>
+                        <li><strong>Feedback Integration:</strong> Incorporated client feedback into system upgrades, delivering solutions aligned with business needs.</li>
+                    </ul>
+                    <h6>Client-Focused Data Insights & Strategic Consultation</h6>
+                    <ul>
+                        <li><strong>Business Development Strategies:</strong> Used analytics to manage $300k+ in data services, refining acquisition strategies to expand market reach.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
