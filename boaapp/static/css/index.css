@@ -75,7 +75,7 @@ html[data-theme="light"] {
   --button-text: #ffffff;
   --bg-color: transparent;
   --card-bg: rgba(255, 255, 255, 0.1); /* Example card background for light */
-  color: var(--text-color) !important; /* Apply text color with high priority */
+  
 }
 
 html[data-theme="dark"] {
@@ -83,7 +83,7 @@ html[data-theme="dark"] {
   --button-text: #f8f9fa;
   --card-bg: rgba(0, 0, 0, 0.2); /* Example card background for dark */
   --bg-color: transparent;
-  color: var(--text-color) !important; /* Apply text color with high priority */
+  
 }
 
 /* Background overlay for dark mode (visual dim) */
@@ -188,7 +188,7 @@ body[data-theme="light"]::before {
 }
 
 .card {
-  max-width: 300px;
+  /* max-width: 300px; */ /* Removed global max-width, apply specifically if needed elsewhere or for non-accordion cards */
   border: none;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -196,9 +196,18 @@ body[data-theme="light"]::before {
 .card-body {
   text-align: center;
 }
+
+p,
+ul,
+ol {
+  text-align: center;
+  padding: 0;
+}
+
 .card-header {
   padding: 0px;
 }
+
 .table thead th {
   text-align: center;
 }
@@ -214,7 +223,6 @@ body[data-theme="light"]::before {
   border: none;
   text-align: center;
   background-color: transparent !important;
-  color: #000000 !important;
 }
 
 /* =========================
@@ -239,10 +247,27 @@ ol {
   transition: height 0.3s ease;
 }
 
-.accordion-company-logo {
-  height: 50px; /* Standardized logo height */
-  width: auto;   /* Maintain aspect ratio */
-  max-width: 250px; /* Example: Constrain max width for better visual consistency */
+.accordion {
+  overflow-anchor: none; /* Keeps scroll position stable when content above changes height */
+  /* display: grid; */ /* Removed grid display */
+  /* justify-content: space-around; */ /* Removed grid justification */
+}
+
+.accordion > .card { /* Target direct card children of an accordion */
+  max-width: 100%; /* Allow accordion cards to span the full width of the accordion container */
+}
+
+.tech-logo {
+  height: 120px; /* Adjust as needed for tool logos */
+  width: auto;
+  max-width: 110px; /* Prevent very wide tool logos from taking too much space */
+  object-fit: contain; /* Ensures the logo fits well without cropping, good for varied aspect ratios */
+}
+.accordion-company-logo { /* Ensure this is consistent with your portfolio_showcase.html styling */
+  height: 90px; /* Or your preferred height for company logos in accordion headers */
+  width: auto;
+  max-width: 250px;
+  object-fit: contain;
 }
 
 /* =========================

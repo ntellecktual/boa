@@ -4,8 +4,11 @@
 {% block title %}thenumerix | Portfolio & Work History{% endblock %}
 
 {% block content %}
-<div class="container login-custom-container custom-margin-bottom">
+<div class="custom-margin-bottom text-center"> <!-- Removed 'container' and 'login-custom-container', kept 'text-center' for the H1 -->
     <h1 class="text-center mb-4">Portfolio & Work History</h1>
+    <p class="lead mb-4" style="max-width: 800px; margin: auto;">
+        My professional journey, showcasing how my education and technical skills have been applied in various roles and projects.
+    </p>
 
     <div class="accordion" id="workHistoryAccordion" style="max-width: 800px; margin: auto;">
 
@@ -36,6 +39,9 @@
                     <h6>Stakeholder Collaboration</h6>
                     <ul>
                         <li><strong>Tenant Communication:</strong> Managed tenant communications using integrated systems and addressed concerns promptly, ensuring high satisfaction rates.</li>
+                    </ul>
+                    <p class="mt-3"><small>Discover the key technologies used in this role in the <a href="{% url 'project_pages' %}">Technical Showcase</a>.</small></p>
+                </div>
                     </ul>
                 </div>
             </div>
@@ -88,6 +94,7 @@
                         <li><strong>Real-Time Data Access:</strong> Streamlined access to live operational data by integrating Azure Data Fabric and optimizing ETL pipelines.</li>
                         <li><strong>Deployment Success:</strong> Reduced deployment errors by 40% and accelerated release cycles through standardized containerization and infrastructure automation.</li>
                     </ul>
+                    <p class="mt-3"><small>Explore the diverse technologies from my time at American Airlines in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
 
                     <hr>
                     <h4>Client-Facing Activities and Responsibilities</h4>
@@ -97,6 +104,7 @@
                         <li><strong>Data Integration:</strong> Designed robust data pipelines for processing FAA flight data, ensuring seamless connections and real-time accessibility for gate operations.</li>
                         <li><strong>Communication & Coordination:</strong> Conducted bi-weekly sessions with FAA stakeholders to address data accuracy concerns, resolve mapping issues, and enhance system usability for gate agents.</li>
                     </ul>
+                    <p><small>Learn more about the FAA project context in <a href="{% url 'companyandme' %}?open=collapseAABaggage">Industry Engineering Insights</a>.</small></p>
                     <h6>Brock Solutions: Baggage Carousel Visualization</h6>
                     <ul>
                         <li><strong>System Integration:</strong> Connected American Airlines' baggage scan and location data to Brock Solutions’ visualization systems, providing real-time awareness of baggage movements across global locations.</li>
@@ -104,12 +112,14 @@
                         <li><strong>Client Configuration Support:</strong> Facilitated app and terminal updates by collaborating with Brock Solutions’ engineering team to ensure compatibility and seamless user experiences.</li>
                         <li><strong>Client Communication:</strong> Engaged in weekly discussions with Brock Solutions to align on feature requirements and provide updates on system configuration progress.</li>
                     </ul>
+                    <p><small>See details on the Brock Solutions integration in <a href="{% url 'companyandme' %}?open=collapseAABaggage">Industry Engineering Insights</a>.</small></p>
                     <h6>Siemens: Networking Real-Time Feeds</h6>
                     <ul>
                         <li><strong>Infrastructure Updates:</strong> Collaborated with Siemens' technical teams to oversee networking configurations, including port upgrades, firewall enhancements, and reconfigurations of NAT and PAT protocols.</li>
                         <li><strong>Testing & Validation:</strong> Led end-to-end testing of real-time data transmission from Siemens networking feeds to American Airlines systems, ensuring reliability under high traffic conditions.</li>
                         <li><strong>Technology Upgrades:</strong> Coordinated weekly sessions to discuss network health, implement upgrades, and verify the performance of data feeds.</li>
                     </ul>
+                    <p><small>Understand the Siemens collaboration better in <a href="{% url 'companyandme' %}?open=collapseAABaggage">Industry Engineering Insights</a>.</small></p>
                 </div>
             </div>
         </div>
@@ -150,6 +160,7 @@
                         <li><strong>Operational Efficiency:</strong> Delivered secure, scalable solutions for processing and storing sensitive financial data, supporting compliance with industry regulations.</li>
                         <li><strong>Agile Development:</strong> Collaborated with multi-functional teams in Agile settings to accelerate feature delivery, maintaining high-quality outcomes for mission-critical analytics processes.</li>
                     </ul>
+                    <p class="mt-3"><small>See the pivotal technologies used at Citibank in the <a href="{% url 'project_pages' %}?open=collapseTechCiti">Technical Showcase</a>.</small></p>
                 </div>
             </div>
         </div>
@@ -176,6 +187,7 @@
                     <h6>Client-Focused Data Insights & Strategic Consultation</h6>
                     <ul>
                         <li><strong>Business Development Strategies:</strong> Used analytics to manage $300k+ in data services, refining acquisition strategies to expand market reach.</li>
+                        <p class="mt-3"><small>View the tools that supported these strategies in the <a href="{% url 'project_pages' %}?open=collapseTechCodeNinjas">Technical Showcase</a>.</small></p>
                     </ul>
                 </div>
             </div>
@@ -183,4 +195,38 @@
 
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openAccordionId = urlParams.get('open');
+
+    if (openAccordionId) {
+        const targetAccordionPanel = document.getElementById(openAccordionId);
+        if (targetAccordionPanel) {
+            if (targetAccordionPanel.classList.contains('collapse')) {
+                $(targetAccordionPanel).collapse('show');
+                const headerId = targetAccordionPanel.getAttribute('aria-labelledby');
+                if (headerId) {
+                    const headerElement = document.getElementById(headerId);
+                    if (headerElement) {
+                        setTimeout(function() {
+                            headerElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+                        }, 350);
+                    }
+                }
+            } else {
+                console.warn(`Element with ID '${openAccordionId}' is not a Bootstrap collapse panel.`);
+            }
+        } else {
+            console.warn(`Accordion panel with ID '${openAccordionId}' not found.`);
+        }
+    }
+});
+</script>
 {% endblock %}

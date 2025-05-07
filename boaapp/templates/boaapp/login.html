@@ -2,12 +2,8 @@
 
 {% block title %}thenumerix | Login{% endblock %}
 
-{% block extra_head %}
-{# Add any page-specific head elements here if needed #}
-{% endblock %}
 
 {% block content %}
-{# Content starts here, no need for <html>, <head>, <body> tags #}
     <div class="container login-custom-container custom-margin-bottom">
       <h1
         class="display-4 mb-4 d-flex flex-column align-items-center justify-content-center"
@@ -24,11 +20,9 @@
         </span>
       </h1>
       {% if user.is_authenticated %}
-      <span
-        >{{ user.username }}'s Portfolio, Projects, and Apps</span
-      >
+      <span>{{ user.username }}'s Portfolio, Education, Technical Work, and Apps</span>
       {% else %}
-      <span>Portfolio, Projects, and Apps</span>
+      <span>Portfolio, Education, Technical Work, and Apps</span>
       {% endif %}
     </div>
 
@@ -104,7 +98,7 @@
           ></div>
         </div>
 
-        {% comment %} Business Analytics {% endcomment %}
+        {% comment %} Industry Engineering  {% endcomment %}
         <div class="card mb-2">
           <div class="card-header" id="headingThree">
             <h2 class="mb-0">
@@ -113,7 +107,7 @@
                 type="button"
                 onclick="window.location.href='{% url 'companyandme' %}'"
               >
-                Business Analytics
+                Industry Engineering              
               </button>
             </h2>
           </div>
@@ -126,51 +120,6 @@
           ></div>
         </div>
 
-        {% comment %} Engineering At a Glance {% endcomment %}
-        <div class="card mb-2">
-          <div class="card-header" id="headingFour">
-            <h2 class="mb-0">
-              <button
-                class="btn btn-link btn-block"
-                type="button"
-                onclick="window.location.href='{% url 'live_demos' %}'"
-              >
-                Engineering | At a Glance
-              </button>
-            </h2>
-          </div>
-          <div
-            id="collapseFour"
-            class="collapse"
-            {# This div will no longer be used for content #}
-            aria-labelledby="headingFour"
-            data-parent="#dashboardAccordion"
-          ></div>
-        </div>
-
-        {% comment %} Data Projects {% endcomment %}
-        <div class="card mb-2">
-          <div class="card-header" id="headingFive">
-            <h2 class="mb-0">
-              <button
-                class="btn btn-link btn-block"
-                type="button"
-                onclick="window.location.href='{% url 'data_start' %}'"
-              >
-                Data | Projects
-              </button>
-            </h2>
-          </div>
-          <div
-            id="collapseFive"
-            class="collapse"
-            {# This div will no longer be used for content #}
-            aria-labelledby="headingFive"
-            data-parent="#dashboardAccordion"
-          ></div>
-        </div>
-
-        {% comment %} Upload It! {% endcomment %}
         <div class="card mb-2">
           <div class="card-header" id="headingSix">
             <h2 class="mb-0">
@@ -198,7 +147,9 @@
         </div>
       </div>
     </div>
-    {% endif %} {% if not user.is_authenticated %}
+    {% endif %}
+
+    {% if not user.is_authenticated %}
     <div class="container login-list custom-margin-bottom">
       <form class="form" method="POST">
         {% csrf_token %}
@@ -223,6 +174,6 @@
         <button type="submit" class="btn login">Login</button>
       </form>
     </div>
-    {% endif %} {% endblock %}
-  </body>
-</html>
+    {% endif %}
+
+{% endblock %}

@@ -4,8 +4,11 @@
 {% block title %}thenumerix | Education{% endblock %}
 
 {% block content %}
-<div class="container login-custom-container custom-margin-bottom">
+<div class="custom-margin-bottom text-center">
     <h1 class="text-center mb-4">Education</h1>
+    <p class="lead mb-4" style="max-width: 800px; margin: auto;">
+        The foundational knowledge and specialized training that underpin my technical capabilities and project contributions.
+    </p>
 
     <div class="accordion" id="educationAccordion" style="max-width: 800px; margin: auto;">
 
@@ -22,9 +25,11 @@
                 <div class="card-body">
                     <h5>Post Graduate Doctoral Degree in Cloud Computing</h5>
                     <ul>
-                        <li>Specialized in Cloud Computing, DevOps, Business Analytics, and Machine Learning, with a strong foundation in Full Stack Development and advanced skills in deploying scalable cloud infrastructure.</li>
-                        <li>Program includes industry-leading training in AI, Deep Learning, and Business Intelligence, supporting a comprehensive understanding of data engineering and deployment practices.</li>
+                        <li>Specialized in Cloud Computing, DevOps, Business Analytics, and Machine Learning, with a strong foundation in Full Stack Development and advanced skills in deploying scalable cloud infrastructure. <small><a href="{% url 'project_pages' %}?open=collapseTechAA">Explore how these cloud skills were applied.</a></small></li>
+                        <li>Program includes industry-leading training in AI, Deep Learning, and Business Intelligence, supporting a comprehensive understanding of data engineering and deployment practices. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">See these concepts applied in projects.</a></small></li>
+
                     </ul>
+                    <p class="mt-2"><small>This advanced study directly informed approaches in my <a href="{% url 'portfolio_showcase' %}">Professional Roles</a>.</small></p>
                 </div>
             </div>
         </div>
@@ -44,6 +49,7 @@
                     <ul>
                         <li>Professional certification validating the ability to code in Python and apply object-oriented programming principles in data and DevOps projects, ensuring alignment with industry standards for software and deployment practices.</li>
                     </ul>
+                    <p class="mt-2"><small>See my Python expertise in action across various projects in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
                 </div>
             </div>
         </div>
@@ -64,6 +70,7 @@
                         <li>Focused on Python, Spark, and the Hadoop ecosystem, including tools such as Hive, Kafka, and HBase for big data processing. Trained in MapReduce and YARN methodologies, with a competitive program acceptance rate and extensive interview preparation.</li>
                         <li>Developed skills essential for DevOps, CI/CD, and scalable data architecture, applying these techniques to enhance pipeline automation and performance.</li>
                     </ul>
+                    <p class="mt-2"><small>View the application of these Big Data and DevOps skills in my <a href="{% url 'portfolio_showcase' %}?open=collapseCiti">Work History</a>.</small></p>
                 </div>
             </div>
         </div>
@@ -83,10 +90,46 @@
                     <ul>
                         <li>Foundational knowledge in Management and Finance, with practical applications in implementation methodologies, critical for understanding project management and strategic planning within a DevOps framework.</li>
                     </ul>
+                    <p class="mt-2"><small>This management and finance background provided a strategic lens for <a href="{% url 'companyandme' %}?open=collapseAABaggage">Industry Engineering projects</a>.</small></p>
+
                 </div>
             </div>
         </div>
 
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openAccordionId = urlParams.get('open');
+
+    if (openAccordionId) {
+        const targetAccordionPanel = document.getElementById(openAccordionId);
+        if (targetAccordionPanel) {
+            if (targetAccordionPanel.classList.contains('collapse')) {
+                $(targetAccordionPanel).collapse('show');
+                const headerId = targetAccordionPanel.getAttribute('aria-labelledby');
+                if (headerId) {
+                    const headerElement = document.getElementById(headerId);
+                    if (headerElement) {
+                        setTimeout(function() {
+                            headerElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+                        }, 350);
+                    }
+                }
+            } else {
+                console.warn(`Element with ID '${openAccordionId}' is not a Bootstrap collapse panel.`);
+            }
+        } else {
+            console.warn(`Accordion panel with ID '${openAccordionId}' not found.`);
+        }
+    }
+});
+</script>
 {% endblock %}

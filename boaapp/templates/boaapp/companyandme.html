@@ -1,432 +1,208 @@
 {% extends 'boaapp/base_generic.html' %} {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}thenumerix | WWWH{% endblock %}</title>
 
-    <!-- Include jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+{% block title %}thenumerix | Business Analytics & Projects{% endblock %}
 
-    <!-- Include Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Include your custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{% static 'css/index.css' %}?v={{ timestamp }}"
-    />
+{% block content %}
+<div class="custom-margin-bottom text-center">
+    <h1 class="text-center mb-4">Industry Engineering & Project Insights</h1>
+    <p class="lead mb-4" style="max-width: 800px; margin: auto;">
+        Delve into the "Who, Why, What, and How" of key projects, showcasing the practical application of technical skills to overcome industry-specific challenges.
+        <br><small>For a comprehensive overview of my roles and responsibilities, please visit my <a href="{% url 'portfolio_showcase' %}?open=collapseAA">Portfolio & Work History</a>.</small>
+    </p>
 
-    <!-- Include Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <div class="accordion" id="companyProjectsAccordion" style="max-width: 800px; margin: auto;">
 
-    <!-- Include your custom JavaScript -->
-    <script src="{% static 'js/index.js' %}"></script>
+        {# American Airlines - Baggage System #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingAABaggage">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseAABaggage" aria-expanded="false" aria-controls="collapseAABaggage">
+                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="mr-2 accordion-company-logo">
+                        Baggage Management System
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseAABaggage" class="collapse" aria-labelledby="headingAABaggage" data-parent="#companyProjectsAccordion">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h4>Who Needs? (Stakeholders)</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Baggage Handlers:</strong> Responsible for loading, unloading, and transferring baggage.</li>
+                            <li><strong>Airport Staff:</strong> Involved in various roles supporting airport operations, such as customer service and security.</li>
+                            <li><strong>Passengers:</strong> Directly affected by baggage delays or losses.</li>
+                            <li><strong>Airline Operations:</strong> Need real-time information for efficient flight operations and customer service.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <h4>Why This? (No "Baggage")</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Purpose:</strong> To track and manage baggage movement throughout the airline's network, ensuring efficient operations and reducing losses.</li>
+                            <li><strong>Resolve:</strong> To address challenges such as baggage delays, lost luggage, and inefficiencies in baggage handling processes.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <h4>What Functionality? (Intricate Level)</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Predictive analytics:</strong> Use machine learning to predict baggage trends and identify potential issues.</li>
+                            <li><strong>Automation:</strong> Automate routine tasks to improve efficiency and reduce errors.</li>
+                            <li><strong>Data integration:</strong> Integration with various systems, such as flight information and passenger personal and baggage data.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>How it Works? (Technical Stack)</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Data Engineering:</strong> Azure Data Lake, Databricks, Cloud Storage</li>
+                            <li><strong>Machine Learning/Automation/Visualization:</strong> Python, Power Automate, Power BI</li>
+                            <li><strong>Security:</strong> Coverity, Black Duck, Tanium, Nucleus</li>
+                        </ul>
+                        <p><small>Discover more about these tools in the <a href="{% url 'project_pages' %}?open=collapseTechAA">American Airlines section of the Technical Showcase</a>.</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-  </head>
-  <body>
-    {% block content %}
-    <div class="stack-container">
-      <div class="container pictureAA">
-        <div class="container haze custom-container">
-          <h1>Who Needs?</h1>
-          <ol>
-            <h2>Stakeholders</h2>
-            <hr />
-            <ul>
-              <li><h3>Baggage Handlers</h3></li>
-              <span
-                >Responsible for loading, unloading, and transferring
-                baggage.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Airport Staff</h3>
-              </li>
-              <span
-                >Involved in various roles supporting airport operations, such
-                as customer service and security.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Passengers</h3>
-              </li>
-              <span>Directly affected by baggage delays or losses.</span>
-            </ul>
-            <ul>
-              <li>
-                <h3>Airline Operations</h3>
-              </li>
-              <span
-                >Need real-time information for efficient flight operations and
-                customer service.</span
-              >
-            </ul>
-          </ol>
+        {# American Airlines - Staff Management System #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingAAStaff">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseAAStaff" aria-expanded="false" aria-controls="collapseAAStaff">
+                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="mr-2 accordion-company-logo">
+                        In-Airport Staff Management
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseAAStaff" class="collapse" aria-labelledby="headingAAStaff" data-parent="#companyProjectsAccordion">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h4>Who Needs? (Stakeholders)</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Gate Agents:</strong> Directly responsible for managing passenger boarding and gate operations.</li>
+                            <li><strong>Pilots and Flight Crew:</strong> Need to access information regarding their flight schedules and assignments.</li>
+                            <li><strong>Airport Staff:</strong> Involved in various roles supporting airport operations, such as customer service, maintenance, and security.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <h4>Why This? (Seamless Flights)</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Purpose:</strong> To provide a centralized platform for managing in-airport staff activities, ensuring efficient operations and accurate tracking of flight-related information.</li>
+                            <li><strong>Resolve:</strong> To address challenges such as manual data entry, delays in accessing critical information, and inefficiencies in coordinating staff assignments.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <h4>What Functionality? (Intricate Level)</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Data analytics:</strong> Analyze large datasets to identify trends, optimize operations, and improve decision-making.</li>
+                            <li><strong>Integration:</strong> Integrate with other airport systems, such as passenger management systems and flight operations systems.</li>
+                            <li><strong>Mobile accessibility:</strong> Enable staff to access the application on mobile devices for on-the-go information and updates.</li>
+                             <li><strong>Staff scheduling:</strong> Track and manage staff schedules, assignments, and shifts.</li>
+                            <li><strong>Flight information:</strong> Provide real-time updates on flight status, gate assignments, and passenger boarding information.</li>
+                            <li><strong>Terminal and gate management:</strong> Manage terminal flight rollouts, gate assignments, and resource allocation.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>How it Works? (Technical Stack)</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Frontend/Backend:</strong> React, Angular, or Vue.js for building the user interface. Node.js or Python (Django or Flask) for developing the application's server-side logic.</li>
+                            <li><strong>Database:</strong> PostgreSQL or MongoDB for storing and managing application data.</li>
+                            <li><strong>Cloud/DevOps:</strong> Azure for hosting the application and its infrastructure. Git for version control, Jenkins or CircleCI for continuous integration, and Docker or Kubernetes for containerization and deployment.</li>
+                        </ul>
+                        <p><small>Explore these and other technologies in the <a href="{% url 'project_pages' %}?open=collapseTechAA">American Airlines section of the Technical Showcase</a>.</small></p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="container haze custom-container">
-          <h1>Why This?</h1>
-          <ol>
-            <h2>No "Baggage"</h2>
-            <hr />
-            <ul>
-              <li>
-                <h3>Purpose</h3>
-              </li>
-              <span
-                >To track and manage baggage movement throughout the airline's
-                network, ensuring efficient operations and reducing
-                losses.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Resolve</h3>
-              </li>
-              <span
-                >To address challenges such as baggage delays, lost luggage, and
-                inefficiencies in baggage handling processes.</span
-              >
-            </ul>
-          </ol>
+
+        {# Citibank - Data Platform #}
+        <div class="card mb-2">
+            <div class="card-header" id="headingCitiData">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseCitiData" aria-expanded="false" aria-controls="collapseCitiData">
+                        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="mr-2 accordion-company-logo">
+                        Data Platform & Analytics
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseCitiData" class="collapse" aria-labelledby="headingCitiData" data-parent="#companyProjectsAccordion">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h4>Who? (Stakeholders)</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Data Scientists:</strong> Utilize the developed tools and platforms for data analysis and modeling.</li>
+                            <li><strong>Business Analysts:</strong> Rely on the data insights to make informed decisions.</li>
+                            <li><strong>IT Teams:</strong> Responsible for maintaining and supporting the data infrastructure.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <h4>What? (Faster Money - Functionality)</h4> {# Combined What & Why for Citi as they were similar #}
+                        <hr />
+                        <ul>
+                            <li><strong>Data ingestion:</strong> Extract data from various sources and load it into the data platform.</li>
+                            <li><strong>Data transformation:</strong> Clean, transform, and prepare data for analysis.</li>
+                            <li><strong>Data governance:</strong> Implement data governance practices to ensure data quality and consistency.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>How it Works? (Technical Stack)</h4>
+                        <hr />
+                        <ul>
+                            <li><strong>Data Engineering:</strong> Python, PySpark, HDFS, HBase, Hive, Hadoop Ecosystem</li>
+                            <li><strong>ETL:</strong> Databricks, Python, PySpark</li>
+                            <li><strong>DevOps:</strong> Jenkins, bmc RLM, Autosys, Docker, Kubernetes, CI/CD, GitBash, Java/J2EE</li>
+                        </ul>
+                        <p><small>The <a href="{% url 'project_pages' %}?open=collapseTechCiti">Citibank section of the Technical Showcase</a> provides more detail on these technologies.</small></p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="container haze custom-container">
-          <h1>What Functionality?</h1>
-          <ol>
-            <h2>Intricate Level</h2>
-            <hr />
-            <ul>
-              <li>
-                <h3>Predictive analytics</h3>
-              </li>
-              <span
-                >Use machine learning to predict baggage trends and identify
-                potential issues.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Automation</h3>
-              </li>
-              <span
-                >Automate routine tasks to improve efficiency and reduce
-                errors.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Data integration</h3>
-              </li>
-              <span
-                >Integration with various systems, such as flight information
-                and passenger personal and baggage data.</span
-              >
-            </ul>
-          </ol>
-        </div>
-        <div class="container haze haze-how custom-container">
-          <h1>How it Works?</h1>
-          <ol>
-            <h2>Technical Stack</h2>
-            <hr />
-            <ul>
-              <li>
-                <h3>Data Engineering</h3>
-              </li>
-              <span>Azure Data Lake, Databricks, Cloud Storage</span>
-            </ul>
-            <ul>
-              <li>
-                <h3>Machine Learning/Automation/Visualization</h3>
-              </li>
-              <span>Python, Power Automate, Power BI</span>
-            </ul>
-            <ul>
-              <li>
-                <h3>Security</h3>
-              </li>
-              <span>Coverity, Black Duck, Tanium, Nucleus</span>
-            </ul>
-          </ol>
-        </div>
-      </div>
-      <div class="container pictureAA">
-        <div class="container haze custom-container">
-          <h1>Who Needs?</h1>
-          <ol>
-            <h2>Stakeholders</h2>
-            <hr />
-            <ul>
-              <li><h3>Gate Agents</h3></li>
-              <span
-                >Directly responsible for managing passenger boarding and gate
-                operations.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Pilots and Flight Crew</h3>
-              </li>
-              <span
-                >Need to access information regarding their flight schedules and
-                assignments.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Airport Staff</h3>
-              </li>
-              <span
-                >Involved in various roles supporting airport operations, such
-                as customer service, maintenance, and security.</span
-              >
-            </ul>
-          </ol>
-        </div>
-        <div class="container haze custom-container">
-          <h1>Why This?</h1>
-          <ol>
-            <h2>Seemless Flights</h2>
-            <hr />
-            <ul>
-              <li>
-                <h3>Purpose</h3>
-              </li>
-              <span
-                >To provide a centralized platform for managing in-airport staff
-                activities, ensuring efficient operations and accurate tracking
-                of flight-related information.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Resolve</h3>
-              </li>
-              <span
-                >To address challenges such as manual data entry, delays in
-                accessing critical information, and inefficiencies in
-                coordinating staff assignments.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Airport Staff</h3>
-              </li>
-              <span
-                >Involved in various roles supporting airport operations, such
-                as customer service, maintenance, and security.</span
-              >
-            </ul>
-          </ol>
-        </div>
-        <div class="container haze custom-container">
-          <h1>What Functionality?</h1>
-          <ol>
-            <h2>Intricate Level</h2>
-            <hr />
-            <ul>
-              <li>
-                <h3>Data analytics</h3>
-              </li>
-              <span
-                >Analyze large datasets to identify trends, optimize operations,
-                and improve decision-making.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Integration</h3>
-              </li>
-              <span
-                >Integrate with other airport systems, such as passenger
-                management systems and flight operations systems.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Mobile accessibility</h3>
-              </li>
-              <span
-                >Enable staff to access the application on mobile devices for
-                on-the-go information and updates.</span
-              >
-            </ul>
-          </ol>
-        </div>
-        <div class="container haze haze-how custom-container">
-          <h1>How it Works?</h1>
-          <ol>
-            <h2>Technical Stack</h2>
-            <hr />
-            <ul>
-              <li>
-                <h3>Frontend/Backend</h3>
-              </li>
-              <span
-                >React, Angular, or Vue.js for building the user interface.
-                Node.js or Python (Django or Flask) for developing the
-                application's server-side logic.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Database</h3>
-              </li>
-              <span
-                >PostgreSQL or MongoDB for storing and managing application
-                data.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Cloud/DevOps</h3>
-              </li>
-              <span
-                >Azure for hosting the application and its infrastructure. Git
-                for version control, Jenkins or CircleCI for continuous
-                integration, and Docker or Kubernetes for containerization and
-                deployment.</span
-              >
-            </ul>
-          </ol>
-        </div>
-      </div>
-      <div class="container pictureCiti">
-        <div class="container haze custom-container">
-          <h1>Who?</h1>
-          <ol>
-            <h2>Stakeholders</h2>
-            <hr />
-            <ul>
-              <li><h3>Data Scientists</h3></li>
-              <span
-                >Utilize the developed tools and platforms for data analysis and
-                modeling.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Business Analysts</h3>
-              </li>
-              <span>Rely on the data insights to make informed decisions.</span>
-            </ul>
-            <ul>
-              <li>
-                <h3>IT Teams</h3>
-              </li>
-              <span
-                >Responsible for maintaining and supporting the data
-                infrastructure.</span
-              >
-            </ul>
-          </ol>
-        </div>
-        <div class="container haze custom-container">
-          <h1>What?</h1>
-          <ol>
-            <h2>Faster Money</h2>
-            <hr />
-            <ul>
-              <li>
-                <h3>Data ingestion</h3>
-              </li>
-              <span
-                >Extract data from various sources and load it into the data
-                platform.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Data transformation</h3>
-              </li>
-              <span>Clean, transform, and prepare data for analysis.</span>
-            </ul>
-            <ul>
-              <li>
-                <h3>Data governance</h3>
-              </li>
-              <span
-                >Implement data governance practices to ensure data quality and
-                consistency.</span
-              >
-            </ul>
-          </ol>
-        </div>
-        <div class="container haze custom-container">
-          <h1>Why?</h1>
-          <ol>
-            <h2>Functionality</h2>
-            <hr />
-            <ul>
-              <li>
-                <h3>Staff scheduling</h3>
-              </li>
-              <span
-                >Track and manage staff schedules, assignments, and
-                shifts.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Flight information</h3>
-              </li>
-              <span
-                >Provide real-time updates on flight status, gate assignments,
-                and passenger boarding information.</span
-              >
-            </ul>
-            <ul>
-              <li>
-                <h3>Terminal and gate management</h3>
-              </li>
-              <span
-                >Manage terminal flight rollouts, gate assignments, and resource
-                allocation.</span
-              >
-            </ul>
-          </ol>
-        </div>
-        <div class="container haze haze-how custom-container">
-          <h1>How it Works?</h1>
-          <ol>
-            <h2>Technical Stack</h2>
-            <hr />
-            <ul>
-              <li>
-                <h3>Data Engineering</h3>
-              </li>
-              <span>Python, PySpark, HDFS, HBase, Hive, Hadoop Ecosystem</span>
-            </ul>
-            <ul>
-              <li>
-                <h3>ETL</h3>
-              </li>
-              <span>Databricks, Python, PySpark</span>
-            </ul>
-            <ul>
-              <li>
-                <h3>DevOps</h3>
-              </li>
-              <span
-                >Jenkins, bmc RLM, Autosys, Docker, Kubernetes, CI/CD, GitBash,
-                Java/J2EE</span
-              >
-            </ul>
-          </ol>
-        </div>
-      </div>
+
     </div>
+</div>
+{% endblock %}
 
-    {% endblock %}
-  </body>
-</html>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openAccordionId = urlParams.get('open'); // e.g., 'collapseAABaggage'
+
+    if (openAccordionId) {
+        const targetAccordionPanel = document.getElementById(openAccordionId);
+        if (targetAccordionPanel) {
+            // Ensure the element is a Bootstrap collapse element
+            if (targetAccordionPanel.classList.contains('collapse')) {
+                // Use jQuery for Bootstrap 4's collapse plugin
+                $(targetAccordionPanel).collapse('show');
+
+                // Scroll to the accordion item's header for better visibility
+                const headerId = targetAccordionPanel.getAttribute('aria-labelledby');
+                if (headerId) {
+                    const headerElement = document.getElementById(headerId);
+                    if (headerElement) {
+                        // Delay scrolling slightly to allow collapse animation to start
+                        setTimeout(function() {
+                            headerElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+                        }, 350);
+                    }
+                }
+            } else {
+                console.warn(`Element with ID '${openAccordionId}' is not a Bootstrap collapse panel.`);
+            }
+        } else {
+            console.warn(`Accordion panel with ID '${openAccordionId}' not found.`);
+        }
+    }
+});
+</script>
+{% endblock %}

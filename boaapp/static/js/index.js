@@ -87,12 +87,34 @@ function updateProgress() {
       // If progress is less than 100, continue polling
       if (data.progress < 100) {
         setTimeout(updateProgress, 1000);
-      } else {
+      } else if (progressBar) { // Ensure progressBar exists before redirecting
         // Delay for a moment before redirecting
         setTimeout(() => {
           window.location.href = "/upload/success/";
         }, 2000); // 2 seconds for user to see 100% completion
       }
     })
-    .catch(error => console.error("Error updating progress:", error));
+    .catch(error => {
+      console.error("Error updating progress:", error);
+      // Optionally, re-enable button or show error message to user here
+    });
 }
+
+// --- Accordion specific to uploadit.html (uploadInfoAccordion) ---
+const accordion = document.getElementById("uploadInfoAccordion");
+if (accordion) { // Check if the accordion element exists on the current page
+  accordion.addEventListener("click", function (e) {
+    const btn = e.target.closest("[data-toggle='collapse']");
+    if (!btn) return;
+
+    const targetId = btn.getAttribute("data-target");
+    const target = document.querySelector(targetId);
+
+    // Check if target exists and is shown before trying to hide
+    if (target && target.classList.contains("show")) {
+      $(target).collapse("hide");
+      // e.stopImmediatePropagation(); // Consider if this is truly needed
+    }
+  });
+}
+// --- End Accordion specific to uploadit.html ---
