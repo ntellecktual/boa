@@ -16,8 +16,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingBarvin">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseBarvin" aria-expanded="false" aria-controls="collapseBarvin">
-                        <img src="{% static 'css/img/barvin_logo.png' %}" alt="Barvin Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBarvin" aria-expanded="false" aria-controls="collapseBarvin">
+                        <img src="{% static 'css/img/barvin_logo.png' %}" alt="Barvin Logo" class="accordion-company-logo">
                         
                     </button>
                 </h2>
@@ -51,8 +51,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingAA">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseAA" aria-expanded="false" aria-controls="collapseAA">
-                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAA" aria-expanded="false" aria-controls="collapseAA">
+                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="accordion-company-logo">
                         
                     </button>
                 </h2>
@@ -80,7 +80,7 @@
                     </ul>
                     <h6>Infrastructure as Code (IaC) & DevOps Architecture</h6>
                     <ul>
-                        <li><strong>IaC Implementation:</strong> Deployed infrastructure using Terraform and Azure Resource Manager, achieving repeatable, automated provisioning of cloud resources and reducing deployment time by 65%.</li>
+                        <li><strong>IaC Implementation:</strong> Deployed infrastructure using Terraform and Azure Resource Manager, achieving repeatable, automated provisioning of cloud resources and reducing deployment time by 82.98%.</li>
                         <li><strong>DevOps Architecture:</strong> Designed high-availability DevOps architectures supporting real-time staff management systems, enabling rapid feature delivery and zero-downtime deployments across environments.</li>
                     </ul>
                     <h6>Cross-Functional Collaboration & Agile Delivery</h6>
@@ -128,8 +128,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingCiti">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseCiti" aria-expanded="false" aria-controls="collapseCiti">
-                        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCiti" aria-expanded="false" aria-controls="collapseCiti">
+                        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="accordion-company-logo">
                         
                     </button>
                 </h2>
@@ -169,8 +169,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingCodeNinjas">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseCodeNinjas" aria-expanded="false" aria-controls="collapseCodeNinjas">
-                        <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCodeNinjas" aria-expanded="false" aria-controls="collapseCodeNinjas">
+                        <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas Logo" class="accordion-company-logo">
                         
                     </button>
                 </h2>
@@ -195,38 +195,4 @@
 
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const openAccordionId = urlParams.get('open');
-
-    if (openAccordionId) {
-        const targetAccordionPanel = document.getElementById(openAccordionId);
-        if (targetAccordionPanel) {
-            if (targetAccordionPanel.classList.contains('collapse')) {
-                $(targetAccordionPanel).collapse('show');
-                const headerId = targetAccordionPanel.getAttribute('aria-labelledby');
-                if (headerId) {
-                    const headerElement = document.getElementById(headerId);
-                    if (headerElement) {
-                        setTimeout(function() {
-                            headerElement.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'center'
-                            });
-                        }, 350);
-                    }
-                }
-            } else {
-                console.warn(`Element with ID '${openAccordionId}' is not a Bootstrap collapse panel.`);
-            }
-        } else {
-            console.warn(`Accordion panel with ID '${openAccordionId}' not found.`);
-        }
-    }
-});
-</script>
 {% endblock %}

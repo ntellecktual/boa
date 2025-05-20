@@ -73,6 +73,41 @@ $(document).ready(function () {
   else { console.error("Theme toggle button with ID 'theme-toggle-btn' not found!"); }
   // --- End Theme Toggle Logic ---
 
+  // --- Accordion Deep Linking (Bootstrap 5) ---
+  const urlParams = new URLSearchParams(window.location.search);
+  const openAccordionId = urlParams.get('open');
+
+  if (openAccordionId) {
+    const targetAccordionPanel = document.getElementById(openAccordionId);
+    if (targetAccordionPanel) {
+      if (targetAccordionPanel.classList.contains('collapse')) {
+        // Bootstrap 5 way to show a collapse element
+        var collapseElement = new bootstrap.Collapse(targetAccordionPanel, {
+          toggle: false // Initialize but don't toggle immediately
+        });
+        collapseElement.show();
+
+        const headerId = targetAccordionPanel.getAttribute('aria-labelledby');
+        if (headerId) {
+          const headerElement = document.getElementById(headerId);
+          if (headerElement) {
+            setTimeout(function () {
+              headerElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+              });
+            }, 350);
+          }
+        }
+      } else {
+        console.warn(`Element with ID '${openAccordionId}' is not a Bootstrap collapse panel.`);
+      }
+    } else {
+      console.warn(`Accordion panel with ID '${openAccordionId}' not found.`);
+    }
+  }
+  // --- End Accordion Deep Linking ---
+
 });
 
 function updateProgress() {
@@ -100,21 +135,4 @@ function updateProgress() {
     });
 }
 
-// --- Accordion specific to uploadit.html (uploadInfoAccordion) ---
-const accordion = document.getElementById("uploadInfoAccordion");
-if (accordion) { // Check if the accordion element exists on the current page
-  accordion.addEventListener("click", function (e) {
-    const btn = e.target.closest("[data-toggle='collapse']");
-    if (!btn) return;
-
-    const targetId = btn.getAttribute("data-target");
-    const target = document.querySelector(targetId);
-
-    // Check if target exists and is shown before trying to hide
-    if (target && target.classList.contains("show")) {
-      $(target).collapse("hide");
-      // e.stopImmediatePropagation(); // Consider if this is truly needed
-    }
-  });
-}
 // --- End Accordion specific to uploadit.html ---

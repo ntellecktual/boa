@@ -11,10 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
-from django.conf import settings
-from django.conf.urls.static import static
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -53,12 +51,50 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'suppress_jupyter_widget_404s': {
+            '()': 'boaapp.logging_filters.SuppressJupyterWidgetAsset404s', # Path to your filter class
+        }
+    },
+    'handlers': {
+        'console': {
+        'level': 'DEBUG', # Changed to DEBUG to allow boaapp DEBUG messages
+            'class': 'logging.StreamHandler',
+            'filters': ['suppress_jupyter_widget_404s'], # Apply the filter to the console handler
+        },
+        # You might have other handlers like 'django.server' if you've customized logging before.
+        # If django.server handler is explicitly defined, add the filter there too.
+        # If not, the default StreamHandler used by runserver will pick up the console handler's filter.
+    },
+    'loggers': {
+        'django': { # Default Django logger
+            'handlers': ['console'],
+            'level': 'INFO', # Or your preferred level
+            'propagate': False,
+        },
+        'django.server': { # Specifically for runserver messages
+            'handlers': ['console'],
+            'level': 'INFO', # Or 'DEBUG' to see more, 'WARNING' to see less
+            'propagate': False,
+        },
+        # Add other loggers for your apps if needed
+        'boaapp': {
+            'handlers': ['console'],
+            'level': 'DEBUG', # Or your app's preferred logging level
+            'propagate': False,
+        },
+    }
+}
+
 ROOT_URLCONF = "boa.urls"
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -136,15 +172,15 @@ CELERY_TIMEZONE = TIME_ZONE
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'boaapp', 'static'),
+    BASE_DIR / 'boaapp' / 'static',
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'boa', 'media')
+MEDIA_ROOT = BASE_DIR / 'media' # Adjusted to be directly under BASE_DIR if 'boa' was a typo for the project root
 
 MEDIA_URL = '/media/'

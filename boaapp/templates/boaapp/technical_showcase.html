@@ -16,7 +16,7 @@
         <div class="card mb-2">
             <div class="card-header" id="headingTechAA">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseTechAA" aria-expanded="false" aria-controls="collapseTechAA">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTechAA" aria-expanded="false" aria-controls="collapseTechAA">
                         <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="accordion-company-logo">
                     </button>
                 </h2>
@@ -42,7 +42,7 @@
         <div class="card mb-2">
             <div class="card-header" id="headingTechCiti">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseTechCiti" aria-expanded="false" aria-controls="collapseTechCiti">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTechCiti" aria-expanded="false" aria-controls="collapseTechCiti">
                         <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="accordion-company-logo">
                     </button>
                 </h2>
@@ -65,7 +65,7 @@
         <div class="card mb-2">
             <div class="card-header" id="headingTechCodeNinjas">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseTechCodeNinjas" aria-expanded="false" aria-controls="collapseTechCodeNinjas">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTechCodeNinjas" aria-expanded="false" aria-controls="collapseTechCodeNinjas">
                         <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas Logo" class="accordion-company-logo">
                     </button>
                 </h2>
@@ -84,44 +84,4 @@
 
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const openAccordionId = urlParams.get('open'); // e.g., 'collapseTechAA'
-
-    if (openAccordionId) {
-        const targetAccordionPanel = document.getElementById(openAccordionId);
-        if (targetAccordionPanel) {
-            // Ensure the element is a Bootstrap collapse element
-            if (targetAccordionPanel.classList.contains('collapse')) {
-                // Use jQuery for Bootstrap 4's collapse plugin
-                $(targetAccordionPanel).collapse('show');
-
-                // Scroll to the accordion item's header for better visibility
-                const headerId = targetAccordionPanel.getAttribute('aria-labelledby');
-                if (headerId) {
-                    const headerElement = document.getElementById(headerId);
-                    if (headerElement) {
-                        // Delay scrolling slightly to allow collapse animation to start
-                        // and for the page layout to adjust.
-                        setTimeout(function() {
-                            headerElement.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'center' // 'start', 'center', or 'end'
-                            });
-                        }, 350); // 300-500ms is usually a good range
-                    }
-                }
-            } else {
-                console.warn(`Element with ID '${openAccordionId}' is not a Bootstrap collapse panel.`);
-            }
-        } else {
-            console.warn(`Accordion panel with ID '${openAccordionId}' not found.`);
-        }
-    }
-});
-</script>
 {% endblock %}

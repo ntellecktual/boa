@@ -1,0 +1,67 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}thenumerix | Available Courses{% endblock %}
+{% block content %}
+<div class="course-list">
+<div>
+  <h1 class="display-4 mb-4">Explore Our Courses</h1>
+  <p class="lead mb-4" style="max-width: 800px; margin: auto;">Embark on your learning journey. Choose a course to get started.</p>
+        {% if user.is_authenticated %}
+        <p class="mb-4">Welcome, {{ user.username }}! Find your next challenge below.</p>
+        {% else %}
+        <p class="mb-4">Please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">register</a> to enroll in courses.</p>
+        {% endif %}
+    </div>
+    {% if messages %}
+    <div style="max-width: 960px; margin: auto; text-align: left;" class="mb-3">
+      {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div style="max-width: 960px; margin: auto;"> 
+      {% if courses %}
+          <div class="row">
+              {% for course in courses %}
+              <div class="col">
+                  <div class="card h-100 shadow-sm">
+                      <div class="card-body d-flex flex-column">
+                          <h5 class="card-title">{{ course.title }}</h5>
+                          <p class="card-text flex-grow-1">{{ course.description|truncatewords:30 }}</p>
+                          {% if course.instructor %}
+                              <h4 class="card-text"><small class="instructor">Instructor: {{ course.instructor.get_full_name|default:course.instructor.username }}</small></h4>
+                          {% endif %}
+                          
+                          {% if user.is_authenticated %}
+                              {% if course.id in user_enrollments_ids %}
+                                  <a href="{% url 'course_detail' course.id %}" class="btn mt-auto">Go to Course</a>
+                              {% else %}
+                                  <form method="POST" action="{% url 'enroll_course' course.id %}">
+                                      {% csrf_token %}
+                                      <input type="hidden" name="course_id" value="{{ course.id }}">
+                                      <button type="submit" class="btn btn-primary mt-auto">Enroll in Course</button>
+                                  </form>
+                              {% endif %}
+                          {% else %}
+                               <a href="{% url 'login' %}" class="btn btn-outline-primary mt-auto">Login to Enroll</a>
+                          {% endif %}
+                      </div>
+                      <div class="card-footer">
+                          <small class="updated">Last updated: {{ course.updated_at|date:"M d, Y" }}</small>
+                      </div>
+                    </div>
+                </div>
+                {% endfor %}
+              </div>
+          {% else %}
+              <div class="alert alert-info text-center" role="alert">
+                  No courses available at the moment. Please check back later!
+              </div>
+          {% endif %}
+      </div>
+  </div>
+</div>
+{% endblock %}

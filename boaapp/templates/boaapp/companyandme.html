@@ -16,9 +16,9 @@
         <div class="card mb-2">
             <div class="card-header" id="headingAABaggage">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseAABaggage" aria-expanded="false" aria-controls="collapseAABaggage">
-                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="mr-2 accordion-company-logo">
-                        Baggage Management System
+                    <button class="btn btn-link w-100 text-left d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAABaggage" aria-expanded="false" aria-controls="collapseAABaggage">
+                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="accordion-company-logo">
+                        Baggage Handling System
                     </button>
                 </h2>
             </div>
@@ -69,8 +69,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingAAStaff">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseAAStaff" aria-expanded="false" aria-controls="collapseAAStaff">
-                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 text-left d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAAStaff" aria-expanded="false" aria-controls="collapseAAStaff">
+                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="accordion-company-logo">
                         In-Airport Staff Management
                     </button>
                 </h2>
@@ -124,8 +124,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingCitiData">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseCitiData" aria-expanded="false" aria-controls="collapseCitiData">
-                        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 text-left d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCitiData" aria-expanded="false" aria-controls="collapseCitiData">
+                        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="accordion-company-logo">
                         Data Platform & Analytics
                     </button>
                 </h2>
@@ -166,43 +166,4 @@
 
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const openAccordionId = urlParams.get('open'); // e.g., 'collapseAABaggage'
-
-    if (openAccordionId) {
-        const targetAccordionPanel = document.getElementById(openAccordionId);
-        if (targetAccordionPanel) {
-            // Ensure the element is a Bootstrap collapse element
-            if (targetAccordionPanel.classList.contains('collapse')) {
-                // Use jQuery for Bootstrap 4's collapse plugin
-                $(targetAccordionPanel).collapse('show');
-
-                // Scroll to the accordion item's header for better visibility
-                const headerId = targetAccordionPanel.getAttribute('aria-labelledby');
-                if (headerId) {
-                    const headerElement = document.getElementById(headerId);
-                    if (headerElement) {
-                        // Delay scrolling slightly to allow collapse animation to start
-                        setTimeout(function() {
-                            headerElement.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'center'
-                            });
-                        }, 350);
-                    }
-                }
-            } else {
-                console.warn(`Element with ID '${openAccordionId}' is not a Bootstrap collapse panel.`);
-            }
-        } else {
-            console.warn(`Accordion panel with ID '${openAccordionId}' not found.`);
-        }
-    }
-});
-</script>
 {% endblock %}

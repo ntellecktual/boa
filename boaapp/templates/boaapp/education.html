@@ -16,8 +16,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingUta">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseUta" aria-expanded="false" aria-controls="collapseUta">
-                        <img src="{% static 'css/img/uta_logo.png' %}" alt="University of Texas at Austin Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUta" aria-expanded="false" aria-controls="collapseUta">
+                        <img src="{% static 'css/img/uta_logo.png' %}" alt="University of Texas at Austin Logo" class="accordion-company-logo">
                     </button>
                 </h2>
             </div>
@@ -38,8 +38,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingPythonInst">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapsePythonInst" aria-expanded="false" aria-controls="collapsePythonInst">
-                        <img src="{% static 'css/img/python_institute_logo.png' %}" alt="Python Institute Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePythonInst" aria-expanded="false" aria-controls="collapsePythonInst">
+                        <img src="{% static 'css/img/python_institute_logo.png' %}" alt="Python Institute Logo" class="accordion-company-logo">
                     </button>
                 </h2>
             </div>
@@ -58,8 +58,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingSmu">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseSmu" aria-expanded="false" aria-controls="collapseSmu">
-                        <img src="{% static 'css/img/smu_logo.png' %}" alt="SMU Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSmu" aria-expanded="false" aria-controls="collapseSmu">
+                        <img src="{% static 'css/img/smu_logo.png' %}" alt="SMU Logo" class="accordion-company-logo">
                     </button>
                 </h2>
             </div>
@@ -79,8 +79,8 @@
         <div class="card mb-2">
             <div class="card-header" id="headingUcr">
                 <h2 class="mb-0">
-                    <button class="btn btn-link btn-block d-flex align-items-center justify-content-center" type="button" data-toggle="collapse" data-target="#collapseUcr" aria-expanded="false" aria-controls="collapseUcr">
-                        <img src="{% static 'css/img/ucr_logo.png' %}" alt="University of California, Riverside Logo" class="mr-2 accordion-company-logo">
+                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUcr" aria-expanded="false" aria-controls="collapseUcr">
+                        <img src="{% static 'css/img/ucr_logo.png' %}" alt="University of California, Riverside Logo" class="accordion-company-logo">
                     </button>
                 </h2>
             </div>
@@ -98,38 +98,4 @@
 
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const openAccordionId = urlParams.get('open');
-
-    if (openAccordionId) {
-        const targetAccordionPanel = document.getElementById(openAccordionId);
-        if (targetAccordionPanel) {
-            if (targetAccordionPanel.classList.contains('collapse')) {
-                $(targetAccordionPanel).collapse('show');
-                const headerId = targetAccordionPanel.getAttribute('aria-labelledby');
-                if (headerId) {
-                    const headerElement = document.getElementById(headerId);
-                    if (headerElement) {
-                        setTimeout(function() {
-                            headerElement.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'center'
-                            });
-                        }, 350);
-                    }
-                }
-            } else {
-                console.warn(`Element with ID '${openAccordionId}' is not a Bootstrap collapse panel.`);
-            }
-        } else {
-            console.warn(`Accordion panel with ID '${openAccordionId}' not found.`);
-        }
-    }
-});
-</script>
 {% endblock %}

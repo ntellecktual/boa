@@ -1,5 +1,6 @@
 import logging
 import nbformat
+from nbconvert import HTMLExporter # Add this import
 import os
 
 from django.conf import settings
@@ -16,13 +17,163 @@ from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
 
 from .forms import DocumentForm, UserRegisterForm, CustomUserCreationForm
-from .models import DevopsItem, PortfolioItem, ResumeDocument, Document, AudioFile
+from .models import Document, AudioFile, VideoFile, Course, Enrollment, CourseSection, PortfolioItem, DevopsItem, ResumeDocument
 from .tasks import create_audio_files_task, create_single_video_task
 from .utils import _get_video_paths, _get_random_background
 from .process_notebook import handle_uploaded_file
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
+def render_notebook_to_html(filepath):
+    """Converts a Jupyter Notebook file (.ipynb) to HTML."""
+    if not os.path.exists(filepath):
+        logger.error(f"Notebook file not found: {filepath}")
+        return f"<p>Error: Notebook file not found at {filepath}</p>"
+
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            nb = nbformat.read(f, as_version=4)
+        
+        # Configure the HTML exporter
+        html_exporter = HTMLExporter()
+
+        # --- Template Selection ---
+        # 'basic' is very minimal.
+        # 'classic' or 'lab' provide richer styling but might have more external dependencies (like fonts).
+        html_exporter.template_name = 'basic' # Current setting
+        # html_exporter.template_name = 'classic' 
+        # html_exporter.template_name = 'lab'
+
+        # --- Content Exclusion ---
+        # Exclude the "In [1]:", "Out [1]:" prompts
+        html_exporter.exclude_output_prompt = True
+        # Set to True if you want to hide the code input cells by default
+        html_exporter.exclude_input = False 
+
+        # --- Embedding Resources (More Advanced) ---
+        # html_exporter.embed_images = True # To embed images directly in HTML (can increase HTML size)
+
+        (body, resources) = html_exporter.from_notebook_node(nb) # Corrected method name
+        
+        # --- Advanced: Embedding CSS (if needed and available in resources) ---
+        # if resources.get('inlining', {}).get('css'):
+        #     css_to_embed = "\n".join(resources['inlining']['css'])
+        #     body = f"<style>{css_to_embed}</style>\n{body}"
+        return body
+
+    except nbformat.validator.NotebookValidationError as e_nb_invalid:
+        logger.error(f"Invalid notebook format for {filepath}: {e_nb_invalid}", exc_info=True)
+        return f"<p>Error: Invalid Jupyter Notebook format: {e_nb_invalid}</p>"
+    except Exception as e:
+        logger.error(f"Error rendering notebook {filepath}: {e}", exc_info=True)
+        return f"<p>Error rendering notebook: {e}</p>"
+
+
+def course_list_view(request):
+    courses = Course.objects.all().order_by('updated_at') # Changed to order by updated_at ascending
+    user_enrollments_ids = []
+    if request.user.is_authenticated:
+        user_enrollments_ids = Enrollment.objects.filter(user=request.user).values_list('course_id', flat=True)
+    
+    return render(request, 'boaapp/course_list.html', {'courses': courses, 'user_enrollments_ids': user_enrollments_ids})
+
+@login_required
+def course_detail_view(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    sections = course.sections.all().order_by('order') # CourseSection.Meta.ordering handles this too
+    
+    is_enrolled = False
+    completed_learn_sections_ids = []
+    current_step_number = 0
+    current_step_name = "Not Enrolled"
+    current_step_description = "Enroll in the course to begin your journey."
+    enrollment = None
+
+    try:
+        enrollment = Enrollment.objects.get(user=request.user, course=course)
+        is_enrolled = True
+        completed_learn_sections_ids = list(enrollment.completed_learn_sections.values_list('id', flat=True))
+
+        # Determine current step
+        if not enrollment.all_learn_sections_completed():
+            current_step_number = 1
+            current_step_name = "Step 1: Learning"
+            current_step_description = "Focus on understanding the core concepts and materials provided in the sections below."
+        elif not enrollment.create_step_completed:
+            current_step_number = 2
+            current_step_name = "Step 2: Creating"
+            current_step_description = "Apply what you've learned! It's time to build/create the project."
+        elif not enrollment.teach_step_completed:
+            current_step_number = 3
+            current_step_name = "Step 3: Teaching"
+            current_step_description = "Solidify your understanding by preparing to teach this topic to others."
+        else:
+            current_step_name = "Course Completed!"
+            current_step_description = "Congratulations on completing all steps of this course!"
+
+    except Enrollment.DoesNotExist:
+        is_enrolled = False
+
+    # Prepare sections data, including rendered HTML for notebooks
+    sections_data = []
+    for section in sections:
+        section_info = {
+            'section': section,
+            'is_completed': section.id in completed_learn_sections_ids,
+            'learn_content_html': None # Placeholder for rendered HTML
+        }
+        if section.learn_content_file and section.learn_content_file.name.lower().endswith('.ipynb'):
+             # Construct absolute path to the file
+             file_path = os.path.join(settings.MEDIA_ROOT, section.learn_content_file.name)
+             section_info['learn_content_html'] = render_notebook_to_html(file_path)
+        sections_data.append(section_info)
+
+
+    context = {
+        'course': course,
+        'sections_data': sections_data, # Pass the processed sections data
+        'is_enrolled': is_enrolled,
+        'completed_learn_sections_ids': completed_learn_sections_ids,
+        'current_step_name': current_step_name,
+        'current_step_description': current_step_description,
+        'page_id': 'course-detail' 
+    }
+    return render(request, 'boaapp/course_detail.html', context)
+
+@login_required
+def enroll_course_view(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    if request.method == 'POST':
+        enrollment, created = Enrollment.objects.get_or_create(user=request.user, course=course)
+        if created:
+            messages.success(request, f"You have successfully enrolled in '{course.title}'.")
+        else:
+            messages.info(request, f"You are already enrolled in '{course.title}'.")
+        return redirect('course_detail', course_id=course.id)
+    return redirect('course_list') # Should not be reached via GET directly typically
+
+# boaapp/views.py (Add this function)
+def witheritelaw_view(request):
+    """Render the Witheritelaw Automation Engineer profile page."""
+    context = {
+        'page_title': 'Automation Engineer Profile: Witheritelaw',
+        'job_title': 'Automation Engineer',
+        'company_name': 'Witheritelaw',
+        # You can add more context variables here if needed,
+        # but the main content will be in the template.
+    }
+    return render(request, 'boaapp/witheritelaw.html', context)
+
+
+@login_required
+def mark_section_learned_view(request, section_id):
+    section = get_object_or_404(CourseSection, pk=section_id)
+    enrollment = get_object_or_404(Enrollment, user=request.user, course=section.course)
+    enrollment.completed_learn_sections.add(section)
+    messages.success(request, f"Section '{section.title}' marked as learned!")
+    return redirect('course_detail', course_id=section.course.id)
+
 
 def uploadit(request):
     uploaded_files = []
@@ -52,10 +203,11 @@ def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save() # Save the user and get the user object
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}! You can now log in.')
-            return redirect('login') # Or wherever you redirect after registration
+            login(request, user) # Log the new user in automatically
+            messages.success(request, f'Account created for {username}! Welcome to the courses.')
+            return redirect('course_list') # Redirect to the course list page
     else:
         # GET request
         form = CustomUserCreationForm()

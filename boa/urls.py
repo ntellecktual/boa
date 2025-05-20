@@ -24,16 +24,20 @@ urlpatterns = [
     path('data_project/', boaapp_views.data_project, name='data_project'),
     path('live_demos/', boaapp_views.live_demos, name='live_demos'),
     path('skills/', boaapp_views.skills_section, name='skills_section'),
-    path('boashedskin', boaapp_views.boashedskin_view, name='boashedskin'),
+    path('witheritelaw/', boaapp_views.witheritelaw_view, name='witheritelaw'),
+    
     path('education_details/', boaapp_views.education_details_view, name='education_details'), # New URL for education
     path('dashboard/', boaapp_views.dashboard, name='dashboard'),
      path('dashboard/delete_orphaned/', boaapp_views.delete_orphaned_files, name='delete_orphaned_files'),
      path('dashboard/delete_all/', boaapp_views.delete_all_files, name='delete_all_files'),
     path('generate_video/<int:audio_file_pk>/', boaapp_views.generate_video, name='generate_video'),
     path('generate_all_videos/', boaapp_views.generate_all_videos, name='generate_all_videos'),
-
+    path('courses/<int:course_id>/', boaapp_views.course_detail_view, name='course_detail'),
+    path('courses/<int:course_id>/enroll/', boaapp_views.enroll_course_view, name='enroll_course'),
+    path('courses/section/<int:section_id>/mark_learned/', boaapp_views.mark_section_learned_view, name='mark_section_learned'),
 
 ]
 
 urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
+urlpatterns.insert(-1, path('courses/', boaapp_views.course_list_view, name='course_list')) # New URL for course listing

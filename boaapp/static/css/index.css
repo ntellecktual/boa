@@ -9,9 +9,11 @@
 body {
   font-family: "Inter", sans-serif;
   padding-top: 70px;
+  font-size: 1rem; /* Consistent base font size */
+  line-height: 1.6; /* Improved readability */
   min-height: 100vh;
   background-color: var(--bg-color);
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @media (max-width: 767px) {
@@ -24,23 +26,33 @@ body {
     THEME VARIABLES
 ========================= */
 :root {
+  /* Default background gradient - will be overridden by step-specific backgrounds */
   background: linear-gradient(
-      to right,
-      #e83c77, /* Start Pink */
-      #ea5478, /* Added: Smoother Pink Transition */
-      #f0777d, /* Mid Pink/Orange */
-      #f5908a, /* Added: Smoother Orange/Peach Transition */
-      #fab497, /* Peach */
-      #e0a0ab, /* Added: Pink-Purple Transition */
-      #d98ab0, /* Light Purple */
-      #a75fba, /* Mid Purple */
-      #734ba2, /* Deeper Purple */
-      #5e48a0, /* Added: Purple-Blue Transition */
-      #4a3e9e  /* End Blue */
-  );
+    135deg, 
+    #e83c77, 
+    #ea5478, 
+    #f0777d, 
+    #f5908a, 
+    #fab497, 
+    #e0a0ab, 
+    #d98ab0, 
+    #a75fba, 
+    #734ba2, 
+    #5e48a0, 
+    #4a3e9e
+    );
   --border-color: #cccccc;
   --button-bg: #40378a;
-  --button-text: #ffffff; /* Default button text */
+  --button-text: #ffffff;
+  --interactive-item-bg: #ace2d6; /* Light green for mini-app items */
+  --interactive-item-text: #000000; /* Default text for mini-app items */
+  --interactive-detail-bg: #ace2d6; /* Light green for mini-app details */
+  --conceptual-card-bg: #f8f9fa;
+  --conceptual-card-text: #212529; /* Default dark text for conceptual cards */
+  --conceptual-card-detail-bg: #ffffff;
+  /* Optional: for active states if you want them theme-aware */
+  --interactive-item-bg-active: #7fe4ce4f; 
+  --conceptual-card-bg-active: #eef5ff;
 }
 
 /* Add this to your index.css */
@@ -54,20 +66,23 @@ body {
 
 
 body.uploadit {
-  /* Fallback for older WebKit browsers */
-  background: -webkit-linear-gradient(
-    left, /* Correct syntax for -webkit- */
-    #4a3e9e, #6c489d, #ae6abb, #e98bc6, #d1c4e9, #64bfae, #238175, #1a685c, #114d44
-  );
-  /* Standard syntax */
   background: linear-gradient(
-    to right, #4a3e9e, #6c489d, #ae6abb, #e98bc6, #d1c4e9, #64bfae, #238175, #1a685c, #114d44
+    135deg, 
+    #4a3e9e, 
+    #6c489d, 
+    #ae6abb, 
+    #e98bc6, 
+    #d1c4e9, 
+    #64bfae, 
+    #238175, 
+    #1a685c, 
+    #114d44
   );
-  color: var(--text-color); /* Explicitly apply the theme's text color */
-  /* Theme variables for uploadit */
+  color: var(--text-color);
   --border-color: #cccccc; /* Specific border color for uploadit */
   --button-bg: #40378a;
   --button-text: #ffffff;
+  
 }
 
 html[data-theme="light"] {
@@ -75,7 +90,15 @@ html[data-theme="light"] {
   --button-text: #ffffff;
   --bg-color: transparent;
   --card-bg: rgba(255, 255, 255, 0.1); /* Example card background for light */
-  
+  --color: var(--text-color) !important;
+  --interactive-item-bg: #ace2d6;
+  --interactive-item-text: #000000;
+  --interactive-detail-bg: #ace2d6;
+  --conceptual-card-bg: #f8f9fa;
+  --conceptual-card-text: #212529;
+  --conceptual-card-detail-bg: #ffffff;
+  --interactive-item-bg-active: #7fe4ce4f; 
+  --conceptual-card-bg-active: #eef5ff;
 }
 
 html[data-theme="dark"] {
@@ -83,20 +106,15 @@ html[data-theme="dark"] {
   --button-text: #f8f9fa;
   --card-bg: rgba(0, 0, 0, 0.2); /* Example card background for dark */
   --bg-color: transparent;
-  
-}
-
-/* Background overlay for dark mode (visual dim) */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: -1;
-  background-color: transparent;
+  --interactive-item-bg: #2c665a; /* Darker green for dark theme */
+  --interactive-item-text: #f8f9fa; /* Light text for dark theme */
+  --interactive-detail-bg: #2c665a; /* Darker green for dark theme */
+  --conceptual-card-bg: #212529; /* Dark background for conceptual cards */
+  --conceptual-card-text: #f8f9fa; /* Light text for conceptual cards */
+  --conceptual-card-detail-bg: #2c3034; /* Darker detail background */
+  /* Optional: Define dark theme active backgrounds */
+  --interactive-item-bg-active: #3a8070; 
+  --conceptual-card-bg-active: #343a40; 
 }
 
 body[data-theme="dark"]::before {
@@ -107,11 +125,63 @@ body[data-theme="light"]::before {
   background-color: rgba(0, 0, 0, 0); /* No overlay in light */
 }
 
-/* Removed redundant body.uploadit color rule */
+/* =========================
+    STEP-SPECIFIC BACKGROUNDS
+========================= */
+/* Override default body background gradient when a step is active */
+body.step-1-active,
+body.step-2-active, /* Add if implementing other steps */
+body.step-3-active { /* Add if implementing other steps */
+    background: none !important; /* Remove the default :root gradient from body */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Keep background fixed while scrolling */
+}
+
+/* Ensure inner containers are transparent when a step background is active on the body */
+body.step-1-active .container,
+body.step-2-active .container,
+body.step-3-active .container {
+    background-color: transparent !important; /* Make .container transparent */
+}
+
+/* Background for Step 1 - Light Mode */
+body.step-1-active[data-theme="light"] {
+    background-image: url("img/step1light.png"); /* Corrected path and assuming step1light.png exists */
+}
+
+/* Background for Step 1 - Dark Mode */
+body.step-1-active[data-theme="dark"] {
+    background-image: url("img/step1dark.png"); /* Corrected path */
+}
+
+/* Background for Step 2 - Light Mode */
+body.step-2-active[data-theme="light"] {
+    background-image: url("img/step2light.png"); /* Corrected path */
+}
+
+/* Background for Step 2 - Dark Mode */
+body.step-2-active[data-theme="dark"] {
+    background-image: url("img/step2dark.png"); /* Assuming step2dark.png exists */
+}
+
+/* Background for Step 3 - Light Mode*/
+
+body.step-3-active[data-theme="light"] {
+    background-image: url("img/step3light.png");
+}
+
+/* Background for Step 3 - Dark Mode*/
+
+body.step-3-active[data-theme="dark"] {
+    background-image: url("img/step3dark.png");
+}
+
 
 /* =========================
     CONTAINERS & UTILITIES
 ========================= */
+
 .container {
   display: flex;
   flex-direction: row;
@@ -119,10 +189,12 @@ body[data-theme="light"]::before {
   align-content: center;
   position: relative;
   min-height: 90vh; /* Inherits color from html[data-theme] */
-  color: var(--text-color);
+  color: var(--text-color); /* Default text color for container content */
   padding: 0 !important;
   z-index: 0;
 }
+
+
 
 .custom-container,
 .login-custom-container,
@@ -134,10 +206,14 @@ body[data-theme="light"]::before {
   text-align: center;
 }
 
-.login-custom-container {
-  max-width: 600px;
+.course-list {
+  display: grid;
+  justify-content: end;
+  min-height: 0px !important;
+  align-items: stretch;
+  align-content: center;
+  text-align: center;
 }
-
 
 /* =========================
     NAVIGATION
@@ -148,7 +224,12 @@ body[data-theme="light"]::before {
 }
 
 .navbar .nav-link {
-  color: var(--text-color); /* Removed !important */
+  color: var(--text-color) !important; /* Ensure navbar links use theme text color */
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+  color: var(--text-color) !important; /* Keep theme text color on hover/focus for navbar links */
 }
 
 /* =========================
@@ -156,9 +237,13 @@ body[data-theme="light"]::before {
 ========================= */
 .btn {
   color: var(--button-text); /* Removed !important */
-  border: none !important;
-  transition: background-color 0.4s ease, color 0.4s ease;
-  text-align: center;
+  border-radius: 0.375rem; /* Default BS5 radius, or adjust (e.g., 0.5rem for more rounded) */
+  padding: 0.6rem 1.2rem; /* Slightly more generous padding */
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.15s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.btn:hover {
+  transform: translateY(-2px); /* Subtle lift on hover */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* Softer shadow on hover */
 }
 
 .btn-upload {
@@ -177,6 +262,22 @@ body[data-theme="light"]::before {
 /* =========================
     TABLES & CARDS
 ========================= */
+
+/* Bootstrap List Group Variables - Incorporated */
+.list-group {
+    --bs-list-group-color: var(--bs-body-color);
+    --bs-list-group-bg: var(--bs-body-bg);
+    --bs-list-group-border-color: transparent;
+    --bs-list-group-border-width: var(--bs-border-width);
+    --bs-list-group-border-radius: var(--bs-border-radius);
+    --bs-list-group-item-padding-x: 1rem;
+    
+    --bs-list-group-item-padding-y: 0.5rem;
+    --bs-list-group-action-color: var(--bs-secondary-color);
+    --bs-list-group-action-hover-color: var(--bs-emphasis-color);
+    --bs-list-group-action-hover-bg: transparent;
+    --bs-list-group-action-active-color: var(--bs-body-color);
+}
 .card,
 .table,
 .audio-entry,
@@ -184,28 +285,30 @@ body[data-theme="light"]::before {
   background-color: var(--card-bg, rgba(0,0,0,0.1)); /* Use variable with fallback */
   color: var(--text-color);
   border: none !important; /* Corrected border removal */
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Slightly faster transition */
 }
 
 .card {
   /* max-width: 300px; */ /* Removed global max-width, apply specifically if needed elsewhere or for non-accordion cards */
   border: none;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem; /* Slightly more rounded, or use BS5 default */
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */ /* Replaced by BS5 utilities or a theme variable */
+  /* Add .shadow-sm or .shadow class to card elements in HTML for Bootstrap 5 shadows */
 }
 .card-body {
   text-align: center;
+  padding: 1.25rem; /* BS5 default, ensure consistency */
 }
 
-p,
+/* Removed global p, ul, ol text-align: center here as it was duplicated below */
 ul,
 ol {
-  text-align: center;
   padding: 0;
 }
 
 .card-header {
   padding: 0px;
+  background-color: rgba(0,0,0,0.03);
 }
 
 .table thead th {
@@ -220,41 +323,69 @@ ol {
 }
 
 .form-control {
-  border: none;
+  border-radius: 0.375rem; /* BS5 default */
   text-align: center;
   background-color: transparent !important;
+  color: var(--text-color) !important; /* Ensure themed text color */
+}
+.form-control:focus {
+  box-shadow: 0 0 0 0.25rem rgba(var(--button-bg-rgb, 72, 198, 239), 0.25);
 }
 
 /* =========================
     TYPOGRAPHY
-========================= */ /* Removed broad typography rule - rely on inheritance */
-
-p,
-ul,
-ol {
-  text-align: center;
-  padding: 0;
-}
+========================= */
 
 .details {
   display: none;
+  text-align: left;
 }
+
+.updated {
+  color: #9c9c9c;
+}
+
+/* =========================
+    LINKS
+========================= */
+a,
+a:visited {
+  text-decoration: none !important;    /* Remove underline and ensure it applies */
+  transition: color 0.2s ease-in-out, opacity 0.2s ease-in-out; /* Smooth transition for hover effects */
+}
+
+a:hover,
+a:focus { /* Apply to hover and focus states for accessibility */
+  color: #e83c77 !important; /* Keep the same color on hover/focus */
+  text-decoration: none !important;    /* Keep underline removed on hover/focus */
+  /* opacity: 0.8; *//* Optional: uncomment for a subtle opacity change on hover if desired */
+}
+
+
 
 /* =========================
     ACCORDIONS
 ========================= */
 .accordion .collapse {
-  transition: height 0.3s ease;
+  transition: height 0.3s ease-out; /* Keep collapse transition */
 }
 
 .accordion {
-  overflow-anchor: none; /* Keeps scroll position stable when content above changes height */
-  /* display: grid; */ /* Removed grid display */
-  /* justify-content: space-around; */ /* Removed grid justification */
+  overflow-anchor: none;
+  background-color: transparent !important;
 }
 
 .accordion > .card { /* Target direct card children of an accordion */
   max-width: 100%; /* Allow accordion cards to span the full width of the accordion container */
+  margin-bottom: 0.25rem; /* Reduced margin for a tighter look */
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg) !important;
+}
+
+/* Specific styling for list group items within the course detail */
+.list-group-item {
+    background-color: var(--card-bg, rgba(0,0,0,0.1)); /* Ensure list items use card background */
+    border: 1px solid var(--border-color); /* Add border for separation */
 }
 
 .tech-logo {
@@ -262,12 +393,26 @@ ol {
   width: auto;
   max-width: 110px; /* Prevent very wide tool logos from taking too much space */
   object-fit: contain; /* Ensures the logo fits well without cropping, good for varied aspect ratios */
+  padding: 0.25rem;
 }
+
 .accordion-company-logo { /* Ensure this is consistent with your portfolio_showcase.html styling */
   height: 90px; /* Or your preferred height for company logos in accordion headers */
   width: auto;
   max-width: 250px;
   object-fit: contain;
+}
+
+.accordion .btn-link {
+  color: var(--text-color) !important; /* Use important to override Bootstrap if necessary */
+}
+
+.accordion .btn-link > span.me-2 { /* Target the span with emoji */
+  font-size: 2.2rem;
+}
+
+span.me-2 { /* Target the span with emoji */
+  font-size: 2.2rem;
 }
 
 /* =========================
@@ -313,6 +458,166 @@ ol {
 /* =========================
     MISC ELEMENTS
 ========================= */
+
+/* Modify in your index.css under MISC ELEMENTS or where .conceptual-stage-card is defined */
+.conceptual-stage-card {
+  border: none; /* Remove individual border if parent .accordion > .card has one */
+  border-radius: .375rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  color: var(--conceptual-card-text); /* THEME CHANGE - for header text */
+}
+
+.conceptual-stage-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.conceptual-stage-card.active {
+  border-left: 5px solid #007bff;
+}
+
+.conceptual-stage-card-header {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: inherit;
+  margin-bottom: 10px;
+}
+
+.conceptual-stage-card-header .inline-stage-icon {
+  height: 40px;
+}
+
+/* Dark mode specific styling for images to improve visibility */
+html[data-theme="dark"] .inline-stage-icon,
+html[data-theme="dark"] .main-title-logo,
+html[data-theme="dark"] .button-logo {
+  /* Option 1: Subtle white outline */
+  /* filter: drop-shadow(0 0 1px white) drop-shadow(0 0 2px white); */
+  
+  /* Option 2: Very light drop shadow (more subtle) */
+  filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.7));
+
+  /* Option 3: If images are mostly dark, a slight brightness increase */
+  /* filter: brightness(1.2); */
+}
+
+.conceptual-stage-logos {
+  display: flex; /* Align logos in a row */
+  align-items: center; /* Vertically center logos */
+  min-width: 180px; /* Adjust this width based on your largest logo combination */
+  /* You might need to fine-tune this width after placing all logos */
+  margin-right: 10px; /* Space between logos and the stage text */
+}
+
+.conceptual-stage-detail { /* This targets the detail within conceptual-stage-card */
+  display: none;
+  padding: 0.75rem 0 0 0;
+  margin-top: 0.75rem;
+  border-top: 1px dashed #ced4da; /* Consider var(--border-color) with opacity */
+  color: var(--conceptual-card-text); /* THEME CHANGE - for detail text */
+}
+
+.conceptual-stage-detail p {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.conceptual-stage-detail strong {
+  color: inherit; /* Inherits from .conceptual-stage-detail */
+}
+
+
+.button-logo {
+  height: 30px; /* Adjust height as needed for the button */
+  width: auto;
+  vertical-align: middle; /* Align with text */
+  margin-left: 8px; /* Space after the text */
+}
+
+.main-title-logo {
+  height: 50px; /* Adjust height as needed for the main title */
+  width: 300px;
+  vertical-align: middle; /* Align with text */
+  margin-left: 10px; /* Space after the text */
+}
+
+.mini-app-item {
+  background-color: var(--interactive-item-bg); /* THEME CHANGE */
+  border: 1px solid #dee2e6;
+  border-radius: .25rem;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  position: relative;
+  padding-left: 40px;
+  color: var(--interactive-item-text); /* THEME CHANGE */
+}
+
+.mini-app-item::before {
+  content: '+';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+  color: var(--text-color); /* THEME CHANGE - icon color */
+  font-size: 1.2em;
+}
+
+.mini-app-item.active::before {
+  content: '−';
+}       
+
+
+.mini-app-item:hover {
+  /* Keep existing hover or make it theme-aware if desired */
+  background-color: #a9d1c8; /* Example: or var(--interactive-item-bg-hover) */
+  border-color: #adb5bd;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+}
+
+.mini-app-item.active {
+  background-color: var(--interactive-item-bg-active); /* THEME CHANGE */
+  border-color: #007bff;
+}    
+
+.mini-app-detail {
+  display: none;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 .25rem .25rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  background-color: var(--interactive-detail-bg); /* THEME CHANGE */
+  color: var(--interactive-item-text); /* THEME CHANGE */
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.conceptual-stage-showcase-image {
+  height:40px;
+  width: auto; /* Maintain aspect ratio */
+  max-width: 100%; /* Ensure it doesn't overflow its container */
+  display: block; /* Or inline-block if you want text next to it */
+  margin: 10px auto; /* Center it if it's a block element */
+  border-radius: 4px; /* Optional: slight rounding */
+}
+
+.inline-stage-icon {
+  height: 70px;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 5px; /* Default right margin, can be overridden */
+  object-fit: contain; /* Ensures logos scale nicely */
+}
+
 
 .pictureAA,
 .pictureCiti {
@@ -411,4 +716,9 @@ ol {
 
 .haze-how {
   color: #ffffff !important;
+}
+
+/* Styling for rendered notebook content */
+.notebook-render {
+    /* Add any specific styling for the rendered notebook HTML here */
 }

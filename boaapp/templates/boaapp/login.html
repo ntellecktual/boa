@@ -120,6 +120,29 @@
           ></div>
         </div>
 
+        {% comment %} Witheritelaw Profile Button {% endcomment %}
+        <div class="card mb-2">
+          <div class="card-header" id="headingWitheritelaw">
+            <h2 class="mb-0">
+              <button
+                class="btn btn-link btn-block"
+                type="button"
+                onclick="window.location.href='{% url 'witheritelaw' %}'" 
+              >
+                Automation Engineer Overview 
+                <img src="{% static 'css/img/witherite_logo.png' %}" alt="Witheritelaw Logo" class="button-logo" height="70" width="300" />
+              </button>
+            </h2>
+          </div>
+          <div
+            id="collapseWitheritelaw"
+            class="collapse"
+            {# This div will no longer be used for content #}
+            aria-labelledby="headingWitheritelaw"
+            data-parent="#dashboardAccordion"
+          ></div>
+        </div>
+
         <div class="card mb-2">
           <div class="card-header" id="headingSix">
             <h2 class="mb-0">
@@ -127,11 +150,11 @@
                 class="btn btn-link btn-block"
                 type="button"
                 onclick="window.location.href='{% url 'uploadit!' %}'"
-              >
+              > 
                 <span class="text-primary">
                   <img
                     src="{% static 'css/img/uploadit!logo.png' %}"
-                    alt="UploadIt! Logo"
+                    alt="UploadIt! Logo"                    
                     height="150" /></span
                 ><span class="badge badge-success badge-pill">New!</span>
               </button>
