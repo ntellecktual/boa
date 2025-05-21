@@ -276,28 +276,20 @@
   </div>    
 </div>
 
+{% block scripts %}
+{{ block.super }} {# Ensures scripts from base_generic.html are included if any #}
 <script>
-function toggleConceptualStageDetail(elementId, clickedItem) { // Renamed function to match HTML
-    var detailElement = document.getElementById(elementId);
-    if (detailElement.style.display === "none" || detailElement.style.display === "") {
-        detailElement.style.display = "block";
-        clickedItem.classList.add('active');
-    } else {
-        detailElement.style.display = "none";
-        clickedItem.classList.remove('active');
-    }
-}
+function toggleConceptualStageDetail(detailId, cardElement) {
+    const detailElement = document.getElementById(detailId);
 
-// Keep the original toggleDetail if it's used by other mini-app items on the page
-function toggleDetail(elementId, clickedItem) {
-    var detailElement = document.getElementById(elementId);
-    if (detailElement.style.display === "none" || detailElement.style.display === "") {
-        detailElement.style.display = "block";
-        clickedItem.classList.add('active');
+    if (detailElement && cardElement) {
+        detailElement.classList.toggle('show-detail');
+        cardElement.classList.toggle('active'); // For styling the card/header if needed
     } else {
-        detailElement.style.display = "none";
-        clickedItem.classList.remove('active');
+        if (!detailElement) console.error('toggleConceptualStageDetail: Detail element with ID "' + detailId + '" not found.');
+        if (!cardElement) console.error('toggleConceptualStageDetail: Card element was not provided.');
     }
 }
 </script>
+{% endblock scripts %}
 {% endblock %}

@@ -29,21 +29,16 @@ body {
   /* Default background gradient - will be overridden by step-specific backgrounds */
   background: linear-gradient(
     135deg, 
-    #e83c77, 
-    #ea5478, 
-    #f0777d, 
-    #f5908a, 
-    #fab497, 
-    #e0a0ab, 
-    #d98ab0, 
-    #a75fba, 
-    #734ba2, 
-    #5e48a0, 
-    #4a3e9e
+    #65b1fd, /* Light Sky Blue - fresh, airy start */
+    #B59EFF, /* Soft Lavender/Light Purple - gentle, creative transition */
+    #fac2a1  /* Light Pink - soft, inviting end with smooth transition */
     );
   --border-color: #cccccc;
   --button-bg: #40378a;
   --button-text: #ffffff;
+  --link-color: #007bff; /* Default link color */
+  --link-color-hover: #e83c77; /* Link color on hover/focus (using your original hover color) */
+  --muted-text-color: #6c757d; /* Default muted text color */
   --interactive-item-bg: #ace2d6; /* Light green for mini-app items */
   --interactive-item-text: #000000; /* Default text for mini-app items */
   --interactive-detail-bg: #ace2d6; /* Light green for mini-app details */
@@ -92,6 +87,9 @@ html[data-theme="light"] {
   --card-bg: rgba(255, 255, 255, 0.1); /* Example card background for light */
   --color: var(--text-color) !important;
   --interactive-item-bg: #ace2d6;
+  --link-color: #007bff; /* Standard blue for light theme links */
+  --link-color-hover: #e83c77; /* Your specific hover color */
+  --muted-text-color: #6c757d; /* Bootstrap secondary text color */
   --interactive-item-text: #000000;
   --interactive-detail-bg: #ace2d6;
   --conceptual-card-bg: #f8f9fa;
@@ -106,6 +104,9 @@ html[data-theme="dark"] {
   --button-text: #f8f9fa;
   --card-bg: rgba(0, 0, 0, 0.2); /* Example card background for dark */
   --bg-color: transparent;
+  --link-color: #66b2ff; /* Lighter blue for dark theme links */
+  --link-color-hover: #ff99cc; /* A complementary hover color for dark theme */
+  --muted-text-color: #adb5bd; /* Lighter shade for muted text in dark theme */
   --interactive-item-bg: #2c665a; /* Darker green for dark theme */
   --interactive-item-text: #f8f9fa; /* Light text for dark theme */
   --interactive-detail-bg: #2c665a; /* Darker green for dark theme */
@@ -194,8 +195,6 @@ body.step-3-active[data-theme="dark"] {
   z-index: 0;
 }
 
-
-
 .custom-container,
 .login-custom-container,
 .login-container,
@@ -221,6 +220,7 @@ body.step-3-active[data-theme="dark"] {
 .navbar {
   z-index: 1050 !important;
   background-color: transparent !important;
+  margin-left: 20px;
 }
 
 .navbar .nav-link {
@@ -351,16 +351,16 @@ ol {
 a,
 a:visited {
   text-decoration: none !important;    /* Remove underline and ensure it applies */
+  color: var(--link-color); /* Use the link color variable */
   transition: color 0.2s ease-in-out, opacity 0.2s ease-in-out; /* Smooth transition for hover effects */
 }
 
 a:hover,
 a:focus { /* Apply to hover and focus states for accessibility */
-  color: #e83c77 !important; /* Keep the same color on hover/focus */
+  color: var(--link-color-hover) !important; /* Use the link hover color variable */
   text-decoration: none !important;    /* Keep underline removed on hover/focus */
   /* opacity: 0.8; *//* Optional: uncomment for a subtle opacity change on hover if desired */
 }
-
 
 
 /* =========================

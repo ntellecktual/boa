@@ -2,6 +2,7 @@
 %} {% load widget_tweaks %} {% get_media_prefix as MEDIA_URL %}
 <!DOCTYPE html>
 
+{% block title %}{{ page_title }}{% endblock %}
 {% block body_class %}uploadit{% endblock %} {# Add 'uploadit' class to the main body #}
 
 {# Remove the extra <body> tag below #}
