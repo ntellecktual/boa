@@ -5,205 +5,221 @@
 {% block extra_head %}
 <style>
 /* ══════════════════════════════════════════════════════
-   LOGIN PAGE + HOME DASHBOARD — Design Tokens
+   LOGIN PAGE + HOME DASHBOARD
+   Framer/Spline-inspired wide multi-column layout
    ══════════════════════════════════════════════════════ */
 :root{
-  --ln-blue:#3b82f6;
-  --ln-violet:#8b5cf6;
-  --ln-emerald:#10b981;
-  --ln-amber:#f59e0b;
-  --ln-surface:rgba(255,255,255,.8);
-  --ln-border:rgba(0,0,0,.08);
-  --ln-shadow:0 4px 24px rgba(0,0,0,.07);
-  --ln-shadow-lg:0 12px 48px rgba(0,0,0,.14);
+  --ln-blue:#3b82f6;--ln-violet:#8b5cf6;--ln-emerald:#10b981;--ln-amber:#f59e0b;
+  --dash-bg:#f4f5f7;
+  --dash-surface:#fff;
+  --dash-border:rgba(0,0,0,.07);
+  --dash-text:#1a1a2e;
+  --dash-muted:#6b7280;
+  --dash-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+  --dash-shadow-lg:0 8px 32px rgba(0,0,0,.10);
+  --dash-radius:14px;
 }
 [data-theme="dark"]{
-  --ln-surface:rgba(18,24,40,.85);
-  --ln-border:rgba(255,255,255,.09);
-  --ln-shadow:0 4px 24px rgba(0,0,0,.45);
-  --ln-shadow-lg:0 12px 48px rgba(0,0,0,.6);
+  --dash-bg:#0f1117;
+  --dash-surface:#1a1d2e;
+  --dash-border:rgba(255,255,255,.08);
+  --dash-text:#e2e8f0;
+  --dash-muted:#94a3b8;
+  --dash-shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+  --dash-shadow-lg:0 8px 32px rgba(0,0,0,.4);
 }
-@keyframes lnFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes lnFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes dashFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── AUTHENTICATED HERO ── */
-.dash-hero{
-  text-align:center;padding:3rem 0 2rem;position:relative;
-  animation:lnFadeUp .5s ease both;
+/* ── BREAK OUT OF .container ── */
+.dash-full{
+  width:100vw;position:relative;left:50%;right:50%;
+  margin-left:-50vw;margin-right:-50vw;
+  padding:0 clamp(1.2rem,4vw,3rem);
+  box-sizing:border-box;
 }
-.dash-hero::before{
-  content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(59,130,246,.1) 0%,transparent 70%),
-             radial-gradient(ellipse 40% 30% at 90% 110%,rgba(139,92,246,.07) 0%,transparent 60%);
+
+/* ── COMPACT HERO ── */
+.dash-hero{
+  text-align:left;padding:2rem 0 .5rem;
+  animation:dashFadeUp .4s ease both;
+  display:flex;align-items:center;gap:1rem;
 }
 .dash-hero-logo{
-  height:72px;margin-bottom:1rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.13));
-  animation:lnFloat 4s ease-in-out infinite;
+  height:48px;width:48px;border-radius:14px;object-fit:cover;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0;
 }
-.dash-hero h2{
-  font-size:clamp(1.5rem,3.5vw,2.25rem);font-weight:800;margin-bottom:.3rem;
-  background:linear-gradient(135deg,#1e3a5f 0%,#3b82f6 50%,#8b5cf6 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+.dash-hero-text h2{
+  font-size:1.35rem;font-weight:800;margin:0;color:var(--dash-text);
 }
-[data-theme="dark"] .dash-hero h2{
-  background:linear-gradient(135deg,#e2e8f0 0%,#60a5fa 50%,#a78bfa 100%);
-  -webkit-background-clip:text;background-clip:text;
-}
-.dash-hero h2 span{font-style:italic}
-.dash-hero-sub{font-size:.88rem;opacity:.6;max-width:440px;margin:0 auto}
+.dash-hero-text h2 span{font-weight:400;opacity:.6}
+.dash-hero-text p{font-size:.78rem;color:var(--dash-muted);margin:0}
 
-/* ── SHARED CARD BASE ── */
-.dash-card,.dash-card-nav{
-  text-decoration:none;color:inherit;position:relative;overflow:hidden;
-  border-radius:16px;border:1px solid var(--ln-border);background:var(--ln-surface);
-  backdrop-filter:blur(12px);box-shadow:var(--ln-shadow);
-  transition:transform .2s,box-shadow .2s,border-color .2s;
+/* ── SECTION ── */
+.dash-section{
+  margin-bottom:1.8rem;
+  animation:dashFadeUp .4s ease both;
 }
-.dash-card:hover,.dash-card-nav:hover{
-  transform:translateY(-3px);box-shadow:var(--ln-shadow-lg);
-  border-color:rgba(59,130,246,.22);color:inherit;text-decoration:none;
+.dash-section:nth-child(2){animation-delay:.05s}
+.dash-section:nth-child(3){animation-delay:.1s}
+.dash-section-hd{
+  display:flex;align-items:center;gap:.6rem;
+  margin-bottom:.8rem;padding-bottom:.4rem;
+  border-bottom:1px solid var(--dash-border);
 }
-/* ── PROFILE NAV TILES ── */
-.dash-nav-grid{
+.dash-section-lbl{
+  font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--dash-muted);white-space:nowrap;
+}
+.dash-section-count{
+  font-size:.65rem;color:var(--dash-muted);opacity:.5;
+}
+
+/* ── PROFILE STRIP — 4 across ── */
+.profile-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(185px,1fr));
-  gap:.65rem;
+  grid-template-columns:repeat(4,1fr);
+  gap:.75rem;
 }
-.dash-card-nav{
-  display:flex;flex-direction:row;align-items:center;gap:.8rem;
-  padding:.85rem 1rem;
+@media(max-width:768px){.profile-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.profile-grid{grid-template-columns:1fr}}
+
+.profile-card{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.9rem 1rem;
+  border-radius:var(--dash-radius);border:1px solid var(--dash-border);
+  background:var(--dash-surface);box-shadow:var(--dash-shadow);
+  text-decoration:none;color:var(--dash-text);
+  transition:transform .2s,box-shadow .2s;
 }
-.dash-card-nav::before{
-  content:'';position:absolute;top:0;left:0;bottom:0;width:3px;
-  background:linear-gradient(180deg,var(--ln-blue),var(--ln-violet));
-  transform:scaleY(0);transform-origin:top;transition:transform .3s;
+.profile-card:hover{
+  transform:translateY(-2px);box-shadow:var(--dash-shadow-lg);
+  color:var(--dash-text);text-decoration:none;
 }
-.dash-card-nav:hover::before{transform:scaleY(1)}
-.nav-icon{
-  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+.profile-card .p-icon{
+  width:40px;height:40px;border-radius:10px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
   font-size:.95rem;color:#fff;
-  background:linear-gradient(135deg,var(--ln-blue),var(--ln-violet));
 }
-.nav-text{min-width:0}
-.nav-label{font-size:.82rem;font-weight:700;margin:0;line-height:1.2}
-.nav-desc{font-size:.68rem;opacity:.52;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* ── DEMO CARDS GRID ── */
-.dash-demo-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
-  gap:.65rem;
-}
-.dash-card{
-  display:flex;flex-direction:column;gap:.35rem;
-  padding:1rem;
-}
-.dash-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--ln-blue),var(--ln-violet));
-  transform:scaleX(0);transform-origin:left;transition:transform .3s;
-}
-.dash-card:hover::before{transform:scaleX(1)}
-.dash-icon{
-  width:38px;height:38px;border-radius:11px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1rem;color:#fff;margin-bottom:.1rem;
-  background:linear-gradient(135deg,var(--ln-blue),var(--ln-violet));
-}
-.dash-card--green .dash-icon{background:linear-gradient(135deg,#10b981,#059669)}
-.dash-card--amber .dash-icon{background:linear-gradient(135deg,#f59e0b,#d97706)}
-.dash-card--violet .dash-icon{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}
-.dash-card--teal .dash-icon{background:linear-gradient(135deg,#14b8a6,#0d9488)}
-.dash-card--indigo .dash-icon{background:linear-gradient(135deg,#6366f1,#4f46e5)}
-.dash-card--blue .dash-icon{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
-.dash-card--slate .dash-icon{background:linear-gradient(135deg,#475569,#1e293b)}
-.dash-card--cyan .dash-icon{background:linear-gradient(135deg,#06b6d4,#0891b2)}
-.dash-label{font-size:.82rem;font-weight:800;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
-.dash-desc{font-size:.7rem;opacity:.55;line-height:1.4;margin:0}
-.dash-badge{
-  display:inline-block;padding:.08rem .38rem;border-radius:5px;
-  font-size:.56rem;font-weight:700;vertical-align:middle;
-}
-.dash-badge--warn{background:#fef3c7;color:#92400e}
-.dash-badge--ok{background:#d1fae5;color:#065f46}
+.profile-card .p-text{min-width:0}
+.profile-card .p-title{font-size:.82rem;font-weight:700;margin:0;line-height:1.25}
+.profile-card .p-sub{font-size:.68rem;color:var(--dash-muted);margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* Panel overlay */
-.dash-panel{border-radius:18px;border:1px solid var(--ln-border);
-  background:var(--ln-surface);backdrop-filter:blur(12px);box-shadow:var(--ln-shadow-lg);margin-bottom:1.5rem}
+/* ── DEMO GRID — 4 across, Framer style ── */
+.demo-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:.75rem;
+}
+@media(max-width:1024px){.demo-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.demo-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.demo-grid{grid-template-columns:1fr}}
+
+.demo-card{
+  display:flex;flex-direction:column;
+  border-radius:var(--dash-radius);border:1px solid var(--dash-border);
+  background:var(--dash-surface);box-shadow:var(--dash-shadow);
+  text-decoration:none;color:var(--dash-text);overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.demo-card:hover{
+  transform:translateY(-3px);box-shadow:var(--dash-shadow-lg);
+  color:var(--dash-text);text-decoration:none;
+}
+.demo-card .demo-thumb{
+  height:110px;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.demo-card .demo-thumb .demo-bg-icon{
+  font-size:2.2rem;color:rgba(255,255,255,.85);z-index:1;
+}
+.demo-card .demo-thumb img{
+  position:absolute;bottom:10px;right:12px;
+  height:28px;width:auto;max-width:90px;object-fit:contain;
+  opacity:.9;z-index:1;filter:drop-shadow(0 1px 4px rgba(0,0,0,.2));
+}
+.demo-card .demo-body{padding:.75rem .85rem .85rem}
+.demo-card .demo-title{
+  font-size:.82rem;font-weight:700;margin:0 0 .15rem;
+  display:flex;align-items:center;gap:.35rem;
+}
+.demo-card .demo-sub{font-size:.68rem;color:var(--dash-muted);margin:0}
+.dash-badge{
+  display:inline-block;padding:.1rem .4rem;border-radius:5px;
+  font-size:.55rem;font-weight:700;
+}
+.dash-badge--live{background:#fef3c7;color:#92400e}
+.dash-badge--new{background:#d1fae5;color:#065f46}
+[data-theme="dark"] .dash-badge--live{background:rgba(245,158,11,.15);color:#fbbf24}
+[data-theme="dark"] .dash-badge--new{background:rgba(16,185,129,.15);color:#34d399}
+
+/* ── LEARNING GRID — same as profile ── */
+.learn-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:.75rem;
+}
+@media(max-width:768px){.learn-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ── PANEL OVERLAY ── */
+.dash-panel{border-radius:var(--dash-radius);border:1px solid var(--dash-border);
+  background:var(--dash-surface);box-shadow:var(--dash-shadow-lg);margin-bottom:1.5rem}
 .dash-panel-header{
-  display:flex;align-items:center;gap:.8rem;padding:.9rem 1.2rem;
-  border-bottom:1px solid var(--ln-border);position:sticky;top:60px;
-  background:var(--ln-surface);backdrop-filter:blur(14px);border-radius:18px 18px 0 0;z-index:10;
+  display:flex;align-items:center;gap:.8rem;padding:.8rem 1rem;
+  border-bottom:1px solid var(--dash-border);position:sticky;top:60px;
+  background:var(--dash-surface);border-radius:var(--dash-radius) var(--dash-radius) 0 0;z-index:10;
 }
 .dash-panel-back{
-  display:flex;align-items:center;gap:.38rem;font-size:.8rem;font-weight:700;
-  padding:.3rem .7rem;border-radius:8px;border:1px solid var(--ln-border);
+  display:flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:700;
+  padding:.3rem .65rem;border-radius:8px;border:1px solid var(--dash-border);
   background:transparent;cursor:pointer;transition:background .2s;color:inherit;
 }
 .dash-panel-back:hover{background:rgba(59,130,246,.07)}
-.dash-panel-title{font-weight:800;font-size:.9rem;flex:1}
-.dash-panel-ext{opacity:.45;font-size:.82rem;transition:opacity .2s}
+.dash-panel-title{font-weight:800;font-size:.88rem;flex:1}
+.dash-panel-ext{opacity:.4;font-size:.8rem;transition:opacity .2s}
 .dash-panel-ext:hover{opacity:1}
 .dash-panel-body{padding:0}
-.dash-panel-loading{text-align:center;padding:2.5rem;opacity:.55;font-size:.85rem}
+.dash-panel-loading{text-align:center;padding:2.5rem;opacity:.5;font-size:.85rem}
 
 /* ── LOGIN FORM ── */
 .ln-wrap{
   min-height:calc(100vh - 64px);display:flex;align-items:center;
-  justify-content:center;padding:2rem 1rem;position:relative;
-}
-.ln-wrap::before{
-  content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 65% 55% at 30% 30%,rgba(59,130,246,.08) 0%,transparent 65%),
-             radial-gradient(ellipse 50% 45% at 75% 70%,rgba(139,92,246,.06) 0%,transparent 60%);
+  justify-content:center;padding:2rem 1rem;
 }
 .ln-card{
-  width:100%;max-width:400px;border-radius:22px;
-  border:1px solid var(--ln-border);background:var(--ln-surface);
-  backdrop-filter:blur(16px);box-shadow:var(--ln-shadow-lg);
+  width:100%;max-width:400px;border-radius:18px;
+  border:1px solid var(--dash-border);background:var(--dash-surface);
+  box-shadow:var(--dash-shadow-lg);
   padding:2.2rem 2rem;position:relative;overflow:hidden;
-  animation:lnFadeUp .45s ease both;
+  animation:dashFadeUp .4s ease both;
 }
 .ln-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,var(--ln-blue),var(--ln-violet));
 }
 .ln-logo{text-align:center;margin-bottom:1.4rem}
-.ln-logo img{height:60px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.12))}
-.ln-title{font-size:1.45rem;font-weight:800;text-align:center;margin-bottom:.25rem}
-.ln-sub{font-size:.78rem;opacity:.55;text-align:center;margin-bottom:1.6rem}
+.ln-logo img{height:56px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.1))}
+.ln-title{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:.2rem}
+.ln-sub{font-size:.78rem;color:var(--dash-muted);text-align:center;margin-bottom:1.5rem}
 .ln-card .form-control{
-  border-radius:10px;border:1px solid var(--ln-border);
-  background:rgba(255,255,255,.6);font-size:.88rem;padding:.55rem .85rem;
+  border-radius:10px;border:1px solid var(--dash-border);
+  font-size:.88rem;padding:.55rem .85rem;
   transition:border-color .2s,box-shadow .2s;
 }
-[data-theme="dark"] .ln-card .form-control{background:rgba(255,255,255,.07);color:inherit}
+[data-theme="dark"] .ln-card .form-control{background:rgba(255,255,255,.06);color:inherit}
 .ln-card .form-control:focus{
   border-color:rgba(59,130,246,.5);
-  box-shadow:0 0 0 3px rgba(59,130,246,.12);
+  box-shadow:0 0 0 3px rgba(59,130,246,.1);
 }
-.ln-card .form-label{font-size:.78rem;font-weight:600;opacity:.7;margin-bottom:.28rem}
+.ln-card .form-label{font-size:.78rem;font-weight:600;color:var(--dash-muted);margin-bottom:.25rem}
 .ln-card .btn-primary{
-  border-radius:10px;font-weight:700;padding:.62rem;font-size:.9rem;
+  border-radius:10px;font-weight:700;padding:.6rem;font-size:.9rem;
   background:linear-gradient(135deg,var(--ln-blue),var(--ln-violet));
-  border:none;box-shadow:0 4px 14px rgba(59,130,246,.32);
+  border:none;box-shadow:0 4px 14px rgba(59,130,246,.25);
   transition:opacity .2s,transform .2s;
 }
 .ln-card .btn-primary:hover{opacity:.9;transform:translateY(-1px)}
-.ln-footer{font-size:.76rem;text-align:center;opacity:.58;margin-top:1rem}
-.ln-footer a{opacity:1;font-weight:600}
-
-/* ── SECTION WRAPPERS ── */
-.dash-section{max-width:960px;margin:0 auto 2rem;animation:lnFadeUp .5s ease .1s both}
-.dash-section-hd{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:.75rem;
-}
-.dash-section-lbl{
-  font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-  opacity:.4;display:flex;align-items:center;gap:.38rem;
-}
-.dash-section-divider{flex:1;height:1px;background:var(--ln-border);margin-left:.75rem}
+.ln-footer{font-size:.76rem;text-align:center;color:var(--dash-muted);margin-top:1rem}
+.ln-footer a{font-weight:600}
 </style>
 {% endblock %}
 
@@ -211,54 +227,56 @@
 
 {% if user.is_authenticated %}
 <!-- ═══════════════════════════════════════════════════════
-     AUTHENTICATED — Premium Home Dashboard
+     AUTHENTICATED — Wide Multi-Column Dashboard
 ═══════════════════════════════════════════════════════ -->
 
-<div class="dash-hero">
-  <img src="{% static 'logo.png' %}" alt="thenumerix Logo" class="dash-hero-logo" />
-  <h2>Welcome back, <span>{{ user.username }}</span></h2>
-  <p class="dash-hero-sub">Portfolio · Education · Technical Work · AI Apps</p>
-</div>
+<div class="dash-full" id="homeNavGrid">
 
-<div id="homeNavGrid">
+  <!-- Hero -->
+  <div class="dash-hero">
+    <img src="{% static 'logo.png' %}" alt="thenumerix" class="dash-hero-logo" />
+    <div class="dash-hero-text">
+      <h2>Welcome back, <span>{{ user.username }}</span></h2>
+      <p>Portfolio · Education · Technical Work · AI Apps</p>
+    </div>
+  </div>
 
   <!-- ── PROFILE ─────────────────────────────── -->
   <div class="dash-section">
     <div class="dash-section-hd">
-      <span class="dash-section-lbl"><i class="fas fa-user-circle"></i> Profile</span>
-      <div class="dash-section-divider"></div>
+      <span class="dash-section-lbl"><i class="fas fa-user-circle"></i>&nbsp; Profile</span>
     </div>
-    <div class="dash-nav-grid">
-      <a href="{% url 'portfolio_showcase' %}" class="dash-card-nav home-panel-trigger"
+    <div class="profile-grid">
+      <a href="{% url 'portfolio_showcase' %}" class="profile-card home-panel-trigger"
          data-panel-url="{% url 'portfolio_showcase' %}" data-panel-title="Portfolio">
-        <div class="nav-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)"><i class="fas fa-briefcase"></i></div>
-        <div class="nav-text">
-          <p class="nav-label">Portfolio</p>
-          <p class="nav-desc">Work history &amp; enterprise projects</p>
+        <div class="p-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)"><i class="fas fa-briefcase"></i></div>
+        <div class="p-text">
+          <p class="p-title">Portfolio</p>
+          <p class="p-sub">Work history &amp; enterprise projects</p>
         </div>
       </a>
-      <a href="{% url 'education_details' %}" class="dash-card-nav home-panel-trigger"
+      <a href="{% url 'education_details' %}" class="profile-card home-panel-trigger"
          data-panel-url="{% url 'education_details' %}" data-panel-title="Education">
-        <div class="nav-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><i class="fas fa-graduation-cap"></i></div>
-        <div class="nav-text">
-          <p class="nav-label">Education</p>
-          <p class="nav-desc">Degrees, certifications &amp; courses</p>
+        <div class="p-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><i class="fas fa-graduation-cap"></i></div>
+        <div class="p-text">
+          <p class="p-title">Education</p>
+          <p class="p-sub">Degrees, certifications &amp; courses</p>
         </div>
       </a>
-      <a href="{% url 'project_pages' %}" class="dash-card-nav home-panel-trigger"
+      <a href="{% url 'project_pages' %}" class="profile-card home-panel-trigger"
          data-panel-url="{% url 'project_pages' %}" data-panel-title="Technical">
-        <div class="nav-icon" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><i class="fas fa-code"></i></div>
-        <div class="nav-text">
-          <p class="nav-label">Technical</p>
-          <p class="nav-desc">Projects, notebooks &amp; demos</p>
+        <div class="p-icon" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><i class="fas fa-code"></i></div>
+        <div class="p-text">
+          <p class="p-title">Technical</p>
+          <p class="p-sub">Projects, notebooks &amp; demos</p>
         </div>
       </a>
-      <a href="{% url 'companyandme' %}" class="dash-card-nav home-panel-trigger"
+      <a href="{% url 'companyandme' %}" class="profile-card home-panel-trigger"
          data-panel-url="{% url 'companyandme' %}" data-panel-title="Industry Engineering">
-        <div class="nav-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><i class="fas fa-industry"></i></div>
-        <div class="nav-text">
-          <p class="nav-label">Industry Engineering</p>
-          <p class="nav-desc">Enterprise solutions by domain</p>
+        <div class="p-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><i class="fas fa-industry"></i></div>
+        <div class="p-text">
+          <p class="p-title">Industry Engineering</p>
+          <p class="p-sub">Enterprise solutions by domain</p>
         </div>
       </a>
     </div>
@@ -267,103 +285,130 @@
   <!-- ── LIVE DEMOS & PROJECTS ─────────────────── -->
   <div class="dash-section">
     <div class="dash-section-hd">
-      <span class="dash-section-lbl"><i class="fas fa-flask"></i> Live Demos &amp; Projects</span>
-      <div class="dash-section-divider"></div>
+      <span class="dash-section-lbl"><i class="fas fa-flask"></i>&nbsp; Live Demos &amp; Projects</span>
+      <span class="dash-section-count">8 projects</span>
     </div>
-    <div class="dash-demo-grid">
-      <a href="{% url 'process_flows' %}" class="dash-card dash-card--amber">
-        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.15rem">
-          <div class="dash-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-arrows-spin"></i></div>
-          <img src="{% static 'css/img/oracle.png' %}" alt="Oracle" style="height:22px;width:auto;max-width:70px;object-fit:contain">
+    <div class="demo-grid">
+
+      <a href="{% url 'process_flows' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          <i class="fas fa-arrows-spin demo-bg-icon"></i>
+          <img src="{% static 'css/img/oracle.png' %}" alt="Oracle">
         </div>
-        <div class="dash-label">AI Process Flows <span class="dash-badge dash-badge--warn">Live</span></div>
-        <p class="dash-desc">Finance &amp; Accounting AI</p>
-      </a>
-
-      <a href="{% url 'uploadit' %}" class="dash-card dash-card--green">
-        <div class="dash-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-cloud-upload-alt"></i></div>
-        <div class="dash-label">UploadIt! <span class="dash-badge dash-badge--ok">New</span></div>
-        <p class="dash-desc">Manage course content</p>
-      </a>
-
-      <a href="{% url 'etl_pipeline' %}" class="dash-card dash-card--blue">
-        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.15rem">
-          <div class="dash-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)"><i class="fas fa-database"></i></div>
-          <img src="{% static 'css/img/nfl.png' %}" alt="NFL" style="height:30px;width:auto;object-fit:contain">
+        <div class="demo-body">
+          <p class="demo-title">AI Process Flows <span class="dash-badge dash-badge--live">Live</span></p>
+          <p class="demo-sub">Finance &amp; Accounting automation with AI</p>
         </div>
-        <div class="dash-label">ETL Pipeline <span class="dash-badge dash-badge--warn">Live</span></div>
-        <p class="dash-desc">Fantasy football analytics</p>
       </a>
 
-      <a href="{% url 'mlops_lifecycle' %}" class="dash-card dash-card--violet">
-        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.15rem">
-          <div class="dash-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><i class="fas fa-brain"></i></div>
-          <img src="{% static 'css/img/mlb.png' %}" alt="MLB" style="height:30px;width:auto;object-fit:contain">
+      <a href="{% url 'uploadit' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#10b981,#059669)">
+          <i class="fas fa-cloud-upload-alt demo-bg-icon"></i>
         </div>
-        <div class="dash-label">MLOps Lifecycle <span class="dash-badge dash-badge--warn">Live</span></div>
-        <p class="dash-desc">Model training &amp; deployment</p>
-      </a>
-
-      <a href="{% url 'etl_pipeline' %}" class="dash-card dash-card--slate">
-        <div class="dash-icon" style="background:linear-gradient(135deg,#475569,#1e293b)"><i class="fas fa-infinity"></i></div>
-        <div class="dash-label">CI/CD Automation <span class="dash-badge dash-badge--warn">Live</span></div>
-        <p class="dash-desc">Pipelines &amp; Infrastructure as Code</p>
-      </a>
-
-      <a href="{% url 'streaming_architecture' %}" class="dash-card dash-card--cyan">
-        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.15rem">
-          <div class="dash-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-bolt"></i></div>
-          <img src="{% static 'css/img/netlfix.png' %}" alt="Netflix" style="height:30px;width:auto;object-fit:contain">
+        <div class="demo-body">
+          <p class="demo-title">UploadIt! <span class="dash-badge dash-badge--new">New</span></p>
+          <p class="demo-sub">Upload and manage course content</p>
         </div>
-        <div class="dash-label">Streaming Architecture <span class="dash-badge dash-badge--warn">Live</span></div>
-        <p class="dash-desc">Real-time event &amp; Kafka</p>
       </a>
 
-      <a href="{% url 'api_orchestration' %}" class="dash-card dash-card--indigo">
-        <div class="dash-icon" style="background:linear-gradient(135deg,#6366f1,#4338ca)"><i class="fas fa-project-diagram"></i></div>
-        <div class="dash-label">API Orchestration <span class="dash-badge dash-badge--warn">Live</span></div>
-        <p class="dash-desc">Gateway, sagas &amp; circuit breakers</p>
+      <a href="{% url 'etl_pipeline' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+          <i class="fas fa-database demo-bg-icon"></i>
+          <img src="{% static 'css/img/nfl.png' %}" alt="NFL">
+        </div>
+        <div class="demo-body">
+          <p class="demo-title">ETL Pipeline <span class="dash-badge dash-badge--live">Live</span></p>
+          <p class="demo-sub">Fantasy football draft pipeline &amp; analytics</p>
+        </div>
       </a>
 
-      <a href="{% url 'idp_demo' %}" class="dash-card dash-card--teal">
-        <div class="dash-icon" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><i class="fas fa-file-alt"></i></div>
-        <div class="dash-label">Document Processing <span class="dash-badge dash-badge--warn">Live</span></div>
-        <p class="dash-desc">AI OCR, extraction &amp; validation</p>
+      <a href="{% url 'mlops_lifecycle' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+          <i class="fas fa-brain demo-bg-icon"></i>
+          <img src="{% static 'css/img/mlb.png' %}" alt="MLB">
+        </div>
+        <div class="demo-body">
+          <p class="demo-title">MLOps Lifecycle <span class="dash-badge dash-badge--live">Live</span></p>
+          <p class="demo-sub">Model training, registry &amp; deployment</p>
+        </div>
       </a>
+
+      <a href="{% url 'etl_pipeline' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#475569,#1e293b)">
+          <i class="fas fa-infinity demo-bg-icon"></i>
+        </div>
+        <div class="demo-body">
+          <p class="demo-title">CI/CD Automation <span class="dash-badge dash-badge--live">Live</span></p>
+          <p class="demo-sub">Deployment pipelines &amp; Infrastructure as Code</p>
+        </div>
+      </a>
+
+      <a href="{% url 'streaming_architecture' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
+          <i class="fas fa-bolt demo-bg-icon"></i>
+          <img src="{% static 'css/img/netlfix.png' %}" alt="Netflix">
+        </div>
+        <div class="demo-body">
+          <p class="demo-title">Streaming Architecture <span class="dash-badge dash-badge--live">Live</span></p>
+          <p class="demo-sub">Real-time event processing &amp; Kafka</p>
+        </div>
+      </a>
+
+      <a href="{% url 'api_orchestration' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
+          <i class="fas fa-project-diagram demo-bg-icon"></i>
+        </div>
+        <div class="demo-body">
+          <p class="demo-title">API Orchestration <span class="dash-badge dash-badge--live">Live</span></p>
+          <p class="demo-sub">Gateway, sagas &amp; circuit breakers</p>
+        </div>
+      </a>
+
+      <a href="{% url 'idp_demo' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#14b8a6,#0d9488)">
+          <i class="fas fa-file-alt demo-bg-icon"></i>
+        </div>
+        <div class="demo-body">
+          <p class="demo-title">Document Processing <span class="dash-badge dash-badge--live">Live</span></p>
+          <p class="demo-sub">AI-powered OCR, extraction &amp; validation</p>
+        </div>
+      </a>
+
     </div>
   </div>
 
   <!-- ── LEARNING ─────────────────────────────── -->
   <div class="dash-section">
     <div class="dash-section-hd">
-      <span class="dash-section-lbl"><i class="fas fa-book-open"></i> Learning</span>
-      <div class="dash-section-divider"></div>
+      <span class="dash-section-lbl"><i class="fas fa-book-open"></i>&nbsp; Learning</span>
     </div>
-    <div class="dash-nav-grid">
-      <a href="{% url 'course_list' %}" class="dash-card-nav">
-        <div class="nav-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><i class="fas fa-book-open"></i></div>
-        <div class="nav-text">
-          <p class="nav-label">Courses</p>
-          <p class="nav-desc">Browse available learning content</p>
+    <div class="learn-grid">
+      <a href="{% url 'course_list' %}" class="profile-card">
+        <div class="p-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><i class="fas fa-book-open"></i></div>
+        <div class="p-text">
+          <p class="p-title">Courses</p>
+          <p class="p-sub">Browse available learning content</p>
         </div>
       </a>
     </div>
   </div>
 
-</div>
+</div><!-- /dash-full -->
 
 <!-- In-page content panel -->
-<div class="dash-panel" id="homeSectionPanel" style="display:none;">
-  <div class="dash-panel-header">
-    <button class="dash-panel-back" id="homePanelBack" type="button">
-      <i class="fas fa-arrow-left"></i> Back
-    </button>
-    <span class="dash-panel-title" id="homePanelTitle"></span>
-    <a class="dash-panel-ext" id="homePanelOpenLink" href="#" target="_blank" title="Open full page">
-      <i class="fas fa-external-link-alt"></i>
-    </a>
+<div class="dash-full">
+  <div class="dash-panel" id="homeSectionPanel" style="display:none;">
+    <div class="dash-panel-header">
+      <button class="dash-panel-back" id="homePanelBack" type="button">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+      <span class="dash-panel-title" id="homePanelTitle"></span>
+      <a class="dash-panel-ext" id="homePanelOpenLink" href="#" target="_blank" title="Open full page">
+        <i class="fas fa-external-link-alt"></i>
+      </a>
+    </div>
+    <div class="dash-panel-body" id="homePanelBody"></div>
   </div>
-  <div class="dash-panel-body" id="homePanelBody"></div>
 </div>
 
 {% else %}
