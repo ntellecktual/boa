@@ -31,82 +31,135 @@
     />
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
   </head>
-  <body class="{% if page_id %}{{ page_id }}{% endif %} {% if current_step_number %}step-{{ current_step_number }}-active{% endif %} {% block body_class %}{% endblock %}">
-    <nav class="navbar navbar-expand-lg fixed-top">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'login' %}">
-          <img src="{% static 'logo.png' %}" alt="Logo" height="40" />
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto align-items-center gap-1">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Home</a>
-            </li>
-            {% if user.is_authenticated %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Profile
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{% url 'portfolio_showcase' %}"><i class="fas fa-briefcase me-2 opacity-50"></i>Portfolio</a></li>
-                <li><a class="dropdown-item" href="{% url 'education_details' %}"><i class="fas fa-graduation-cap me-2 opacity-50"></i>Education</a></li>
-                <li><a class="dropdown-item" href="{% url 'project_pages' %}"><i class="fas fa-code me-2 opacity-50"></i>Technical</a></li>
-                <li><a class="dropdown-item" href="{% url 'companyandme' %}"><i class="fas fa-industry me-2 opacity-50"></i>Industry Engineering</a></li>
-              </ul>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Demos
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{% url 'process_flows' %}"><i class="fas fa-arrows-spin me-2 opacity-50"></i>AI Process Flows</a></li>
-                <li><a class="dropdown-item" href="{% url 'etl_pipeline' %}"><i class="fas fa-database me-2 opacity-50"></i>ETL Pipeline</a></li>
-                <li><a class="dropdown-item" href="{% url 'mlops_lifecycle' %}"><i class="fas fa-brain me-2 opacity-50"></i>MLOps Lifecycle</a></li>
-                <li><a class="dropdown-item" href="{% url 'etl_pipeline' %}"><i class="fas fa-infinity me-2 opacity-50"></i>CI/CD Automation</a></li>
-                <li><a class="dropdown-item" href="{% url 'streaming_architecture' %}"><i class="fas fa-bolt me-2 opacity-50"></i>Streaming Architecture</a></li>
-                <li><a class="dropdown-item" href="{% url 'api_orchestration' %}"><i class="fas fa-project-diagram me-2 opacity-50"></i>API Orchestration</a></li>
-                <li><a class="dropdown-item" href="{% url 'idp_demo' %}"><i class="fas fa-file-alt me-2 opacity-50"></i>Document Processing</a></li>
-              </ul>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'course_list' %}">Courses</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'analytics' %}">Analytics</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'code_playground' %}">Playground</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'register' %}">Register</a>
-            </li>
-            {% endif %}
-            <li class="nav-item d-flex align-items-center px-1">
-              <div class="nav-separator"></div>
-            </li>
-            <li class="nav-item">
-              <button class="nav-link btn" id="theme-toggle-btn">
-                <i class="fas fa-moon"></i> Dark Mode
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+  <body class="{% if user.is_authenticated %}has-sidebar{% endif %} {% if page_id %}{{ page_id }}{% endif %} {% if current_step_number %}step-{{ current_step_number }}-active{% endif %} {% block body_class %}{% endblock %}">
 
-    <div class="container">
+    {% if user.is_authenticated %}
+    <!-- ── Sidebar Navigation ── -->
+    <aside class="sidebar" id="mainSidebar">
+      <div class="sidebar-header">
+        <a href="{% url 'login' %}" class="sidebar-brand">
+          <img src="{% static 'logo.png' %}" alt="Logo" class="sidebar-logo" />
+          <span class="sidebar-brand-text">thenumerix</span>
+        </a>
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="{% url 'login' %}" class="sidebar-link">
+          <i class="fas fa-home"></i>
+          <span class="sidebar-text">Home</span>
+        </a>
+
+        <div class="sidebar-group-label">Profile</div>
+        <a href="{% url 'portfolio_showcase' %}" class="sidebar-link">
+          <i class="fas fa-briefcase"></i>
+          <span class="sidebar-text">Portfolio</span>
+        </a>
+        <a href="{% url 'education_details' %}" class="sidebar-link">
+          <i class="fas fa-graduation-cap"></i>
+          <span class="sidebar-text">Education</span>
+        </a>
+        <a href="{% url 'project_pages' %}" class="sidebar-link">
+          <i class="fas fa-code"></i>
+          <span class="sidebar-text">Technical</span>
+        </a>
+        <a href="{% url 'companyandme' %}" class="sidebar-link">
+          <i class="fas fa-industry"></i>
+          <span class="sidebar-text">Industry Engineering</span>
+        </a>
+
+        <div class="sidebar-group-label">Demos</div>
+        <a href="{% url 'process_flows' %}" class="sidebar-link">
+          <i class="fas fa-arrows-spin"></i>
+          <span class="sidebar-text">AI Process Flows</span>
+        </a>
+        <a href="{% url 'uploadit' %}" class="sidebar-link">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span class="sidebar-text">UploadIt!</span>
+        </a>
+        <a href="{% url 'etl_pipeline' %}" class="sidebar-link">
+          <i class="fas fa-database"></i>
+          <span class="sidebar-text">ETL Pipeline</span>
+        </a>
+        <a href="{% url 'mlops_lifecycle' %}" class="sidebar-link">
+          <i class="fas fa-brain"></i>
+          <span class="sidebar-text">MLOps Lifecycle</span>
+        </a>
+        <a href="{% url 'etl_pipeline' %}" class="sidebar-link">
+          <i class="fas fa-infinity"></i>
+          <span class="sidebar-text">CI/CD Automation</span>
+        </a>
+        <a href="{% url 'streaming_architecture' %}" class="sidebar-link">
+          <i class="fas fa-bolt"></i>
+          <span class="sidebar-text">Streaming Architecture</span>
+        </a>
+        <a href="{% url 'api_orchestration' %}" class="sidebar-link">
+          <i class="fas fa-project-diagram"></i>
+          <span class="sidebar-text">API Orchestration</span>
+        </a>
+        <a href="{% url 'idp_demo' %}" class="sidebar-link">
+          <i class="fas fa-file-alt"></i>
+          <span class="sidebar-text">Document Processing</span>
+        </a>
+
+        <div class="sidebar-group-label">Tools</div>
+        <a href="{% url 'course_list' %}" class="sidebar-link">
+          <i class="fas fa-book-open"></i>
+          <span class="sidebar-text">Courses</span>
+        </a>
+        <a href="{% url 'analytics' %}" class="sidebar-link">
+          <i class="fas fa-chart-line"></i>
+          <span class="sidebar-text">Analytics</span>
+        </a>
+        <a href="{% url 'code_playground' %}" class="sidebar-link">
+          <i class="fas fa-laptop-code"></i>
+          <span class="sidebar-text">Playground</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-link" id="theme-toggle-btn" type="button">
+          <i class="fas fa-moon"></i>
+          <span class="sidebar-text">Dark Mode</span>
+        </button>
+        <a href="{% url 'logout' %}" class="sidebar-link">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="sidebar-text">Logout</span>
+        </a>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <header class="mobile-topbar">
+      <button class="mobile-hamburger" id="mobileToggle" type="button" aria-label="Open menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <a href="{% url 'login' %}" class="mobile-brand">
+        <img src="{% static 'logo.png' %}" alt="Logo" height="28" />
+        <span>thenumerix</span>
+      </a>
+    </header>
+
+    {% else %}
+    <!-- Guest: minimal top bar -->
+    <header class="guest-topbar">
+      <a href="{% url 'login' %}" class="guest-brand">
+        <img src="{% static 'logo.png' %}" alt="Logo" height="32" />
+      </a>
+      <button class="sidebar-link" id="theme-toggle-btn" type="button" style="width:auto;padding:0.4rem 0.8rem;border:1px solid var(--border-color);border-radius:var(--radius-sm)">
+        <i class="fas fa-moon"></i>
+      </button>
+    </header>
+    {% endif %}
+
+    <main class="main-content">
+      <div class="{% block container_class %}container{% endblock %}">
         {% block content %}{% endblock %}
-    </div>
+      </div>
+    </main>
 
     <div id="theme-transition-overlay"></div>
     <div id="theme-toast" class="toast-message"></div>
