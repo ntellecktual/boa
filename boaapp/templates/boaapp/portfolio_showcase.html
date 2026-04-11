@@ -12,55 +12,78 @@
   --c-blue:#3b82f6;--c-violet:#8b5cf6;--c-emerald:#10b981;--c-amber:#f59e0b;
   --c-card:#ffffff;--c-border:rgba(0,0,0,.05);--c-muted:#64748b;
   --c-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);
-  --c-shadow-lg:0 20px 50px rgba(0,0,0,.1);--c-radius:24px;
+  --c-shadow-lg:0 20px 50px rgba(0,0,0,.1);--c-radius:18px;
+  --c-text:#0f172a;
 }
 [data-theme="dark"]{
   --c-card:rgba(22,27,45,.95);--c-border:rgba(255,255,255,.07);--c-muted:#94a3b8;
   --c-shadow:0 2px 8px rgba(0,0,0,.25);--c-shadow-lg:0 20px 50px rgba(0,0,0,.4);
+  --c-text:#f1f5f9;
 }
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ptFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 
 /* Hero */
-.pt-hero{text-align:center;padding:3.5rem 1rem 2rem;animation:fadeUp .6s ease both}
+.pt-hero{text-align:center;padding:3rem 1rem 1.5rem;animation:fadeUp .6s ease both}
 .pt-tag{display:inline-block;padding:.35rem 1.1rem;border-radius:999px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.1);color:var(--c-blue)}
-.pt-hero h1{font-size:clamp(2rem,4.5vw,2.8rem);font-weight:800;margin-bottom:.7rem;color:#0f172a;letter-spacing:-.02em}
-[data-theme="dark"] .pt-hero h1{color:#f1f5f9}
-.pt-hero .lead{font-size:1rem;color:var(--c-muted);max-width:580px;margin:0 auto;line-height:1.7}
+.pt-hero h1{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:800;margin-bottom:.5rem;color:var(--c-text);letter-spacing:-.02em}
+.pt-hero .lead{font-size:.92rem;color:var(--c-muted);max-width:560px;margin:0 auto;line-height:1.7}
 
 /* Stats */
-.pt-stats{display:flex;justify-content:center;flex-wrap:wrap;gap:1rem;margin:1.8rem 0}
-.pt-stat{display:flex;align-items:center;gap:.6rem;padding:.65rem 1.1rem;border-radius:16px;border:1px solid var(--c-border);background:var(--c-card);box-shadow:var(--c-shadow);animation:ptFloat 3.5s ease-in-out infinite}
+.pt-stats{display:flex;justify-content:center;flex-wrap:wrap;gap:.8rem;margin:1.5rem 0}
+.pt-stat{display:flex;align-items:center;gap:.5rem;padding:.55rem 1rem;border-radius:14px;border:1px solid var(--c-border);background:var(--c-card);box-shadow:var(--c-shadow);animation:ptFloat 3.5s ease-in-out infinite}
 .pt-stat:nth-child(2){animation-delay:.6s}
 .pt-stat:nth-child(3){animation-delay:1.2s}
 .pt-stat:nth-child(4){animation-delay:1.8s}
-.pt-stat-val{font-size:1.2rem;font-weight:800;color:var(--c-blue)}
-.pt-stat-lbl{font-size:.72rem;color:var(--c-muted);line-height:1.3}
+.pt-stat-val{font-size:1.1rem;font-weight:800;color:var(--c-blue)}
+.pt-stat-lbl{font-size:.7rem;color:var(--c-muted);line-height:1.3}
 
-/* Timeline — clean stack, no rail */
-.pt-timeline{max-width:800px;margin:0 auto 4rem;display:flex;flex-direction:column;gap:2rem;padding:0 .5rem}
+/* ── COMPANY TAB GRID ── */
+.pt-tabs{max-width:900px;margin:0 auto;padding:0 1rem}
+.pt-tab-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem;margin-bottom:1.5rem}
+@media(max-width:768px){.pt-tab-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.pt-tab-grid{grid-template-columns:repeat(2,1fr)}}
 
-/* Entry */
-.pt-entry{animation:fadeUp .55s ease both}
+.pt-tab-card{
+  display:flex;flex-direction:column;align-items:center;gap:.6rem;
+  padding:1.2rem .8rem;border-radius:var(--c-radius);
+  border:2px solid var(--c-border);background:var(--c-card);
+  box-shadow:var(--c-shadow);cursor:pointer;text-decoration:none;
+  transition:all .25s ease;color:var(--c-text);
+}
+.pt-tab-card:hover{
+  transform:translateY(-3px);box-shadow:var(--c-shadow-lg);
+  border-color:rgba(59,130,246,.2);color:var(--c-text);text-decoration:none;
+}
+.pt-tab-card.active{
+  border-color:var(--c-blue);
+  box-shadow:0 0 0 3px rgba(59,130,246,.12),var(--c-shadow-lg);
+  transform:translateY(-2px);
+}
+.pt-tab-logo{width:52px;height:52px;object-fit:contain;border-radius:12px;border:1px solid var(--c-border);background:#fff;padding:6px}
+[data-theme="dark"] .pt-tab-logo{background:rgba(255,255,255,.08)}
+.pt-tab-name{font-size:.78rem;font-weight:700;text-align:center;line-height:1.25}
+.pt-tab-role{font-size:.65rem;color:var(--c-muted);text-align:center;line-height:1.3}
 
-/* Card */
-.pt-card{border-radius:var(--c-radius);border:1px solid var(--c-border);background:var(--c-card);box-shadow:var(--c-shadow);overflow:hidden;transition:box-shadow .3s}
-.pt-card:hover{box-shadow:var(--c-shadow-lg)}
-
-/* Collapsible header */
-.pt-card-header{display:flex;align-items:center;gap:1.6rem;padding:2rem 2.5rem;cursor:pointer;user-select:none;transition:background .2s}
-.pt-card-header:hover{background:rgba(0,0,0,.015)}
-.pt-company-logo{width:72px !important;height:72px !important;max-width:72px !important;object-fit:contain;border-radius:16px;border:1px solid var(--c-border);background:#fff;padding:8px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-[data-theme="dark"] .pt-company-logo{background:rgba(255,255,255,.08);box-shadow:none}
-.pt-company-info{flex:1;min-width:0}
-.pt-company-info h3{font-size:1.15rem;font-weight:800;margin:0 0 .3rem;line-height:1.3;color:#0f172a;letter-spacing:-.01em}
-[data-theme="dark"] .pt-company-info h3{color:#f1f5f9}
-.pt-company-role{font-size:.85rem;color:var(--c-muted);margin:0;line-height:1.4}
-.pt-chevron{font-size:.8rem;opacity:.35;transition:transform .3s,opacity .2s;flex-shrink:0}
-.pt-card-header[aria-expanded="true"] .pt-chevron{transform:rotate(180deg);opacity:.7}
-
-/* Card body */
-.pt-card-body{padding:.5rem 2.5rem 2.5rem}
+/* ── DETAIL PANEL ── */
+.pt-detail{
+  max-width:900px;margin:0 auto 3rem;padding:0 1rem;
+  animation:fadeUp .35s ease both;
+}
+.pt-detail-card{
+  border-radius:var(--c-radius);border:1px solid var(--c-border);
+  background:var(--c-card);box-shadow:var(--c-shadow-lg);overflow:hidden;
+}
+.pt-detail-header{
+  display:flex;align-items:center;gap:1.2rem;
+  padding:1.5rem 2rem;border-bottom:1px solid var(--c-border);
+}
+.pt-detail-logo{width:56px;height:56px;object-fit:contain;border-radius:14px;border:1px solid var(--c-border);background:#fff;padding:6px;flex-shrink:0}
+[data-theme="dark"] .pt-detail-logo{background:rgba(255,255,255,.08)}
+.pt-detail-info h2{font-size:1.2rem;font-weight:800;margin:0 0 .2rem;color:var(--c-text)}
+.pt-detail-info .pt-detail-role{font-size:.82rem;color:var(--c-muted);margin:0}
+.pt-detail-body{padding:1.5rem 2rem 2rem}
+@media(max-width:480px){.pt-detail-header{padding:1rem 1.2rem}.pt-detail-body{padding:1rem 1.2rem 1.5rem}}
 
 /* Badges */
 .pt-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .8rem;border-radius:999px;font-size:.72rem;font-weight:700;margin-right:.4rem;margin-bottom:.7rem;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.1);color:var(--c-blue)}
@@ -69,7 +92,7 @@
 .pt-badge--violet{background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.12);color:#7c3aed}
 .pt-badge--rose{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.12);color:#dc2626}
 
-/* Accordion */
+/* Accordion inside detail */
 .pt-accordion{display:flex;flex-direction:column;gap:.7rem;margin-top:1rem}
 .pt-acc-item{border-radius:14px;border:1px solid var(--c-border);overflow:hidden;transition:box-shadow .2s}
 .pt-acc-item:hover{box-shadow:0 2px 12px rgba(0,0,0,.05)}
@@ -82,16 +105,14 @@
 [data-theme="dark"] .pt-acc-body p{color:#d1d5db}
 .pt-acc-body p:last-child{margin-bottom:0}
 .pt-acc-body small{font-size:.76rem;color:var(--c-muted)}
-.pt-acc-body blockquote{border-left:3px solid var(--c-blue);padding:.85rem 1rem;margin:0;background:rgba(59,130,246,.03);border-radius:0 12px 12px 0}
-.pt-acc-body blockquote p{font-size:.86rem;margin-bottom:.5rem}
-.pt-acc-body blockquote p:last-child{margin:0}
-.pt-acc-body h5{font-size:.92rem;font-weight:800;margin-bottom:.6rem;margin-top:.7rem;color:#0f172a}
-[data-theme="dark"] .pt-acc-body h5{color:#f1f5f9}
+.pt-acc-body h5{font-size:.92rem;font-weight:800;margin-bottom:.6rem;margin-top:.7rem;color:var(--c-text)}
 .pt-acc-body h5:first-child{margin-top:0}
 
-/* Lead quote */
 .pt-lead-quote{font-size:.9rem;font-weight:500;line-height:1.7;padding:1.1rem 1.4rem;border-radius:14px;background:rgba(59,130,246,.03);border:1px solid rgba(59,130,246,.08);margin-bottom:1rem;color:#374151}
 [data-theme="dark"] .pt-lead-quote{color:#d1d5db}
+
+.pt-detail-content{display:none}
+.pt-detail-content.active{display:block}
 </style>
 
 <!-- ════════════════════════════════════════════════════════
@@ -100,7 +121,7 @@
 <div class="pt-hero">
   <div class="pt-tag"><i class="fas fa-briefcase me-1"></i> Work History</div>
   <h1>Portfolio &amp; Work History</h1>
-  <p class="lead">My professional journey — showcasing how education and technical skills have been applied across enterprise engineering roles and high-impact production systems.</p>
+  <p class="lead">Enterprise engineering across legal tech, aviation, finance, property management, and education — production systems, not proof of concepts.</p>
   <div class="pt-stats">
     <div class="pt-stat"><div class="pt-stat-val">8+</div><div class="pt-stat-lbl">Years enterprise<br>engineering</div></div>
     <div class="pt-stat"><div class="pt-stat-val">6</div><div class="pt-stat-lbl">Production systems<br>in 6 months</div></div>
@@ -110,518 +131,412 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════
-     TIMELINE
+     COMPANY TAB CARDS
 ════════════════════════════════════════════════════════ -->
-<div class="pt-timeline">
-
-  <!-- ── ASHFORD INC. ── -->
-  <div class="pt-entry fade-in-up">
-    <div class="pt-card">
-      <div class="pt-card-header"
-           data-bs-toggle="collapse"
-           data-bs-target="#collapseAshford"
-           aria-expanded="false"
-           aria-controls="collapseAshford"
-           role="button">
-        <img src="{% static 'css/img/ashford.png' %}" alt="Ashford Inc." class="pt-company-logo" style="width:72px;height:72px;max-width:72px;object-fit:contain">
-        <div class="pt-company-info">
-          <h3>Ashford Inc.</h3>
-          <p class="pt-company-role">AI Automation Analyst — AI &amp; Special Projects Division</p>
-        </div>
-        <i class="fas fa-chevron-down pt-chevron"></i>
-      </div>
-
-      <div id="collapseAshford" class="collapse">
-        <div class="pt-card-body">
-          <span class="pt-badge pt-badge--amber"><i class="fas fa-star me-1"></i> Current Opportunity</span>
-          <span class="pt-badge pt-badge--violet"><i class="fas fa-robot me-1"></i> Enterprise AI Automation &amp; Integration</span>
-
-          <div class="pt-lead-quote">
-            <strong>First technical hire. 200+ projects on the whiteboard. Nine business entities to serve.</strong> This is exactly the environment I thrive in — I've been the sole engineer shipping production systems under ambiguous requirements for years. Every section below is proof.
-          </div>
-
-          <div class="pt-accordion" id="ashfordSections">
-
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseAshfordFit"
-                      aria-expanded="false" aria-controls="collapseAshfordFit">
-                <span>🎯</span> Why I'm the Right Fit
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseAshfordFit" class="collapse" data-bs-parent="#ashfordSections">
-                <div class="pt-acc-body">
-                  <p>🧾 <strong>I Built the AP/Acumatica Automation You're Describing</strong><br>
-                  At Witheritelaw I shipped an end-to-end invoice automation: <strong>Azure Computer Vision OCR</strong> extracts invoice data → CRM validates amounts and coding → <strong>Acumatica REST API</strong> delivers the payable — with a <strong>Power Apps dashboard</strong> showing real-time flow status. AP automation into Acumatica is not a concept for me. <strong>It's already in production.</strong></p>
-                  <p>🤖 <strong>AI Agents in the Real World — Not Demos</strong><br>
-                  Built six production automation systems at Witheritelaw using Azure AI services, OCR pipelines, and API-driven workflows. Each one replaced a manual business process. <strong>I ship agents that operators actually use.</strong></p>
-                  <p>🌐 <strong>Multi-Entity Scale Is How I Architect</strong><br>
-                  The Halo SaaS platform I architected was <strong>multi-tenant by design</strong> — pluggable data stores, failure domain isolation, region-aware provisioning, RBAC per tenant. Designing for 9 Ashford brands isn't a constraint — it's the default assumption I build to.</p>
-                  <p>🔗 <strong>Enterprise Integrations Are My Stack</strong><br>
-                  ADP HR API → Microsoft Graph → Entra ID. Computer Vision → CRM → Acumatica API. Kafka → HDFS → Databricks → Power BI. I connect enterprise systems without ripping out what works — <strong>REST APIs, webhooks, ETL pipelines, that's my daily toolkit.</strong></p>
-                  <p>⚡ <strong>Ambiguous Roadmap = My Best Environment</strong><br>
-                  At American Airlines I aligned 7 teams on security and DevOps with no pre-defined playbook. At Witheritelaw I operated as sole architect across 6 systems simultaneously. <strong>200 projects on a whiteboard with an SVP? That's a backlog. I know how to prioritize and ship.</strong></p>
-                  <p>💬 <strong>I Communicate Across All Levels</strong><br>
-                  Ran bi-weekly stakeholder sessions with FAA, Brock Solutions, and Siemens executives at American Airlines. Authored SLA/RTO/RPO documentation for C-suite. <strong>I translate technical execution into language executives trust.</strong></p>
-                </div>
-              </div>
-            </div>
-
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseAshfordRoom"
-                      aria-expanded="false" aria-controls="collapseAshfordRoom">
-                <span>💡</span> What I'll Say in the Room
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseAshfordRoom" class="collapse" data-bs-parent="#ashfordSections">
-                <div class="pt-acc-body">
-                  <p>🧾 <strong>On AP/Acumatica Automation:</strong><br>
-                  <em>"I built this exact workflow at Witheritelaw — Computer Vision OCR reads the invoice, CRM integration validates the coding and amounts, Acumatica REST API receives the payable, Power Apps shows the status dashboard in real time. Your AP use case is the first thing I'd ship."</em></p>
-                  <p>🌐 <strong>On Nine Business Entities:</strong><br>
-                  <em>"My Halo platform was architected multi-tenant from day one — each tenant gets isolated data, scoped secrets, and independent failure domains. I'd apply the same pattern here: build automations as reusable modules that plug into each entity without rebuilding from scratch."</em></p>
-                  <p>🤖 <strong>On AI Agents for Non-Technical Users:</strong><br>
-                  <em>"The best agent is one operators don't need to think about. I design prompt libraries and validation layers so the agent handles edge cases silently. At Witheritelaw, the mailroom team didn't need to know there was OCR running — they just got processed documents."</em></p>
-                  <p>⚡ <strong>On Being the First Technical Hire:</strong><br>
-                  <em>"I've been the only engineer on production systems before. That's where I set the standards — naming conventions, error handling, monitoring, documentation — because if I don't, no one will. I treat solo builds like team builds. Everything is maintainable by someone who isn't me."</em></p>
-                </div>
-              </div>
-            </div>
-
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseAshfordQuestions"
-                      aria-expanded="false" aria-controls="collapseAshfordQuestions">
-                <span>❓</span> Questions I'm Ready For
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseAshfordQuestions" class="collapse" data-bs-parent="#ashfordSections">
-                <div class="pt-acc-body">
-                  <p>💬 <strong>"Have you built accounting automations with Acumatica?"</strong><br>
-                  → Yes. Invoice OCR via Azure Computer Vision → CRM invoice validation → <strong>Acumatica REST API delivery</strong> → Power Apps dashboard. AP. In production. At Witheritelaw.</p>
-                  <p>💬 <strong>"How do you design automation that scales across multiple business units?"</strong><br>
-                  → Multi-tenant architecture: modular functions with pluggable configs per entity, shared libraries, isolated data stores. Exactly how I built the <strong>Halo SaaS platform</strong> — nine tenants, one codebase.</p>
-                  <p>💬 <strong>"How do you handle integrating systems that already exist?"</strong><br>
-                  → REST APIs and webhooks first — don't replace what works. ADP→Entra ID is a perfect example: I mapped their API schema to Microsoft Graph fields, handled pagination and edge cases, <strong>zero rip-and-replace.</strong></p>
-                  <p>💬 <strong>"How do you prioritize when there's no defined roadmap?"</strong><br>
-                  → Business impact × implementation speed. At American Airlines I triaged across 7 teams simultaneously. At Witheritelaw I sequenced 6 systems in 6 months. <strong>I ask: what costs the most in manual hours today? That ships first.</strong></p>
-                  <p>💬 <strong>"How do you communicate technical work to executives?"</strong><br>
-                  → Outcomes, not architecture. At AA I ran sessions with FAA and Siemens execs — I showed what changed, what it cost before, what it costs now. <strong>Executives want results. I bring receipts.</strong></p>
-                </div>
-              </div>
-            </div>
-
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseAshfordPitch"
-                      aria-expanded="false" aria-controls="collapseAshfordPitch">
-                <span>🚀</span> My Pitch
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseAshfordPitch" class="collapse" data-bs-parent="#ashfordSections">
-                <div class="pt-acc-body">
-                  <blockquote>
-                    <p>🏢 <strong>8 years</strong> building enterprise automation systems at <strong>American Airlines, Citibank, and Witheritelaw.</strong> Accounting automation, AI-powered document processing, multi-system API integration — <strong>production, not proof of concept.</strong></p>
-                    <p>🧾 I already built your AP/Acumatica use case. <strong>Azure Computer Vision OCR → CRM validation → Acumatica API → Power Apps dashboard.</strong> That's a Witheritelaw production system that's running right now.</p>
-                    <p>⚙️ At Witheritelaw: <strong>6 production systems in 6 months</strong> as sole engineer, promoted to Enterprise Architect. At American Airlines: <strong>7 teams, 60+ repos secured, 82.98% IaC deployment reduction.</strong> At Citibank: Databricks, PySpark, Hadoop at financial scale under compliance.</p>
-                    <p>🎯 Ashford's AI division needs someone who ships fast, builds for scale, and works directly with leadership without a playbook. <strong>That's not a description of who I want to be — that's who I already am.</strong></p>
-                  </blockquote>
-                </div>
-              </div>
-            </div>
-
-          </div><!-- /ashfordSections -->
-        </div>
-      </div>
+<div class="pt-tabs">
+  <div class="pt-tab-grid">
+    <div class="pt-tab-card active" data-company="witherite">
+      <img src="{% static 'css/img/witherite_logo.png' %}" alt="Witheritelaw" class="pt-tab-logo">
+      <div class="pt-tab-name">Witheritelaw</div>
+      <div class="pt-tab-role">Enterprise Architect</div>
     </div>
-  </div><!-- /Ashford -->
+    <div class="pt-tab-card" data-company="aa">
+      <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines" class="pt-tab-logo">
+      <div class="pt-tab-name">American Airlines</div>
+      <div class="pt-tab-role">Engineer / PM</div>
+    </div>
+    <div class="pt-tab-card" data-company="citi">
+      <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank" class="pt-tab-logo">
+      <div class="pt-tab-name">Citibank</div>
+      <div class="pt-tab-role">DevOps / Data</div>
+    </div>
+    <div class="pt-tab-card" data-company="barvin">
+      <img src="{% static 'css/img/barvin_logo.png' %}" alt="Barvin" class="pt-tab-logo">
+      <div class="pt-tab-name">Barvin</div>
+      <div class="pt-tab-role">Property Manager</div>
+    </div>
+    <div class="pt-tab-card" data-company="codeninjas">
+      <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas" class="pt-tab-logo">
+      <div class="pt-tab-name">Code Ninjas</div>
+      <div class="pt-tab-role">DevOps Director</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     DETAIL PANELS
+════════════════════════════════════════════════════════ -->
+<div class="pt-detail">
 
   <!-- ── WITHERITELAW ── -->
-  <div class="pt-entry fade-in-up">
-    <div class="pt-card">
-      <div class="pt-card-header"
-           data-bs-toggle="collapse"
-           data-bs-target="#collapseWitherite"
-           aria-expanded="false"
-           aria-controls="collapseWitherite"
-           role="button">
-        <img src="{% static 'css/img/witherite_logo.png' %}" alt="Witheritelaw" class="pt-company-logo" style="width:72px;height:72px;max-width:72px;object-fit:contain">
-        <div class="pt-company-info">
-          <h3>Witheritelaw</h3>
-          <p class="pt-company-role">Automation Engineer → Enterprise Application Architect</p>
+  <div class="pt-detail-content active" id="detail-witherite">
+    <div class="pt-detail-card">
+      <div class="pt-detail-header">
+        <img src="{% static 'css/img/witherite_logo.png' %}" alt="Witheritelaw" class="pt-detail-logo">
+        <div class="pt-detail-info">
+          <h2>Witheritelaw</h2>
+          <p class="pt-detail-role">Automation Engineer → Enterprise Application Architect</p>
         </div>
-        <i class="fas fa-chevron-down pt-chevron"></i>
       </div>
+      <div class="pt-detail-body">
+        <span class="pt-badge"><i class="fas fa-gavel me-1"></i> Legal Technology</span>
+        <span class="pt-badge pt-badge--violet"><i class="fas fa-cloud me-1"></i> Azure Automation &amp; Architecture</span>
 
-      <div id="collapseWitherite" class="collapse">
-        <div class="pt-card-body">
-          <span class="pt-badge"><i class="fas fa-gavel me-1"></i> Legal Technology</span>
-          <span class="pt-badge pt-badge--violet"><i class="fas fa-cloud me-1"></i> Azure Automation &amp; Architecture</span>
+        <div class="pt-lead-quote">
+          Delivered six production automation systems over 6 months, progressing from Automation Engineer to Enterprise Application Architect. Every project below is in production.
+        </div>
 
-          <div class="pt-lead-quote" style="background:rgba(59,130,246,.04);border-color:rgba(59,130,246,.15)">
-            Delivered six production automation systems over 6 months, progressing from Automation Engineer to Enterprise Application Architect. Every project below is in production.
+        <div class="pt-accordion" id="witheritelawSections">
+
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseMailroom"
+                    aria-expanded="false" aria-controls="collapseMailroom">
+              <span>📬</span> Mailroom Mail App Automation
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseMailroom" class="collapse" data-bs-parent="#witheritelawSections">
+              <div class="pt-acc-body">
+                <p>📄 <strong>What it does:</strong> Splits large incoming PDFs at custom markers, extracts metadata, and routes documents into Power Automate/SharePoint workflows — <strong>fully automated, high-volume, production.</strong></p>
+                <p>🏗️ <strong>Stack:</strong> Azure Functions (Python 3.12) · Computer Vision OCR · Fuzzy string matching · Blob/Table/Queue Storage · Power Automate · SharePoint Online · Azure Monitor + OpenTelemetry</p>
+                <p>🔒 <strong>Security:</strong> SAS URL generation for time-limited, compliant document access — no permanent links, no exposure.</p>
+                <p>📊 <strong>Results:</strong><br>
+                ✅ <strong>80%+ reduction</strong> in manual handling time<br>
+                ✅ Processes <strong>hundreds of documents/day</strong>, reliable up to 400+ page files<br>
+                ✅ Automated error escalation minimized workflow interruptions</p>
+                <p><small>🔧 Azure Functions · Blob/Table/Queue Storage · Computer Vision OCR · PyMuPDF · Levenshtein · Power Automate · SharePoint Online · Azure Monitor · Microsoft Visio</small></p>
+              </div>
+            </div>
           </div>
 
-          <div class="pt-accordion" id="witheritelawSections">
-
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseMailroom"
-                      aria-expanded="false" aria-controls="collapseMailroom">
-                <span>📬</span> Mailroom Mail App Automation
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseMailroom" class="collapse" data-bs-parent="#witheritelawSections">
-                <div class="pt-acc-body">
-                  <p>📄 <strong>What it does:</strong> Splits large incoming PDFs at custom markers, extracts metadata, and routes documents into Power Automate/SharePoint workflows — <strong>fully automated, high-volume, production.</strong></p>
-                  <p>🏗️ <strong>Stack:</strong> Azure Functions (Python 3.12) · Computer Vision OCR · Fuzzy string matching · Blob/Table/Queue Storage · Power Automate · SharePoint Online · Azure Monitor + OpenTelemetry</p>
-                  <p>🔒 <strong>Security:</strong> SAS URL generation for time-limited, compliant document access — no permanent links, no exposure.</p>
-                  <p>📊 <strong>Results:</strong><br>
-                  ✅ <strong>80%+ reduction</strong> in manual handling time<br>
-                  ✅ Processes <strong>hundreds of documents/day</strong>, reliable up to 400+ page files<br>
-                  ✅ Automated error escalation minimized workflow interruptions</p>
-                  <p><small>🔧 Azure Functions · Blob/Table/Queue Storage · Computer Vision OCR · PyMuPDF · Levenshtein · Power Automate · SharePoint Online · Azure Monitor · Microsoft Visio</small></p>
-                </div>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseConflict"
+                    aria-expanded="false" aria-controls="collapseConflict">
+              <span>⚖️</span> Conflict Checker Automation
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseConflict" class="collapse" data-bs-parent="#witheritelawSections">
+              <div class="pt-acc-body">
+                <p>⚖️ <strong>What it does:</strong> HTTP-triggered Azure Function queries SQL for legal case data, fuzzy-matches witnesses on DLN, Plate, VIN, DOB, SSN, deduplicates conflicts, auto-generates PDF reports → Blob + Table Storage. <strong>Hundreds of records per run.</strong></p>
+                <p>🏗️ <strong>Flow:</strong> HTTP trigger → SQL query → <code>rapidfuzz</code> matching → deduplication → <code>reportlab</code> PDF → Blob Storage + Table audit log</p>
+                <p>📊 <strong>Results:</strong><br>
+                ✅ Eliminated manual conflict review — fully automated end to end<br>
+                ✅ <strong>Hundreds of records/run</strong>, proven on large datasets<br>
+                ✅ Secure storage + access controls protect sensitive legal data<br>
+                ✅ Comprehensive test suite validates deduplication logic</p>
+                <p><small>🔧 Azure Functions · Blob/Table Storage · SQL Database · rapidfuzz · PyPDF2 · reportlab · Azure SDKs</small></p>
               </div>
             </div>
+          </div>
 
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseConflict"
-                      aria-expanded="false" aria-controls="collapseConflict">
-                <span>⚖️</span> Conflict Checker Automation
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseConflict" class="collapse" data-bs-parent="#witheritelawSections">
-                <div class="pt-acc-body">
-                  <p>⚖️ <strong>What it does:</strong> HTTP-triggered Azure Function queries SQL for legal case data, fuzzy-matches witnesses on DLN, Plate, VIN, DOB, SSN, deduplicates conflicts, auto-generates PDF reports → Blob + Table Storage. <strong>Hundreds of records per run.</strong></p>
-                  <p>🏗️ <strong>Flow:</strong> HTTP trigger → SQL query → <code>rapidfuzz</code> matching → deduplication → <code>reportlab</code> PDF → Blob Storage + Table audit log</p>
-                  <p>📊 <strong>Results:</strong><br>
-                  ✅ Eliminated manual conflict review — fully automated end to end<br>
-                  ✅ <strong>Hundreds of records/run</strong>, proven on large datasets<br>
-                  ✅ Secure storage + access controls protect sensitive legal data<br>
-                  ✅ Comprehensive test suite validates deduplication logic</p>
-                  <p><small>🔧 Azure Functions · Blob/Table Storage · SQL Database · rapidfuzz · PyPDF2 · reportlab · Azure SDKs</small></p>
-                </div>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseEntra"
+                    aria-expanded="false" aria-controls="collapseEntra">
+              <span>👤</span> Entra ADP Automation
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseEntra" class="collapse" data-bs-parent="#witheritelawSections">
+              <div class="pt-acc-body">
+                <p>👤 <strong>What it does:</strong> Fully automates new-hire onboarding from ADP → Microsoft Entra ID. User creation, group assignments (dept, payroll, location), manager relationships — <strong>zero manual HR steps.</strong></p>
+                <p>🏗️ <strong>Flow:</strong> ADP HR API (paginated) → JSON schema mapping engine → Microsoft Graph API → Entra ID user + groups → mail-enabled groups via Azure Automation Runbook webhook</p>
+                <p>🔒 <strong>Security:</strong> Certificate-based auth · Managed Identity · time-limited credentials · no secrets in code</p>
+                <p>📊 <strong>Results:</strong><br>
+                ✅ Onboarding reduced from manual effort to <strong>fully automated</strong><br>
+                ✅ Handles large hire batches with extensible JSON/env-var mapping logic<br>
+                ✅ Downstream M365 processes accelerated from day one</p>
+                <p><small>🔧 Azure Functions (Python) · Microsoft Graph API · ADP HR API · Azure Automation Runbook · Blob/Table Storage · JSON Schema · OpenTelemetry · Azure Monitor</small></p>
               </div>
             </div>
+          </div>
 
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseEntra"
-                      aria-expanded="false" aria-controls="collapseEntra">
-                <span>👤</span> Entra ADP Automation
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseEntra" class="collapse" data-bs-parent="#witheritelawSections">
-                <div class="pt-acc-body">
-                  <p>👤 <strong>What it does:</strong> Fully automates new-hire onboarding from ADP → Microsoft Entra ID. User creation, group assignments (dept, payroll, location), manager relationships — <strong>zero manual HR steps.</strong></p>
-                  <p>🏗️ <strong>Flow:</strong> ADP HR API (paginated) → JSON schema mapping engine → Microsoft Graph API → Entra ID user + groups → mail-enabled groups via Azure Automation Runbook webhook</p>
-                  <p>🔒 <strong>Security:</strong> Certificate-based auth · Managed Identity · time-limited credentials · no secrets in code</p>
-                  <p>📊 <strong>Results:</strong><br>
-                  ✅ Onboarding reduced from manual effort to <strong>fully automated</strong><br>
-                  ✅ Handles large hire batches with extensible JSON/env-var mapping logic<br>
-                  ✅ Downstream M365 processes accelerated from day one</p>
-                  <p><small>🔧 Azure Functions (Python) · Microsoft Graph API · ADP HR API · Azure Automation Runbook · Blob/Table Storage · JSON Schema · OpenTelemetry · Azure Monitor</small></p>
-                </div>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseDW"
+                    aria-expanded="false" aria-controls="collapseDW">
+              <span>🗄️</span> Data Warehouse 2 Automation &amp; ETL Pipeline
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseDW" class="collapse" data-bs-parent="#witheritelawSections">
+              <div class="pt-acc-body">
+                <p>🗄️ <strong>What it does:</strong> Ingests multi-source raw CSVs into a centralized Azure Data Warehouse — dynamically infers schema, syncs SQL columns, deduplicates against unique keys, converts to Parquet → <strong>live Power BI dashboards.</strong></p>
+                <p>🏗️ <strong>Flow:</strong> Raw CSV (Blob) → Pandas schema inference → SQL column sync → unique key deduplication → PyArrow Parquet → Power BI</p>
+                <p>📋 <strong>Governance:</strong> Azure Table Storage tracks metadata, audit logs, and dynamic folder mappings for full data lineage.</p>
+                <p>📊 <strong>Results:</strong><br>
+                ✅ Manual ETL effort eliminated — <strong>fully automated onboarding</strong><br>
+                ✅ Consistent, accurate reporting via automated schema management<br>
+                ✅ Real-time Power BI analytics from day of ingestion</p>
+                <p><small>🔧 Azure Functions (Python) · Blob/Table Storage · SQL Database · Pandas · PyArrow · Power BI · Azure SDKs</small></p>
               </div>
             </div>
+          </div>
 
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseDW"
-                      aria-expanded="false" aria-controls="collapseDW">
-                <span>🗄️</span> Data Warehouse 2 Automation &amp; ETL Pipeline
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseDW" class="collapse" data-bs-parent="#witheritelawSections">
-                <div class="pt-acc-body">
-                  <p>🗄️ <strong>What it does:</strong> Ingests multi-source raw CSVs into a centralized Azure Data Warehouse — dynamically infers schema, syncs SQL columns, deduplicates against unique keys, converts to Parquet → <strong>live Power BI dashboards.</strong></p>
-                  <p>🏗️ <strong>Flow:</strong> Raw CSV (Blob) → Pandas schema inference → SQL column sync → unique key deduplication → PyArrow Parquet → Power BI</p>
-                  <p>📋 <strong>Governance:</strong> Azure Table Storage tracks metadata, audit logs, and dynamic folder mappings for full data lineage.</p>
-                  <p>📊 <strong>Results:</strong><br>
-                  ✅ Manual ETL effort eliminated — <strong>fully automated onboarding</strong><br>
-                  ✅ Consistent, accurate reporting via automated schema management<br>
-                  ✅ Real-time Power BI analytics from day of ingestion</p>
-                  <p><small>🔧 Azure Functions (Python) · Blob/Table Storage · SQL Database · Pandas · PyArrow · Power BI · Azure SDKs</small></p>
-                </div>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseErrorLeadership"
+                    aria-expanded="false" aria-controls="collapseErrorLeadership">
+              <span>🛡️</span> Error Handling &amp; Event Logging Leadership
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseErrorLeadership" class="collapse" data-bs-parent="#witheritelawSections">
+              <div class="pt-acc-body">
+                <p>🛡️ As lead engineer, I set and enforced error handling + logging standards adopted <strong>across all projects team-wide.</strong></p>
+                <p>✅ <strong>Input validation</strong> + structured error responses on every Azure Function<br>
+                ✅ <code>try/except</code> on all external calls — full stack traces logged<br>
+                ✅ <strong>Azure Monitor + Application Insights</strong> — real-time diagnostics &amp; distributed tracing<br>
+                ✅ Retry logic + graceful degradation — only critical failures halt processing<br>
+                ✅ Centralized structured logging — real-time and historical analysis<br>
+                ✅ <strong>Auto help desk ticket creation</strong> on persistent/critical failures<br>
+                ✅ Admin audit logging table for compliance &amp; process tracking<br>
+                ✅ Patterns enforced via code reviews + team training</p>
+                <p>📈 <strong>Result:</strong> Reduced downtime, faster incident response, measurably improved system reliability across the org.</p>
               </div>
             </div>
+          </div>
 
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseErrorLeadership"
-                      aria-expanded="false" aria-controls="collapseErrorLeadership">
-                <span>🛡️</span> Error Handling &amp; Event Logging Leadership
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseErrorLeadership" class="collapse" data-bs-parent="#witheritelawSections">
-                <div class="pt-acc-body">
-                  <p>🛡️ As lead engineer, I set and enforced error handling + logging standards adopted <strong>across all projects team-wide.</strong></p>
-                  <p>✅ <strong>Input validation</strong> + structured error responses on every Azure Function<br>
-                  ✅ <code>try/except</code> on all external calls — full stack traces logged<br>
-                  ✅ <strong>Azure Monitor + Application Insights</strong> — real-time diagnostics &amp; distributed tracing<br>
-                  ✅ Retry logic + graceful degradation — only critical failures halt processing<br>
-                  ✅ Centralized structured logging — real-time and historical analysis<br>
-                  ✅ <strong>Auto help desk ticket creation</strong> on persistent/critical failures<br>
-                  ✅ Admin audit logging table for compliance &amp; process tracking<br>
-                  ✅ Patterns enforced via code reviews + team training</p>
-                  <p>📈 <strong>Result:</strong> Reduced downtime, faster incident response, measurably improved system reliability across the org.</p>
-                </div>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseHalo"
+                    aria-expanded="false" aria-controls="collapseHalo">
+              <span>🏗️</span> Enterprise Application Architect: Halo SaaS Platform
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseHalo" class="collapse" data-bs-parent="#witheritelawSections">
+              <div class="pt-acc-body">
+                <p>🏗️ Led design &amp; implementation of the <strong>Halo Multi-Tenant SaaS Platform</strong> — enterprise-grade legal CRM built on Azure, from scratch, as sole architect.</p>
+                <p>⚙️ <strong>Architecture highlights:</strong><br>
+                ✅ Module-based CRM — pluggable tenant data stores + dynamic UI composition<br>
+                ✅ <strong>Multi-tenant data isolation</strong> + failure domain separation + region-aware provisioning<br>
+                ✅ Immutable append-only audit logging on all critical actions<br>
+                ✅ RBAC + <strong>tenant-scoped secret management</strong> + control/data plane separation<br>
+                ✅ Dead-letter queues, retry policies, configurable log retention<br>
+                ✅ Centralized monitoring, distributed tracing, real-time alerting<br>
+                ✅ CI/CD, disaster recovery, cost optimization across Dev/UAT/Prod<br>
+                ✅ SLA/RTO/RPO documentation authored and maintained</p>
+                <p>📈 <strong>Result:</strong> Halo became the reference architecture for enterprise SaaS reliability at the org — faster feature delivery, higher quality, lower operational risk.</p>
               </div>
             </div>
+          </div>
 
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseHalo"
-                      aria-expanded="false" aria-controls="collapseHalo">
-                <span>🏗️</span> Enterprise Application Architect: Halo SaaS Platform
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseHalo" class="collapse" data-bs-parent="#witheritelawSections">
-                <div class="pt-acc-body">
-                  <p>🏗️ Led design &amp; implementation of the <strong>Halo Multi-Tenant SaaS Platform</strong> — enterprise-grade legal CRM built on Azure, from scratch, as sole architect.</p>
-                  <p>⚙️ <strong>Architecture highlights:</strong><br>
-                  ✅ Module-based CRM — pluggable tenant data stores + dynamic UI composition<br>
-                  ✅ <strong>Multi-tenant data isolation</strong> + failure domain separation + region-aware provisioning<br>
-                  ✅ Immutable append-only audit logging on all critical actions<br>
-                  ✅ RBAC + <strong>tenant-scoped secret management</strong> + control/data plane separation<br>
-                  ✅ Dead-letter queues, retry policies, configurable log retention<br>
-                  ✅ Centralized monitoring, distributed tracing, real-time alerting<br>
-                  ✅ CI/CD, disaster recovery, cost optimization across Dev/UAT/Prod<br>
-                  ✅ SLA/RTO/RPO documentation authored and maintained</p>
-                  <p>📈 <strong>Result:</strong> Halo became the reference architecture for enterprise SaaS reliability at the org — faster feature delivery, higher quality, lower operational risk.</p>
-                </div>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseOracle"
+                    aria-expanded="false" aria-controls="collapseOracle">
+              <span>🧾</span> Acumatica Invoice Automation — AP/AR Processing
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseOracle" class="collapse" data-bs-parent="#witheritelawSections">
+              <div class="pt-acc-body">
+                <p>🧾 <strong>What it does:</strong> End-to-end accounts payable automation — invoices are OCR-scanned via Azure Computer Vision, validated against CRM data for coding accuracy and amount confirmation, then delivered directly into Acumatica via REST API. <strong>Zero manual invoice entry. Zero coding errors.</strong></p>
+                <p>🏗️ <strong>Flow:</strong> Invoice (PDF/image) → Azure Computer Vision OCR → extracted fields → CRM integration (validation + coding confirmation) → Acumatica REST API (payable delivery) → Power Apps dashboard (real-time flow status)</p>
+                <p>🔒 <strong>Security:</strong> Managed Identity for Acumatica API auth · SAS URL access for document storage · structured audit logging on every invoice state transition</p>
+                <p>📊 <strong>Results:</strong><br>
+                ✅ Manual invoice coding eliminated — <strong>fully automated AP entry into Acumatica</strong><br>
+                ✅ CRM validation catches coding mismatches <strong>before</strong> they hit the ledger<br>
+                ✅ Power Apps dashboard gives finance team <strong>real-time visibility</strong> across all invoice states<br>
+                ✅ Scales to high-volume invoice batches without additional headcount</p>
+                <p><small>🔧 Azure Functions (Python) · Azure Computer Vision OCR · Acumatica REST API · CRM Integration · Power Apps · Blob/Table Storage · Managed Identity · Azure Monitor</small></p>
               </div>
             </div>
+          </div>
 
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseOracle"
-                      aria-expanded="false" aria-controls="collapseOracle">
-                <span>🧾</span> Acumatica Invoice Automation — AP/AR Processing
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseOracle" class="collapse" data-bs-parent="#witheritelawSections">
-                <div class="pt-acc-body">
-                  <p>🧾 <strong>What it does:</strong> End-to-end accounts payable automation — invoices are OCR-scanned via Azure Computer Vision, validated against CRM data for coding accuracy and amount confirmation, then delivered directly into Acumatica via REST API. <strong>Zero manual invoice entry. Zero coding errors.</strong></p>
-                  <p>🏗️ <strong>Flow:</strong> Invoice (PDF/image) → Azure Computer Vision OCR → extracted fields → CRM integration (validation + coding confirmation) → Acumatica REST API (payable delivery) → Power Apps dashboard (real-time flow status)</p>
-                  <p>🔒 <strong>Security:</strong> Managed Identity for Acumatica API auth · SAS URL access for document storage · structured audit logging on every invoice state transition</p>
-                  <p>📊 <strong>Results:</strong><br>
-                  ✅ Manual invoice coding eliminated — <strong>fully automated AP entry into Acumatica</strong><br>
-                  ✅ CRM validation catches coding mismatches <strong>before</strong> they hit the ledger<br>
-                  ✅ Power Apps dashboard gives finance team <strong>real-time visibility</strong> across all invoice states<br>
-                  ✅ Scales to high-volume invoice batches without additional headcount</p>
-                  <p><small>🔧 Azure Functions (Python) · Azure Computer Vision OCR · Acumatica REST API · CRM Integration · Power Apps · Blob/Table Storage · Managed Identity · Azure Monitor</small></p>
-                </div>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseWLGSummary"
+                    aria-expanded="false" aria-controls="collapseWLGSummary">
+              <span>📋</span> Summary
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseWLGSummary" class="collapse" data-bs-parent="#witheritelawSections">
+              <div class="pt-acc-body">
+                <p>🎯 <strong>6 production systems. 6 months. One engineer promoted to architect.</strong></p>
+                <p>From mailroom automation to enterprise SaaS architecture — I delivered technical vision, operational discipline, and team-wide engineering standards. The Halo platform and the error handling culture I built are both still running and growing today.</p>
               </div>
             </div>
+          </div>
 
-            <div class="pt-acc-item">
-              <button class="pt-acc-header" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapseWLGSummary"
-                      aria-expanded="false" aria-controls="collapseWLGSummary">
-                <span>📋</span> Summary
-                <i class="fas fa-chevron-down pt-acc-chevron"></i>
-              </button>
-              <div id="collapseWLGSummary" class="collapse" data-bs-parent="#witheritelawSections">
-                <div class="pt-acc-body">
-                  <p>🎯 <strong>6 production systems. 6 months. One engineer promoted to architect.</strong></p>
-                  <p>From mailroom automation to enterprise SaaS architecture — I delivered technical vision, operational discipline, and team-wide engineering standards. The Halo platform and the error handling culture I built are both still running and growing today.</p>
-                </div>
-              </div>
-            </div>
-
-          </div><!-- /witheritelawSections -->
-        </div>
+        </div><!-- /witheritelawSections -->
       </div>
     </div>
-  </div><!-- /Witheritelaw -->
-
-  <!-- ── BARVIN ── -->
-  <div class="pt-entry fade-in-up">
-    <div class="pt-card">
-      <div class="pt-card-header"
-           data-bs-toggle="collapse"
-           data-bs-target="#collapseBarvin"
-           aria-expanded="false"
-           aria-controls="collapseBarvin"
-           role="button">
-        <img src="{% static 'css/img/barvin_logo.png' %}" alt="Barvin" class="pt-company-logo" style="width:72px;height:72px;max-width:72px;object-fit:contain">
-        <div class="pt-company-info">
-          <h3>Barvin</h3>
-          <p class="pt-company-role">Property Manager</p>
-        </div>
-        <i class="fas fa-chevron-down pt-chevron"></i>
-      </div>
-
-      <div id="collapseBarvin" class="collapse">
-        <div class="pt-card-body">
-          <span class="pt-badge pt-badge--green"><i class="fas fa-building me-1"></i> Property Management</span>
-
-          <p style="font-size:.83rem;line-height:1.65;margin-top:.6rem">📊 <strong>Data &amp; Reporting:</strong> Excel-based operational reports tracking occupancy, maintenance, and financial performance. SQL used to extract and analyze budget variances — <strong>data-driven decisions, not gut feel.</strong></p>
-
-          <p style="font-size:.83rem;line-height:1.65">⚙️ <strong>Process Automation:</strong> Scripted workflows for rent reminders and maintenance tracking — improved response times, reduced manual follow-up. Standardized data integration across PM systems into central databases for consistent insights.</p>
-
-          <p style="font-size:.83rem;line-height:1.65">🤝 <strong>Stakeholder Management:</strong> Tenant communications managed via integrated systems — high satisfaction, prompt resolution.</p>
-
-          <p style="font-size:.75rem;opacity:.6"><small>🔧 See the tech stack in the <a href="{% url 'project_pages' %}">Technical Showcase</a>.</small></p>
-        </div>
-      </div>
-    </div>
-  </div><!-- /Barvin -->
+  </div><!-- /detail-witherite -->
 
   <!-- ── AMERICAN AIRLINES ── -->
-  <div class="pt-entry fade-in-up">
-    <div class="pt-card">
-      <div class="pt-card-header"
-           data-bs-toggle="collapse"
-           data-bs-target="#collapseAA"
-           aria-expanded="false"
-           aria-controls="collapseAA"
-           role="button">
-        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines" class="pt-company-logo" style="width:72px;height:72px;max-width:72px;object-fit:contain">
-        <div class="pt-company-info">
-          <h3>American Airlines</h3>
-          <p class="pt-company-role">Engineer / Developer / Project Manager</p>
+  <div class="pt-detail-content" id="detail-aa">
+    <div class="pt-detail-card">
+      <div class="pt-detail-header">
+        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines" class="pt-detail-logo">
+        <div class="pt-detail-info">
+          <h2>American Airlines</h2>
+          <p class="pt-detail-role">Engineer / Developer / Project Manager</p>
         </div>
-        <i class="fas fa-chevron-down pt-chevron"></i>
       </div>
+      <div class="pt-detail-body">
+        <span class="pt-badge pt-badge--rose"><i class="fas fa-plane me-1"></i> Baggage Technology / Operations Applications</span>
 
-      <div id="collapseAA" class="collapse">
-        <div class="pt-card-body">
-          <span class="pt-badge pt-badge--rose"><i class="fas fa-plane me-1"></i> Baggage Technology / Operations Applications</span>
+        <div style="font-size:.83rem;line-height:1.65;margin-top:.6rem">
+          <p>🏗️ <strong>Azure DevOps &amp; Infrastructure</strong><br>
+          Designed Dev/Stage/QA/Prod Azure environments for enterprise employee-facing apps. CI/CD via Azure DevOps, Jenkins, Python — <strong>30% faster deployment cycles.</strong> Docker + Kubernetes standardization across all stages — <strong>40% fewer deployment errors, zero-downtime releases.</strong></p>
 
-          <div style="font-size:.83rem;line-height:1.65">
-            <p>🏗️ <strong>Azure DevOps &amp; Infrastructure</strong><br>
-            Designed Dev/Stage/QA/Prod Azure environments for enterprise employee-facing apps. CI/CD via Azure DevOps, Jenkins, Python — <strong>30% faster deployment cycles.</strong> Docker + Kubernetes standardization across all stages — <strong>40% fewer deployment errors, zero-downtime releases.</strong></p>
+          <p>⚡ <strong>Real-Time Data at Scale</strong><br>
+          ETL pipelines with Azure Data Factory + Databricks: real-time baggage data for <strong>20,000+ users globally, 25% lower latency.</strong> Kafka + Azure Data Lake + HDFS for streaming ingestion under corporate governance. Azure ML predictive analytics for resource demand forecasting.</p>
 
-            <p>⚡ <strong>Real-Time Data at Scale</strong><br>
-            ETL pipelines with Azure Data Factory + Databricks: real-time baggage data for <strong>20,000+ users globally, 25% lower latency.</strong> Kafka + Azure Data Lake + HDFS for streaming ingestion under corporate governance. Azure ML predictive analytics for resource demand forecasting.</p>
+          <p>🔒 <strong>Security Automation</strong><br>
+          Automated vulnerability detection across <strong>60+ repositories</strong> — Coverity, Black Duck, Nucleus — <strong>90% reduction in manual checks.</strong> Python/Bash scripts for ETL orchestration, resource scaling, and deployment automation.</p>
 
-            <p>🔒 <strong>Security Automation</strong><br>
-            Automated vulnerability detection across <strong>60+ repositories</strong> — Coverity, Black Duck, Nucleus — <strong>90% reduction in manual checks.</strong> Python/Bash scripts for ETL orchestration, resource scaling, and deployment automation.</p>
+          <p>🛠️ <strong>IaC &amp; Architecture</strong><br>
+          Terraform + Azure Resource Manager — <strong>deployment time cut by 82.98%.</strong> High-availability DevOps architecture supporting real-time staff management systems.</p>
 
-            <p>🛠️ <strong>IaC &amp; Architecture</strong><br>
-            Terraform + Azure Resource Manager — <strong>deployment time cut by 82.98%.</strong> High-availability DevOps architecture supporting real-time staff management systems.</p>
+          <p>🤝 <strong>Scale &amp; Collaboration</strong><br>
+          Aligned <strong>7 teams (~60 members each)</strong> on security protocols, deployment strategy, and DevOps best practices. Introduced CI/CD onboarding docs — accelerated adoption team-wide.</p>
 
-            <p>🤝 <strong>Scale &amp; Collaboration</strong><br>
-            Aligned <strong>7 teams (~60 members each)</strong> on security protocols, deployment strategy, and DevOps best practices. Introduced CI/CD onboarding docs — accelerated adoption team-wide.</p>
+          <p><small>🔧 See the full tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
 
-            <p><small>🔧 See the full tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
+          <hr style="opacity:.12;margin:1rem 0">
 
-            <hr style="opacity:.12;margin:1rem 0">
+          <h5 style="font-size:.85rem;font-weight:800;margin-bottom:.6rem">✈️ Client-Facing Work</h5>
 
-            <h5 style="font-size:.85rem;font-weight:800;margin-bottom:.6rem">✈️ Client-Facing Work</h5>
+          <p>🛬 <strong>FAA — Flight Real-Time Data Mapping</strong><br>
+          Integrated + mapped real-time FAA flight data into gate agent internal apps. Bi-weekly stakeholder sessions to resolve accuracy and mapping issues. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
 
-            <p>🛬 <strong>FAA — Flight Real-Time Data Mapping</strong><br>
-            Integrated + mapped real-time FAA flight data into gate agent internal apps. Bi-weekly stakeholder sessions to resolve accuracy and mapping issues. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
+          <p>🧳 <strong>Brock Solutions — Baggage Carousel Visualization</strong><br>
+          Connected AA baggage scan/location data to Brock's visualization systems — <strong>second-by-second updates</strong> for airport staff globally. Built + maintained secure APIs. Weekly alignment on features and config. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
 
-            <p>🧳 <strong>Brock Solutions — Baggage Carousel Visualization</strong><br>
-            Connected AA baggage scan/location data to Brock's visualization systems — <strong>second-by-second updates</strong> for airport staff globally. Built + maintained secure APIs. Weekly alignment on features and config. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
-
-            <p>🌐 <strong>Siemens — Networking Real-Time Feeds</strong><br>
-            Collaborated on port upgrades, firewall enhancements, NAT/PAT reconfigurations. Led end-to-end testing of real-time data feeds under high traffic. Weekly health checks and upgrade coordination. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
-          </div>
+          <p>🌐 <strong>Siemens — Networking Real-Time Feeds</strong><br>
+          Collaborated on port upgrades, firewall enhancements, NAT/PAT reconfigurations. Led end-to-end testing of real-time data feeds under high traffic. Weekly health checks and upgrade coordination. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
         </div>
       </div>
     </div>
-  </div><!-- /American Airlines -->
+  </div><!-- /detail-aa -->
 
   <!-- ── CITIBANK ── -->
-  <div class="pt-entry fade-in-up">
-    <div class="pt-card">
-      <div class="pt-card-header"
-           data-bs-toggle="collapse"
-           data-bs-target="#collapseCiti"
-           aria-expanded="false"
-           aria-controls="collapseCiti"
-           role="button">
-        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank" class="pt-company-logo" style="width:72px;height:72px;max-width:72px;object-fit:contain">
-        <div class="pt-company-info">
-          <h3>Citibank</h3>
-          <p class="pt-company-role">DevOps / Data Engineer</p>
+  <div class="pt-detail-content" id="detail-citi">
+    <div class="pt-detail-card">
+      <div class="pt-detail-header">
+        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank" class="pt-detail-logo">
+        <div class="pt-detail-info">
+          <h2>Citibank</h2>
+          <p class="pt-detail-role">DevOps / Data Engineer</p>
         </div>
-        <i class="fas fa-chevron-down pt-chevron"></i>
       </div>
+      <div class="pt-detail-body">
+        <span class="pt-badge"><i class="fas fa-university me-1"></i> Data Management</span>
 
-      <div id="collapseCiti" class="collapse">
-        <div class="pt-card-body">
-          <span class="pt-badge"><i class="fas fa-university me-1"></i> Data Management</span>
+        <div style="font-size:.83rem;line-height:1.65;margin-top:.5rem">
+          <p>⚡ <strong>Big Data Pipelines</strong><br>
+          ETL optimization with Azure Databricks, PySpark, and Java — <strong>30% faster ingestion</strong> across large-scale financial datasets. Azure Data Lake + Hadoop (HDFS, Hive, Kafka) + SQL for high-performance transformation under compliance requirements. Azure-based pipelines supporting in-house API integrations for end-user analytics.</p>
 
-          <div style="font-size:.83rem;line-height:1.65;margin-top:.5rem">
-            <p>⚡ <strong>Big Data Pipelines</strong><br>
-            ETL optimization with Azure Databricks, PySpark, and Java — <strong>30% faster ingestion</strong> across large-scale financial datasets. Azure Data Lake + Hadoop (HDFS, Hive, Kafka) + SQL for high-performance transformation under compliance requirements. Azure-based pipelines supporting in-house API integrations for end-user analytics.</p>
+          <p>🛠️ <strong>DevOps &amp; IaC</strong><br>
+          CI/CD with Azure DevOps, Jenkins, Kubernetes — consistent delivery across Big Data apps. Terraform + ARM for automated environment provisioning. Maven, SonarQube, GitBash as automated code quality gates — <strong>25% fewer deployment errors.</strong></p>
 
-            <p>🛠️ <strong>DevOps &amp; IaC</strong><br>
-            CI/CD with Azure DevOps, Jenkins, Kubernetes — consistent delivery across Big Data apps. Terraform + ARM for automated environment provisioning. Maven, SonarQube, GitBash as automated code quality gates — <strong>25% fewer deployment errors.</strong></p>
+          <p>📦 <strong>Containerization &amp; Automation</strong><br>
+          Java analytics apps deployed via Docker + Kubernetes — scalable, environment-consistent. Python/Bash scripts for recurring ETL tasks and monitoring — <strong>20% reduction in processing time.</strong></p>
 
-            <p>📦 <strong>Containerization &amp; Automation</strong><br>
-            Java analytics apps deployed via Docker + Kubernetes — scalable, environment-consistent. Python/Bash scripts for recurring ETL tasks and monitoring — <strong>20% reduction in processing time.</strong></p>
-
-            <p>📈 <strong>Impact:</strong> Secure, compliant financial data processing at scale. Agile delivery across multi-functional teams for mission-critical analytics. <small><a href="{% url 'project_pages' %}?open=collapseTechCiti">→ Technical Showcase</a></small></p>
-          </div>
+          <p>📈 <strong>Impact:</strong> Secure, compliant financial data processing at scale. Agile delivery across multi-functional teams for mission-critical analytics. <small><a href="{% url 'project_pages' %}?open=collapseTechCiti">→ Technical Showcase</a></small></p>
         </div>
       </div>
     </div>
-  </div><!-- /Citibank -->
+  </div><!-- /detail-citi -->
+
+  <!-- ── BARVIN ── -->
+  <div class="pt-detail-content" id="detail-barvin">
+    <div class="pt-detail-card">
+      <div class="pt-detail-header">
+        <img src="{% static 'css/img/barvin_logo.png' %}" alt="Barvin" class="pt-detail-logo">
+        <div class="pt-detail-info">
+          <h2>Barvin</h2>
+          <p class="pt-detail-role">Property Manager</p>
+        </div>
+      </div>
+      <div class="pt-detail-body">
+        <span class="pt-badge pt-badge--green"><i class="fas fa-building me-1"></i> Property Management</span>
+
+        <div style="font-size:.83rem;line-height:1.65;margin-top:.6rem">
+          <p>📊 <strong>Data &amp; Reporting:</strong> Excel-based operational reports tracking occupancy, maintenance, and financial performance. SQL used to extract and analyze budget variances — <strong>data-driven decisions, not gut feel.</strong></p>
+
+          <p>⚙️ <strong>Process Automation:</strong> Scripted workflows for rent reminders and maintenance tracking — improved response times, reduced manual follow-up. Standardized data integration across PM systems into central databases for consistent insights.</p>
+
+          <p>🤝 <strong>Stakeholder Management:</strong> Tenant communications managed via integrated systems — high satisfaction, prompt resolution.</p>
+
+          <p><small>🔧 See the tech stack in the <a href="{% url 'project_pages' %}">Technical Showcase</a>.</small></p>
+        </div>
+      </div>
+    </div>
+  </div><!-- /detail-barvin -->
 
   <!-- ── CODE NINJAS ── -->
-  <div class="pt-entry fade-in-up">
-    <div class="pt-card">
-      <div class="pt-card-header"
-           data-bs-toggle="collapse"
-           data-bs-target="#collapseCodeNinjas"
-           aria-expanded="false"
-           aria-controls="collapseCodeNinjas"
-           role="button">
-        <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas" class="pt-company-logo" style="width:72px;height:72px;max-width:72px;object-fit:contain">
-        <div class="pt-company-info">
-          <h3>Code Ninjas</h3>
-          <p class="pt-company-role">DevOps Director</p>
+  <div class="pt-detail-content" id="detail-codeninjas">
+    <div class="pt-detail-card">
+      <div class="pt-detail-header">
+        <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas" class="pt-detail-logo">
+        <div class="pt-detail-info">
+          <h2>Code Ninjas</h2>
+          <p class="pt-detail-role">DevOps Director</p>
         </div>
-        <i class="fas fa-chevron-down pt-chevron"></i>
       </div>
+      <div class="pt-detail-body">
+        <span class="pt-badge pt-badge--violet"><i class="fas fa-chart-line me-1"></i> Business Analytics / Business Development</span>
 
-      <div id="collapseCodeNinjas" class="collapse">
-        <div class="pt-card-body">
-          <span class="pt-badge pt-badge--violet"><i class="fas fa-chart-line me-1"></i> Business Analytics / Business Development</span>
-
-          <div style="font-size:.83rem;line-height:1.65;margin-top:.5rem">
-            <p>📋 <strong>Agile Project Management:</strong> Streamlined cross-team workflows using Azure Boards — stakeholder alignment, improved timelines, client feedback loops integrated directly into delivery cycles.</p>
-            <p>💼 <strong>Data-Driven Business Development:</strong> Used analytics to manage and grow <strong>$300k+ in data services</strong> — refined acquisition strategies to expand market reach.</p>
-            <p><small>🔧 See the supporting tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechCodeNinjas">Technical Showcase</a>.</small></p>
-          </div>
+        <div style="font-size:.83rem;line-height:1.65;margin-top:.5rem">
+          <p>📋 <strong>Agile Project Management:</strong> Streamlined cross-team workflows using Azure Boards — stakeholder alignment, improved timelines, client feedback loops integrated directly into delivery cycles.</p>
+          <p>💼 <strong>Data-Driven Business Development:</strong> Used analytics to manage and grow <strong>$300k+ in data services</strong> — refined acquisition strategies to expand market reach.</p>
+          <p><small>🔧 See the supporting tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechCodeNinjas">Technical Showcase</a>.</small></p>
         </div>
       </div>
     </div>
-  </div><!-- /Code Ninjas -->
+  </div><!-- /detail-codeninjas -->
 
-</div><!-- /pt-timeline -->
+</div><!-- /pt-detail -->
 
 {% endblock content %}
 
 {% block extra_js %}
 {{ block.super }}
 <script>
-/* Sync Bootstrap collapse aria-expanded → chevron rotation */
-document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(btn){
-  var target = document.querySelector(btn.dataset.bsTarget);
-  if(!target) return;
-  target.addEventListener('show.bs.collapse', function(){
-    btn.setAttribute('aria-expanded','true');
-  });
-  target.addEventListener('hide.bs.collapse', function(){
-    btn.setAttribute('aria-expanded','false');
-  });
-});
+(function () {
+  var tabs = document.querySelectorAll('.pt-tab-card');
+  var panels = document.querySelectorAll('.pt-detail-content');
 
-/* Fade-in-up on scroll */
-(function(){
-  var obs = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){if(e.isIntersecting) e.target.classList.add('visible')});
-  },{threshold:.08});
-  document.querySelectorAll('.fade-in-up').forEach(function(el){obs.observe(el)});
-})();
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var company = this.dataset.company;
+
+      // Update active tab
+      tabs.forEach(function (t) { t.classList.remove('active'); });
+      this.classList.add('active');
+
+      // Show matching detail panel
+      panels.forEach(function (p) { p.classList.remove('active'); });
+      var target = document.getElementById('detail-' + company);
+      if (target) {
+        target.classList.add('active');
+        target.style.animation = 'none';
+        void target.offsetHeight;
+        target.style.animation = 'fadeUp .35s ease both';
+
+        // Scroll panel into view smoothly
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  /* Sync Bootstrap collapse aria-expanded → chevron rotation */
+  document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function (btn) {
+    var target = document.querySelector(btn.dataset.bsTarget);
+    if (!target) return;
+    target.addEventListener('show.bs.collapse', function () {
+      btn.setAttribute('aria-expanded', 'true');
+    });
+    target.addEventListener('hide.bs.collapse', function () {
+      btn.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  /* Fade-in-up on scroll */
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: .08 });
+  document.querySelectorAll('.fade-in-up').forEach(function (el) { obs.observe(el); });
+}());
 </script>
 {% endblock %}

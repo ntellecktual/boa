@@ -37,7 +37,7 @@
     <!-- ── Sidebar Navigation ── -->
     <aside class="sidebar" id="mainSidebar">
       <div class="sidebar-header">
-        <a href="{% url 'login' %}" class="sidebar-brand">
+        <a href="{% url 'home' %}" class="sidebar-brand">
           <img src="{% static 'logo.png' %}" alt="Logo" class="sidebar-logo" />
           <span class="sidebar-brand-text">thenumerix</span>
         </a>
@@ -47,7 +47,7 @@
       </div>
 
       <nav class="sidebar-nav">
-        <a href="{% url 'login' %}" class="sidebar-link">
+        <a href="{% url 'home' %}" class="sidebar-link">
           <i class="fas fa-home"></i>
           <span class="sidebar-text">Home</span>
         </a>
@@ -137,7 +137,7 @@
       <button class="mobile-hamburger" id="mobileToggle" type="button" aria-label="Open menu">
         <i class="fas fa-bars"></i>
       </button>
-      <a href="{% url 'login' %}" class="mobile-brand">
+      <a href="{% url 'home' %}" class="mobile-brand">
         <img src="{% static 'logo.png' %}" alt="Logo" height="28" />
         <span>thenumerix</span>
       </a>
@@ -146,7 +146,7 @@
     {% else %}
     <!-- Guest: minimal top bar -->
     <header class="guest-topbar">
-      <a href="{% url 'login' %}" class="guest-brand">
+      <a href="{% url 'home' %}" class="guest-brand">
         <img src="{% static 'logo.png' %}" alt="Logo" height="32" />
       </a>
       <button class="sidebar-link" id="theme-toggle-btn" type="button" style="width:auto;padding:0.4rem 0.8rem;border:1px solid var(--border-color);border-radius:var(--radius-sm)">

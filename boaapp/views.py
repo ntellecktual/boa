@@ -215,15 +215,23 @@ def register(request):
             username = form.cleaned_data.get('username')
             login(request, user) # Log the new user in automatically
             messages.success(request, f'Account created for {username}! Welcome to the courses.')
-            return redirect('course_list') # Redirect to the course list page
+            return redirect('home') # Redirect to home dashboard
     else:
         form = CustomUserCreationForm()
     return render(request, 'boaapp/register.html', {'form': form})
 
+def home_view(request):
+    """Authenticated home dashboard, or redirect to login."""
+    if request.user.is_authenticated:
+        return render(request, 'boaapp/home.html')
+    return redirect('login')
+
 def login_view(request):
     """Handle user login using Django's AuthenticationForm."""
+    if request.user.is_authenticated:
+        return redirect('home')
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST) # Pass request to the form
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
@@ -231,23 +239,17 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.info(request, f"Welcome back, {username}.")
-                # Redirect to the intended page or dashboard
-                next_url = request.POST.get('next') # Handle redirection if 'next' parameter exists
+                next_url = request.POST.get('next')
                 if next_url:
                     return redirect(next_url)
-                return redirect('login') # Default redirect
+                return redirect('home')
             else:
-                # This case should ideally not happen if form.is_valid() and authenticate works
-                # but good to handle defensively.
                 messages.error(request, "Authentication failed unexpectedly.")
         else:
-            # Form is invalid (e.g., wrong password, inactive user)
-            # The form itself will contain the error messages.
             messages.error(request, "Invalid username or password.")
-    else: # GET request
+    else:
         form = AuthenticationForm()
 
-    # Pass the form to the template for both GET and failed POST requests
     return render(request, 'boaapp/login.html', {'form': form})
 
 def logout_view(request):

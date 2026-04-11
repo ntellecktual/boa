@@ -14,7 +14,7 @@ urlpatterns = [
     path('login/', boaapp_views.login_view, name='login'),
     path('accounts/login/', boaapp_views.login_view, name='accounts_login'),
     path('logout/', boaapp_views.logout_view, name='logout'),
-    path('', boaapp_views.login_view, name='home'),
+    path('', boaapp_views.home_view, name='home'),
 
     # Dashboard
     path('dashboard/', boaapp_views.dashboard, name='dashboard'),

@@ -1,0 +1,322 @@
+{% extends 'boaapp/base_generic.html' %} {% load static %}
+
+{% block title %}thenumerix | Home{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ══════════════════════════════════════════════════════
+   HOME DASHBOARD — Framer/Spline-inspired layout
+   ══════════════════════════════════════════════════════ */
+:root{
+  --dash-bg:#f4f5f7;
+  --dash-surface:#fff;
+  --dash-border:rgba(0,0,0,.07);
+  --dash-text:#1a1a2e;
+  --dash-muted:#6b7280;
+  --dash-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+  --dash-shadow-lg:0 8px 32px rgba(0,0,0,.10);
+  --dash-radius:14px;
+}
+[data-theme="dark"]{
+  --dash-bg:#0f1117;
+  --dash-surface:#1a1d2e;
+  --dash-border:rgba(255,255,255,.08);
+  --dash-text:#e2e8f0;
+  --dash-muted:#94a3b8;
+  --dash-shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+  --dash-shadow-lg:0 8px 32px rgba(0,0,0,.4);
+}
+@keyframes dashFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+.dash-full{padding:0 clamp(1.2rem,4vw,3rem);box-sizing:border-box}
+
+.dash-hero{
+  text-align:left;padding:2rem 0 .5rem;
+  animation:dashFadeUp .4s ease both;
+  display:flex;align-items:center;gap:1rem;
+}
+.dash-hero-logo{height:48px;width:48px;border-radius:14px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0}
+.dash-hero-text h2{font-size:1.35rem;font-weight:800;margin:0;color:var(--dash-text)}
+.dash-hero-text h2 span{font-weight:400;opacity:.6}
+.dash-hero-text p{font-size:.78rem;color:var(--dash-muted);margin:0}
+
+.dash-section{margin-bottom:1.8rem;animation:dashFadeUp .4s ease both}
+.dash-section:nth-child(2){animation-delay:.05s}
+.dash-section:nth-child(3){animation-delay:.1s}
+.dash-section-hd{display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:1px solid var(--dash-border)}
+.dash-section-lbl{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dash-muted);white-space:nowrap}
+.dash-section-count{font-size:.65rem;color:var(--dash-muted);opacity:.5}
+
+.profile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+@media(max-width:768px){.profile-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.profile-grid{grid-template-columns:1fr}}
+
+.profile-card{display:flex;align-items:center;gap:.75rem;padding:.9rem 1rem;border-radius:var(--dash-radius);border:1px solid var(--dash-border);background:var(--dash-surface);box-shadow:var(--dash-shadow);text-decoration:none;color:var(--dash-text);transition:transform .2s,box-shadow .2s}
+.profile-card:hover{transform:translateY(-2px);box-shadow:var(--dash-shadow-lg);color:var(--dash-text);text-decoration:none}
+.profile-card .p-icon{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;color:#fff}
+.profile-card .p-text{min-width:0}
+.profile-card .p-title{font-size:.82rem;font-weight:700;margin:0;line-height:1.25}
+.profile-card .p-sub{font-size:.68rem;color:var(--dash-muted);margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.demo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+@media(max-width:1024px){.demo-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.demo-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.demo-grid{grid-template-columns:1fr}}
+
+.demo-card{display:flex;flex-direction:column;border-radius:var(--dash-radius);border:1px solid var(--dash-border);background:var(--dash-surface);box-shadow:var(--dash-shadow);text-decoration:none;color:var(--dash-text);overflow:hidden;transition:transform .2s,box-shadow .2s}
+.demo-card:hover{transform:translateY(-3px);box-shadow:var(--dash-shadow-lg);color:var(--dash-text);text-decoration:none}
+.demo-card .demo-thumb{height:110px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.demo-card .demo-thumb .demo-bg-icon{font-size:2.2rem;color:rgba(255,255,255,.85);z-index:1}
+.demo-card .demo-thumb img{position:absolute;bottom:10px;right:12px;height:28px;width:auto;max-width:90px;object-fit:contain;opacity:.9;z-index:1;filter:drop-shadow(0 1px 4px rgba(0,0,0,.2))}
+.demo-card .demo-body{padding:.75rem .85rem .85rem}
+.demo-card .demo-title{font-size:.82rem;font-weight:700;margin:0 0 .15rem;display:flex;align-items:center;gap:.35rem}
+.demo-card .demo-sub{font-size:.68rem;color:var(--dash-muted);margin:0}
+.dash-badge{display:inline-block;padding:.1rem .4rem;border-radius:5px;font-size:.55rem;font-weight:700}
+.dash-badge--live{background:#fef3c7;color:#92400e}
+.dash-badge--new{background:#d1fae5;color:#065f46}
+[data-theme="dark"] .dash-badge--live{background:rgba(245,158,11,.15);color:#fbbf24}
+[data-theme="dark"] .dash-badge--new{background:rgba(16,185,129,.15);color:#34d399}
+
+.learn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+@media(max-width:768px){.learn-grid{grid-template-columns:repeat(2,1fr)}}
+
+.dash-panel{border-radius:var(--dash-radius);border:1px solid var(--dash-border);background:var(--dash-surface);box-shadow:var(--dash-shadow-lg);margin-bottom:1.5rem}
+.dash-panel-header{display:flex;align-items:center;gap:.8rem;padding:.8rem 1rem;border-bottom:1px solid var(--dash-border);position:sticky;top:0;background:var(--dash-surface);border-radius:var(--dash-radius) var(--dash-radius) 0 0;z-index:10}
+.dash-panel-back{display:flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:700;padding:.3rem .65rem;border-radius:8px;border:1px solid var(--dash-border);background:transparent;cursor:pointer;transition:background .2s;color:inherit}
+.dash-panel-back:hover{background:rgba(59,130,246,.07)}
+.dash-panel-title{font-weight:800;font-size:.88rem;flex:1}
+.dash-panel-ext{opacity:.4;font-size:.8rem;transition:opacity .2s}
+.dash-panel-ext:hover{opacity:1}
+.dash-panel-body{padding:0}
+.dash-panel-loading{text-align:center;padding:2.5rem;opacity:.5;font-size:.85rem}
+</style>
+{% endblock %}
+
+{% block container_class %}{% endblock %}
+
+{% block content %}
+
+<div class="dash-full" id="homeNavGrid">
+
+  <div class="dash-hero">
+    <img src="{% static 'logo.png' %}" alt="thenumerix" class="dash-hero-logo" />
+    <div class="dash-hero-text">
+      <h2>Welcome back, <span>{{ user.username }}</span></h2>
+      <p>Portfolio · Education · Technical Work · AI Apps</p>
+    </div>
+  </div>
+
+  <!-- ── PROFILE ── -->
+  <div class="dash-section">
+    <div class="dash-section-hd">
+      <span class="dash-section-lbl"><i class="fas fa-user-circle"></i>&nbsp; Profile</span>
+    </div>
+    <div class="profile-grid">
+      <a href="{% url 'portfolio_showcase' %}" class="profile-card home-panel-trigger"
+         data-panel-url="{% url 'portfolio_showcase' %}" data-panel-title="Portfolio">
+        <div class="p-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)"><i class="fas fa-briefcase"></i></div>
+        <div class="p-text"><p class="p-title">Portfolio</p><p class="p-sub">Work history &amp; enterprise projects</p></div>
+      </a>
+      <a href="{% url 'education_details' %}" class="profile-card home-panel-trigger"
+         data-panel-url="{% url 'education_details' %}" data-panel-title="Education">
+        <div class="p-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><i class="fas fa-graduation-cap"></i></div>
+        <div class="p-text"><p class="p-title">Education</p><p class="p-sub">Degrees, certifications &amp; courses</p></div>
+      </a>
+      <a href="{% url 'project_pages' %}" class="profile-card home-panel-trigger"
+         data-panel-url="{% url 'project_pages' %}" data-panel-title="Technical">
+        <div class="p-icon" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><i class="fas fa-code"></i></div>
+        <div class="p-text"><p class="p-title">Technical</p><p class="p-sub">Projects, notebooks &amp; demos</p></div>
+      </a>
+      <a href="{% url 'companyandme' %}" class="profile-card home-panel-trigger"
+         data-panel-url="{% url 'companyandme' %}" data-panel-title="Industry Engineering">
+        <div class="p-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><i class="fas fa-industry"></i></div>
+        <div class="p-text"><p class="p-title">Industry Engineering</p><p class="p-sub">Enterprise solutions by domain</p></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── LIVE DEMOS & PROJECTS ── -->
+  <div class="dash-section">
+    <div class="dash-section-hd">
+      <span class="dash-section-lbl"><i class="fas fa-flask"></i>&nbsp; Live Demos &amp; Projects</span>
+      <span class="dash-section-count">8 projects</span>
+    </div>
+    <div class="demo-grid">
+      <a href="{% url 'process_flows' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          <i class="fas fa-arrows-spin demo-bg-icon"></i>
+          <img src="{% static 'css/img/oracle.png' %}" alt="Oracle">
+        </div>
+        <div class="demo-body"><p class="demo-title">AI Process Flows <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Finance &amp; Accounting automation with AI</p></div>
+      </a>
+      <a href="{% url 'uploadit' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-cloud-upload-alt demo-bg-icon"></i></div>
+        <div class="demo-body"><p class="demo-title">UploadIt! <span class="dash-badge dash-badge--new">New</span></p><p class="demo-sub">Upload and manage course content</p></div>
+      </a>
+      <a href="{% url 'etl_pipeline' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+          <i class="fas fa-database demo-bg-icon"></i>
+          <img src="{% static 'css/img/nfl.png' %}" alt="NFL">
+        </div>
+        <div class="demo-body"><p class="demo-title">ETL Pipeline <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Fantasy football draft pipeline &amp; analytics</p></div>
+      </a>
+      <a href="{% url 'mlops_lifecycle' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+          <i class="fas fa-brain demo-bg-icon"></i>
+          <img src="{% static 'css/img/mlb.png' %}" alt="MLB">
+        </div>
+        <div class="demo-body"><p class="demo-title">MLOps Lifecycle <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Model training, registry &amp; deployment</p></div>
+      </a>
+      <a href="{% url 'etl_pipeline' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#475569,#1e293b)"><i class="fas fa-infinity demo-bg-icon"></i></div>
+        <div class="demo-body"><p class="demo-title">CI/CD Automation <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Deployment pipelines &amp; Infrastructure as Code</p></div>
+      </a>
+      <a href="{% url 'streaming_architecture' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
+          <i class="fas fa-bolt demo-bg-icon"></i>
+          <img src="{% static 'css/img/netlfix.png' %}" alt="Netflix">
+        </div>
+        <div class="demo-body"><p class="demo-title">Streaming Architecture <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Real-time event processing &amp; Kafka</p></div>
+      </a>
+      <a href="{% url 'api_orchestration' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#6366f1,#4338ca)"><i class="fas fa-project-diagram demo-bg-icon"></i></div>
+        <div class="demo-body"><p class="demo-title">API Orchestration <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Gateway, sagas &amp; circuit breakers</p></div>
+      </a>
+      <a href="{% url 'idp_demo' %}" class="demo-card">
+        <div class="demo-thumb" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><i class="fas fa-file-alt demo-bg-icon"></i></div>
+        <div class="demo-body"><p class="demo-title">Document Processing <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">AI-powered OCR, extraction &amp; validation</p></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── LEARNING ── -->
+  <div class="dash-section">
+    <div class="dash-section-hd">
+      <span class="dash-section-lbl"><i class="fas fa-book-open"></i>&nbsp; Learning</span>
+    </div>
+    <div class="learn-grid">
+      <a href="{% url 'course_list' %}" class="profile-card">
+        <div class="p-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><i class="fas fa-book-open"></i></div>
+        <div class="p-text"><p class="p-title">Courses</p><p class="p-sub">Browse available learning content</p></div>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- In-page content panel -->
+<div class="dash-full">
+  <div class="dash-panel" id="homeSectionPanel" style="display:none;">
+    <div class="dash-panel-header">
+      <button class="dash-panel-back" id="homePanelBack" type="button"><i class="fas fa-arrow-left"></i> Back</button>
+      <span class="dash-panel-title" id="homePanelTitle"></span>
+      <a class="dash-panel-ext" id="homePanelOpenLink" href="#" target="_blank" title="Open full page"><i class="fas fa-external-link-alt"></i></a>
+    </div>
+    <div class="dash-panel-body" id="homePanelBody"></div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}{{ block.super }}
+<script>
+(function () {
+    var grid       = document.getElementById('homeNavGrid');
+    var panel      = document.getElementById('homeSectionPanel');
+    var panelBody  = document.getElementById('homePanelBody');
+    var panelTitle = document.getElementById('homePanelTitle');
+    var openLink   = document.getElementById('homePanelOpenLink');
+    var backBtn    = document.getElementById('homePanelBack');
+    var cache      = {};
+    var isOpen     = false;
+    var DUR        = 240;
+
+    function css(el, props) { Object.assign(el.style, props); }
+    function reflow(el) { void el.offsetHeight; }
+
+    function fadeOut(el, toY, cb) {
+        css(el, { transition: 'opacity ' + DUR + 'ms ease, transform ' + DUR + 'ms ease' });
+        css(el, { opacity: '0', transform: 'translateY(' + toY + 'px)' });
+        setTimeout(cb, DUR);
+    }
+
+    function fadeIn(el, fromY) {
+        css(el, { transition: 'none', opacity: '0', transform: 'translateY(' + fromY + 'px)' });
+        reflow(el);
+        css(el, {
+            transition: 'opacity ' + DUR + 'ms ease, transform ' + DUR + 'ms ease',
+            opacity: '1',
+            transform: 'translateY(0)'
+        });
+    }
+
+    function loadPanel(url, title) {
+        if (isOpen) return;
+        isOpen = true;
+        panelTitle.textContent = title;
+        openLink.href = url;
+        panelBody.innerHTML = '<div class="dash-panel-loading"><i class="fas fa-spinner fa-spin me-2"></i>Loading\u2026</div>';
+
+        fadeOut(grid, -16, function () {
+            css(grid, { display: 'none' });
+            css(panel, { display: 'block' });
+            fadeIn(panel, 20);
+        });
+
+        if (cache[url]) {
+            setTimeout(function () { render(cache[url]); }, DUR + 60);
+            return;
+        }
+
+        fetch(url, { credentials: 'same-origin' })
+            .then(function (r) {
+                if (!r.ok) throw new Error(r.status);
+                return r.text();
+            })
+            .then(function (html) {
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var container = doc.querySelector('.main-content .container') || doc.querySelector('.main-content');
+                cache[url] = container
+                    ? container.innerHTML
+                    : '<p class="text-danger mt-3">Content unavailable.</p>';
+                render(cache[url]);
+            })
+            .catch(function () {
+                panelBody.innerHTML = '<p class="text-danger mt-3">Failed to load. <a href="' + url + '">Open directly \u2192</a></p>';
+            });
+    }
+
+    function render(html) {
+        panelBody.innerHTML = html;
+        panelBody.querySelectorAll('.fade-in-up').forEach(function (el) {
+            el.classList.add('visible');
+        });
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closePanel() {
+        if (!isOpen) return;
+        fadeOut(panel, 20, function () {
+            css(panel, { display: 'none' });
+            isOpen = false;
+            grid.style.removeProperty('display');
+            fadeIn(grid, -16);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    document.querySelectorAll('.home-panel-trigger').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            loadPanel(this.dataset.panelUrl, this.dataset.panelTitle);
+        });
+    });
+
+    backBtn.addEventListener('click', closePanel);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && isOpen) closePanel();
+    });
+}());
+</script>
+{% endblock %}
