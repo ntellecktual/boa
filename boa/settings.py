@@ -46,9 +46,13 @@ INSTALLED_APPS = [
     'django_celery_results',
 ]
 
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+] + (['debug_toolbar.middleware.DebugToolbarMiddleware'] if DEBUG else []) + [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -201,6 +205,12 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
+
+# --------------------------------------------------------------------------
+# Django Debug Toolbar (dev only — inactive when DEBUG=False)
+# --------------------------------------------------------------------------
+if DEBUG:
+    INTERNAL_IPS = ['127.0.0.1', '::1']
 
 # --------------------------------------------------------------------------
 # API Keys (optional — features degrade gracefully without them)
