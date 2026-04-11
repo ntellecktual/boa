@@ -37,6 +37,8 @@ services:
           property: port
       - key: USE_LLM
         value: "False"
+      - key: IMAGEMAGICK_BINARY
+        value: "convert"
       - key: CELERY_BROKER_URL
         value: "memory://"
       # Set these manually in the Render dashboard:

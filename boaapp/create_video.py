@@ -2,7 +2,7 @@ import json
 import os
 from decouple import config
 
-os.environ["IMAGEMAGICK_BINARY"] = config('IMAGEMAGICK_BINARY', default='magick')
+os.environ["IMAGEMAGICK_BINARY"] = config('IMAGEMAGICK_BINARY', default='convert')
 import time
 import re
 import logging
