@@ -137,7 +137,7 @@
   <div class="pt-tab-grid">
     <div class="pt-tab-card active" data-company="witherite">
       <img src="{% static 'css/img/witherite_logo.png' %}" alt="Witheritelaw" class="pt-tab-logo">
-      <div class="pt-tab-name">Witheritelaw</div>
+      <div class="pt-tab-name">Witherite Law Group</div>
       <div class="pt-tab-role">Enterprise Architect</div>
     </div>
     <div class="pt-tab-card" data-company="aa">
@@ -174,7 +174,7 @@
       <div class="pt-detail-header">
         <img src="{% static 'css/img/witherite_logo.png' %}" alt="Witheritelaw" class="pt-detail-logo">
         <div class="pt-detail-info">
-          <h2>Witheritelaw</h2>
+          <h2>Witherite Law Group</h2>
           <p class="pt-detail-role">Automation Engineer → Enterprise Application Architect</p>
         </div>
       </div>
@@ -374,37 +374,99 @@
       <div class="pt-detail-body">
         <span class="pt-badge pt-badge--rose"><i class="fas fa-plane me-1"></i> Baggage Technology / Operations Applications</span>
 
-        <div style="font-size:.83rem;line-height:1.65;margin-top:.6rem">
-          <p>🏗️ <strong>Azure DevOps &amp; Infrastructure</strong><br>
-          Designed Dev/Stage/QA/Prod Azure environments for enterprise employee-facing apps. CI/CD via Azure DevOps, Jenkins, Python — <strong>30% faster deployment cycles.</strong> Docker + Kubernetes standardization across all stages — <strong>40% fewer deployment errors, zero-downtime releases.</strong></p>
+        <div class="pt-accordion" id="aaSections">
 
-          <p>⚡ <strong>Real-Time Data at Scale</strong><br>
-          ETL pipelines with Azure Data Factory + Databricks: real-time baggage data for <strong>20,000+ users globally, 25% lower latency.</strong> Kafka + Azure Data Lake + HDFS for streaming ingestion under corporate governance. Azure ML predictive analytics for resource demand forecasting.</p>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseAADevOps"
+                    aria-expanded="false" aria-controls="collapseAADevOps">
+              <span>🏗️</span> Azure DevOps &amp; Infrastructure
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseAADevOps" class="collapse" data-bs-parent="#aaSections">
+              <div class="pt-acc-body">
+                <p>Designed Dev/Stage/QA/Prod Azure environments for enterprise employee-facing apps. CI/CD via Azure DevOps, Jenkins, Python — <strong>30% faster deployment cycles.</strong> Docker + Kubernetes standardization across all stages — <strong>40% fewer deployment errors, zero-downtime releases.</strong></p>
+              </div>
+            </div>
+          </div>
 
-          <p>🔒 <strong>Security Automation</strong><br>
-          Automated vulnerability detection across <strong>60+ repositories</strong> — Coverity, Black Duck, Nucleus — <strong>90% reduction in manual checks.</strong> Python/Bash scripts for ETL orchestration, resource scaling, and deployment automation.</p>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseAAData"
+                    aria-expanded="false" aria-controls="collapseAAData">
+              <span>⚡</span> Real-Time Data at Scale
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseAAData" class="collapse" data-bs-parent="#aaSections">
+              <div class="pt-acc-body">
+                <p>ETL pipelines with Azure Data Factory + Databricks: real-time baggage data for <strong>20,000+ users globally, 25% lower latency.</strong> Kafka + Azure Data Lake + HDFS for streaming ingestion under corporate governance. Azure ML predictive analytics for resource demand forecasting.</p>
+              </div>
+            </div>
+          </div>
 
-          <p>🛠️ <strong>IaC &amp; Architecture</strong><br>
-          Terraform + Azure Resource Manager — <strong>deployment time cut by 82.98%.</strong> High-availability DevOps architecture supporting real-time staff management systems.</p>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseAASecurity"
+                    aria-expanded="false" aria-controls="collapseAASecurity">
+              <span>🔒</span> Security Automation
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseAASecurity" class="collapse" data-bs-parent="#aaSections">
+              <div class="pt-acc-body">
+                <p>Automated vulnerability detection across <strong>60+ repositories</strong> — Coverity, Black Duck, Nucleus — <strong>90% reduction in manual checks.</strong> Python/Bash scripts for ETL orchestration, resource scaling, and deployment automation.</p>
+              </div>
+            </div>
+          </div>
 
-          <p>🤝 <strong>Scale &amp; Collaboration</strong><br>
-          Aligned <strong>7 teams (~60 members each)</strong> on security protocols, deployment strategy, and DevOps best practices. Introduced CI/CD onboarding docs — accelerated adoption team-wide.</p>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseAAIaC"
+                    aria-expanded="false" aria-controls="collapseAAIaC">
+              <span>🛠️</span> IaC &amp; Architecture
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseAAIaC" class="collapse" data-bs-parent="#aaSections">
+              <div class="pt-acc-body">
+                <p>Terraform + Azure Resource Manager — <strong>deployment time cut by 82.98%.</strong> High-availability DevOps architecture supporting real-time staff management systems.</p>
+              </div>
+            </div>
+          </div>
 
-          <p><small>🔧 See the full tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseAACollab"
+                    aria-expanded="false" aria-controls="collapseAACollab">
+              <span>🤝</span> Scale &amp; Collaboration
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseAACollab" class="collapse" data-bs-parent="#aaSections">
+              <div class="pt-acc-body">
+                <p>Aligned <strong>7 teams (~60 members each)</strong> on security protocols, deployment strategy, and DevOps best practices. Introduced CI/CD onboarding docs — accelerated adoption team-wide.</p>
+                <p><small>🔧 See the full tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
+              </div>
+            </div>
+          </div>
 
-          <hr style="opacity:.12;margin:1rem 0">
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseAAClients"
+                    aria-expanded="false" aria-controls="collapseAAClients">
+              <span>✈️</span> Client-Facing Work — FAA, Brock, Siemens
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseAAClients" class="collapse" data-bs-parent="#aaSections">
+              <div class="pt-acc-body">
+                <p>🛬 <strong>FAA — Flight Real-Time Data Mapping</strong><br>
+                Integrated + mapped real-time FAA flight data into gate agent internal apps. Bi-weekly stakeholder sessions to resolve accuracy and mapping issues. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
+                <p>🧳 <strong>Brock Solutions — Baggage Carousel Visualization</strong><br>
+                Connected AA baggage scan/location data to Brock's visualization systems — <strong>second-by-second updates</strong> for airport staff globally. Built + maintained secure APIs. Weekly alignment on features and config. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
+                <p>🌐 <strong>Siemens — Networking Real-Time Feeds</strong><br>
+                Collaborated on port upgrades, firewall enhancements, NAT/PAT reconfigurations. Led end-to-end testing of real-time data feeds under high traffic. Weekly health checks and upgrade coordination. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
+              </div>
+            </div>
+          </div>
 
-          <h5 style="font-size:.85rem;font-weight:800;margin-bottom:.6rem">✈️ Client-Facing Work</h5>
-
-          <p>🛬 <strong>FAA — Flight Real-Time Data Mapping</strong><br>
-          Integrated + mapped real-time FAA flight data into gate agent internal apps. Bi-weekly stakeholder sessions to resolve accuracy and mapping issues. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
-
-          <p>🧳 <strong>Brock Solutions — Baggage Carousel Visualization</strong><br>
-          Connected AA baggage scan/location data to Brock's visualization systems — <strong>second-by-second updates</strong> for airport staff globally. Built + maintained secure APIs. Weekly alignment on features and config. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
-
-          <p>🌐 <strong>Siemens — Networking Real-Time Feeds</strong><br>
-          Collaborated on port upgrades, firewall enhancements, NAT/PAT reconfigurations. Led end-to-end testing of real-time data feeds under high traffic. Weekly health checks and upgrade coordination. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
-        </div>
+        </div><!-- /aaSections -->
       </div>
     </div>
   </div><!-- /detail-aa -->
@@ -422,18 +484,65 @@
       <div class="pt-detail-body">
         <span class="pt-badge"><i class="fas fa-university me-1"></i> Data Management</span>
 
-        <div style="font-size:.83rem;line-height:1.65;margin-top:.5rem">
-          <p>⚡ <strong>Big Data Pipelines</strong><br>
-          ETL optimization with Azure Databricks, PySpark, and Java — <strong>30% faster ingestion</strong> across large-scale financial datasets. Azure Data Lake + Hadoop (HDFS, Hive, Kafka) + SQL for high-performance transformation under compliance requirements. Azure-based pipelines supporting in-house API integrations for end-user analytics.</p>
+        <div class="pt-accordion" id="citiSections">
 
-          <p>🛠️ <strong>DevOps &amp; IaC</strong><br>
-          CI/CD with Azure DevOps, Jenkins, Kubernetes — consistent delivery across Big Data apps. Terraform + ARM for automated environment provisioning. Maven, SonarQube, GitBash as automated code quality gates — <strong>25% fewer deployment errors.</strong></p>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCitiBigData"
+                    aria-expanded="false" aria-controls="collapseCitiBigData">
+              <span>⚡</span> Big Data Pipelines
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseCitiBigData" class="collapse" data-bs-parent="#citiSections">
+              <div class="pt-acc-body">
+                <p>ETL optimization with Azure Databricks, PySpark, and Java — <strong>30% faster ingestion</strong> across large-scale financial datasets. Azure Data Lake + Hadoop (HDFS, Hive, Kafka) + SQL for high-performance transformation under compliance requirements. Azure-based pipelines supporting in-house API integrations for end-user analytics.</p>
+              </div>
+            </div>
+          </div>
 
-          <p>📦 <strong>Containerization &amp; Automation</strong><br>
-          Java analytics apps deployed via Docker + Kubernetes — scalable, environment-consistent. Python/Bash scripts for recurring ETL tasks and monitoring — <strong>20% reduction in processing time.</strong></p>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCitiDevOps"
+                    aria-expanded="false" aria-controls="collapseCitiDevOps">
+              <span>🛠️</span> DevOps &amp; IaC
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseCitiDevOps" class="collapse" data-bs-parent="#citiSections">
+              <div class="pt-acc-body">
+                <p>CI/CD with Azure DevOps, Jenkins, Kubernetes — consistent delivery across Big Data apps. Terraform + ARM for automated environment provisioning. Maven, SonarQube, GitBash as automated code quality gates — <strong>25% fewer deployment errors.</strong></p>
+              </div>
+            </div>
+          </div>
 
-          <p>📈 <strong>Impact:</strong> Secure, compliant financial data processing at scale. Agile delivery across multi-functional teams for mission-critical analytics. <small><a href="{% url 'project_pages' %}?open=collapseTechCiti">→ Technical Showcase</a></small></p>
-        </div>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCitiContainers"
+                    aria-expanded="false" aria-controls="collapseCitiContainers">
+              <span>📦</span> Containerization &amp; Automation
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseCitiContainers" class="collapse" data-bs-parent="#citiSections">
+              <div class="pt-acc-body">
+                <p>Java analytics apps deployed via Docker + Kubernetes — scalable, environment-consistent. Python/Bash scripts for recurring ETL tasks and monitoring — <strong>20% reduction in processing time.</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCitiImpact"
+                    aria-expanded="false" aria-controls="collapseCitiImpact">
+              <span>📈</span> Impact &amp; Scale
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseCitiImpact" class="collapse" data-bs-parent="#citiSections">
+              <div class="pt-acc-body">
+                <p>Secure, compliant financial data processing at scale. Agile delivery across multi-functional teams for mission-critical analytics. <small><a href="{% url 'project_pages' %}?open=collapseTechCiti">→ Technical Showcase</a></small></p>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /citiSections -->
       </div>
     </div>
   </div><!-- /detail-citi -->
@@ -451,15 +560,52 @@
       <div class="pt-detail-body">
         <span class="pt-badge pt-badge--green"><i class="fas fa-building me-1"></i> Property Management</span>
 
-        <div style="font-size:.83rem;line-height:1.65;margin-top:.6rem">
-          <p>📊 <strong>Data &amp; Reporting:</strong> Excel-based operational reports tracking occupancy, maintenance, and financial performance. SQL used to extract and analyze budget variances — <strong>data-driven decisions, not gut feel.</strong></p>
+        <div class="pt-accordion" id="barvinSections">
 
-          <p>⚙️ <strong>Process Automation:</strong> Scripted workflows for rent reminders and maintenance tracking — improved response times, reduced manual follow-up. Standardized data integration across PM systems into central databases for consistent insights.</p>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseBarvinData"
+                    aria-expanded="false" aria-controls="collapseBarvinData">
+              <span>📊</span> Data &amp; Reporting
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseBarvinData" class="collapse" data-bs-parent="#barvinSections">
+              <div class="pt-acc-body">
+                <p>Excel-based operational reports tracking occupancy, maintenance, and financial performance. SQL used to extract and analyze budget variances — <strong>data-driven decisions, not gut feel.</strong></p>
+              </div>
+            </div>
+          </div>
 
-          <p>🤝 <strong>Stakeholder Management:</strong> Tenant communications managed via integrated systems — high satisfaction, prompt resolution.</p>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseBarvinAuto"
+                    aria-expanded="false" aria-controls="collapseBarvinAuto">
+              <span>⚙️</span> Process Automation
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseBarvinAuto" class="collapse" data-bs-parent="#barvinSections">
+              <div class="pt-acc-body">
+                <p>Scripted workflows for rent reminders and maintenance tracking — improved response times, reduced manual follow-up. Standardized data integration across PM systems into central databases for consistent insights.</p>
+              </div>
+            </div>
+          </div>
 
-          <p><small>🔧 See the tech stack in the <a href="{% url 'project_pages' %}">Technical Showcase</a>.</small></p>
-        </div>
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseBarvinStakeholders"
+                    aria-expanded="false" aria-controls="collapseBarvinStakeholders">
+              <span>🤝</span> Stakeholder Management
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseBarvinStakeholders" class="collapse" data-bs-parent="#barvinSections">
+              <div class="pt-acc-body">
+                <p>Tenant communications managed via integrated systems — high satisfaction, prompt resolution.</p>
+                <p><small>🔧 See the tech stack in the <a href="{% url 'project_pages' %}">Technical Showcase</a>.</small></p>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /barvinSections -->
       </div>
     </div>
   </div><!-- /detail-barvin -->
@@ -477,11 +623,38 @@
       <div class="pt-detail-body">
         <span class="pt-badge pt-badge--violet"><i class="fas fa-chart-line me-1"></i> Business Analytics / Business Development</span>
 
-        <div style="font-size:.83rem;line-height:1.65;margin-top:.5rem">
-          <p>📋 <strong>Agile Project Management:</strong> Streamlined cross-team workflows using Azure Boards — stakeholder alignment, improved timelines, client feedback loops integrated directly into delivery cycles.</p>
-          <p>💼 <strong>Data-Driven Business Development:</strong> Used analytics to manage and grow <strong>$300k+ in data services</strong> — refined acquisition strategies to expand market reach.</p>
-          <p><small>🔧 See the supporting tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechCodeNinjas">Technical Showcase</a>.</small></p>
-        </div>
+        <div class="pt-accordion" id="codeninjasSections">
+
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCodeNinjasAgile"
+                    aria-expanded="false" aria-controls="collapseCodeNinjasAgile">
+              <span>📋</span> Agile Project Management
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseCodeNinjasAgile" class="collapse" data-bs-parent="#codeninjasSections">
+              <div class="pt-acc-body">
+                <p>Streamlined cross-team workflows using Azure Boards — stakeholder alignment, improved timelines, client feedback loops integrated directly into delivery cycles.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCodeNinjasBizDev"
+                    aria-expanded="false" aria-controls="collapseCodeNinjasBizDev">
+              <span>💼</span> Data-Driven Business Development
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseCodeNinjasBizDev" class="collapse" data-bs-parent="#codeninjasSections">
+              <div class="pt-acc-body">
+                <p>Used analytics to manage and grow <strong>$300k+ in data services</strong> — refined acquisition strategies to expand market reach.</p>
+                <p><small>🔧 See the supporting tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechCodeNinjas">Technical Showcase</a>.</small></p>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /codeninjasSections -->
       </div>
     </div>
   </div><!-- /detail-codeninjas -->
