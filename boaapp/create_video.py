@@ -2,17 +2,25 @@ import json
 import os
 from decouple import config
 
-os.environ["IMAGEMAGICK_BINARY"] = config('IMAGEMAGICK_BINARY', default='convert')
+os.environ["IMAGEMAGICK_BINARY"] = config('IMAGEMAGICK_BINARY', default='/usr/bin/convert')
 import time
 import re
 import logging
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from moviepy.editor import (
-    AudioFileClip, ColorClip, CompositeVideoClip,
-    ImageClip, TextClip, VideoFileClip
-)
 from PIL import Image
+
+# Lazy-import moviepy so a missing ImageMagick binary doesn't crash app startup.
+# Video creation will fail at call time with a clear error, not at import time.
+try:
+    from moviepy.editor import (
+        AudioFileClip, ColorClip, CompositeVideoClip,
+        ImageClip, TextClip, VideoFileClip
+    )
+    MOVIEPY_AVAILABLE = True
+except (OSError, IOError) as e:
+    logging.getLogger(__name__).warning("moviepy unavailable: %s — video creation disabled.", e)
+    MOVIEPY_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -392,6 +400,8 @@ def _render_output_inline(output_text, frame_width, pad_x, start_y, frame_img):
 def create_video_parallel(section, audio_file, output_file, logo_path, background_path, text_sync_file,
                           font_styles, notebook_title=None):
     """Creates a video segment with text overlays synchronized approximately."""
+    if not MOVIEPY_AVAILABLE:
+        raise RuntimeError("moviepy / ImageMagick not available on this server. Video creation is disabled.")
     # --- Unpack section tuple (now includes block_type) ---
     if len(section) == 3:
         title, content, block_type = section
