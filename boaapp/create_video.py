@@ -1,9 +1,12 @@
 import json
 import os
-os.environ["IMAGEMAGICK_BINARY"] = "C:\\Users\\Kieth\\ImageMagick-7.1.1-Q16-HDRI\\magick.exe"
+from decouple import config
+
+os.environ["IMAGEMAGICK_BINARY"] = config('IMAGEMAGICK_BINARY', default='magick')
 import time
 import re
 import logging
+import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from moviepy.editor import (
     AudioFileClip, ColorClip, CompositeVideoClip,
@@ -24,8 +27,367 @@ def split_into_sentences(text):
 def clean_header_hashes(text):
     """Removes leading #, ##, ### and subsequent space from text."""
     if not text: return ""
-    # Remove 1 to 3 '#' characters at the start, followed by optional space
     return re.sub(r'^#{1,3}\s*', '', text).strip()
+
+
+def render_code_panel_image(code_text, target_size=(1080, 1920)):
+    """
+    Renders code as a VS Code-style dark panel on a transparent full-frame RGBA image.
+    Returns a PIL Image suitable for conversion to a MoviePy ImageClip via numpy.
+    """
+    from PIL import Image as PILImage, ImageDraw, ImageFont as PILFont
+
+    W, H = target_size
+    img = PILImage.new('RGBA', (W, H), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+
+    pad_x = 45
+    panel_top = 175
+    panel_right = W - pad_x
+    panel_width = panel_right - pad_x
+    header_h = 46
+    font_size = 27
+    lnum_size = 23
+
+    # Try to load a system monospace font; fall back gracefully
+    font_candidates = [
+        r"C:\Windows\Fonts\courbd.ttf",
+        r"C:\Windows\Fonts\cour.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+    ]
+    code_font = lnum_font = None
+    for fp in font_candidates:
+        try:
+            code_font = PILFont.truetype(fp, font_size)
+            lnum_font = PILFont.truetype(fp, lnum_size)
+            break
+        except (IOError, OSError):
+            continue
+    if code_font is None:
+        code_font = lnum_font = PILFont.load_default()
+
+    try:
+        header_font = PILFont.truetype(r"C:\Windows\Fonts\arialbd.ttf", 22)
+    except (IOError, OSError):
+        header_font = lnum_font
+
+    # Prepare lines: expand tabs, truncate long lines
+    max_chars = 48
+    raw_lines = code_text.replace('\t', '    ').split('\n')
+    display_lines = []
+    for raw in raw_lines:
+        display_lines.append(raw[:max_chars - 1] + '\u2026' if len(raw) > max_chars else raw)
+
+    line_height = font_size + 12
+    max_visible = (H - panel_top - header_h - 40) // line_height
+    visible_lines = display_lines[:max_visible]
+    truncated = len(display_lines) > max_visible
+
+    panel_height = min(len(visible_lines) * line_height + header_h + 24, H - panel_top - 30)
+
+    # Panel background (#1E1E1E — VS Code dark)
+    draw.rounded_rectangle(
+        [pad_x, panel_top, panel_right, panel_top + panel_height],
+        radius=14, fill=(30, 30, 30, 248)
+    )
+    # Header bar (#2D2D2D)
+    draw.rounded_rectangle(
+        [pad_x, panel_top, panel_right, panel_top + header_h],
+        radius=14, fill=(45, 45, 45, 255)
+    )
+    # Flatten header bottom corners
+    draw.rectangle(
+        [pad_x, panel_top + header_h // 2, panel_right, panel_top + header_h],
+        fill=(45, 45, 45, 255)
+    )
+
+    # macOS traffic-light dots
+    for i, col in enumerate([(255, 95, 86), (255, 189, 46), (39, 201, 63)]):
+        cx = pad_x + 18 + i * 26
+        cy = panel_top + header_h // 2
+        r = 7
+        draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
+
+    # Header filename label
+    draw.text(
+        (pad_x + panel_width // 2, panel_top + header_h // 2),
+        "script.py", fill=(160, 160, 160), font=header_font, anchor="mm"
+    )
+
+    # Line number gutter
+    lnum_col_w = 52
+    sep_x = pad_x + lnum_col_w + 6
+    draw.line([(sep_x, panel_top + header_h), (sep_x, panel_top + panel_height)],
+              fill=(55, 55, 55), width=1)
+
+    code_x = sep_x + 12
+    for i, line in enumerate(visible_lines):
+        y = panel_top + header_h + 10 + i * line_height
+        if y + line_height > panel_top + panel_height:
+            break
+        draw.text(
+            (sep_x - 8, y + (font_size - lnum_size) // 2),
+            str(i + 1), fill=(80, 80, 80), font=lnum_font, anchor="ra"
+        )
+        draw.text((code_x, y), line, fill=(212, 212, 212), font=code_font)
+
+    if truncated:
+        extra = len(display_lines) - max_visible
+        draw.text(
+            (pad_x + panel_width // 2, panel_top + panel_height - 22),
+            f"\u2026 {extra} more line{'s' if extra != 1 else ''}",
+            fill=(100, 100, 100), font=lnum_font, anchor="mm"
+        )
+
+    return img
+
+
+def _parse_section_sub_blocks(content):
+    """
+    Parses combined section content into a list of sub-blocks.
+    Detects fenced code blocks (```python ... ```), output blocks (>>>output...<<<),
+    and plain text.
+    Returns list of dicts: [{'type': 'code'|'text'|'output', 'content': str, 'weight': int}]
+    """
+    blocks = []
+    # Split on fenced code blocks and output blocks, keeping delimiters
+    parts = re.split(
+        r'(```(?:python)?\s*\n.*?\n```|>>>output\n.*?\n<<<)',
+        content, flags=re.DOTALL
+    )
+
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+
+        # Check if this part is a fenced code block
+        code_match = re.match(r'^```(?:python)?\s*\n(.*?)\n```$', part, re.DOTALL)
+        if code_match:
+            code = code_match.group(1).strip()
+            if code:
+                blocks.append({
+                    'type': 'code',
+                    'content': code,
+                    'weight': max(2, len(code.split('\n'))),
+                })
+            continue
+
+        # Check if this part is an output block
+        output_match = re.match(r'^>>>output\n(.*?)\n<<<$', part, re.DOTALL)
+        if output_match:
+            output = output_match.group(1).strip()
+            if output:
+                blocks.append({
+                    'type': 'output',
+                    'content': output,
+                    'weight': max(1, len(output.split('\n'))),
+                })
+            continue
+
+        # Plain text
+        cleaned = re.sub(r'\n?-{3,}\n?', '\n', part).strip()
+        cleaned = re.sub(r'^#{1,6}\s*', '', cleaned, flags=re.MULTILINE).strip()
+        if cleaned:
+            blocks.append({
+                'type': 'text',
+                'content': cleaned,
+                'weight': max(1, len(split_into_sentences(cleaned))),
+            })
+
+    return blocks
+
+
+def _render_code_panel_inline(code_text, frame_width, pad_x, start_y, text_font, frame_img):
+    """
+    Draws a VS Code-style dark code panel directly onto an existing Pillow RGBA image
+    at the given Y offset.  Returns the updated cursor_y (bottom of the panel).
+    """
+    from PIL import ImageDraw, ImageFont as PILFont
+
+    draw = ImageDraw.Draw(frame_img)
+
+    panel_left = pad_x
+    panel_right = frame_width - pad_x
+    panel_width = panel_right - panel_left
+    header_h = 38
+    font_size = 24
+    lnum_size = 20
+
+    # Load monospace font
+    code_font = lnum_font = None
+    for fp in [r"C:\Windows\Fonts\courbd.ttf", r"C:\Windows\Fonts\cour.ttf",
+               "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
+               "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"]:
+        try:
+            code_font = PILFont.truetype(fp, font_size)
+            lnum_font = PILFont.truetype(fp, lnum_size)
+            break
+        except (IOError, OSError):
+            continue
+    if code_font is None:
+        code_font = lnum_font = PILFont.load_default()
+
+    try:
+        header_font = PILFont.truetype(r"C:\Windows\Fonts\arialbd.ttf", 18)
+    except (IOError, OSError):
+        header_font = lnum_font
+
+    # Prepare code lines
+    max_chars = 46
+    raw_lines = code_text.replace('\t', '    ').split('\n')
+    display_lines = []
+    for raw in raw_lines:
+        display_lines.append(raw[:max_chars - 1] + '\u2026' if len(raw) > max_chars else raw)
+
+    line_height = font_size + 10
+    max_visible = min(len(display_lines), 18)  # Cap at 18 lines for inline panels
+    visible_lines = display_lines[:max_visible]
+    truncated = len(display_lines) > max_visible
+
+    panel_height = len(visible_lines) * line_height + header_h + 20
+    panel_bottom = start_y + panel_height
+
+    # Panel background (#1E1E1E)
+    draw.rounded_rectangle(
+        [panel_left, start_y, panel_right, panel_bottom],
+        radius=12, fill=(30, 30, 30, 248)
+    )
+    # Header bar (#2D2D2D)
+    draw.rounded_rectangle(
+        [panel_left, start_y, panel_right, start_y + header_h],
+        radius=12, fill=(45, 45, 45, 255)
+    )
+    draw.rectangle(
+        [panel_left, start_y + header_h // 2, panel_right, start_y + header_h],
+        fill=(45, 45, 45, 255)
+    )
+
+    # Traffic-light dots
+    for i, col in enumerate([(255, 95, 86), (255, 189, 46), (39, 201, 63)]):
+        cx = panel_left + 16 + i * 22
+        cy = start_y + header_h // 2
+        r = 6
+        draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
+
+    # Header label
+    draw.text(
+        (panel_left + panel_width // 2, start_y + header_h // 2),
+        "script.py", fill=(160, 160, 160), font=header_font, anchor="mm"
+    )
+
+    # Line number gutter
+    lnum_col_w = 44
+    sep_x = panel_left + lnum_col_w + 4
+    draw.line([(sep_x, start_y + header_h), (sep_x, panel_bottom)],
+              fill=(55, 55, 55), width=1)
+
+    code_x = sep_x + 10
+    for i, line in enumerate(visible_lines):
+        y = start_y + header_h + 8 + i * line_height
+        draw.text(
+            (sep_x - 6, y + (font_size - lnum_size) // 2),
+            str(i + 1), fill=(80, 80, 80), font=lnum_font, anchor="ra"
+        )
+        draw.text((code_x, y), line, fill=(212, 212, 212), font=code_font)
+
+    if truncated:
+        extra = len(display_lines) - max_visible
+        draw.text(
+            (panel_left + panel_width // 2, panel_bottom - 16),
+            f"\u2026 {extra} more line{'s' if extra != 1 else ''}",
+            fill=(100, 100, 100), font=lnum_font, anchor="mm"
+        )
+
+    return panel_bottom
+
+
+def _render_output_inline(output_text, frame_width, pad_x, start_y, frame_img):
+    """
+    Draws a console-style output panel directly onto an existing Pillow RGBA image
+    at the given Y offset.  Dark green-tinted background with monospace white/green text.
+    Returns the updated cursor_y (bottom of the panel).
+    """
+    from PIL import ImageDraw, ImageFont as PILFont
+
+    draw = ImageDraw.Draw(frame_img)
+
+    panel_left = pad_x
+    panel_right = frame_width - pad_x
+    panel_width = panel_right - panel_left
+    header_h = 32
+    font_size = 22
+    label_size = 16
+
+    # Load monospace font
+    out_font = label_font = None
+    for fp in [r"C:\Windows\Fonts\consola.ttf", r"C:\Windows\Fonts\cour.ttf",
+               "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
+               "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"]:
+        try:
+            out_font = PILFont.truetype(fp, font_size)
+            label_font = PILFont.truetype(fp, label_size)
+            break
+        except (IOError, OSError):
+            continue
+    if out_font is None:
+        out_font = label_font = PILFont.load_default()
+
+    # Prepare output lines
+    max_chars = 46
+    raw_lines = output_text.replace('\t', '    ').split('\n')
+    display_lines = []
+    for raw in raw_lines:
+        display_lines.append(raw[:max_chars - 1] + '\u2026' if len(raw) > max_chars else raw)
+
+    line_height = font_size + 8
+    max_visible = min(len(display_lines), 12)  # Cap at 12 lines for output panels
+    visible_lines = display_lines[:max_visible]
+    truncated = len(display_lines) > max_visible
+
+    panel_height = len(visible_lines) * line_height + header_h + 16
+    panel_bottom = start_y + panel_height
+
+    # Panel background — dark with slight green tint (#0D1A0D)
+    draw.rounded_rectangle(
+        [panel_left, start_y, panel_right, panel_bottom],
+        radius=10, fill=(13, 26, 13, 245)
+    )
+    # Header bar (#1A2E1A)
+    draw.rounded_rectangle(
+        [panel_left, start_y, panel_right, start_y + header_h],
+        radius=10, fill=(26, 46, 26, 255)
+    )
+    draw.rectangle(
+        [panel_left, start_y + header_h // 2, panel_right, start_y + header_h],
+        fill=(26, 46, 26, 255)
+    )
+
+    # Label: "Output"
+    draw.text(
+        (panel_left + 14, start_y + header_h // 2),
+        "\u25b6 Output", fill=(80, 200, 80), font=label_font, anchor="lm"
+    )
+
+    # Output lines — green-tinted monospace text
+    text_x = panel_left + 14
+    for i, line in enumerate(visible_lines):
+        y = start_y + header_h + 6 + i * line_height
+        if y + line_height > panel_bottom - 8:
+            break
+        draw.text((text_x, y), line, fill=(160, 230, 160), font=out_font)
+
+    if truncated:
+        extra = len(display_lines) - max_visible
+        draw.text(
+            (panel_left + panel_width // 2, panel_bottom - 12),
+            f"\u2026 {extra} more line{'s' if extra != 1 else ''}",
+            fill=(80, 140, 80), font=label_font, anchor="mm"
+        )
+
+    return panel_bottom
+
 
 def create_video_parallel(section, audio_file, output_file, logo_path, background_path, text_sync_file,
                           font_styles, notebook_title=None):
@@ -175,25 +537,21 @@ def create_video_parallel(section, audio_file, output_file, logo_path, backgroun
              # --- End Special "Thank You" Slide Logic ---
 
         elif block_type == 'code':
-            # --- Code Block Handling ---
+            # --- Code Block Handling (VS Code-style Pillow panel) ---
             logger.info(f"Processing as Code Block for {output_file}")
             if logo_clip_main: clips.append(logo_clip_main)
             if title_text_clip: clips.append(title_text_clip)
 
-            code_content_cleaned = clean_header_hashes(content) # Clean visual headers
-            font = font_styles.get("code_font", "Courier-New")
-            font_size = font_styles.get("code_font_size", 32)
-            text_color = font_styles.get("code_text_color", "white")
+            code_content_cleaned = clean_header_hashes(content)
             try:
-                # Use cleaned content for the TextClip
-                clip = (TextClip(code_content_cleaned, fontsize=font_size, color=text_color, font=font,
-                                 method='caption', size=(target_size[0] - 100, None), align='west')
-                        .set_position(("center", 250))
+                code_img = render_code_panel_image(code_content_cleaned, target_size)
+                code_arr = np.array(code_img)
+                clip = (ImageClip(code_arr, ismask=False)
+                        .set_position((0, 0))
                         .set_duration(audio_duration))
-                text_clips.append(clip) # Add to temporary list for normal clips
+                text_clips.append(clip)
                 # Sync data uses original content for potential future use
                 text_sync_data = [{"text": content, "start_time": 0.0, "end_time": round(audio_duration, 2)}]
-                # Save sync data for code block
                 try:
                     with open(text_sync_file, 'w', encoding='utf-8') as f:
                         json.dump(text_sync_data, f, indent=4, ensure_ascii=False)
@@ -202,58 +560,132 @@ def create_video_parallel(section, audio_file, output_file, logo_path, backgroun
                     logger.warning(f"⚠️ Failed to write sync JSON for code block '{text_sync_file}': {jerr}")
 
             except Exception as text_clip_err:
-                 logger.error(f"Failed to create TextClip for code block in {output_file}: {text_clip_err}", exc_info=True)
+                 logger.error(f"Failed to create code panel for {output_file}: {text_clip_err}", exc_info=True)
             # --- End Code Block Handling ---
 
-        else: # Default: Markdown Block
-            # --- Normal Markdown Text Processing ---
-            logger.info(f"Processing as Markdown Block for {output_file}")
+        else: # Default: Markdown / Section Block
+            # --- Section Processing with Code Panel Detection ---
+            logger.info(f"Processing as Section Block for {output_file}")
             if logo_clip_main: clips.append(logo_clip_main)
             if title_text_clip: clips.append(title_text_clip)
 
-            sentences = split_into_sentences(content)
-            if sentences:
+            # Large section heading above the text content
+            try:
+                sec_heading = (
+                    TextClip(
+                        clean_header_hashes(title),
+                        fontsize=52, font=font_styles.get("font", "Inter"),
+                        color="white", method='label', align='center',
+                        stroke_color='black', stroke_width=1,
+                    )
+                    .set_position(("center", 115))
+                    .set_duration(audio_duration)
+                )
+                text_clips.append(sec_heading)
+            except Exception as sh_err:
+                logger.warning(f"Could not create section heading: {sh_err}")
+
+            # Parse content into sub-blocks (text vs code)
+            sub_blocks = _parse_section_sub_blocks(content)
+            text_sync_data = []
+
+            if sub_blocks:
                 font = font_styles.get("font", "Inter")
                 font_size = font_styles.get("font_size", 36)
                 text_color = font_styles.get("text_color", "white")
-                text_sync_data = []
-                current_time = 0.0
-                num_sentences = len(sentences)
-                chunk_duration = audio_duration / num_sentences if num_sentences > 0 else audio_duration
 
-                for i, sentence in enumerate(sentences):
-                    start = round(current_time, 2)
-                    # Calculate end time, ensuring the last sentence fills remaining duration
-                    end = round(start + chunk_duration, 2) if i < num_sentences - 1 else round(audio_duration, 2)
-                    # Prevent zero or negative duration clips
-                    clip_duration = max(0.01, end - start)
-                    actual_end = start + clip_duration # Use calculated duration for sync data end time
+                # --- Build a single composite frame with ALL content stacked vertically ---
+                from PIL import Image as PILImage, ImageDraw, ImageFont as PILFont
+                W, H = target_size
+                frame_img = PILImage.new('RGBA', (W, H), (0, 0, 0, 0))
 
-                    sentence_cleaned = clean_header_hashes(sentence) # Clean visual headers
+                # Load text fonts for Pillow rendering
+                text_font = None
+                for fp in [r"C:\Windows\Fonts\arialbd.ttf", r"C:\Windows\Fonts\arial.ttf",
+                           "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"]:
                     try:
-                        # Use cleaned sentence for the TextClip
-                        clip = (TextClip(sentence_cleaned, fontsize=font_size, color=text_color, font=font,
-                                         method='caption', size=(target_size[0] - 100, None), align='center')
-                                .set_position(("center", 250))
-                                .set_start(start)
-                                .set_duration(clip_duration))
-                        text_clips.append(clip) # Add to temporary list for normal clips
-                        # Sync data uses original sentence
-                        text_sync_data.append({ "text": sentence, "start_time": start, "end_time": actual_end })
-                        current_time = actual_end # Move time forward based on actual clip duration
-                    except Exception as text_clip_err:
-                         logger.error(f"Failed to create TextClip for sentence: '{sentence[:50]}...' in {output_file}: {text_clip_err}", exc_info=True)
+                        text_font = PILFont.truetype(fp, font_size)
+                        break
+                    except (IOError, OSError):
+                        continue
+                if text_font is None:
+                    text_font = PILFont.load_default()
 
-                # Save sync data for markdown block
+                pad_x = 50
+                cursor_y = 190  # Start below the section heading
+                max_text_width = W - (pad_x * 2)
+
+                for bi, block in enumerate(sub_blocks):
+                    if cursor_y >= H - 60:
+                        break  # Stop if we've run out of vertical space
+
+                    if block['type'] == 'code':
+                        # Render a VS Code-style code panel directly onto the frame
+                        code_mini = _render_code_panel_inline(
+                            block['content'], W, pad_x, cursor_y, text_font, frame_img
+                        )
+                        cursor_y = code_mini  # Updated cursor position
+                        cursor_y += 10  # Small gap before output (if any)
+
+                    elif block['type'] == 'output':
+                        # Render console-style output panel below the code
+                        output_bottom = _render_output_inline(
+                            block['content'], W, pad_x, cursor_y, frame_img
+                        )
+                        cursor_y = output_bottom
+                        cursor_y += 20  # Gap after output
+
+                    else:
+                        # Render wrapped text lines onto the frame
+                        draw = ImageDraw.Draw(frame_img)
+                        # Word-wrap the text
+                        words = block['content'].split()
+                        lines = []
+                        current_line = ""
+                        for word in words:
+                            test_line = f"{current_line} {word}".strip()
+                            bbox = draw.textbbox((0, 0), test_line, font=text_font)
+                            if bbox[2] - bbox[0] <= max_text_width:
+                                current_line = test_line
+                            else:
+                                if current_line:
+                                    lines.append(current_line)
+                                current_line = word
+                        if current_line:
+                            lines.append(current_line)
+
+                        line_h = font_size + 10
+                        for line in lines:
+                            if cursor_y + line_h > H - 40:
+                                break
+                            # Center text horizontally
+                            bbox = draw.textbbox((0, 0), line, font=text_font)
+                            lw = bbox[2] - bbox[0]
+                            x = (W - lw) // 2
+                            draw.text((x, cursor_y), line, fill=(255, 255, 255, 255), font=text_font)
+                            cursor_y += line_h
+
+                        cursor_y += 16  # Gap after text block
+
+                # Convert the full frame to a single clip that stays on screen the whole time
+                frame_arr = np.array(frame_img)
+                content_clip = (ImageClip(frame_arr, ismask=False)
+                                .set_position((0, 0))
+                                .set_duration(audio_duration))
+                text_clips.append(content_clip)
+
+                # Sync data for the entire section
+                text_sync_data = [{"text": content, "start_time": 0.0, "end_time": round(audio_duration, 2)}]
+
                 try:
                     with open(text_sync_file, 'w', encoding='utf-8') as f:
                         json.dump(text_sync_data, f, indent=4, ensure_ascii=False)
-                    logger.debug(f"📝 Synced text JSON saved for markdown block: {text_sync_file}")
+                    logger.debug(f"📝 Synced text JSON saved: {text_sync_file}")
                 except Exception as jerr:
-                    logger.warning(f"⚠️ Failed to write sync JSON for markdown block '{text_sync_file}': {jerr}")
+                    logger.warning(f"⚠️ Failed to write sync JSON '{text_sync_file}': {jerr}")
 
             else:
-                 logger.warning(f"No sentences to process for markdown block {output_file}")
+                 logger.warning(f"No sub-blocks to process for {output_file}")
             # --- End Normal Markdown Text Processing ---
 
         # Add all generated text clips from loops (markdown/code) to the main clips list

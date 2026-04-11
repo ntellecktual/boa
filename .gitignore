@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.so
 *.egg
 *.egg-info/
@@ -20,5 +21,26 @@ db.sqlite3
 media/
 staticfiles/
 
-# VS Code
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Temp files
+temp-audio-*.m4a
+*.tmp
+
+# ChromaDB vector store (local only)
+chromadb_data/
+
+# Render
+.render/

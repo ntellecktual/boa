@@ -4,98 +4,116 @@
 {% block title %}thenumerix | Education{% endblock %}
 
 {% block content %}
-<div class="custom-margin-bottom text-center">
-    <h1 class="text-center mb-4">Education</h1>
-    <p class="lead mb-4" style="max-width: 800px; margin: auto;">
-        The foundational knowledge and specialized training that underpin my technical capabilities and project contributions.
-    </p>
+<style>
+:root{--c-blue:#3b82f6;--c-violet:#8b5cf6;--c-card:#ffffff;--c-border:rgba(0,0,0,.05);--c-muted:#64748b;--c-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);--c-shadow-lg:0 20px 50px rgba(0,0,0,.1);--c-radius:24px}
+[data-theme="dark"]{--c-card:rgba(22,27,45,.95);--c-border:rgba(255,255,255,.07);--c-muted:#94a3b8;--c-shadow:0 2px 8px rgba(0,0,0,.25);--c-shadow-lg:0 20px 50px rgba(0,0,0,.4)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.pt-hero{text-align:center;padding:3.5rem 1rem 2.5rem;animation:fadeUp .6s ease both}
+.pt-tag{display:inline-block;padding:.35rem 1.1rem;border-radius:999px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.1);color:var(--c-blue)}
+.pt-hero h1{font-size:clamp(2rem,4.5vw,2.8rem);font-weight:800;margin-bottom:.7rem;color:#0f172a;letter-spacing:-.02em}
+[data-theme="dark"] .pt-hero h1{color:#f1f5f9}
+.pt-hero .lead{font-size:1rem;color:var(--c-muted);max-width:580px;margin:0 auto;line-height:1.7}
+.pt-stack{max-width:760px;margin:0 auto 4rem;display:flex;flex-direction:column;gap:2rem;padding:0 .5rem}
+.pt-card{border-radius:var(--c-radius);border:1px solid var(--c-border);background:var(--c-card);box-shadow:var(--c-shadow);overflow:hidden;transition:box-shadow .3s,transform .3s}
+.pt-card:hover{box-shadow:var(--c-shadow-lg);transform:translateY(-3px)}
+.pt-card-head{display:flex;align-items:center;gap:1.8rem;padding:2.5rem 2.5rem 0}
+.pt-logo{width:80px !important;height:80px !important;max-width:80px !important;object-fit:contain;border-radius:18px;border:1px solid var(--c-border);background:#fff;padding:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+[data-theme="dark"] .pt-logo{background:rgba(255,255,255,.08);box-shadow:none}
+.pt-org{flex:1;min-width:0}
+.pt-org-name{font-size:1.25rem;font-weight:800;margin:0 0 .35rem;line-height:1.3;color:#0f172a;letter-spacing:-.01em}
+[data-theme="dark"] .pt-org-name{color:#f1f5f9}
+.pt-org-degree{font-size:.88rem;font-weight:500;color:var(--c-muted);margin:0;line-height:1.5}
+.pt-content{padding:2rem 2.5rem 2.5rem}
+.pt-content h5{font-size:1.05rem;font-weight:700;margin-bottom:1rem;color:var(--c-blue)}
+.pt-content ul{font-size:.9rem;line-height:1.9;padding-left:1.4rem;margin-bottom:1rem;color:#374151}
+[data-theme="dark"] .pt-content ul{color:#d1d5db}
+.pt-content li{margin-bottom:.7rem}
+.pt-content p{font-size:.85rem;color:var(--c-muted);margin:0}
+.pt-content a{color:var(--c-blue);text-decoration:none}
+.pt-content a:hover{text-decoration:underline}
+</style>
 
-    <div class="accordion" id="educationAccordion" style="max-width: 800px; margin: auto;">
+<div class="pt-hero">
+  <div class="pt-tag"><i class="fas fa-graduation-cap me-1"></i> Credentials</div>
+  <h1>Education</h1>
+  <p class="lead">The foundational knowledge and specialized training that underpin my technical capabilities and project contributions.</p>
+</div>
 
-        {# University of Texas at Austin #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingUta">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUta" aria-expanded="false" aria-controls="collapseUta">
-                        <img src="{% static 'css/img/uta_logo.png' %}" alt="University of Texas at Austin Logo" class="accordion-company-logo">
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseUta" class="collapse" aria-labelledby="headingUta" data-parent="#educationAccordion">
-                <div class="card-body">
-                    <h5>Post Graduate Doctoral Degree in Cloud Computing</h5>
-                    <ul>
-                        <li>Specialized in Cloud Computing, DevOps, Business Analytics, and Machine Learning, with a strong foundation in Full Stack Development and advanced skills in deploying scalable cloud infrastructure. <small><a href="{% url 'project_pages' %}?open=collapseTechAA">Explore how these cloud skills were applied.</a></small></li>
-                        <li>Program includes industry-leading training in AI, Deep Learning, and Business Intelligence, supporting a comprehensive understanding of data engineering and deployment practices. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">See these concepts applied in projects.</a></small></li>
+<div class="pt-stack">
 
-                    </ul>
-                    <p class="mt-2"><small>This advanced study directly informed approaches in my <a href="{% url 'portfolio_showcase' %}">Professional Roles</a>.</small></p>
-                </div>
-            </div>
-        </div>
-
-        {# Python Institute #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingPythonInst">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePythonInst" aria-expanded="false" aria-controls="collapsePythonInst">
-                        <img src="{% static 'css/img/python_institute_logo.png' %}" alt="Python Institute Logo" class="accordion-company-logo">
-                    </button>
-                </h2>
-            </div>
-            <div id="collapsePythonInst" class="collapse" aria-labelledby="headingPythonInst" data-parent="#educationAccordion">
-                <div class="card-body">
-                    <h5>PCAP – Certified Associate in Python Programming</h5>
-                    <ul>
-                        <li>Professional certification validating the ability to code in Python and apply object-oriented programming principles in data and DevOps projects, ensuring alignment with industry standards for software and deployment practices.</li>
-                    </ul>
-                    <p class="mt-2"><small>See my Python expertise in action across various projects in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
-                </div>
-            </div>
-        </div>
-
-        {# SMU #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingSmu">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSmu" aria-expanded="false" aria-controls="collapseSmu">
-                        <img src="{% static 'css/img/smu_logo.png' %}" alt="SMU Logo" class="accordion-company-logo">
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseSmu" class="collapse" aria-labelledby="headingSmu" data-parent="#educationAccordion">
-                <div class="card-body">
-                    <h5>Master of Science - Masters (In conjunction with Coding Dojo)</h5>
-                    <ul>
-                        <li>Focused on Python, Spark, and the Hadoop ecosystem, including tools such as Hive, Kafka, and HBase for big data processing. Trained in MapReduce and YARN methodologies, with a competitive program acceptance rate and extensive interview preparation.</li>
-                        <li>Developed skills essential for DevOps, CI/CD, and scalable data architecture, applying these techniques to enhance pipeline automation and performance.</li>
-                    </ul>
-                    <p class="mt-2"><small>View the application of these Big Data and DevOps skills in my <a href="{% url 'portfolio_showcase' %}?open=collapseCiti">Work History</a>.</small></p>
-                </div>
-            </div>
-        </div>
-
-        {# University of California, Riverside #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingUcr">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUcr" aria-expanded="false" aria-controls="collapseUcr">
-                        <img src="{% static 'css/img/ucr_logo.png' %}" alt="University of California, Riverside Logo" class="accordion-company-logo">
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseUcr" class="collapse" aria-labelledby="headingUcr" data-parent="#educationAccordion">
-                <div class="card-body">
-                    <h5>Bachelor of Science - Management/Finance and Implementation Methodologies</h5>
-                    <ul>
-                        <li>Foundational knowledge in Management and Finance, with practical applications in implementation methodologies, critical for understanding project management and strategic planning within a DevOps framework.</li>
-                    </ul>
-                    <p class="mt-2"><small>This management and finance background provided a strategic lens for <a href="{% url 'companyandme' %}?open=collapseAABaggage">Industry Engineering projects</a>.</small></p>
-
-                </div>
-            </div>
-        </div>
-
+  <!-- UT Austin -->
+  <div class="pt-card">
+    <div class="pt-card-head">
+      <img src="{% static 'css/img/uta_logo.png' %}" alt="UT Austin" class="pt-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+      <div class="pt-org">
+        <p class="pt-org-name">University of Texas at Austin</p>
+        <p class="pt-org-degree">Post Graduate Doctoral Degree &middot; Cloud Computing</p>
+      </div>
     </div>
+    <div class="pt-content">
+      <h5>Post Graduate Doctoral Degree in Cloud Computing</h5>
+      <ul>
+        <li>Specialized in Cloud Computing, DevOps, Business Analytics, and Machine Learning, with a strong foundation in Full Stack Development and advanced skills in deploying scalable cloud infrastructure. <small><a href="{% url 'project_pages' %}?open=collapseTechAA">Explore how these cloud skills were applied.</a></small></li>
+        <li>Program includes industry-leading training in AI, Deep Learning, and Business Intelligence, supporting a comprehensive understanding of data engineering and deployment practices. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">See these concepts applied in projects.</a></small></li>
+      </ul>
+      <p><small>This advanced study directly informed approaches in my <a href="{% url 'portfolio_showcase' %}">Professional Roles</a>.</small></p>
+    </div>
+  </div>
+
+  <!-- Python Institute -->
+  <div class="pt-card">
+    <div class="pt-card-head">
+      <img src="{% static 'css/img/python_institute_logo.png' %}" alt="Python Institute" class="pt-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+      <div class="pt-org">
+        <p class="pt-org-name">Python Institute</p>
+        <p class="pt-org-degree">PCAP &ndash; Certified Associate in Python Programming</p>
+      </div>
+    </div>
+    <div class="pt-content">
+      <h5>PCAP &ndash; Certified Associate in Python Programming</h5>
+      <ul>
+        <li>Professional certification validating the ability to code in Python and apply object-oriented programming principles in data and DevOps projects, ensuring alignment with industry standards for software and deployment practices.</li>
+      </ul>
+      <p><small>See my Python expertise in action across various projects in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
+    </div>
+  </div>
+
+  <!-- SMU -->
+  <div class="pt-card">
+    <div class="pt-card-head">
+      <img src="{% static 'css/img/smu_logo.png' %}" alt="SMU" class="pt-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+      <div class="pt-org">
+        <p class="pt-org-name">SMU (in conjunction with Coding Dojo)</p>
+        <p class="pt-org-degree">Master of Science &middot; Big Data &amp; DevOps</p>
+      </div>
+    </div>
+    <div class="pt-content">
+      <h5>Master of Science</h5>
+      <ul>
+        <li>Focused on Python, Spark, and the Hadoop ecosystem, including tools such as Hive, Kafka, and HBase for big data processing. Trained in MapReduce and YARN methodologies, with a competitive program acceptance rate and extensive interview preparation.</li>
+        <li>Developed skills essential for DevOps, CI/CD, and scalable data architecture, applying these techniques to enhance pipeline automation and performance.</li>
+      </ul>
+      <p><small>View the application of these Big Data and DevOps skills in my <a href="{% url 'portfolio_showcase' %}?open=collapseCiti">Work History</a>.</small></p>
+    </div>
+  </div>
+
+  <!-- UC Riverside -->
+  <div class="pt-card">
+    <div class="pt-card-head">
+      <img src="{% static 'css/img/ucr_logo.png' %}" alt="UC Riverside" class="pt-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+      <div class="pt-org">
+        <p class="pt-org-name">University of California, Riverside</p>
+        <p class="pt-org-degree">Bachelor of Science &middot; Management / Finance</p>
+      </div>
+    </div>
+    <div class="pt-content">
+      <h5>Bachelor of Science &mdash; Management / Finance &amp; Implementation Methodologies</h5>
+      <ul>
+        <li>Foundational knowledge in Management and Finance, with practical applications in implementation methodologies, critical for understanding project management and strategic planning within a DevOps framework.</li>
+      </ul>
+      <p><small>This management and finance background provided a strategic lens for <a href="{% url 'companyandme' %}?open=collapseAABaggage">Industry Engineering projects</a>.</small></p>
+    </div>
+  </div>
+
 </div>
 {% endblock %}

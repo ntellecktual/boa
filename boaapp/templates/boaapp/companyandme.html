@@ -3,167 +3,176 @@
 {% block title %}Engineering/Project Insights{% endblock %}
 
 {% block content %}
-<div class="custom-margin-bottom text-center">
-    <h1 class="text-center mb-4">Industry Engineering & Project Insights</h1>
-    <p class="lead mb-4" style="max-width: 800px; margin: auto;">
-        Delve into the "Who, Why, What, and How" of key projects, showcasing the practical application of technical skills to overcome industry-specific challenges.
-        <br><small>For a comprehensive overview of my roles and responsibilities, please visit my <a href="{% url 'portfolio_showcase' %}?open=collapseAA">Portfolio & Work History</a>.</small>
-    </p>
+<style>
+:root{--c-blue:#3b82f6;--c-violet:#8b5cf6;--c-card:#ffffff;--c-border:rgba(0,0,0,.05);--c-muted:#64748b;--c-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);--c-shadow-lg:0 20px 50px rgba(0,0,0,.1);--c-radius:24px}
+[data-theme="dark"]{--c-card:rgba(22,27,45,.95);--c-border:rgba(255,255,255,.07);--c-muted:#94a3b8;--c-shadow:0 2px 8px rgba(0,0,0,.25);--c-shadow-lg:0 20px 50px rgba(0,0,0,.4)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.pt-hero{text-align:center;padding:3.5rem 1rem 2.5rem;animation:fadeUp .6s ease both}
+.pt-tag{display:inline-block;padding:.35rem 1.1rem;border-radius:999px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.1);color:var(--c-blue)}
+.pt-hero h1{font-size:clamp(2rem,4.5vw,2.8rem);font-weight:800;margin-bottom:.7rem;color:#0f172a;letter-spacing:-.02em}
+[data-theme="dark"] .pt-hero h1{color:#f1f5f9}
+.pt-hero .lead{font-size:1rem;color:var(--c-muted);max-width:640px;margin:0 auto;line-height:1.7}
+.pt-stack{max-width:800px;margin:0 auto 4rem;display:flex;flex-direction:column;gap:2rem;padding:0 .5rem}
+.pt-card{border-radius:var(--c-radius);border:1px solid var(--c-border);background:var(--c-card);box-shadow:var(--c-shadow);overflow:hidden;transition:box-shadow .3s,transform .3s}
+.pt-card:hover{box-shadow:var(--c-shadow-lg);transform:translateY(-3px)}
+.pt-card-head{display:flex;align-items:center;gap:1.8rem;padding:2.5rem 2.5rem 0}
+.pt-company-logo{width:80px !important;height:80px !important;max-width:80px !important;object-fit:contain;border-radius:18px;border:1px solid var(--c-border);background:#fff;padding:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+[data-theme="dark"] .pt-company-logo{background:rgba(255,255,255,.08);box-shadow:none}
+.pt-company-info{flex:1;min-width:0}
+.pt-company-info h3{font-size:1.25rem;font-weight:800;margin:0 0 .35rem;line-height:1.3;color:#0f172a;letter-spacing:-.01em}
+[data-theme="dark"] .pt-company-info h3{color:#f1f5f9}
+.pt-company-role{font-size:.88rem;font-weight:600;color:var(--c-muted);margin:0;line-height:1.5}
+.pt-card-body{padding:2rem 2.5rem 2.5rem}
+.pt-section{margin-bottom:2rem}
+.pt-section:last-child{margin-bottom:0}
+.pt-section-title{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--c-blue);margin-bottom:.75rem}
+.pt-section ul{font-size:.9rem;line-height:1.85;padding-left:1.4rem;margin:0;color:#374151}
+[data-theme="dark"] .pt-section ul{color:#d1d5db}
+.pt-section li{margin-bottom:.55rem}
+.pt-section p{font-size:.85rem;color:var(--c-muted);margin:.65rem 0 0}
+.pt-section a{color:var(--c-blue);text-decoration:none}
+.pt-section a:hover{text-decoration:underline}
+</style>
 
-    <div class="accordion" id="companyProjectsAccordion" style="max-width: 800px; margin: auto;">
+<div class="pt-hero">
+  <div class="pt-tag"><i class="fas fa-industry me-1"></i> Project Insights</div>
+  <h1>Industry Engineering &amp; Project Insights</h1>
+  <p class="lead">The "Who, Why, What, and How" of key projects — practical application of technical skills to overcome industry-specific challenges.<br><small>For a comprehensive overview of my roles, visit my <a href="{% url 'portfolio_showcase' %}?open=collapseAA">Portfolio &amp; Work History</a>.</small></p>
+</div>
 
-        {# American Airlines - Baggage System #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingAABaggage">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 text-left d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAABaggage" aria-expanded="false" aria-controls="collapseAABaggage">
-                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="accordion-company-logo">
-                        Baggage Handling System
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseAABaggage" class="collapse" aria-labelledby="headingAABaggage" data-parent="#companyProjectsAccordion">
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h4>Who Needs? (Stakeholders)</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Baggage Handlers:</strong> Responsible for loading, unloading, and transferring baggage.</li>
-                            <li><strong>Airport Staff:</strong> Involved in various roles supporting airport operations, such as customer service and security.</li>
-                            <li><strong>Passengers:</strong> Directly affected by baggage delays or losses.</li>
-                            <li><strong>Airline Operations:</strong> Need real-time information for efficient flight operations and customer service.</li>
-                        </ul>
-                    </div>
-                    <div class="mb-3">
-                        <h4>Why This? (No "Baggage")</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Purpose:</strong> To track and manage baggage movement throughout the airline's network, ensuring efficient operations and reducing losses.</li>
-                            <li><strong>Resolve:</strong> To address challenges such as baggage delays, lost luggage, and inefficiencies in baggage handling processes.</li>
-                        </ul>
-                    </div>
-                    <div class="mb-3">
-                        <h4>What Functionality? (Intricate Level)</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Predictive analytics:</strong> Use machine learning to predict baggage trends and identify potential issues.</li>
-                            <li><strong>Automation:</strong> Automate routine tasks to improve efficiency and reduce errors.</li>
-                            <li><strong>Data integration:</strong> Integration with various systems, such as flight information and passenger personal and baggage data.</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4>How it Works? (Technical Stack)</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Data Engineering:</strong> Azure Data Lake, Databricks, Cloud Storage</li>
-                            <li><strong>Machine Learning/Automation/Visualization:</strong> Python, Power Automate, Power BI</li>
-                            <li><strong>Security:</strong> Coverity, Black Duck, Tanium, Nucleus</li>
-                        </ul>
-                        <p><small>Discover more about these tools in the <a href="{% url 'project_pages' %}?open=collapseTechAA">American Airlines section of the Technical Showcase</a>.</small></p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="pt-stack">
 
-        {# American Airlines - Staff Management System #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingAAStaff">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 text-left d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAAStaff" aria-expanded="false" aria-controls="collapseAAStaff">
-                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="accordion-company-logo">
-                        In-Airport Staff Management
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseAAStaff" class="collapse" aria-labelledby="headingAAStaff" data-parent="#companyProjectsAccordion">
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h4>Who Needs? (Stakeholders)</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Gate Agents:</strong> Directly responsible for managing passenger boarding and gate operations.</li>
-                            <li><strong>Pilots and Flight Crew:</strong> Need to access information regarding their flight schedules and assignments.</li>
-                            <li><strong>Airport Staff:</strong> Involved in various roles supporting airport operations, such as customer service, maintenance, and security.</li>
-                        </ul>
-                    </div>
-                    <div class="mb-3">
-                        <h4>Why This? (Seamless Flights)</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Purpose:</strong> To provide a centralized platform for managing in-airport staff activities, ensuring efficient operations and accurate tracking of flight-related information.</li>
-                            <li><strong>Resolve:</strong> To address challenges such as manual data entry, delays in accessing critical information, and inefficiencies in coordinating staff assignments.</li>
-                        </ul>
-                    </div>
-                    <div class="mb-3">
-                        <h4>What Functionality? (Intricate Level)</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Data analytics:</strong> Analyze large datasets to identify trends, optimize operations, and improve decision-making.</li>
-                            <li><strong>Integration:</strong> Integrate with other airport systems, such as passenger management systems and flight operations systems.</li>
-                            <li><strong>Mobile accessibility:</strong> Enable staff to access the application on mobile devices for on-the-go information and updates.</li>
-                             <li><strong>Staff scheduling:</strong> Track and manage staff schedules, assignments, and shifts.</li>
-                            <li><strong>Flight information:</strong> Provide real-time updates on flight status, gate assignments, and passenger boarding information.</li>
-                            <li><strong>Terminal and gate management:</strong> Manage terminal flight rollouts, gate assignments, and resource allocation.</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4>How it Works? (Technical Stack)</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Frontend/Backend:</strong> React, Angular, or Vue.js for building the user interface. Node.js or Python (Django or Flask) for developing the application's server-side logic.</li>
-                            <li><strong>Database:</strong> PostgreSQL or MongoDB for storing and managing application data.</li>
-                            <li><strong>Cloud/DevOps:</strong> Azure for hosting the application and its infrastructure. Git for version control, Jenkins or CircleCI for continuous integration, and Docker or Kubernetes for containerization and deployment.</li>
-                        </ul>
-                        <p><small>Explore these and other technologies in the <a href="{% url 'project_pages' %}?open=collapseTechAA">American Airlines section of the Technical Showcase</a>.</small></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {# Citibank - Data Platform #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingCitiData">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 text-left d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCitiData" aria-expanded="false" aria-controls="collapseCitiData">
-                        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="accordion-company-logo">
-                        Data Platform & Analytics
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseCitiData" class="collapse" aria-labelledby="headingCitiData" data-parent="#companyProjectsAccordion">
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h4>Who? (Stakeholders)</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Data Scientists:</strong> Utilize the developed tools and platforms for data analysis and modeling.</li>
-                            <li><strong>Business Analysts:</strong> Rely on the data insights to make informed decisions.</li>
-                            <li><strong>IT Teams:</strong> Responsible for maintaining and supporting the data infrastructure.</li>
-                        </ul>
-                    </div>
-                    <div class="mb-3">
-                        <h4>What? (Faster Money - Functionality)</h4> {# Combined What & Why for Citi as they were similar #}
-                        <hr />
-                        <ul>
-                            <li><strong>Data ingestion:</strong> Extract data from various sources and load it into the data platform.</li>
-                            <li><strong>Data transformation:</strong> Clean, transform, and prepare data for analysis.</li>
-                            <li><strong>Data governance:</strong> Implement data governance practices to ensure data quality and consistency.</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4>How it Works? (Technical Stack)</h4>
-                        <hr />
-                        <ul>
-                            <li><strong>Data Engineering:</strong> Python, PySpark, HDFS, HBase, Hive, Hadoop Ecosystem</li>
-                            <li><strong>ETL:</strong> Databricks, Python, PySpark</li>
-                            <li><strong>DevOps:</strong> Jenkins, bmc RLM, Autosys, Docker, Kubernetes, CI/CD, GitBash, Java/J2EE</li>
-                        </ul>
-                        <p><small>The <a href="{% url 'project_pages' %}?open=collapseTechCiti">Citibank section of the Technical Showcase</a> provides more detail on these technologies.</small></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+  <!-- AA Baggage -->
+  <div class="pt-card">
+    <div class="pt-card-head">
+      <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines" class="pt-company-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+      <div class="pt-company-info">
+        <h3>American Airlines</h3>
+        <p class="pt-company-role">Baggage Handling System</p>
+      </div>
     </div>
+    <div class="pt-card-body">
+        <div class="pt-section">
+          <div class="pt-section-title">👥 Who Needs? (Stakeholders)</div>
+          <ul>
+            <li><strong>Baggage Handlers:</strong> Responsible for loading, unloading, and transferring baggage.</li>
+            <li><strong>Airport Staff:</strong> Involved in various roles supporting airport operations, such as customer service and security.</li>
+            <li><strong>Passengers:</strong> Directly affected by baggage delays or losses.</li>
+            <li><strong>Airline Operations:</strong> Need real-time information for efficient flight operations and customer service.</li>
+          </ul>
+        </div>
+        <div class="pt-section">
+          <div class="pt-section-title">❓ Why This? (No &ldquo;Baggage&rdquo;)</div>
+          <ul>
+            <li><strong>Purpose:</strong> To track and manage baggage movement throughout the airline's network, ensuring efficient operations and reducing losses.</li>
+            <li><strong>Resolve:</strong> To address challenges such as baggage delays, lost luggage, and inefficiencies in baggage handling processes.</li>
+          </ul>
+        </div>
+        <div class="pt-section">
+          <div class="pt-section-title">⚙️ What Functionality? (Intricate Level)</div>
+          <ul>
+            <li><strong>Predictive analytics:</strong> Use machine learning to predict baggage trends and identify potential issues.</li>
+            <li><strong>Automation:</strong> Automate routine tasks to improve efficiency and reduce errors.</li>
+            <li><strong>Data integration:</strong> Integration with various systems, such as flight information and passenger personal and baggage data.</li>
+          </ul>
+        </div>
+        <div class="pt-section">
+          <div class="pt-section-title">🔧 How it Works? (Technical Stack)</div>
+          <ul>
+            <li><strong>Data Engineering:</strong> Azure Data Lake, Databricks, Cloud Storage</li>
+            <li><strong>ML / Automation / Visualization:</strong> Python, Power Automate, Power BI</li>
+            <li><strong>Security:</strong> Coverity, Black Duck, Tanium, Nucleus</li>
+          </ul>
+          <p><small>Discover more about these tools in the <a href="{% url 'project_pages' %}?open=collapseTechAA">American Airlines section of the Technical Showcase</a>.</small></p>
+        </div>
+    </div>
+  </div>
+
+  <!-- AA Staff Management -->
+  <div class="pt-card">
+    <div class="pt-card-head">
+      <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines" class="pt-company-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+      <div class="pt-company-info">
+        <h3>American Airlines</h3>
+        <p class="pt-company-role">In-Airport Staff Management</p>
+      </div>
+    </div>
+    <div class="pt-card-body">
+        <div class="pt-section">
+          <div class="pt-section-title">👥 Who Needs? (Stakeholders)</div>
+          <ul>
+            <li><strong>Gate Agents:</strong> Directly responsible for managing passenger boarding and gate operations.</li>
+            <li><strong>Pilots and Flight Crew:</strong> Need to access information regarding their flight schedules and assignments.</li>
+            <li><strong>Airport Staff:</strong> Involved in various roles supporting airport operations, such as customer service, maintenance, and security.</li>
+          </ul>
+        </div>
+        <div class="pt-section">
+          <div class="pt-section-title">✈️ Why This? (Seamless Flights)</div>
+          <ul>
+            <li><strong>Purpose:</strong> To provide a centralized platform for managing in-airport staff activities, ensuring efficient operations and accurate tracking of flight-related information.</li>
+            <li><strong>Resolve:</strong> To address challenges such as manual data entry, delays in accessing critical information, and inefficiencies in coordinating staff assignments.</li>
+          </ul>
+        </div>
+        <div class="pt-section">
+          <div class="pt-section-title">⚙️ What Functionality? (Intricate Level)</div>
+          <ul>
+            <li><strong>Data analytics:</strong> Analyze large datasets to identify trends, optimize operations, and improve decision-making.</li>
+            <li><strong>Integration:</strong> Integrate with other airport systems, such as passenger management systems and flight operations systems.</li>
+            <li><strong>Mobile accessibility:</strong> Enable staff to access the application on mobile devices for on-the-go information and updates.</li>
+            <li><strong>Staff scheduling:</strong> Track and manage staff schedules, assignments, and shifts.</li>
+            <li><strong>Flight information:</strong> Provide real-time updates on flight status, gate assignments, and passenger boarding information.</li>
+            <li><strong>Terminal and gate management:</strong> Manage terminal flight rollouts, gate assignments, and resource allocation.</li>
+          </ul>
+        </div>
+        <div class="pt-section">
+          <div class="pt-section-title">🔧 How it Works? (Technical Stack)</div>
+          <ul>
+            <li><strong>Frontend/Backend:</strong> React, Angular, or Vue.js for the UI &mdash; Node.js or Python (Django/Flask) for server-side logic.</li>
+            <li><strong>Database:</strong> PostgreSQL or MongoDB for storing and managing application data.</li>
+            <li><strong>Cloud/DevOps:</strong> Azure hosting, Git version control, Jenkins/CircleCI CI, Docker/Kubernetes deployment.</li>
+          </ul>
+          <p><small>Explore these and other technologies in the <a href="{% url 'project_pages' %}?open=collapseTechAA">American Airlines section of the Technical Showcase</a>.</small></p>
+        </div>
+    </div>
+  </div>
+
+  <!-- Citibank Data Platform -->
+  <div class="pt-card">
+    <div class="pt-card-head">
+      <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank" class="pt-company-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+      <div class="pt-company-info">
+        <h3>Citibank</h3>
+        <p class="pt-company-role">Data Platform &amp; Analytics</p>
+      </div>
+    </div>
+    <div class="pt-card-body">
+        <div class="pt-section">
+          <div class="pt-section-title">👥 Who? (Stakeholders)</div>
+          <ul>
+            <li><strong>Data Scientists:</strong> Utilize the developed tools and platforms for data analysis and modeling.</li>
+            <li><strong>Business Analysts:</strong> Rely on data insights to make informed decisions.</li>
+            <li><strong>IT Teams:</strong> Responsible for maintaining and supporting the data infrastructure.</li>
+          </ul>
+        </div>
+        <div class="pt-section">
+          <div class="pt-section-title">💰 What? (Faster Money &mdash; Functionality)</div>
+          <ul>
+            <li><strong>Data ingestion:</strong> Extract data from various sources and load it into the data platform.</li>
+            <li><strong>Data transformation:</strong> Clean, transform, and prepare data for analysis.</li>
+            <li><strong>Data governance:</strong> Implement data governance practices to ensure data quality and consistency.</li>
+          </ul>
+        </div>
+        <div class="pt-section">
+          <div class="pt-section-title">🔧 How it Works? (Technical Stack)</div>
+          <ul>
+            <li><strong>Data Engineering:</strong> Python, PySpark, HDFS, HBase, Hive, Hadoop Ecosystem</li>
+            <li><strong>ETL:</strong> Databricks, Python, PySpark</li>
+            <li><strong>DevOps:</strong> Jenkins, bmc RLM, Autosys, Docker, Kubernetes, CI/CD, GitBash, Java/J2EE</li>
+          </ul>
+          <p><small>The <a href="{% url 'project_pages' %}?open=collapseTechCiti">Citibank section of the Technical Showcase</a> provides more detail on these technologies.</small></p>
+        </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}

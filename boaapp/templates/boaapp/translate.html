@@ -1,0 +1,65 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}Translate - {{ document.uploaded_file.name }}{% endblock %}
+
+{% block content %}
+<style>
+.translate-wrap{max-width:800px;margin:0 auto;padding:1rem}
+.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.5rem;margin-bottom:1.5rem}
+.lang-btn{padding:.5rem .8rem;border:1px solid var(--border,#e2e8f0);border-radius:10px;text-align:center;cursor:pointer;font-size:.78rem;transition:all .15s;background:var(--card-bg,#fff)}
+.lang-btn:hover{border-color:#3b82f6;background:rgba(59,130,246,.04)}
+.lang-btn.done{border-color:#22c55e;background:rgba(34,197,94,.06)}
+.lang-btn .lang-flag{font-size:1.2rem;display:block;margin-bottom:.2rem}
+.translated-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;overflow:hidden;margin-bottom:1rem}
+.translated-card .tc-header{padding:.6rem .8rem;font-size:.8rem;font-weight:700;border-bottom:1px solid var(--border,#e2e8f0)}
+.translated-card .tc-body{padding:.8rem;font-size:.82rem;line-height:1.6;max-height:300px;overflow-y:auto}
+</style>
+
+<div class="translate-wrap">
+  <div class="text-center mb-4">
+    <h2 style="font-size:1.3rem;font-weight:800"><i class="fas fa-globe me-2"></i>Auto-Translate</h2>
+    <p style="font-size:.75rem;opacity:.5">{{ document.uploaded_file.name|cut:"documents/" }}</p>
+  </div>
+
+  <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Select Language</h4>
+  <form method="post">
+    {% csrf_token %}
+    <div class="lang-grid">
+      {% for code, name in languages %}
+      <button type="submit" name="language" value="{{ code }}" class="lang-btn {% if code in existing_langs %}done{% endif %}">
+        <span class="lang-flag">
+          {% if code == 'es' %}🇪🇸{% elif code == 'fr' %}🇫🇷{% elif code == 'de' %}🇩🇪{% elif code == 'ja' %}🇯🇵{% elif code == 'ko' %}🇰🇷{% elif code == 'zh' %}🇨🇳{% elif code == 'pt' %}🇧🇷{% elif code == 'it' %}🇮🇹{% elif code == 'ru' %}🇷🇺{% elif code == 'ar' %}🇸🇦{% elif code == 'hi' %}🇮🇳{% else %}🌐{% endif %}
+        </span>
+        {{ name }}
+        {% if code in existing_langs %}<br><span style="font-size:.6rem;color:#22c55e">✓ Done</span>{% endif %}
+      </button>
+      {% endfor %}
+    </div>
+  </form>
+
+  {% if translations %}
+  <h4 style="font-size:.85rem;font-weight:700;margin-top:1.5rem;margin-bottom:.5rem">Existing Translations</h4>
+  {% for t in translations %}
+  <div class="translated-card">
+    <div class="tc-header">
+      <i class="fas fa-language me-1"></i>{{ t.language_name }} ({{ t.language_code }})
+      <span style="float:right;font-size:.65rem;opacity:.4">{{ t.created_at|date:"M d, Y" }}</span>
+    </div>
+    <div class="tc-body">
+      {% for section in t.translated_sections %}
+      <div style="margin-bottom:.8rem">
+        <strong>{{ section.title|default:"Section" }}</strong><br>
+        {{ section.content|linebreaksbr }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="text-center mt-3">
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
+  </div>
+</div>
+{% endblock %}

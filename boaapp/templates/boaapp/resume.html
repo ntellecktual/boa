@@ -1,0 +1,21 @@
+{% extends 'boaapp/base_generic.html' %}
+
+{% block title %}Resume - BOA{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Resume</h1>
+    {% if error %}
+        <div class="alert alert-warning">{{ error }}</div>
+    {% elif resume %}
+        <h2>{{ resume.title }}</h2>
+        <p>{{ resume.description }}</p>
+        {% if resume.file %}
+            <a href="{{ resume.file.url }}" class="btn btn-primary" target="_blank">Download Resume</a>
+        {% endif %}
+    {% endif %}
+    <div class="mt-3">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

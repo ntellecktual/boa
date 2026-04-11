@@ -2,6 +2,7 @@ import logging
 import nbformat
 from nbconvert import HTMLExporter # Add this import
 import os
+import threading
 
 from django.conf import settings
 from django.db import transaction
@@ -16,9 +17,15 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
 
-from .forms import DocumentForm, UserRegisterForm, CustomUserCreationForm
-from .models import Document, AudioFile, VideoFile, Course, Enrollment, CourseSection, PortfolioItem, DevopsItem, ResumeDocument
-from .tasks import create_audio_files_task, create_single_video_task
+from .forms import DocumentForm, CustomUserCreationForm
+from .models import (
+    Document, AudioFile, VideoFile, Course, Enrollment, CourseSection,
+    PortfolioItem, DevopsItem, ResumeDocument,
+    Quiz, QuizQuestion, QuizAttempt, ChatConversation, ChatMessage,
+    LearningEvent, CourseThumbnail, TranslatedContent, WebhookConfig,
+    PipelineRun, CodeReview,
+)
+from .tasks import create_audio_files_task, create_single_video_task, run_full_pipeline_task
 from .utils import _get_video_paths, _get_random_background
 from .process_notebook import handle_uploaded_file
 
@@ -196,6 +203,7 @@ def uploadit(request):
   ]
     return render(request, 'boaapp/uploadit.html', {'items': items, 'page_id': 'uploadit', **context})
 
+
 def boashedskin_view(request):
     return HttpResponse("Health check successful!")
 
@@ -209,16 +217,7 @@ def register(request):
             messages.success(request, f'Account created for {username}! Welcome to the courses.')
             return redirect('course_list') # Redirect to the course list page
     else:
-        # GET request
         form = CustomUserCreationForm()
-        # --- Debugging ---
-        print("--- Register View (GET) ---")
-        print(f"Form type: {type(form)}")
-        print(f"Form fields: {form.fields.keys()}") # See which fields the form object thinks it has
-        print(f"Form is bound: {form.is_bound}")
-        print("--------------------------")
-        logger.info(f"Rendering registration form. Fields: {list(form.fields.keys())}") # Also log it
-        # --- End Debugging ---
     return render(request, 'boaapp/register.html', {'form': form})
 
 def login_view(request):
@@ -236,7 +235,7 @@ def login_view(request):
                 next_url = request.POST.get('next') # Handle redirection if 'next' parameter exists
                 if next_url:
                     return redirect(next_url)
-                return redirect('dashboard') # Default redirect
+                return redirect('login') # Default redirect
             else:
                 # This case should ideally not happen if form.is_valid() and authenticate works
                 # but good to handle defensively.
@@ -353,38 +352,37 @@ def upload_document(request):
             document.uploaded_file.name = relative_path.replace('\\', '/')
             document.save(update_fields=['uploaded_file'])
 
-            # --- Trigger Audio Creation Task (Explicit Connection Test) ---
-            logger.info(f"Triggering Celery task create_audio_files_task for document PK {document.pk} using explicit connection")
+            # --- Trigger Audio Creation Task ---
+            logger.info(f"Triggering Celery task create_audio_files_task for document PK {document.pk}")
             try:
-                # Get broker URL from settings (already verified it's correct)
-                broker_url = settings.CELERY_BROKER_URL
-                logger.debug(f"Using broker URL for explicit connection: {broker_url}")
-
-                # Create a connection explicitly using the broker URL
-                # The 'with' statement ensures the connection is closed
-                with Connection(broker_url) as conn:
-                    logger.debug(f"Explicit Kombu connection established: {conn}")
-                    # Send the task and get the AsyncResult
+                if getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
+                    # Eager mode: run synchronously, no broker connection needed
+                    logger.info("Running task in eager mode (synchronous)")
                     async_result = create_audio_files_task.apply_async(
-                        args=[document.pk, request.user.pk],
-                        connection=conn # Pass the connection object
+                        args=[document.pk, request.user.pk]
                     )
-                task_id = async_result.id # Get the task ID
-                logger.info(f"Task sent successfully using explicit connection. Task ID: {task_id}")
-                redirect_url = f"{redirect('dashboard').url}?audio_task_id={task_id}" # Append task ID to dashboard URL
+                else:
+                    # Production mode: use explicit connection to broker
+                    broker_url = settings.CELERY_BROKER_URL
+                    logger.debug(f"Using broker URL for explicit connection: {broker_url}")
+                    with Connection(broker_url) as conn:
+                        logger.debug(f"Explicit Kombu connection established: {conn}")
+                        async_result = create_audio_files_task.apply_async(
+                            args=[document.pk, request.user.pk],
+                            connection=conn
+                        )
+                task_id = async_result.id
+                logger.info(f"Task sent successfully. Task ID: {task_id}")
+                redirect_url = f"{redirect('dashboard').url}?audio_task_id={task_id}"
 
             except ConnectionRefusedError as e_conn_refused:
-                logger.error(f"Connection refused even with explicit Kombu connection: {e_conn_refused}", exc_info=True)
+                logger.error(f"Connection refused: {e_conn_refused}", exc_info=True)
                 messages.error(request, "Failed to connect to the background task queue (Connection Refused). Please ensure Redis is running and accessible.")
-                # Optionally delete the document record if queuing fails?
-                # document.delete()
-                return redirect('dashboard') # Redirect on failure
-            except Exception as e_send: # Catch other potential errors during task sending
-                 logger.error(f"Error sending task with explicit connection: {e_send}", exc_info=True)
+                return redirect('dashboard')
+            except Exception as e_send:
+                 logger.error(f"Error sending task: {e_send}", exc_info=True)
                  messages.error(request, f"Failed to queue background task: {e_send}")
-                 # Optionally delete the document record if queuing fails?
-                 # document.delete()
-                 return redirect('dashboard') # Redirect on failure
+                 return redirect('dashboard')
             # --- End Task Triggering ---
 
             messages.success(request, f"Notebook '{original_filename}' uploaded successfully. Audio generation started in the background.")
@@ -430,6 +428,10 @@ def check_task_status(request, task_id):
     }
     return JsonResponse(response_data)
 
+def process_flows(request):
+    """Render AI Process Flows demo page."""
+    return render(request, 'boaapp/process_flows.html')
+
 def companyandme(request):
     """Render 'Company and Me' page."""
     return render(request, 'boaapp/companyandme.html')
@@ -453,14 +455,6 @@ def technical_showcase_view(request):
     context = {} 
     return render(request, 'boaapp/technical_showcase.html', context)
 
-def project_pages(request):
-    portfolio_items = PortfolioItem.objects.all()
-    devops_items = DevopsItem.objects.all()
-    return render(request, 'boaapp/project_pages.html', {
-        'portfolio_items': portfolio_items,
-        'devops_items': devops_items,
-    })
-
 def data_start(request):
     return render(request, 'boaapp/data_start.html')
 
@@ -469,6 +463,24 @@ def data_project(request):
 
 def live_demos(request):
     return render(request, 'boaapp/live_demos.html')
+
+def etl_pipeline(request):
+    return render(request, 'boaapp/etl_pipeline.html')
+
+def mlops_lifecycle(request):
+    return render(request, 'boaapp/mlops_lifecycle.html')
+
+def cicd_automation(request):
+    return render(request, 'boaapp/cicd_automation.html')
+
+def streaming_architecture(request):
+    return render(request, 'boaapp/streaming_architecture.html')
+
+def api_orchestration(request):
+    return render(request, 'boaapp/api_orchestration.html')
+
+def idp_demo(request):
+    return render(request, 'boaapp/idp_demo.html')
 
 def skills_section(request):
     return render(request, 'boaapp/skills_section.html')
@@ -502,7 +514,7 @@ def dashboard(request):
             video_output_dir, video_path_abs, sync_file = _get_video_paths(audio) # Use helper
 
             video_exists = os.path.exists(video_path_abs) if video_path_abs else False
-            video_url = os.path.join(settings.MEDIA_URL, os.path.relpath(video_path_abs, settings.MEDIA_ROOT)) if video_exists else None
+            video_url = (settings.MEDIA_URL + os.path.relpath(video_path_abs, settings.MEDIA_ROOT).replace('\\', '/')) if video_exists else None
 
             doc_data['audio_files'].append({
                 'audio': audio,
@@ -649,59 +661,610 @@ def delete_all_files(request):
 
 @login_required
 def generate_video(request, audio_file_pk):
-    """Triggers the background task to generate a single video."""
+    """Triggers video generation for a single audio file in a background thread."""
     audio_file = get_object_or_404(AudioFile, pk=audio_file_pk, user=request.user)
     logger.info(f"User {request.user.username} initiated video generation for AudioFile PK {audio_file_pk}")
 
-    # --- Trigger Video Creation Task (Explicit Connection Test) ---
-    logger.info(f"Triggering Celery task create_single_video_task for AudioFile PK {audio_file_pk} using explicit connection")
-    try:
-        # Get broker URL from settings
-        broker_url = settings.CELERY_BROKER_URL
-        logger.debug(f"Using broker URL for explicit connection: {broker_url}")
+    def _gen_video(pk):
+        try:
+            create_single_video_task.apply(args=[pk])
+        except Exception as e:
+            logger.error(f"Background video gen failed for AudioFile PK {pk}: {e}")
 
-        # Create a connection explicitly using the broker URL
-        with Connection(broker_url) as conn:
-            logger.debug(f"Explicit Kombu connection established: {conn}")
-            # Send the task using apply_async and the explicit connection
-            create_single_video_task.apply_async(
-                args=[audio_file_pk],
-                connection=conn # Pass the connection object
-            )
-        logger.info("Video generation task sent successfully using explicit connection.")
-        messages.success(request, f"Video generation started for '{audio_file.title}'. It will appear on the dashboard when ready.")
+    thread = threading.Thread(target=_gen_video, args=(audio_file_pk,), daemon=True)
+    thread.start()
 
-    except ConnectionRefusedError as e_conn_refused:
-        logger.error(f"Connection refused when sending video task with explicit Kombu connection: {e_conn_refused}", exc_info=True)
-        messages.error(request, "Failed to connect to the background task queue (Connection Refused). Please ensure Redis is running and accessible.")
-    except Exception as e_send:
-         logger.error(f"Error sending video task with explicit connection: {e_send}", exc_info=True)
-         messages.error(request, f"Failed to queue video generation task: {e_send}")
-    # --- End Explicit Connection Test ---
-
-    return redirect('dashboard') # Redirect back to dashboard regardless of success/failure queuing
+    messages.success(request, f"Video generation started for '{audio_file.title}'. It will appear on the dashboard when ready.")
+    return redirect('dashboard')
 
 @login_required
 def generate_all_videos(request):
-    """Triggers video generation tasks for all audio files for the user."""
-    user_audio_files = AudioFile.objects.filter(user=request.user)
-    triggered_count = 0
+    """Triggers video generation tasks for all audio files for the user in a background thread."""
+    user_audio_files = list(AudioFile.objects.filter(user=request.user))
+
+    # Collect audio PKs that need videos
+    audio_pks_to_generate = []
     skipped_count = 0
-
-    logger.info(f"Starting 'generate_all_videos' task trigger for user {request.user.username}")
-
     for audio_file in user_audio_files:
-        # Optional: Check if video already exists before triggering
         _, video_path_abs, _ = _get_video_paths(audio_file)
         if video_path_abs and os.path.exists(video_path_abs):
-            logger.debug(f"Skipping video task for AudioFile PK {audio_file.pk}, video already exists.")
             skipped_count += 1
             continue
+        audio_pks_to_generate.append(audio_file.pk)
 
-        # Trigger task for each audio file
-        create_single_video_task.delay(audio_file.pk)
-        triggered_count += 1
+    triggered_count = len(audio_pks_to_generate)
+    logger.info(f"generate_all_videos: {triggered_count} to generate, {skipped_count} skipped for user {request.user.username}")
 
-    message = f"Triggered {triggered_count} video generation tasks. Skipped {skipped_count} (already exist)."
-    messages.info(request, message + " Please refresh the dashboard shortly to see progress.")
+    # Run in background thread so the HTTP response returns immediately
+    def _generate_all(pks):
+        for pk in pks:
+            try:
+                create_single_video_task.apply(args=[pk])
+            except Exception as e:
+                logger.error(f"Background video gen failed for AudioFile PK {pk}: {e}")
+
+    if audio_pks_to_generate:
+        thread = threading.Thread(target=_generate_all, args=(audio_pks_to_generate,), daemon=True)
+        thread.start()
+
+    message = f"Generating {triggered_count} videos in the background. Skipped {skipped_count} (already exist)."
+    messages.info(request, message + " Refresh the dashboard to see progress.")
     return redirect('dashboard')
+
+
+# ==========================================================================
+# ONE-CLICK FULL PIPELINE
+# ==========================================================================
+
+@login_required
+def run_full_pipeline(request, document_pk):
+    """Start the full pipeline: audio → video → quiz → thumbnail → RAG index."""
+    document = get_object_or_404(Document, pk=document_pk, user=request.user)
+
+    # Create pipeline run for tracking
+    pipeline_run = PipelineRun.objects.create(
+        user=request.user,
+        document=document,
+        status='pending',
+        current_step='Initializing...',
+    )
+
+    # Run in background thread so the response returns immediately
+    def _run_pipeline(doc_pk, user_pk, run_pk):
+        try:
+            run_full_pipeline_task.apply(args=[doc_pk, user_pk, run_pk])
+        except Exception as e:
+            logger.error(f"Background pipeline failed for doc {doc_pk}: {e}")
+
+    thread = threading.Thread(
+        target=_run_pipeline,
+        args=(document_pk, request.user.pk, pipeline_run.pk),
+        daemon=True,
+    )
+    thread.start()
+
+    messages.success(request, f"Full pipeline started for '{document.uploaded_file.name}'. Refresh to track progress.")
+    return redirect('dashboard')
+
+
+@login_required
+def pipeline_status_api(request, run_id):
+    """API endpoint for pipeline run status."""
+    run = get_object_or_404(PipelineRun, pk=run_id, user=request.user)
+    return JsonResponse({
+        'id': run.pk,
+        'status': run.status,
+        'progress_pct': run.progress_pct,
+        'current_step': run.current_step,
+        'error_message': run.error_message,
+        'started_at': run.started_at.isoformat() if run.started_at else None,
+        'completed_at': run.completed_at.isoformat() if run.completed_at else None,
+    })
+
+
+# ==========================================================================
+# QUIZ VIEWS
+# ==========================================================================
+
+@login_required
+def quiz_list_view(request, document_pk):
+    """List all quizzes for a document."""
+    document = get_object_or_404(Document, pk=document_pk, user=request.user)
+    quizzes = Quiz.objects.filter(document=document).order_by('-created_at')
+    return render(request, 'boaapp/quiz_list.html', {
+        'document': document,
+        'quizzes': quizzes,
+        'page_id': 'quiz',
+    })
+
+
+@login_required
+def quiz_take_view(request, quiz_pk):
+    """Take a quiz (GET shows questions, POST submits answers)."""
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
+    questions = quiz.questions.all()
+
+    if request.method == 'POST':
+        from .quiz_generator import grade_answer
+
+        answers = {}
+        score = 0
+        total = questions.count()
+        results = []
+
+        for q in questions:
+            user_answer = request.POST.get(f'question_{q.pk}', '')
+            answers[str(q.pk)] = user_answer
+            is_correct, feedback = grade_answer(q.question_type, user_answer, q.correct_answer)
+            if is_correct:
+                score += 1
+            results.append({
+                'question': q.question_text,
+                'user_answer': user_answer,
+                'correct_answer': q.correct_answer,
+                'is_correct': is_correct,
+                'feedback': feedback,
+                'explanation': q.explanation,
+            })
+
+        attempt = QuizAttempt.objects.create(
+            user=request.user,
+            quiz=quiz,
+            score=score,
+            total_questions=total,
+            answers=answers,
+        )
+
+        # Track learning event
+        LearningEvent.objects.create(
+            user=request.user,
+            event_type='quiz_attempt',
+            metadata={'quiz_id': quiz.pk, 'score': score, 'total': total},
+        )
+
+        return render(request, 'boaapp/quiz_results.html', {
+            'quiz': quiz,
+            'results': results,
+            'score': score,
+            'total': total,
+            'percentage': round(score / total * 100) if total else 0,
+            'page_id': 'quiz',
+        })
+
+    return render(request, 'boaapp/quiz_take.html', {
+        'quiz': quiz,
+        'questions': questions,
+        'page_id': 'quiz',
+    })
+
+
+@login_required
+def generate_quiz_view(request, document_pk):
+    """Generate quizzes for a document's audio sections."""
+    from .tasks import generate_quiz_from_document_task
+
+    document = get_object_or_404(Document, pk=document_pk, user=request.user)
+
+    generate_quiz_from_document_task.delay(document.pk)
+
+    messages.success(request, "Quiz generation started from notebook content.")
+    return redirect('quiz_list', document_pk=document_pk)
+
+
+# ==========================================================================
+# RAG CHATBOT VIEWS
+# ==========================================================================
+
+@login_required
+def chat_view(request, document_pk=None):
+    """Chatbot interface for a document."""
+    document = None
+    if document_pk:
+        document = get_object_or_404(Document, pk=document_pk, user=request.user)
+
+    # Get or create conversation
+    conversation = None
+    if document:
+        conversation = ChatConversation.objects.filter(
+            user=request.user, document=document
+        ).order_by('-updated_at').first()
+
+        if not conversation:
+            stem = os.path.splitext(os.path.basename(str(document.uploaded_file)))[0]
+            conversation = ChatConversation.objects.create(
+                user=request.user,
+                document=document,
+                title=f"Chat: {stem}",
+            )
+
+    chat_messages = []
+    if conversation:
+        chat_messages = list(conversation.messages.values('role', 'content', 'created_at'))
+
+    return render(request, 'boaapp/chat.html', {
+        'document': document,
+        'conversation': conversation,
+        'messages_list': chat_messages,
+        'page_id': 'chat',
+    })
+
+
+@login_required
+def chat_api(request):
+    """REST API fallback for chat (when WebSocket is unavailable)."""
+    import json
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    message = data.get('message', '').strip()
+    conversation_id = data.get('conversation_id')
+
+    if not message or not conversation_id:
+        return JsonResponse({'error': 'Missing message or conversation_id'}, status=400)
+
+    conversation = get_object_or_404(ChatConversation, pk=conversation_id, user=request.user)
+
+    # Save user message
+    ChatMessage.objects.create(conversation=conversation, role='user', content=message)
+
+    # Get RAG response
+    from .rag_engine import get_rag_response
+    response_text, sources = get_rag_response(message, conversation.document_id)
+
+    # Save assistant message
+    ChatMessage.objects.create(
+        conversation=conversation, role='assistant', content=response_text, sources=sources
+    )
+
+    # Track event
+    LearningEvent.objects.create(
+        user=request.user,
+        event_type='chat_message',
+        metadata={'conversation_id': conversation_id},
+    )
+
+    return JsonResponse({
+        'response': response_text,
+        'sources': sources,
+    })
+
+
+# ==========================================================================
+# CODE PLAYGROUND
+# ==========================================================================
+
+@login_required
+def code_playground_view(request):
+    """Interactive code playground page (Pyodide-based, runs in browser)."""
+    return render(request, 'boaapp/code_playground.html', {'page_id': 'playground'})
+
+
+@login_required
+def code_review_api(request):
+    """API endpoint for AI code review."""
+    import json
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    code = data.get('code', '')
+    language = data.get('language', 'python')
+
+    if not code.strip():
+        return JsonResponse({'error': 'No code provided'}, status=400)
+
+    from .tasks import ai_code_review_task
+    try:
+        result = ai_code_review_task.apply(args=[code, language])
+        review_data = result.get()
+    except Exception as e:
+        review_data = {'score': 0, 'issues': [], 'summary': f'Review failed: {e}'}
+
+    # Save review
+    CodeReview.objects.create(
+        user=request.user,
+        code=code,
+        language=language,
+        review_result=review_data,
+    )
+
+    LearningEvent.objects.create(
+        user=request.user,
+        event_type='code_run',
+        metadata={'language': language},
+    )
+
+    return JsonResponse({'review': review_data})
+
+
+# ==========================================================================
+# LEARNING ANALYTICS
+# ==========================================================================
+
+@login_required
+def analytics_dashboard_view(request):
+    """Learning analytics dashboard."""
+    from django.db.models import Count, Avg
+    from django.db.models.functions import TruncDate
+
+    user = request.user
+
+    # Activity over time (last 30 days)
+    from datetime import timedelta
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+
+    daily_activity = (
+        LearningEvent.objects
+        .filter(user=user, created_at__gte=thirty_days_ago)
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+
+    # Event type breakdown
+    event_breakdown = (
+        LearningEvent.objects
+        .filter(user=user)
+        .values('event_type')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+
+    # Quiz performance
+    quiz_stats = QuizAttempt.objects.filter(user=user).aggregate(
+        avg_score=Avg('score'),
+        total_attempts=Count('id'),
+    )
+
+    # Total content consumed
+    total_audio = AudioFile.objects.filter(user=user).count()
+    total_videos = sum(
+        1 for a in AudioFile.objects.filter(user=user)
+        if _get_video_paths(a)[1] and os.path.exists(_get_video_paths(a)[1])
+    )
+
+    context = {
+        'daily_activity': list(daily_activity),
+        'event_breakdown': list(event_breakdown),
+        'quiz_stats': quiz_stats,
+        'total_audio': total_audio,
+        'total_videos': total_videos,
+        'total_events': LearningEvent.objects.filter(user=user).count(),
+        'page_id': 'analytics',
+    }
+
+    return render(request, 'boaapp/analytics.html', context)
+
+
+# ==========================================================================
+# SMART CHAPTERED VIDEO PLAYER
+# ==========================================================================
+
+@login_required
+def chaptered_player_view(request, document_pk):
+    """Smart chaptered video player for all videos of a document."""
+    document = get_object_or_404(Document, pk=document_pk, user=request.user)
+    audio_files = AudioFile.objects.filter(document=document).order_by('metadata__section_index', 'pk')
+
+    chapters = []
+    for audio in audio_files:
+        _, video_path_abs, sync_file = _get_video_paths(audio)
+        if video_path_abs and os.path.exists(video_path_abs):
+            video_url = settings.MEDIA_URL + os.path.relpath(video_path_abs, settings.MEDIA_ROOT).replace('\\', '/')
+            chapters.append({
+                'title': audio.title,
+                'video_url': video_url,
+                'audio_pk': audio.pk,
+                'section_index': (audio.metadata or {}).get('section_index', 0),
+            })
+
+    # Track event
+    LearningEvent.objects.create(
+        user=request.user,
+        event_type='video_watch',
+        metadata={'document_id': document_pk},
+    )
+
+    return render(request, 'boaapp/chaptered_player.html', {
+        'document': document,
+        'chapters': chapters,
+        'page_id': 'player',
+    })
+
+
+# ==========================================================================
+# GITHUB WEBHOOK
+# ==========================================================================
+
+from django.views.decorators.csrf import csrf_exempt
+import hashlib
+import hmac
+
+
+@csrf_exempt
+def github_webhook(request):
+    """Handle GitHub webhook push events."""
+    import json
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    # Verify signature
+    secret = getattr(settings, 'GITHUB_WEBHOOK_SECRET', '')
+    if secret:
+        signature = request.headers.get('X-Hub-Signature-256', '')
+        if not signature:
+            return JsonResponse({'error': 'Missing signature'}, status=403)
+
+        expected = 'sha256=' + hmac.new(
+            secret.encode(), request.body, hashlib.sha256
+        ).hexdigest()
+        if not hmac.compare_digest(signature, expected):
+            return JsonResponse({'error': 'Invalid signature'}, status=403)
+
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    event_type = request.headers.get('X-GitHub-Event', '')
+    if event_type != 'push':
+        return JsonResponse({'status': 'ignored', 'event': event_type})
+
+    repo_name = payload.get('repository', {}).get('full_name', '')
+    ref = payload.get('ref', '')
+    branch = ref.split('/')[-1] if '/' in ref else ref
+
+    # Find matching webhook configs
+    configs = WebhookConfig.objects.filter(
+        repo_full_name=repo_name,
+        branch=branch,
+        is_active=True,
+    )
+
+    triggered = 0
+    for config in configs:
+        if config.auto_pipeline:
+            # Check if any .ipynb files were changed
+            commits = payload.get('commits', [])
+            changed_files = set()
+            for commit in commits:
+                changed_files.update(commit.get('added', []))
+                changed_files.update(commit.get('modified', []))
+
+            ipynb_files = [f for f in changed_files if f.endswith('.ipynb')]
+            if ipynb_files:
+                logger.info(f"GitHub webhook: {len(ipynb_files)} notebooks changed in {repo_name}/{branch}")
+                triggered += 1
+
+    return JsonResponse({'status': 'ok', 'triggered': triggered})
+
+
+@login_required
+def webhook_config_view(request):
+    """Manage webhook configurations."""
+    configs = WebhookConfig.objects.filter(user=request.user)
+
+    if request.method == 'POST':
+        repo = request.POST.get('repo_full_name', '').strip()
+        branch = request.POST.get('branch', 'main').strip()
+        notebook_path = request.POST.get('notebook_path', '').strip()
+
+        if repo:
+            WebhookConfig.objects.create(
+                user=request.user,
+                repo_full_name=repo,
+                branch=branch,
+                notebook_path=notebook_path,
+            )
+            messages.success(request, f"Webhook configured for {repo}/{branch}")
+
+        return redirect('webhook_config')
+
+    return render(request, 'boaapp/webhook_config.html', {
+        'configs': configs,
+        'page_id': 'webhooks',
+    })
+
+
+# ==========================================================================
+# TRANSLATION VIEWS
+# ==========================================================================
+
+SUPPORTED_LANGUAGES = [
+    ('es', 'Spanish'), ('fr', 'French'), ('de', 'German'),
+    ('ja', 'Japanese'), ('ko', 'Korean'), ('zh', 'Chinese'),
+    ('pt', 'Portuguese'), ('it', 'Italian'), ('ru', 'Russian'),
+    ('ar', 'Arabic'), ('hi', 'Hindi'),
+]
+
+
+@login_required
+def translate_document_view(request, document_pk):
+    """Trigger translation for a document."""
+    from .tasks import translate_document_task
+
+    document = get_object_or_404(Document, pk=document_pk, user=request.user)
+
+    if request.method == 'POST':
+        lang_code = request.POST.get('language_code', '')
+        lang_name = dict(SUPPORTED_LANGUAGES).get(lang_code, '')
+
+        if lang_code and lang_name:
+            translate_document_task.delay(document_pk, lang_code, lang_name)
+            messages.success(request, f"Translation to {lang_name} started.")
+        else:
+            messages.error(request, "Invalid language selected.")
+
+        return redirect('translate_document', document_pk=document_pk)
+
+    existing = TranslatedContent.objects.filter(document=document)
+
+    return render(request, 'boaapp/translate.html', {
+        'document': document,
+        'languages': SUPPORTED_LANGUAGES,
+        'existing_translations': existing,
+        'page_id': 'translate',
+    })
+
+
+# ==========================================================================
+# VOICE CLONING VIEW
+# ==========================================================================
+
+@login_required
+def voice_settings_view(request):
+    """Voice settings page for TTS provider selection."""
+    elevenlabs_available = bool(getattr(settings, 'ELEVENLABS_API_KEY', ''))
+    return render(request, 'boaapp/voice_settings.html', {
+        'elevenlabs_available': elevenlabs_available,
+        'page_id': 'voice_settings',
+    })
+
+
+# ==========================================================================
+# ADAPTIVE LEARNING
+# ==========================================================================
+
+@login_required
+def learning_path_view(request):
+    """AI-recommended learning path based on user activity."""
+    user = request.user
+
+    # Get user's completed content
+    completed_sections = CourseSection.objects.filter(
+        completed_by_enrollments__user=user
+    ).values_list('id', flat=True)
+
+    # Get quiz performance
+    quiz_attempts = QuizAttempt.objects.filter(user=user).select_related('quiz')
+    weak_topics = []
+    for attempt in quiz_attempts:
+        if attempt.total_questions > 0 and (attempt.score / attempt.total_questions) < 0.7:
+            weak_topics.append(attempt.quiz.title)
+
+    # Recommend courses user hasn't enrolled in
+    enrolled_ids = Enrollment.objects.filter(user=user).values_list('course_id', flat=True)
+    recommended_courses = Course.objects.exclude(pk__in=enrolled_ids)[:5]
+
+    context = {
+        'weak_topics': weak_topics,
+        'recommended_courses': recommended_courses,
+        'completed_count': len(completed_sections),
+        'total_quizzes': quiz_attempts.count(),
+        'page_id': 'learning_path',
+    }
+
+    return render(request, 'boaapp/learning_path.html', context)

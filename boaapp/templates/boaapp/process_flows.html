@@ -1,0 +1,891 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}thenumerix | AI Process Flows — Finance & Accounting{% endblock %}
+
+{% block content %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   PROCESS FLOWS — Design Tokens
+   ══════════════════════════════════════════════════════════ */
+:root{
+  --pf-blue:#3b82f6;
+  --pf-violet:#8b5cf6;
+  --pf-emerald:#10b981;
+  --pf-amber:#f59e0b;
+  --pf-rose:#ef4444;
+  --pf-grad-b:linear-gradient(135deg,#3b82f6,#8b5cf6);
+  --pf-grad-g:linear-gradient(135deg,#10b981,#059669);
+  --pf-surface:rgba(255,255,255,.75);
+  --pf-border:rgba(0,0,0,.08);
+  --pf-shadow:0 4px 24px rgba(0,0,0,.07);
+  --pf-shadow-lg:0 12px 48px rgba(0,0,0,.13);
+}
+[data-theme="dark"]{
+  --pf-surface:rgba(22,28,45,.8);
+  --pf-border:rgba(255,255,255,.08);
+  --pf-shadow:0 4px 24px rgba(0,0,0,.4);
+  --pf-shadow-lg:0 12px 48px rgba(0,0,0,.55);
+}
+
+/* ── Keyframes ── */
+@keyframes pfFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes pfPulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes pfScan{from{top:0}to{top:100%}}
+@keyframes pfSlide{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── Hero ── */
+.pf-hero{text-align:center;padding:3.5rem 0 2.5rem;position:relative;overflow:hidden}
+.pf-hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(59,130,246,.11) 0%,transparent 70%),
+             radial-gradient(ellipse 45% 35% at 85% 110%,rgba(139,92,246,.08) 0%,transparent 60%);
+  pointer-events:none}
+.pf-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .9rem;border-radius:999px;
+  background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);font-size:.72rem;font-weight:700;
+  color:var(--pf-blue);margin-bottom:.9rem;text-transform:uppercase;letter-spacing:.06em}
+.pf-hero h1{font-size:clamp(1.9rem,4.5vw,3.1rem);font-weight:800;line-height:1.1;margin-bottom:.8rem;
+  background:linear-gradient(135deg,#1e3a5f 0%,#3b82f6 50%,#8b5cf6 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+[data-theme="dark"] .pf-hero h1{background:linear-gradient(135deg,#e2e8f0 0%,#60a5fa 50%,#a78bfa 100%);
+  -webkit-background-clip:text;background-clip:text}
+.pf-hero .lead{font-size:1rem;opacity:.7;max-width:580px;margin:0 auto 2rem}
+
+.pf-kpi-strip{display:flex;justify-content:center;flex-wrap:wrap;gap:1rem;margin-top:1rem}
+.pf-kpi-chip{display:flex;align-items:center;gap:.6rem;padding:.6rem 1.1rem;border-radius:14px;
+  background:var(--pf-surface);border:1px solid var(--pf-border);backdrop-filter:blur(8px);
+  box-shadow:var(--pf-shadow);animation:pfFloat 3s ease-in-out infinite}
+.pf-kpi-chip:nth-child(2){animation-delay:.5s}
+.pf-kpi-chip:nth-child(3){animation-delay:1s}
+.pf-kpi-chip:nth-child(4){animation-delay:1.5s}
+.pf-kpi-val{font-size:1.15rem;font-weight:800;background:var(--pf-grad-b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pf-kpi-lbl{font-size:.72rem;opacity:.65;line-height:1.3}
+
+/* ── Section wrapper ── */
+.pf-sec{padding:1.8rem 0;animation:pfFadeUp .6s ease both}
+.pf-sec-head{text-align:center;margin-bottom:1.4rem}
+.pf-sec-head h2{font-size:1.55rem;font-weight:800;margin-bottom:.25rem}
+.pf-sec-head p{font-size:.88rem;opacity:.65;max-width:520px;margin:0 auto}
+.pf-tag{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.63rem;
+  font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
+.pf-tag--b{background:rgba(59,130,246,.11);color:#2563eb}
+.pf-tag--g{background:rgba(16,185,129,.11);color:#059669}
+.pf-tag--v{background:rgba(139,92,246,.11);color:#7c3aed}
+.pf-tag--a{background:rgba(245,158,11,.11);color:#b45309}
+
+/* ── AP/AR twin grid ── */
+.pf-twin{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;max-width:900px;margin:0 auto}
+@media(max-width:620px){.pf-twin{grid-template-columns:1fr}}
+.pf-twin-card{border-radius:20px;padding:1.5rem;border:1px solid var(--pf-border);
+  background:var(--pf-surface);backdrop-filter:blur(12px);box-shadow:var(--pf-shadow);
+  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.pf-twin-card:hover{transform:translateY(-4px);box-shadow:var(--pf-shadow-lg)}
+.pf-twin-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pf-twin-card--ap::before{background:var(--pf-grad-b)}
+.pf-twin-card--ar::before{background:var(--pf-grad-g)}
+.pf-twin-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;
+  justify-content:center;font-size:1.2rem;color:#fff;margin-bottom:.9rem}
+.pf-twin-card--ap .pf-twin-icon{background:var(--pf-grad-b)}
+.pf-twin-card--ar .pf-twin-icon{background:var(--pf-grad-g)}
+.pf-twin-card h3{font-size:1.05rem;font-weight:800;margin-bottom:.18rem}
+.pf-twin-card .sub{font-size:.76rem;opacity:.6;margin-bottom:.9rem}
+
+.pf-mini-flow{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-bottom:.9rem}
+.pf-fs{display:flex;align-items:center;gap:.28rem;font-size:.71rem;font-weight:600}
+.pf-fn{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.62rem;font-weight:800;color:#fff;flex-shrink:0}
+.pf-twin-card--ap .pf-fn{background:var(--pf-blue)}
+.pf-twin-card--ar .pf-fn{background:var(--pf-emerald)}
+.pf-fa{opacity:.3;font-size:.62rem}
+
+.pf-ba{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.9rem;font-size:.74rem}
+.pf-ba-col{border-radius:10px;padding:.5rem .65rem}
+.pf-ba-col--before{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.15)}
+.pf-ba-col--after{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.15)}
+.pf-ba-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.6;margin-bottom:.22rem}
+
+.pf-pill-row{display:flex;flex-wrap:wrap;gap:.35rem}
+.pf-pill{padding:.2rem .6rem;border-radius:999px;font-size:.68rem;font-weight:700}
+.pf-pill--b{background:rgba(59,130,246,.12);color:#2563eb}
+.pf-pill--g{background:rgba(16,185,129,.12);color:#059669}
+.pf-pill--v{background:rgba(139,92,246,.12);color:#7c3aed}
+.pf-pill--a{background:rgba(245,158,11,.12);color:#b45309}
+
+/* ── Demo panel ── */
+.pf-demo{border-radius:22px;border:1px solid var(--pf-border);background:var(--pf-surface);
+  backdrop-filter:blur(14px);box-shadow:var(--pf-shadow-lg);overflow:hidden;max-width:940px;margin:0 auto}
+.pf-demo-bar{padding:.85rem 1.4rem;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--pf-border);background:rgba(59,130,246,.035);gap:.8rem;flex-wrap:wrap}
+.pf-demo-bar h4{font-size:.9rem;font-weight:800;margin:0;flex:1}
+.pf-dots{display:flex;gap:.38rem}
+.pf-dot{width:11px;height:11px;border-radius:50%}
+.pf-dot--r{background:#ef4444}.pf-dot--y{background:#f59e0b}.pf-dot--g{background:#10b981}
+
+/* Pipeline steps bar */
+.pf-pip-bar{display:flex;padding:.75rem 1.4rem;border-bottom:1px solid var(--pf-border);overflow-x:auto;gap:0}
+.pf-pip{display:flex;flex-direction:column;align-items:center;gap:.2rem;flex:1;min-width:62px;position:relative}
+.pf-pip:not(:last-child)::after{content:'';position:absolute;top:13px;right:-50%;width:100%;height:2px;
+  background:var(--pf-border);transition:background .4s;z-index:0}
+.pf-pip.done::after,.pf-pip.active::after{background:linear-gradient(90deg,rgba(59,130,246,.35),var(--pf-border))}
+.pf-pip-dot{width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.06);border:2px solid var(--pf-border);
+  display:flex;align-items:center;justify-content:center;font-size:.68rem;transition:all .3s;position:relative;z-index:1}
+.pf-pip.active .pf-pip-dot{background:var(--pf-blue);border-color:var(--pf-blue);color:#fff;
+  box-shadow:0 0 0 4px rgba(59,130,246,.2);animation:pfPulse 1.2s ease-in-out infinite}
+.pf-pip.done .pf-pip-dot{background:var(--pf-emerald);border-color:var(--pf-emerald);color:#fff}
+.pf-pip-lbl{font-size:.58rem;font-weight:700;text-align:center;opacity:.55;text-transform:uppercase;
+  letter-spacing:.04em;transition:opacity .3s}
+.pf-pip.active .pf-pip-lbl,.pf-pip.done .pf-pip-lbl{opacity:1}
+
+/* Demo body: invoice pane + stage */
+.pf-demo-body{display:grid;grid-template-columns:230px 1fr;min-height:330px}
+@media(max-width:620px){.pf-demo-body{grid-template-columns:1fr}}
+.pf-inv-pane{padding:1rem;border-right:1px solid var(--pf-border);display:flex;flex-direction:column;gap:.6rem}
+.pf-pane-lbl{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.45}
+.pf-inv-card{border-radius:13px;border:1px solid var(--pf-border);background:var(--pf-surface);
+  padding:.95rem;position:relative;overflow:hidden;font-size:.76rem;box-shadow:var(--pf-shadow);display:none}
+.pf-inv-card.vis{display:block;animation:pfFadeUp .4s ease}
+.pf-inv-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem}
+.pf-inv-logo{font-size:.82rem;font-weight:800;color:var(--pf-blue)}
+.pf-inv-num{font-size:.62rem;opacity:.45}
+.pf-inv-row{display:flex;justify-content:space-between;padding:.18rem 0;border-bottom:1px solid var(--pf-border)}
+.pf-inv-row:last-child{border:none}
+.pf-inv-row .lbl{opacity:.52;font-size:.68rem}
+.pf-inv-row .val{font-weight:700;font-size:.73rem}
+.pf-scan{position:absolute;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,rgba(59,130,246,.75),transparent);
+  top:0;animation:pfScan 1.5s ease-in-out;pointer-events:none}
+.pf-log{font-size:.68rem;opacity:.6;font-family:monospace;line-height:1.65}
+
+.pf-stage{padding:1rem;overflow-y:auto;max-height:430px;display:flex;flex-direction:column;gap:.55rem}
+
+/* Step cards inside stage */
+.pf-step-card{border-radius:12px;border:1px solid var(--pf-border);
+  background:rgba(255,255,255,.65);padding:.85rem 1rem;font-size:.81rem;
+  animation:pfFadeUp .35s ease both;box-shadow:var(--pf-shadow)}
+[data-theme="dark"] .pf-step-card{background:rgba(22,28,45,.7)}
+.pf-step-card--ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
+.pf-step-card h6{font-size:.84rem;font-weight:700;margin-bottom:.45rem;text-align:center}
+.pf-chk{display:flex;align-items:center;gap:.45rem;padding:.28rem .45rem;border-radius:8px;
+  font-size:.78rem;transition:background .3s;margin-bottom:.18rem}
+.pf-chk.show{background:rgba(16,185,129,.07)}
+.pf-chk i.pending{color:var(--pf-blue)}.pf-chk i.pass{color:var(--pf-emerald)}
+.pf-json{background:#0f172a;color:#94a3b8;border-radius:9px;padding:.7rem .9rem;
+  font-family:monospace;font-size:.73rem;line-height:1.65;white-space:pre-wrap}
+.pf-json .key{color:#7dd3fc}.pf-json .str{color:#86efac}.pf-json .num{color:#fcd34d}
+.pf-xt table{width:100%;font-size:.77rem;margin-bottom:.4rem}
+.pf-xt th{font-size:.68rem;font-weight:700;background:rgba(0,0,0,.04);padding:.22rem .4rem}
+.pf-xt td{padding:.18rem .4rem;border-bottom:1px solid var(--pf-border)}
+.pf-xt td:last-child{text-align:right}
+.label-col{opacity:.6}
+
+/* Demo status badge */
+.pf-ds{display:inline-block;padding:.13rem .48rem;border-radius:6px;font-size:.67rem;font-weight:700}
+.pf-ds.posted{background:#d1fae5;color:#065f46}
+
+/* ── Live dashboard ── */
+.pf-dash{border-radius:18px;border:1px solid var(--pf-border);background:var(--pf-surface);
+  backdrop-filter:blur(10px);box-shadow:var(--pf-shadow);padding:1.2rem;
+  max-width:940px;margin:1rem auto 0}
+.pf-dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1rem}
+@media(max-width:480px){.pf-dash-kpis{grid-template-columns:repeat(2,1fr)}}
+.pf-dkpi{border-radius:12px;padding:.8rem;text-align:center;border:1px solid var(--pf-border);
+  background:rgba(255,255,255,.55)}
+[data-theme="dark"] .pf-dkpi{background:rgba(255,255,255,.04)}
+.pf-dkpi-val{font-size:1.4rem;font-weight:800;background:var(--pf-grad-b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pf-dkpi-lbl{font-size:.63rem;opacity:.6;text-transform:uppercase;letter-spacing:.04em;margin-top:.1rem}
+
+/* ── Azure architecture ── */
+.pf-az-flow{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap;
+  gap:0;margin-bottom:1.5rem}
+.pf-az-node{display:flex;flex-direction:column;align-items:center;padding:1.1rem .85rem;
+  border-radius:17px;border:1px solid var(--pf-border);background:var(--pf-surface);
+  backdrop-filter:blur(10px);box-shadow:var(--pf-shadow);min-width:108px;text-align:center;
+  transition:transform .25s,box-shadow .25s;position:relative}
+.pf-az-node:hover{transform:translateY(-4px);box-shadow:var(--pf-shadow-lg)}
+.pf-az-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:1.1rem;color:#fff;margin-bottom:.48rem}
+.pf-az-lbl{font-size:.71rem;font-weight:700;line-height:1.25}
+.pf-az-sub{font-size:.6rem;opacity:.52;margin-top:.14rem}
+.pf-az-arr{display:flex;align-items:center;padding:0 .3rem;opacity:.35;font-size:.88rem;align-self:center}
+
+.pf-svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.85rem;
+  max-width:880px;margin:0 auto}
+.pf-svc{border-radius:13px;border:1px solid var(--pf-border);background:var(--pf-surface);
+  backdrop-filter:blur(8px);padding:.9rem 1rem;display:flex;align-items:flex-start;gap:.7rem;
+  transition:transform .2s,box-shadow .2s}
+.pf-svc:hover{transform:translateY(-2px);box-shadow:var(--pf-shadow)}
+.pf-svc-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0}
+.pf-svc-name{font-size:.81rem;font-weight:700;margin-bottom:.18rem}
+.pf-svc-desc{font-size:.72rem;opacity:.65;line-height:1.4}
+.pf-svc-cost{font-size:.63rem;margin-top:.28rem;padding:.1rem .38rem;border-radius:6px;
+  background:rgba(16,185,129,.1);color:#059669;font-weight:700;display:inline-block}
+
+/* ── Claude AI cards ── */
+.pf-ai-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.9rem;
+  max-width:880px;margin:0 auto}
+.pf-ai-card{border-radius:18px;border:1px solid rgba(139,92,246,.2);background:var(--pf-surface);
+  backdrop-filter:blur(10px);padding:1.2rem;position:relative;overflow:hidden;
+  transition:transform .25s,box-shadow .25s}
+.pf-ai-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(139,92,246,.13)}
+.pf-ai-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pf-grad-b)}
+.pf-ai-card-em{font-size:1.55rem;margin-bottom:.55rem}
+.pf-ai-card h5{font-size:.87rem;font-weight:800;margin-bottom:.38rem}
+.pf-ai-card p{font-size:.75rem;opacity:.7;line-height:1.5;margin:0}
+
+/* ── Entity chips ── */
+.pf-entities{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;
+  max-width:700px;margin:.8rem auto 0}
+.pf-ent{padding:.34rem .78rem;border-radius:10px;font-size:.77rem;font-weight:600;
+  border:1px solid var(--pf-border);background:var(--pf-surface);backdrop-filter:blur(6px);
+  display:flex;align-items:center;gap:.38rem}
+
+/* ── Callout ── */
+.pf-callout{border-radius:16px;padding:1.1rem 1.4rem;border:1px solid var(--pf-border);
+  background:var(--pf-surface);backdrop-filter:blur(10px);max-width:760px;margin:1.3rem auto 0}
+.pf-callout--b{border-color:rgba(59,130,246,.22);background:rgba(59,130,246,.04)}
+.pf-callout--g{border-color:rgba(16,185,129,.22);background:rgba(16,185,129,.04)}
+.pf-callout--a{border-color:rgba(245,158,11,.22);background:rgba(245,158,11,.04)}
+.pf-callout h5{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
+.pf-callout p{font-size:.81rem;opacity:.75;margin:0;line-height:1.55}
+</style>
+
+<!-- ════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════ -->
+<section class="pf-hero">
+  <div class="pf-badge"><i class="fas fa-robot"></i>&nbsp; AI-Powered Automation</div>
+  <h1>Finance Process Flows<br>Reimagined with AI</h1>
+  <p class="lead">Accounts Payable &amp; Receivable automation — from invoice receipt to ERP posting in seconds, not days.</p>
+  <div class="pf-kpi-strip">
+    <div class="pf-kpi-chip">
+      <div><div class="pf-kpi-val">95%</div><div class="pf-kpi-lbl">Touchless Rate</div></div>
+    </div>
+    <div class="pf-kpi-chip">
+      <div><div class="pf-kpi-val">3.2s</div><div class="pf-kpi-lbl">Avg Process Time</div></div>
+    </div>
+    <div class="pf-kpi-chip">
+      <div><div class="pf-kpi-val">9</div><div class="pf-kpi-lbl">Entities Supported</div></div>
+    </div>
+    <div class="pf-kpi-chip">
+      <div><div class="pf-kpi-val">$0</div><div class="pf-kpi-lbl">Human Hours/Invoice</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     AP / AR TWIN CARDS
+════════════════════════════════════════════════════════ -->
+<section class="pf-sec">
+  <div class="pf-sec-head">
+    <span class="pf-tag pf-tag--b">Automation Scope</span>
+    <h2>End-to-End Finance Automation</h2>
+    <p>Parallel pipelines for both sides of the ledger — AI-validated, ERP-integrated, zero manual entry.</p>
+  </div>
+  <div class="pf-twin">
+
+    <!-- AP CARD -->
+    <div class="pf-twin-card pf-twin-card--ap">
+      <div class="pf-twin-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+      <h3>Accounts Payable</h3>
+      <p class="sub">Invoice ingestion → GL coding → ERP posting</p>
+      <div class="pf-mini-flow">
+        <div class="pf-fs"><span class="pf-fn">1</span>Receive</div><div class="pf-fa">›</div>
+        <div class="pf-fs"><span class="pf-fn">2</span>OCR</div><div class="pf-fa">›</div>
+        <div class="pf-fs"><span class="pf-fn">3</span>GL Code</div><div class="pf-fa">›</div>
+        <div class="pf-fs"><span class="pf-fn">4</span>Validate</div><div class="pf-fa">›</div>
+        <div class="pf-fs"><span class="pf-fn">5</span>Post</div>
+      </div>
+      <div class="pf-ba">
+        <div class="pf-ba-col pf-ba-col--before">
+          <div class="pf-ba-lbl">❌ Before</div>
+          AP clerk receives PDF, keys into ERP, GL codes from memory, supervisor approves via email
+        </div>
+        <div class="pf-ba-col pf-ba-col--after">
+          <div class="pf-ba-lbl">✅ After</div>
+          Email → OCR → Claude GL code → validation → Acumatica posted — all in &lt;5 seconds
+        </div>
+      </div>
+      <div class="pf-pill-row">
+        <span class="pf-pill pf-pill--b">95% Touchless</span>
+        <span class="pf-pill pf-pill--v">Claude GL Coding</span>
+        <span class="pf-pill pf-pill--g">Azure OCR</span>
+        <span class="pf-pill pf-pill--a">Multi-Entity</span>
+      </div>
+    </div>
+
+    <!-- AR CARD -->
+    <div class="pf-twin-card pf-twin-card--ar">
+      <div class="pf-twin-icon"><i class="fas fa-money-check-alt"></i></div>
+      <h3>Accounts Receivable</h3>
+      <p class="sub">Customer payments → revenue recognition</p>
+      <div class="pf-mini-flow">
+        <div class="pf-fs"><span class="pf-fn">1</span>Invoice</div><div class="pf-fa">›</div>
+        <div class="pf-fs"><span class="pf-fn">2</span>Send</div><div class="pf-fa">›</div>
+        <div class="pf-fs"><span class="pf-fn">3</span>Monitor</div><div class="pf-fa">›</div>
+        <div class="pf-fs"><span class="pf-fn">4</span>Collect</div><div class="pf-fa">›</div>
+        <div class="pf-fs"><span class="pf-fn">5</span>Close</div>
+      </div>
+      <div class="pf-ba">
+        <div class="pf-ba-col pf-ba-col--before">
+          <div class="pf-ba-lbl">❌ Before</div>
+          AR team tracks overdue manually, calls customers one-by-one, posts cash receipts with days of delay
+        </div>
+        <div class="pf-ba-col pf-ba-col--after">
+          <div class="pf-ba-lbl">✅ After</div>
+          Auto-generate invoices, AI collection emails, real-time DSO dashboard, instant cash posting
+        </div>
+      </div>
+      <div class="pf-pill-row">
+        <span class="pf-pill pf-pill--g">–30% DSO</span>
+        <span class="pf-pill pf-pill--v">AI Collections</span>
+        <span class="pf-pill pf-pill--b">Auto-Dunning</span>
+        <span class="pf-pill pf-pill--a">Live Dashboard</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     LIVE INTERACTIVE DEMO
+════════════════════════════════════════════════════════ -->
+<section class="pf-sec">
+  <div class="pf-sec-head">
+    <span class="pf-tag pf-tag--g">Live Demo</span>
+    <h2>Watch the Pipeline Run</h2>
+    <p>A real-time simulation of the AP pipeline — click Run to process a synthetic invoice through all 6 stages.</p>
+  </div>
+
+  <div class="pf-demo">
+    <!-- Title bar -->
+    <div class="pf-demo-bar">
+      <div class="pf-dots">
+        <div class="pf-dot pf-dot--r"></div>
+        <div class="pf-dot pf-dot--y"></div>
+        <div class="pf-dot pf-dot--g"></div>
+      </div>
+      <h4><i class="fas fa-terminal me-2" style="color:var(--pf-blue)"></i>AP Invoice Pipeline — Live Simulator</h4>
+      <div style="display:flex;gap:.5rem;flex-shrink:0">
+        <button class="btn btn-primary btn-sm" id="btnRun" style="border-radius:8px;font-size:.79rem">
+          <i class="fas fa-play me-1"></i> Run AP Demo
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" id="btnReset" style="border-radius:8px;font-size:.79rem;display:none">
+          <i class="fas fa-redo me-1"></i> Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- Pipeline step indicators -->
+    <div class="pf-pip-bar">
+      <div class="pf-pip" id="pip0"><div class="pf-pip-dot"><i class="fas fa-file-alt"></i></div><div class="pf-pip-lbl">Invoice</div></div>
+      <div class="pf-pip" id="pip1"><div class="pf-pip-dot"><i class="fas fa-eye"></i></div><div class="pf-pip-lbl">OCR</div></div>
+      <div class="pf-pip" id="pip2"><div class="pf-pip-dot"><i class="fas fa-tags"></i></div><div class="pf-pip-lbl">GL Code</div></div>
+      <div class="pf-pip" id="pip3"><div class="pf-pip-dot"><i class="fas fa-check-circle"></i></div><div class="pf-pip-lbl">Validate</div></div>
+      <div class="pf-pip" id="pip4"><div class="pf-pip-dot"><i class="fas fa-cloud-upload-alt"></i></div><div class="pf-pip-lbl">ERP Post</div></div>
+      <div class="pf-pip" id="pip5"><div class="pf-pip-dot"><i class="fas fa-chart-bar"></i></div><div class="pf-pip-lbl">Dashboard</div></div>
+    </div>
+
+    <!-- Body -->
+    <div class="pf-demo-body">
+      <!-- Invoice preview + log -->
+      <div class="pf-inv-pane">
+        <div class="pf-pane-lbl">Invoice Preview</div>
+        <div class="pf-inv-card" id="invoiceCard"></div>
+        <div class="pf-pane-lbl" style="margin-top:.3rem">Processing Log</div>
+        <div class="pf-log" id="logArea"></div>
+      </div>
+      <!-- Stage output -->
+      <div class="pf-stage" id="demoPipeline"></div>
+    </div>
+  </div>
+
+  <!-- Live dashboard (hidden until first run) -->
+  <div class="pf-dash" id="demoDashboard" style="display:none">
+    <div style="font-size:.84rem;font-weight:800;margin-bottom:.75rem">
+      <i class="fas fa-chart-bar me-2" style="color:var(--pf-blue)"></i>Live AP Dashboard
+    </div>
+    <div class="pf-dash-kpis">
+      <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiProcessed">0</div><div class="pf-dkpi-lbl">Processed</div></div>
+      <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiTotal">$0</div><div class="pf-dkpi-lbl">Posted Total</div></div>
+      <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiAvgTime">—</div><div class="pf-dkpi-lbl">Avg Time</div></div>
+      <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiErrors">0</div><div class="pf-dkpi-lbl">Exceptions</div></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table table-sm" style="font-size:.77rem;margin:0">
+        <thead><tr style="opacity:.6"><th>Invoice</th><th>Vendor</th><th>Amount</th><th>GL</th><th>Entity</th><th>Status</th><th>Time</th></tr></thead>
+        <tbody id="dashTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     AZURE ARCHITECTURE
+════════════════════════════════════════════════════════ -->
+<section class="pf-sec">
+  <div class="pf-sec-head">
+    <span class="pf-tag pf-tag--b">Infrastructure</span>
+    <h2>Azure Architecture</h2>
+    <p>Event-driven, serverless components orchestrating the pipeline from email intake to ERP posting.</p>
+  </div>
+
+  <!-- Flow diagram -->
+  <div class="pf-az-flow" style="max-width:880px;margin:0 auto 1.5rem">
+    <div class="pf-az-node">
+      <div class="pf-az-icon" style="background:linear-gradient(135deg,#0078d4,#005a9e)"><i class="fas fa-envelope"></i></div>
+      <div class="pf-az-lbl">Email / Upload</div><div class="pf-az-sub">Invoice source</div>
+    </div>
+    <div class="pf-az-arr"><i class="fas fa-chevron-right"></i></div>
+    <div class="pf-az-node">
+      <div class="pf-az-icon" style="background:linear-gradient(135deg,#f25022,#d83b01)"><i class="fas fa-bolt"></i></div>
+      <div class="pf-az-lbl">Logic Apps</div><div class="pf-az-sub">Trigger &amp; route</div>
+    </div>
+    <div class="pf-az-arr"><i class="fas fa-chevron-right"></i></div>
+    <div class="pf-az-node">
+      <div class="pf-az-icon" style="background:linear-gradient(135deg,#7fba00,#4e7900)"><i class="fas fa-eye"></i></div>
+      <div class="pf-az-lbl">Document Intelligence</div><div class="pf-az-sub">OCR extraction</div>
+    </div>
+    <div class="pf-az-arr"><i class="fas fa-chevron-right"></i></div>
+    <div class="pf-az-node">
+      <div class="pf-az-icon" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)"><i class="fas fa-robot"></i></div>
+      <div class="pf-az-lbl">Claude AI</div><div class="pf-az-sub">GL code + triage</div>
+    </div>
+    <div class="pf-az-arr"><i class="fas fa-chevron-right"></i></div>
+    <div class="pf-az-node">
+      <div class="pf-az-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-database"></i></div>
+      <div class="pf-az-lbl">Acumatica ERP</div><div class="pf-az-sub">REST API post</div>
+    </div>
+  </div>
+
+  <!-- Service cards -->
+  <div class="pf-svc-grid">
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#f25022,#d83b01)"><i class="fas fa-bolt"></i></div>
+      <div><div class="pf-svc-name">Azure Logic Apps</div>
+        <div class="pf-svc-desc">Event trigger on email / blob. Routes to OCR and orchestrates the entire workflow.</div>
+        <div class="pf-svc-cost">~$0.001 / run</div></div>
+    </div>
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#7fba00,#4e7900)"><i class="fas fa-file-alt"></i></div>
+      <div><div class="pf-svc-name">Document Intelligence</div>
+        <div class="pf-svc-desc">Pre-built invoice model — extracts vendor, amount, line items, dates in one API call.</div>
+        <div class="pf-svc-cost">~$0.01 / page</div></div>
+    </div>
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#0078d4,#005a9e)"><i class="fas fa-layer-group"></i></div>
+      <div><div class="pf-svc-name">Azure Functions</div>
+        <div class="pf-svc-desc">Serverless Python workers for validation, GL lookup, exception routing, and ERP post.</div>
+        <div class="pf-svc-cost">Free tier / pay per call</div></div>
+    </div>
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)"><i class="fas fa-comments"></i></div>
+      <div><div class="pf-svc-name">Claude 3.5 Sonnet</div>
+        <div class="pf-svc-desc">GL code assignment, exception triage narrative, AR collection emails in natural language.</div>
+        <div class="pf-svc-cost">~$0.003 / invoice</div></div>
+    </div>
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#e53e3e,#c53030)"><i class="fas fa-database"></i></div>
+      <div><div class="pf-svc-name">Azure SQL / Cosmos DB</div>
+        <div class="pf-svc-desc">Audit trail, vendor master, GL chart of accounts, and processed invoice history.</div>
+        <div class="pf-svc-cost">~$5 / month serverless</div></div>
+    </div>
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#805ad5,#6b46c1)"><i class="fas fa-chart-area"></i></div>
+      <div><div class="pf-svc-name">Power BI Embedded</div>
+        <div class="pf-svc-desc">Real-time AP/AR dashboard — DSO trends, cash flow forecast, entity-level P&amp;L.</div>
+        <div class="pf-svc-cost">Embedded A1 SKU</div></div>
+    </div>
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#3182ce,#2c5282)"><i class="fas fa-key"></i></div>
+      <div><div class="pf-svc-name">Azure Key Vault</div>
+        <div class="pf-svc-desc">Secure storage for ERP API keys, Anthropic key, and entity secrets. Zero plaintext.</div>
+        <div class="pf-svc-cost">~$0.003 / 10K ops</div></div>
+    </div>
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#dd6b20,#c05621)"><i class="fas fa-history"></i></div>
+      <div><div class="pf-svc-name">Azure Monitor</div>
+        <div class="pf-svc-desc">End-to-end pipeline telemetry, alert on exception rates, SLA dashboards, log analytics.</div>
+        <div class="pf-svc-cost">Pay per GB ingested</div></div>
+    </div>
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fas fa-envelope"></i></div>
+      <div><div class="pf-svc-name">Communication Services</div>
+        <div class="pf-svc-desc">AI-drafted AR collection emails at scale — escalated reminders, payment portal links.</div>
+        <div class="pf-svc-cost">~$0.0008 / email</div></div>
+    </div>
+    <div class="pf-svc">
+      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-lock"></i></div>
+      <div><div class="pf-svc-name">Azure AD / RBAC</div>
+        <div class="pf-svc-desc">Role-based access per entity — CFO sees consolidated, controller sees their entity only.</div>
+        <div class="pf-svc-cost">Included</div></div>
+    </div>
+  </div>
+
+  <div class="pf-callout pf-callout--a" style="margin-top:1.2rem">
+    <h5><i class="fas fa-shield-alt me-2"></i>Security &amp; Compliance</h5>
+    <p>All API keys in Key Vault. TLS 1.3 in transit. AES-256 at rest. SOC 2-compatible audit trail. RBAC per entity — no cross-entity data leakage possible.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     ASHFORD 9 ENTITIES
+════════════════════════════════════════════════════════ -->
+<section class="pf-sec">
+  <div class="pf-sec-head">
+    <span class="pf-tag pf-tag--a">Coverage</span>
+    <h2>Mapped to Ashford's 9 Entities</h2>
+    <p>Every invoice is tagged, validated, and posted to the correct entity's GL — AI handles the routing.</p>
+  </div>
+  <div class="pf-entities">
+    <div class="pf-ent" style="background:rgba(59,130,246,.07);border-color:rgba(59,130,246,.25)"><i class="fas fa-building" style="color:#3b82f6"></i>Ashford Hospitality Trust</div>
+    <div class="pf-ent" style="background:rgba(139,92,246,.07);border-color:rgba(139,92,246,.25)"><i class="fas fa-hotel" style="color:#8b5cf6"></i>Ashford Inc.</div>
+    <div class="pf-ent" style="background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.25)"><i class="fas fa-utensils" style="color:#10b981"></i>Stirling Hotels</div>
+    <div class="pf-ent" style="background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.25)"><i class="fas fa-concierge-bell" style="color:#f59e0b"></i>Premier Properties</div>
+    <div class="pf-ent" style="background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.25)"><i class="fas fa-building" style="color:#ef4444"></i>OpenKey</div>
+    <div class="pf-ent" style="background:rgba(59,130,246,.07);border-color:rgba(59,130,246,.25)"><i class="fas fa-water" style="color:#3b82f6"></i>Marietta City Hotel</div>
+    <div class="pf-ent" style="background:rgba(139,92,246,.07);border-color:rgba(139,92,246,.25)"><i class="fas fa-star" style="color:#8b5cf6"></i>The Reservoir</div>
+    <div class="pf-ent" style="background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.25)"><i class="fas fa-home" style="color:#10b981"></i>Pure Wellness</div>
+    <div class="pf-ent" style="background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.25)"><i class="fas fa-globe" style="color:#f59e0b"></i>Remington Hotels</div>
+  </div>
+
+  <div class="pf-callout pf-callout--b" style="max-width:700px">
+    <h5><i class="fas fa-route me-2"></i>Intelligent Entity Routing</h5>
+    <p>Claude reads invoice context — vendor, ship-to address, PO number — and assigns the correct entity code. No manual lookup required. Entity validation confirmed against Acumatica master before posting.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     WHERE CLAUDE AI FITS
+════════════════════════════════════════════════════════ -->
+<section class="pf-sec" style="margin-bottom:3rem">
+  <div class="pf-sec-head">
+    <span class="pf-tag pf-tag--v">AI Layer</span>
+    <h2>Where Claude AI Fits</h2>
+    <p>Four distinct roles across the AP/AR lifecycle — each replacing hours of skilled manual work.</p>
+  </div>
+  <div class="pf-ai-grid">
+    <div class="pf-ai-card">
+      <div class="pf-ai-card-em">🏷️</div>
+      <h5>GL Code Assignment</h5>
+      <p>Claude reads extracted invoice text and assigns the correct GL account based on vendor type, line item descriptions, and entity rules. Zero human lookup.</p>
+    </div>
+    <div class="pf-ai-card">
+      <div class="pf-ai-card-em">⚠️</div>
+      <h5>Exception Triage</h5>
+      <p>When validation fails, Claude drafts a structured exception narrative — what failed, why, and the recommended resolution — sent directly to the approver.</p>
+    </div>
+    <div class="pf-ai-card">
+      <div class="pf-ai-card-em">📧</div>
+      <h5>AR Collections</h5>
+      <p>AI-written collection emails matching tone and relationship context. Day 30, 60, 90 escalations crafted to maximize response rates without damaging relationships.</p>
+    </div>
+    <div class="pf-ai-card">
+      <div class="pf-ai-card-em">📊</div>
+      <h5>NL Reporting</h5>
+      <p>CFO asks "What's our AP exposure for Stirling this month?" and gets a structured plain-English summary — no BI tool or SQL query required.</p>
+    </div>
+  </div>
+
+  <div class="pf-callout pf-callout--g" style="max-width:700px">
+    <h5><i class="fas fa-lightbulb me-2"></i>The Pattern</h5>
+    <p>Azure services handle the <strong>structured data pipeline</strong>. Claude handles the <strong>judgment layer</strong> — coding, narrating, deciding, writing. Together they produce a fully automated finance back-office with no custom ML models required.</p>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){ 'use strict';
+
+var btnRun   = document.getElementById('btnRun');
+var btnReset = document.getElementById('btnReset');
+var stage    = document.getElementById('demoPipeline');
+var dashWrap = document.getElementById('demoDashboard');
+var running  = false;
+var processed = [], totalPosted = 0, totalTime = 0;
+
+/* ── Helpers ── */
+function money(n){ return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',') }
+function wait(ms){ return new Promise(function(r){ setTimeout(r,ms) }) }
+function appendStep(html){ stage.insertAdjacentHTML('beforeend',html); stage.scrollTop=stage.scrollHeight }
+function addLog(msg){
+  var la=document.getElementById('logArea');
+  if(!la) return;
+  var ts=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  la.insertAdjacentHTML('beforeend','<div style="animation:pfSlide .2s ease">'+ts+' '+msg+'</div>');
+}
+function setPip(idx,state){
+  for(var i=0;i<6;i++){
+    var el=document.getElementById('pip'+i);
+    el.classList.remove('active','done');
+    if(i<idx) el.classList.add('done');
+    else if(i===idx) el.classList.add(state==='active'?'active':'done');
+  }
+}
+
+/* ── Fake data pools ── */
+var vendors=[
+  {name:'Acme Supplies Co.',category:'Office'},
+  {name:'Gulf Coast Electric',category:'Utilities'},
+  {name:'Premier Tech Partners',category:'IT'},
+  {name:'Lone Star Linen',category:'Hospitality'},
+  {name:'Apex HVAC Solutions',category:'Maintenance'},
+  {name:'TechBridge Consulting',category:'Professional'},
+  {name:'Metro Food Services',category:'F&B'},
+  {name:'National Printing Co.',category:'Marketing'}
+];
+var entities=['Ashford Hospitality Trust','Remington Hotels','Stirling Hotels',
+  'Premier Properties','Pure Wellness','OpenKey','The Reservoir'];
+var glCodes=[
+  {code:'6100',desc:'Office Supplies'},{code:'6200',desc:'Utilities'},
+  {code:'6300',desc:'IT Infrastructure'},{code:'6400',desc:'Linen & Laundry'},
+  {code:'6500',desc:'HVAC Maintenance'},{code:'6600',desc:'Professional Services'},
+  {code:'6700',desc:'Food & Beverage'},{code:'6800',desc:'Marketing & Print'}
+];
+var lineItems=['Monthly service agreement','Software license renewal','Equipment maintenance',
+  'Supplies for Q'+new Date().getMonth(),'Consulting hours','Staff training materials',
+  'Replacement parts','Subscription fee','Installation services'];
+
+function rand(a){ return a[Math.floor(Math.random()*a.length)] }
+function randN(a,b){ return +(Math.random()*(b-a)+a).toFixed(2) }
+
+function genInvoice(){
+  var vi=Math.floor(Math.random()*vendors.length);
+  var v=vendors[vi], gl=glCodes[vi];
+  var n=2+Math.floor(Math.random()*3), items=[];
+  for(var i=0;i<n;i++) items.push({desc:rand(lineItems),amount:randN(120,3800)});
+  var total=items.reduce(function(s,it){return s+it.amount},0);
+  return {
+    num:'INV-'+Math.floor(Math.random()*90000+10000),
+    vendor:v, gl:gl, entity:rand(entities),
+    date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    items:items, total:total
+  };
+}
+
+/* ── STEP 1: Invoice received ── */
+function stepInvoice(inv){
+  setPip(0,'active');
+  addLog('📥 Invoice received from <strong>'+inv.vendor.name+'</strong>');
+  var itemRows=inv.items.map(function(it){
+    return '<div class="pf-inv-row"><span class="lbl">'+it.desc+'</span><span class="val">'+money(it.amount)+'</span></div>';
+  }).join('');
+  var card=document.getElementById('invoiceCard');
+  card.innerHTML=
+    '<div class="pf-inv-hdr">'+
+    '<span class="pf-inv-logo">'+inv.vendor.name.split(' ')[0].toUpperCase()+'</span>'+
+    '<span class="pf-inv-num">'+inv.num+'</span></div>'+
+    '<div class="pf-inv-row"><span class="lbl">Date</span><span class="val">'+inv.date+'</span></div>'+
+    '<div class="pf-inv-row"><span class="lbl">Entity</span><span class="val">'+inv.entity+'</span></div>'+
+    itemRows+
+    '<div class="pf-inv-row" style="background:rgba(59,130,246,.05)">'+
+    '<span class="lbl" style="font-weight:700">TOTAL</span>'+
+    '<span class="val" style="color:var(--pf-blue)">'+money(inv.total)+'</span></div>';
+  card.classList.add('vis');
+  appendStep(
+    '<div class="pf-step-card">'+
+    '<h6>📥 Step 1 — Invoice Received</h6>'+
+    '<p style="text-align:center;font-size:.82rem;margin:0">'+
+    '<i class="fas fa-check-circle me-1" style="color:#10b981"></i>'+
+    inv.vendor.name+' — '+inv.num+' — '+money(inv.total)+'</p></div>'
+  );
+  setPip(0,'done');
+  return wait(800);
+}
+
+/* ── STEP 2: OCR ── */
+function stepOCR(inv){
+  setPip(1,'active');
+  addLog('👁️ Azure Document Intelligence scanning…');
+  var card=document.getElementById('invoiceCard');
+  var sl=document.createElement('div'); sl.className='pf-scan'; card.appendChild(sl);
+  appendStep(
+    '<div class="pf-step-card" id="stepCard2">'+
+    '<h6>👁️ Step 2 — OCR Scanning</h6>'+
+    '<p style="text-align:center;font-size:.85rem;margin:0" id="ocrStatus">'+
+    '<i class="fas fa-spinner fa-spin me-1" style="color:#3b82f6"></i> Scanning document…</p></div>'
+  );
+  return wait(2200).then(function(){
+    setPip(1,'done');
+    document.getElementById('ocrStatus').innerHTML=
+      '<i class="fas fa-check-circle me-1" style="color:#10b981"></i> OCR complete — '+inv.items.length+' line items extracted';
+    addLog('✅ OCR complete — '+inv.items.length+' line items');
+    return wait(600);
+  });
+}
+
+/* ── STEP 3: GL Coding ── */
+function stepCode(inv){
+  setPip(2,'active');
+  addLog('🏷️ Claude AI assigning GL code…');
+  var rows=inv.items.map(function(it){
+    return '<tr><td>'+it.desc+'</td><td style="text-align:right;font-weight:600">'+money(it.amount)+'</td></tr>';
+  }).join('');
+  appendStep(
+    '<div class="pf-step-card" id="stepCard3">'+
+    '<h6>🏷️ Step 3 — Extracted &amp; Auto-Coded</h6>'+
+    '<div class="pf-xt">'+
+    '<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>'+
+    '<tr><td>Invoice #</td><td><strong>'+inv.num+'</strong></td></tr>'+
+    '<tr><td>Vendor</td><td>'+inv.vendor.name+'</td></tr>'+
+    '<tr><td>Entity</td><td>'+inv.entity+'</td></tr>'+
+    '<tr><td style="color:var(--pf-blue);font-weight:700">GL Code (AI)</td>'+
+    '<td style="font-weight:700;color:var(--pf-blue)">'+inv.gl.code+' — '+inv.gl.desc+'</td></tr>'+
+    '<tr><td>Total</td><td><strong>'+money(inv.total)+'</strong></td></tr>'+
+    '</tbody></table>'+
+    '<table style="margin-top:.4rem"><thead><tr><th>Line Item</th><th>Amount</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table>'+
+    '</div></div>'
+  );
+  return wait(1600);
+}
+
+/* ── STEP 4: Validation ── */
+function stepValidate(inv){
+  setPip(3,'active');
+  addLog('✅ Running CRM validation checks…');
+  appendStep(
+    '<div class="pf-step-card" id="stepCard4">'+
+    '<h6>✅ Step 4 — CRM Validation</h6>'+
+    '<div id="checkList"></div></div>'
+  );
+  var checks=[
+    {id:'ck0',label:'Vendor <strong>'+inv.vendor.name+'</strong> found in master'},
+    {id:'ck1',label:'GL <strong>'+inv.gl.code+'</strong> valid for <strong>'+inv.entity+'</strong>'},
+    {id:'ck2',label:'Amount <strong>'+money(inv.total)+'</strong> within approval threshold'},
+    {id:'ck3',label:'No duplicate for <strong>'+inv.num+'</strong>'},
+    {id:'ck4',label:'Tax 8.25% matches Texas jurisdiction'}
+  ];
+  var cl=document.getElementById('checkList');
+  checks.forEach(function(c){
+    var d=document.createElement('div');
+    d.id=c.id; d.className='pf-chk';
+    d.innerHTML='<i class="fas fa-spinner fa-spin pending"></i> '+c.label;
+    cl.appendChild(d);
+  });
+  function showCheck(i){
+    if(i>=checks.length) return Promise.resolve();
+    return wait(550).then(function(){
+      document.getElementById(checks[i].id).classList.add('show');
+      return wait(380);
+    }).then(function(){
+      document.getElementById(checks[i].id).innerHTML=
+        '<i class="fas fa-check-circle pass"></i> '+checks[i].label;
+      return showCheck(i+1);
+    });
+  }
+  return showCheck(0).then(function(){
+    setPip(3,'done');
+    addLog('✅ All validation checks passed');
+    return wait(400);
+  });
+}
+
+/* ── STEP 5: ERP Post ── */
+function stepERPPost(inv){
+  setPip(4,'active');
+  addLog('📡 Posting to Acumatica REST API…');
+  var j=
+    '<span class="key">"endpoint"</span>: <span class="str">"POST /api/v2/payable"</span>,\n'+
+    '<span class="key">"erp"</span>: <span class="str">"Acumatica Cloud ERP"</span>,\n'+
+    '<span class="key">"invoice"</span>: <span class="str">"'+inv.num+'"</span>,\n'+
+    '<span class="key">"vendor"</span>: <span class="str">"'+inv.vendor.name+'"</span>,\n'+
+    '<span class="key">"entity"</span>: <span class="str">"'+inv.entity+'"</span>,\n'+
+    '<span class="key">"gl_code"</span>: <span class="str">"'+inv.gl.code+'"</span>,\n'+
+    '<span class="key">"amount"</span>: <span class="num">'+inv.total.toFixed(2)+'</span>,\n'+
+    '<span class="key">"status"</span>: <span class="str">"approved"</span>';
+  appendStep(
+    '<div class="pf-step-card" id="stepCard5">'+
+    '<h6>📡 Step 5 — ERP API Post</h6>'+
+    '<div class="pf-json">'+j+'</div>'+
+    '<p style="text-align:center;margin-top:.7rem;font-size:.85rem;margin-bottom:0" id="erpStatus">'+
+    '<i class="fas fa-spinner fa-spin me-1" style="color:#3b82f6"></i> Posting to Acumatica…</p></div>'
+  );
+  return wait(1800).then(function(){
+    setPip(4,'done');
+    document.getElementById('erpStatus').innerHTML=
+      '<i class="fas fa-check-circle me-1" style="color:#10b981"></i>'+
+      ' <strong>HTTP 201 Created</strong> — '+inv.num+' posted successfully';
+    addLog('📡 HTTP 201 Created — <strong>'+inv.num+'</strong> posted');
+    return wait(800);
+  });
+}
+
+/* ── STEP 6: Dashboard ── */
+function stepDashboard(inv,elapsed){
+  setPip(5,'active');
+  dashWrap.style.display='block';
+  processed.push(inv); totalPosted+=inv.total; totalTime+=elapsed;
+  document.getElementById('kpiProcessed').textContent=processed.length;
+  document.getElementById('kpiTotal').textContent=money(totalPosted);
+  document.getElementById('kpiAvgTime').textContent=(totalTime/processed.length).toFixed(1)+'s';
+  document.getElementById('kpiErrors').textContent='0';
+  document.getElementById('dashTable').insertAdjacentHTML('afterbegin',
+    '<tr style="animation:pfFadeUp .35s ease both">'+
+    '<td><strong>'+inv.num+'</strong></td>'+
+    '<td>'+inv.vendor.name+'</td>'+
+    '<td>'+money(inv.total)+'</td>'+
+    '<td><code>'+inv.gl.code+'</code></td>'+
+    '<td>'+inv.entity+'</td>'+
+    '<td><span class="pf-ds posted">✅ Posted</span></td>'+
+    '<td>'+elapsed.toFixed(1)+'s</td></tr>'
+  );
+  appendStep(
+    '<div class="pf-step-card pf-step-card--ok" id="stepCard6">'+
+    '<h6>📊 Step 6 — Dashboard Updated</h6>'+
+    '<p style="text-align:center;font-size:.9rem;color:#10b981;font-weight:700;margin:0">'+
+    '<i class="fas fa-check-double me-1"></i> '+inv.num+' fully processed in '+elapsed.toFixed(1)+'s</p>'+
+    '<p style="text-align:center;font-size:.77rem;opacity:.6;margin:.25rem 0 0">'+
+    processed.length+' invoices — '+money(totalPosted)+' posted — 0 errors</p></div>'
+  );
+  setPip(5,'done');
+  addLog('📊 Dashboard updated — '+processed.length+' invoice(s) posted');
+  return wait(600);
+}
+
+/* ── Main run / reset ── */
+function runDemo(){
+  if(running) return;
+  running=true;
+  btnRun.disabled=true;
+  btnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Processing…';
+  btnReset.style.display='none';
+  var inv=genInvoice(), start=performance.now();
+  stepInvoice(inv)
+    .then(function(){ return stepOCR(inv); })
+    .then(function(){ return stepCode(inv); })
+    .then(function(){ return stepValidate(inv); })
+    .then(function(){ return stepERPPost(inv); })
+    .then(function(){
+      return stepDashboard(inv,(performance.now()-start)/1000);
+    })
+    .then(function(){
+      running=false;
+      btnRun.disabled=false;
+      btnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Another Invoice';
+      btnReset.style.display='';
+      document.getElementById('demoDashboard').scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+}
+
+function resetDemo(){
+  processed=[]; totalPosted=0; totalTime=0;
+  stage.innerHTML='';
+  dashWrap.style.display='none';
+  document.getElementById('dashTable').innerHTML='';
+  var card=document.getElementById('invoiceCard');
+  card.innerHTML=''; card.classList.remove('vis');
+  document.getElementById('logArea').innerHTML='';
+  btnRun.innerHTML='<i class="fas fa-play me-1"></i> Run AP Demo';
+  btnReset.style.display='none';
+  for(var i=0;i<6;i++) document.getElementById('pip'+i).classList.remove('active','done');
+}
+
+btnRun.addEventListener('click',runDemo);
+btnReset.addEventListener('click',resetDemo);
+})();
+</script>
+{% endblock %}

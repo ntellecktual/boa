@@ -1,0 +1,113 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}Learning Analytics{% endblock %}
+
+{% block content %}
+<style>
+.analytics{max-width:1100px;margin:0 auto;padding:1rem}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1rem;text-align:center}
+.stat-value{font-size:1.6rem;font-weight:800}
+.stat-label{font-size:.7rem;opacity:.5;text-transform:uppercase;letter-spacing:.05em}
+.chart-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1rem;margin-bottom:1rem}
+.chart-card h4{font-size:.85rem;font-weight:700;margin-bottom:.8rem}
+.chart-row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+@media(max-width:768px){.chart-row{grid-template-columns:1fr}}
+</style>
+
+<div class="analytics">
+  <div class="text-center mb-4">
+    <h2 style="font-size:1.3rem;font-weight:800"><i class="fas fa-chart-line me-2"></i>Learning Analytics</h2>
+    <p style="font-size:.75rem;opacity:.5">Your activity over the last 30 days</p>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-value" style="color:#3b82f6">{{ total_events }}</div>
+      <div class="stat-label">Total Activities</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:#22c55e">{{ total_quizzes }}</div>
+      <div class="stat-label">Quizzes Taken</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:#8b5cf6">{{ avg_quiz_score|floatformat:0 }}%</div>
+      <div class="stat-label">Avg Quiz Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:#f59e0b">{{ total_documents }}</div>
+      <div class="stat-label">Notebooks Processed</div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-card">
+      <h4><i class="fas fa-calendar-alt me-2"></i>Daily Activity</h4>
+      <canvas id="activityChart" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4><i class="fas fa-pie-chart me-2"></i>Activity Breakdown</h4>
+      <canvas id="breakdownChart" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+const dailyData = {{ daily_activity|safe }};
+const breakdownData = {{ event_breakdown|safe }};
+
+// Daily Activity Line Chart
+new Chart(document.getElementById('activityChart').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: dailyData.map(d => d.date),
+    datasets: [{
+      label: 'Activities',
+      data: dailyData.map(d => d.count),
+      borderColor: '#3b82f6',
+      backgroundColor: 'rgba(59,130,246,.1)',
+      fill: true,
+      tension: .4,
+      borderWidth: 2,
+      pointRadius: 3
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {legend: {display: false}},
+    scales: {
+      x: {grid: {display: false}, ticks: {font: {size: 9}, maxTicksLimit: 10}},
+      y: {beginAtZero: true, ticks: {font: {size: 9}}}
+    }
+  }
+});
+
+// Breakdown Doughnut Chart
+const typeLabels = {
+  page_view: 'Page Views', quiz_attempt: 'Quizzes', video_watch: 'Videos',
+  audio_listen: 'Audio', code_run: 'Code Runs', chat_message: 'Chat',
+  section_complete: 'Completions', course_enroll: 'Enrollments'
+};
+const colors = ['#3b82f6','#22c55e','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#ec4899','#84cc16'];
+
+new Chart(document.getElementById('breakdownChart').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: breakdownData.map(d => typeLabels[d.event_type] || d.event_type),
+    datasets: [{
+      data: breakdownData.map(d => d.count),
+      backgroundColor: colors.slice(0, breakdownData.length),
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {legend: {position: 'bottom', labels: {font: {size: 10}, padding: 8}}}
+  }
+});
+</script>
+{% endblock %}

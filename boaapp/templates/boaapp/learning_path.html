@@ -1,0 +1,81 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}Learning Path{% endblock %}
+
+{% block content %}
+<style>
+.path-wrap{max-width:800px;margin:0 auto;padding:1rem}
+.path-section{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1rem;margin-bottom:1rem}
+.path-section h4{font-size:.85rem;font-weight:700;margin-bottom:.8rem}
+.weak-topic{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;border:1px solid var(--border,#e2e8f0);border-radius:10px;margin-bottom:.4rem}
+.weak-topic .topic-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+.weak-topic .topic-name{font-size:.82rem;font-weight:600;flex:1}
+.weak-topic .topic-score{font-size:.75rem;font-weight:700;padding:.2rem .5rem;border-radius:6px}
+.recommendation-card{display:flex;gap:.8rem;padding:.6rem .8rem;border:1px solid var(--border,#e2e8f0);border-radius:10px;margin-bottom:.5rem;transition:all .15s}
+.recommendation-card:hover{border-color:#3b82f6;background:rgba(59,130,246,.03)}
+.rec-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.rec-title{font-size:.82rem;font-weight:600}
+.rec-reason{font-size:.7rem;opacity:.5}
+.progress-mini{height:6px;border-radius:3px;background:var(--border,#e2e8f0);overflow:hidden;margin-top:.3rem;width:100%}
+.progress-mini-fill{height:100%;border-radius:3px;transition:width .5s}
+.empty-state{text-align:center;padding:2rem;opacity:.5;font-size:.85rem}
+</style>
+
+<div class="path-wrap">
+  <div class="text-center mb-4">
+    <h2 style="font-size:1.3rem;font-weight:800"><i class="fas fa-route me-2"></i>Adaptive Learning Path</h2>
+    <p style="font-size:.75rem;opacity:.5">Personalized recommendations based on your quiz performance</p>
+  </div>
+
+  <div class="path-section">
+    <h4><i class="fas fa-exclamation-triangle text-warning me-2"></i>Areas to Improve</h4>
+    {% if weak_topics %}
+      {% for topic in weak_topics %}
+      <div class="weak-topic">
+        <div class="topic-icon" style="background:{% if topic.avg_score < 50 %}rgba(239,68,68,.1);color:#ef4444{% elif topic.avg_score < 70 %}rgba(245,158,11,.1);color:#f59e0b{% else %}rgba(34,197,94,.1);color:#22c55e{% endif %}">
+          {% if topic.avg_score < 50 %}!{% elif topic.avg_score < 70 %}~{% else %}✓{% endif %}
+        </div>
+        <div class="topic-name">{{ topic.quiz__title }}</div>
+        <div class="topic-score" style="background:{% if topic.avg_score < 50 %}rgba(239,68,68,.08);color:#ef4444{% elif topic.avg_score < 70 %}rgba(245,158,11,.08);color:#f59e0b{% else %}rgba(34,197,94,.08);color:#22c55e{% endif %}">
+          {{ topic.avg_score|floatformat:0 }}%
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <i class="fas fa-trophy d-block" style="font-size:1.5rem;margin-bottom:.5rem"></i>
+        No weak areas found. Take some quizzes to get recommendations!
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="path-section">
+    <h4><i class="fas fa-lightbulb text-primary me-2"></i>Recommended Next Steps</h4>
+    {% if recommended_courses %}
+      {% for course in recommended_courses %}
+      <div class="recommendation-card">
+        <div class="rec-icon" style="background:rgba(59,130,246,.1);color:#3b82f6"><i class="fas fa-book-open"></i></div>
+        <div style="flex:1">
+          <div class="rec-title">{{ course.title }}</div>
+          <div class="rec-reason">{{ course.sections.count }} sections available</div>
+          <div class="progress-mini">
+            <div class="progress-mini-fill" style="width:0%;background:#3b82f6"></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <i class="fas fa-compass d-block" style="font-size:1.5rem;margin-bottom:.5rem"></i>
+        Upload more notebooks and take quizzes to unlock recommendations.
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="text-center mt-3">
+    <a href="{% url 'analytics' %}" class="btn btn-primary me-2"><i class="fas fa-chart-line me-1"></i>View Analytics</a>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Dashboard</a>
+  </div>
+</div>
+{% endblock %}

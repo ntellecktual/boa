@@ -1,0 +1,1361 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}thenumerix | CI/CD Platform Engineering &mdash; Three Pipelines{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ================================================================
+   CI/CD PLATFORM ENGINEERING &mdash; NeonDeck Entertainment
+   Three Isolated Demos: DevOps | Databricks | Entra ID RBAC
+   ================================================================ */
+:root{
+  --nd-blue:#3b82f6;--nd-violet:#8b5cf6;--nd-emerald:#10b981;--nd-amber:#f59e0b;--nd-rose:#ef4444;
+  --nd-azure:#0078d4;--nd-db:#ff3621;--nd-entra:#6d28d9;
+  --nd-grad-az:linear-gradient(135deg,#0078d4,#004578);
+  --nd-grad-db:linear-gradient(135deg,#ff3621,#c92a1e);
+  --nd-grad-en:linear-gradient(135deg,#7c3aed,#4c1d95);
+  --nd-grad-g:linear-gradient(135deg,#10b981,#059669);
+  --nd-surface:rgba(255,255,255,.75);--nd-border:rgba(0,0,0,.08);
+  --nd-shadow:0 4px 24px rgba(0,0,0,.07);--nd-shadow-lg:0 12px 48px rgba(0,0,0,.13);
+}
+[data-theme="dark"]{
+  --nd-surface:rgba(22,28,45,.8);--nd-border:rgba(255,255,255,.08);
+  --nd-shadow:0 4px 24px rgba(0,0,0,.4);--nd-shadow-lg:0 12px 48px rgba(0,0,0,.55);
+}
+@keyframes ndFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ndFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes ndPulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes ndGlow{0%,100%{box-shadow:0 0 8px rgba(59,130,246,.3)}50%{box-shadow:0 0 20px rgba(59,130,246,.55)}}
+@keyframes ndSlide{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes ndSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* -- Hero -- */
+.nd-hero{text-align:center;padding:3.5rem 0 2.2rem;position:relative;overflow:hidden}
+.nd-hero::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(0,120,212,.11) 0%,transparent 70%),
+             radial-gradient(ellipse 45% 35% at 85% 110%,rgba(124,58,237,.08) 0%,transparent 60%)}
+.nd-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .9rem;border-radius:999px;
+  background:rgba(0,120,212,.1);border:1px solid rgba(0,120,212,.2);font-size:.72rem;font-weight:700;
+  color:#0078d4;margin-bottom:.9rem;text-transform:uppercase;letter-spacing:.06em}
+.nd-hero h1{font-size:clamp(1.8rem,4.2vw,2.9rem);font-weight:800;line-height:1.12;margin-bottom:.8rem;
+  background:linear-gradient(135deg,#1e3a5f 0%,#0078d4 35%,#ff3621 65%,#7c3aed 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+[data-theme="dark"] .nd-hero h1{background:linear-gradient(135deg,#e2e8f0 0%,#60a5fa 35%,#ff6b5b 65%,#c4b5fd 100%);
+  -webkit-background-clip:text;background-clip:text}
+.nd-hero .lead{font-size:.97rem;opacity:.7;max-width:680px;margin:0 auto 1.5rem}
+
+/* -- Tab Navigation -- */
+.nd-tabs{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem}
+.nd-tab{display:flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;border-radius:14px;font-size:.82rem;
+  font-weight:700;border:2px solid var(--nd-border);background:var(--nd-surface);backdrop-filter:blur(8px);
+  cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.nd-tab:hover{transform:translateY(-2px);box-shadow:var(--nd-shadow)}
+.nd-tab.active{border-color:transparent;color:#fff;box-shadow:var(--nd-shadow-lg)}
+.nd-tab.active[data-tab="devops"]{background:var(--nd-grad-az)}
+.nd-tab.active[data-tab="databricks"]{background:var(--nd-grad-db)}
+.nd-tab.active[data-tab="entraid"]{background:var(--nd-grad-en)}
+.nd-tab-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;background:rgba(255,255,255,.15)}
+.nd-tab:not(.active) .nd-tab-icon{background:rgba(0,0,0,.06);color:inherit}
+
+/* -- Section Container -- */
+.nd-panel{display:none;animation:ndFadeUp .45s ease both}
+.nd-panel.active{display:block}
+
+/* -- Common section styles -- */
+.nd-sec{padding:1rem 0;animation:ndFadeUp .5s ease both}
+.nd-sec-head{text-align:center;margin-bottom:1.3rem}
+.nd-sec-head h2{font-size:1.45rem;font-weight:800;margin-bottom:.2rem}
+.nd-sec-head p{font-size:.86rem;opacity:.65;max-width:600px;margin:0 auto}
+.nd-tag{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.63rem;
+  font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
+.nd-tag--az{background:rgba(0,120,212,.11);color:#0078d4}
+.nd-tag--db{background:rgba(255,54,33,.11);color:#c92a1e}
+.nd-tag--en{background:rgba(124,58,237,.11);color:#6d28d9}
+.nd-tag--g{background:rgba(16,185,129,.11);color:#059669}
+
+/* -- Demo panel (shared across all 3 demos) -- */
+.nd-demo{border-radius:22px;border:1px solid var(--nd-border);background:var(--nd-surface);
+  backdrop-filter:blur(14px);box-shadow:var(--nd-shadow-lg);overflow:hidden;max-width:960px;margin:0 auto}
+.nd-demo-bar{padding:.8rem 1.3rem;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--nd-border);gap:.8rem;flex-wrap:wrap}
+.nd-demo-bar h4{font-size:.88rem;font-weight:800;margin:0;flex:1}
+.nd-dots{display:flex;gap:.35rem}
+.nd-dot{width:11px;height:11px;border-radius:50%}
+.nd-dot--r{background:#ef4444}.nd-dot--y{background:#f59e0b}.nd-dot--g{background:#10b981}
+
+/* pipeline progress bar */
+.nd-pip-bar{display:flex;align-items:center;justify-content:center;gap:0;padding:.7rem 1rem;
+  border-bottom:1px solid var(--nd-border);flex-wrap:wrap}
+.nd-pip{display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:default;
+  position:relative;padding:0 .7rem}
+.nd-pip::after{content:'';position:absolute;top:15px;left:calc(50% + 18px);width:calc(100% - 12px);
+  height:2px;background:var(--nd-border)}
+.nd-pip:last-child::after{display:none}
+.nd-pip-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;background:var(--nd-surface);border:2px solid var(--nd-border);color:#94a3b8;
+  transition:all .35s;position:relative;z-index:1}
+.nd-pip-lbl{font-size:.56rem;font-weight:700;opacity:.5;white-space:nowrap}
+.nd-pip.active .nd-pip-dot{border-color:var(--nd-azure);background:rgba(0,120,212,.12);color:var(--nd-azure);
+  box-shadow:0 0 0 4px rgba(0,120,212,.12);animation:ndPulse 1.2s ease-in-out infinite}
+.nd-pip.done .nd-pip-dot{border-color:var(--nd-emerald);background:var(--nd-emerald);color:#fff}
+.nd-pip.done .nd-pip-lbl,.nd-pip.active .nd-pip-lbl{opacity:1}
+/* db-colored active */
+.nd-pip.active-db .nd-pip-dot{border-color:var(--nd-db);background:rgba(255,54,33,.12);color:var(--nd-db);
+  box-shadow:0 0 0 4px rgba(255,54,33,.12);animation:ndPulse 1.2s ease-in-out infinite}
+.nd-pip.active-en .nd-pip-dot{border-color:var(--nd-entra);background:rgba(124,58,237,.12);color:var(--nd-entra);
+  box-shadow:0 0 0 4px rgba(124,58,237,.12);animation:ndPulse 1.2s ease-in-out infinite}
+
+/* demo body */
+.nd-dbody{padding:.8rem;overflow-y:auto;max-height:500px}
+.nd-step{border-radius:14px;border:1px solid var(--nd-border);background:rgba(255,255,255,.55);
+  padding:.85rem 1rem;margin-bottom:.6rem;animation:ndFadeUp .35s ease both}
+[data-theme="dark"] .nd-step{background:rgba(255,255,255,.04)}
+.nd-step--ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
+.nd-step h6{font-size:.82rem;font-weight:800;margin-bottom:.4rem}
+.nd-chk{display:flex;align-items:center;gap:.4rem;font-size:.75rem;margin-bottom:.28rem;opacity:0;transition:opacity .3s}
+.nd-chk.show{opacity:1}
+.nd-chk .pass{color:var(--nd-emerald);font-size:.72rem}
+.nd-chk .pending{color:var(--nd-azure);font-size:.68rem}
+.nd-json{font-family:'Courier New',monospace;font-size:.7rem;background:#0f172a;color:#94a3b8;
+  border-radius:10px;padding:.6rem .8rem;line-height:1.55;margin-top:.4rem;overflow-x:auto;white-space:pre}
+.nd-json .key{color:#7dd3fc}.nd-json .str{color:#6ee7b7}.nd-json .num{color:#fcd34d}
+.nd-log{font-family:monospace;font-size:.65rem;line-height:1.5;max-height:120px;overflow-y:auto;
+  padding:.35rem;background:rgba(0,0,0,.03);border-radius:8px;margin-top:.2rem}
+[data-theme="dark"] .nd-log{background:rgba(255,255,255,.03)}
+
+/* -- context side pane -- */
+.nd-split{display:grid;grid-template-columns:210px 1fr;gap:0;min-height:260px}
+@media(max-width:700px){.nd-split{grid-template-columns:1fr}}
+.nd-side{border-right:1px solid var(--nd-border);padding:.7rem;font-size:.72rem;overflow-y:auto;max-height:500px}
+.nd-side-lbl{font-size:.56rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;opacity:.42;margin-bottom:.3rem}
+.nd-ctx-card{border-radius:10px;border:1px solid var(--nd-border);padding:.5rem .6rem;margin-bottom:.35rem;
+  font-size:.68rem;opacity:0;transition:opacity .3s}
+.nd-ctx-card.vis{opacity:1}
+.nd-ctx-row{display:flex;justify-content:space-between;font-size:.64rem;padding:.08rem 0}
+.nd-ctx-row .lbl{opacity:.58}.nd-ctx-row .val{font-weight:600}
+
+/* -- Dashboard KPI row -- */
+.nd-dash{border-radius:16px;border:1px solid var(--nd-border);background:var(--nd-surface);
+  backdrop-filter:blur(12px);box-shadow:var(--nd-shadow);padding:.9rem 1.2rem;max-width:960px;margin:1rem auto 0;display:none}
+.nd-dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.6rem}
+@media(max-width:600px){.nd-dash-kpis{grid-template-columns:repeat(2,1fr)}}
+.nd-kpi{text-align:center;padding:.5rem;border-radius:12px;border:1px solid var(--nd-border)}
+.nd-kpi-val{font-size:1.05rem;font-weight:800}
+.nd-kpi-lbl{font-size:.56rem;opacity:.52;margin-top:.06rem}
+.nd-kpi-val.az{background:var(--nd-grad-az);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nd-kpi-val.db{background:var(--nd-grad-db);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nd-kpi-val.en{background:var(--nd-grad-en);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nd-ds{display:inline-block;padding:.1rem .38rem;border-radius:6px;font-size:.58rem;font-weight:700}
+.nd-ds.ok{background:#d1fae5;color:#065f46}.nd-ds.fail{background:#fee2e2;color:#991b1b}
+
+/* -- Callout / Interview -- */
+.nd-callout{border-radius:16px;padding:1.1rem 1.4rem;border:1px solid var(--nd-border);
+  background:var(--nd-surface);backdrop-filter:blur(10px);max-width:860px;margin:1.3rem auto 0}
+.nd-callout--az{border-color:rgba(0,120,212,.22);background:rgba(0,120,212,.04)}
+.nd-callout--db{border-color:rgba(255,54,33,.22);background:rgba(255,54,33,.04)}
+.nd-callout--en{border-color:rgba(124,58,237,.22);background:rgba(124,58,237,.04)}
+.nd-callout h5{font-size:.86rem;font-weight:800;margin-bottom:.35rem}
+.nd-callout p{font-size:.78rem;opacity:.75;margin:0;line-height:1.55}
+
+/* -- Info grid -- */
+.nd-info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.85rem;max-width:960px;margin:0 auto}
+.nd-info{border-radius:14px;border:1px solid var(--nd-border);background:var(--nd-surface);
+  backdrop-filter:blur(8px);padding:.85rem 1rem;display:flex;align-items:flex-start;gap:.65rem;
+  transition:transform .2s,box-shadow .2s}
+.nd-info:hover{transform:translateY(-2px);box-shadow:var(--nd-shadow)}
+.nd-info-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:.85rem;color:#fff;flex-shrink:0}
+.nd-info-name{font-size:.79rem;font-weight:700;margin-bottom:.14rem}
+.nd-info-desc{font-size:.7rem;opacity:.62;line-height:1.4}
+
+/* -- YAML block -- */
+.nd-yaml{max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--nd-border);box-shadow:var(--nd-shadow)}
+.nd-yaml-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:.6rem 1rem;background:#0f172a;border-bottom:1px solid rgba(255,255,255,.06)}
+.nd-yaml-hdr span{font-size:.72rem;color:#7dd3fc;font-weight:700;font-family:monospace}
+.nd-yaml-hdr .dots{display:flex;gap:.3rem}
+.nd-yaml-hdr .dot{width:10px;height:10px;border-radius:50%}
+.nd-yaml-body{background:#0f172a;padding:1rem 1.3rem;overflow-x:auto}
+pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-height:1.65;color:#e2e8f0;white-space:pre}
+.ck{color:#7dd3fc}.cv{color:#6ee7b7}.cs{color:#fcd34d}.cc{color:#94a3b8;font-style:italic}.cm{color:#f9a8d4}
+
+/* -- RBAC table -- */
+.nd-rbac-wrap{max-width:960px;margin:1rem auto 0;border-radius:16px;overflow:hidden;
+  border:1px solid var(--nd-border);background:var(--nd-surface);backdrop-filter:blur(10px)}
+.nd-rbac-wrap table{margin:0;font-size:.74rem;width:100%}
+.nd-rbac-wrap thead th{background:rgba(124,58,237,.06);font-size:.66rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.06em;opacity:.7;padding:.5rem .7rem}
+.nd-rbac-wrap td{padding:.4rem .7rem;vertical-align:middle}
+.nd-perm{display:inline-block;padding:.1rem .4rem;border-radius:6px;font-size:.58rem;font-weight:700}
+.nd-perm--y{background:#d1fae5;color:#065f46}
+.nd-perm--n{background:#f1f5f9;color:#94a3b8}
+.nd-perm--pim{background:#ede9fe;color:#6d28d9}
+
+/* -- Tech pills -- */
+.nd-pills{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;max-width:860px;margin:.8rem auto 0}
+.nd-pill{padding:.22rem .65rem;border-radius:999px;font-size:.7rem;font-weight:700}
+.nd-pill--az{background:rgba(0,120,212,.12);color:#0078d4}
+.nd-pill--db{background:rgba(255,54,33,.12);color:#c92a1e}
+.nd-pill--en{background:rgba(124,58,237,.12);color:#6d28d9}
+.nd-pill--g{background:rgba(16,185,129,.12);color:#059669}
+.nd-pill--b{background:rgba(59,130,246,.12);color:#2563eb}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ==================== HERO ==================== -->
+<section class="nd-hero">
+  <div class="nd-badge"><i class="fas fa-code-branch"></i>&nbsp; Platform Engineering &middot; NeonDeck Entertainment</div>
+  <h1>Three CI/CD Pipelines<br>One Casino Platform</h1>
+  <p class="lead">Each pipeline is independently owned, deployed, and governed. Azure DevOps ships the casino gaming app. Databricks processes fintech transaction data. Entra ID controls who can deploy what.</p>
+
+  <div class="nd-tabs">
+    <div class="nd-tab active" data-tab="devops">
+      <div class="nd-tab-icon"><i class="fas fa-infinity"></i></div>
+      Azure DevOps
+    </div>
+    <div class="nd-tab" data-tab="databricks">
+      <div class="nd-tab-icon"><i class="fas fa-database"></i></div>
+      Databricks
+    </div>
+    <div class="nd-tab" data-tab="entraid">
+      <div class="nd-tab-icon"><i class="fas fa-user-shield"></i></div>
+      Entra ID RBAC
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PANEL 1 &mdash; AZURE DEVOPS: Casino Gaming App Deployment
+     ============================================================ -->
+<div class="nd-panel active" id="panelDevops">
+
+<section class="nd-sec">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--az">Azure DevOps</span>
+    <h2>Casino Gaming App CI/CD</h2>
+    <p>Multi-stage YAML pipeline that builds, tests, and deploys the NeonDeck casino web application &mdash; slot machines, poker tables, and live dealer interfaces.</p>
+  </div>
+
+  <!-- YAML pipeline -->
+  <div class="nd-yaml">
+    <div class="nd-yaml-hdr">
+      <div class="dots"><div class="dot" style="background:#ef4444"></div><div class="dot" style="background:#f59e0b"></div><div class="dot" style="background:#10b981"></div></div>
+      <span>neondeck-casino-app.yml &middot; Azure DevOps &middot; neondeck-gaming</span>
+    </div>
+    <div class="nd-yaml-body"><pre class="nd-code"><span class="cc"># NeonDeck Casino Gaming App &mdash; Azure DevOps Deployment Pipeline</span>
+<span class="cc"># Build React front-end, run Playwright tests, deploy to Azure App Service</span>
+
+<span class="ck">trigger</span>:
+  <span class="ck">branches</span>:
+    <span class="ck">include</span>: [<span class="cs">main</span>, <span class="cs">release/*</span>]
+  <span class="ck">paths</span>:
+    <span class="ck">include</span>: [<span class="cs">src/**</span>, <span class="cs">public/**</span>, <span class="cs">playwright/**</span>]
+
+<span class="ck">variables</span>:
+  - <span class="ck">group</span>: <span class="cv">neondeck-casino-prod</span>       <span class="cc"># Key Vault-linked variable group</span>
+  - <span class="ck">name</span>: <span class="cv">appServiceName</span>
+    <span class="ck">value</span>: <span class="cs">app-neondeck-casino-eastus2</span>
+
+<span class="ck">stages</span>:
+  - <span class="ck">stage</span>: <span class="cv">Build</span>
+    <span class="ck">displayName</span>: <span class="cs">Build &amp; Unit Test</span>
+    <span class="ck">jobs</span>:
+      - <span class="ck">job</span>: <span class="cv">BuildApp</span>
+        <span class="ck">pool</span>: { <span class="ck">vmImage</span>: <span class="cs">ubuntu-latest</span> }
+        <span class="ck">steps</span>:
+          - <span class="ck">task</span>: <span class="cv">NodeTool@0</span>
+            <span class="ck">inputs</span>: { <span class="ck">versionSpec</span>: <span class="cs">'20.x'</span> }
+          - <span class="ck">script</span>: <span class="cs">npm ci &amp;&amp; npm run build</span>
+            <span class="ck">displayName</span>: <span class="cs">Install &amp; Build</span>
+          - <span class="ck">script</span>: <span class="cs">npm run test:unit -- --coverage</span>
+            <span class="ck">displayName</span>: <span class="cs">Jest Unit Tests</span>
+          - <span class="ck">task</span>: <span class="cv">PublishBuildArtifacts@1</span>
+            <span class="ck">inputs</span>: { <span class="ck">PathtoPublish</span>: <span class="cs">dist/</span>, <span class="ck">ArtifactName</span>: <span class="cs">casino-app</span> }
+
+  - <span class="ck">stage</span>: <span class="cv">E2E</span>
+    <span class="ck">displayName</span>: <span class="cs">Playwright E2E Tests</span>
+    <span class="ck">dependsOn</span>: <span class="cv">Build</span>
+    <span class="ck">jobs</span>:
+      - <span class="ck">job</span>: <span class="cv">PlaywrightTests</span>
+        <span class="ck">steps</span>:
+          - <span class="ck">script</span>: <span class="cs">npx playwright install --with-deps</span>
+          - <span class="ck">script</span>: <span class="cs">npx playwright test --project=chromium</span>
+            <span class="ck">displayName</span>: <span class="cs">Casino UI E2E Suite</span>
+
+  - <span class="ck">stage</span>: <span class="cv">DeployStaging</span>
+    <span class="ck">displayName</span>: <span class="cs">Deploy &rarr; Staging Slot</span>
+    <span class="ck">dependsOn</span>: <span class="cv">E2E</span>
+    <span class="ck">jobs</span>:
+      - <span class="ck">deployment</span>: <span class="cv">DeploySlot</span>
+        <span class="ck">environment</span>: <span class="cs">staging</span>
+        <span class="ck">strategy</span>:
+          <span class="ck">runOnce</span>:
+            <span class="ck">deploy</span>:
+              <span class="ck">steps</span>:
+                - <span class="ck">task</span>: <span class="cv">AzureWebApp@1</span>
+                  <span class="ck">inputs</span>:
+                    <span class="ck">azureSubscription</span>: <span class="cs">neondeck-svc-conn</span>
+                    <span class="ck">appName</span>: <span class="cs">$(appServiceName)</span>
+                    <span class="ck">deployToSlotOrASE</span>: <span class="cs">true</span>
+                    <span class="ck">slotName</span>: <span class="cs">staging</span>
+                    <span class="ck">package</span>: <span class="cs">$(Pipeline.Workspace)/casino-app/**</span>
+
+  - <span class="ck">stage</span>: <span class="cv">Production</span>
+    <span class="ck">displayName</span>: <span class="cs">Swap &rarr; Production</span>
+    <span class="ck">dependsOn</span>: <span class="cv">DeployStaging</span>
+    <span class="ck">condition</span>: <span class="cs">and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))</span>
+    <span class="ck">jobs</span>:
+      - <span class="ck">deployment</span>: <span class="cv">SwapSlots</span>
+        <span class="ck">environment</span>: <span class="cs">production</span>   <span class="cc"># requires manual approval gate</span>
+        <span class="ck">strategy</span>:
+          <span class="ck">runOnce</span>:
+            <span class="ck">deploy</span>:
+              <span class="ck">steps</span>:
+                - <span class="ck">task</span>: <span class="cv">AzureAppServiceManage@0</span>
+                  <span class="ck">inputs</span>:
+                    <span class="ck">Action</span>: <span class="cs">Swap Slots</span>
+                    <span class="ck">SourceSlot</span>: <span class="cs">staging</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- Azure DevOps Interactive Demo -->
+<section class="nd-sec">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--az">Live Demo</span>
+    <h2>Pipeline Simulator</h2>
+    <p>Click Run to simulate deploying the NeonDeck casino gaming front-end &mdash; from PR merge through build, test, and slot swap to production.</p>
+  </div>
+
+  <div class="nd-demo" id="demoDevops">
+    <div class="nd-demo-bar" style="background:rgba(0,120,212,.04)">
+      <div class="nd-dots"><div class="nd-dot nd-dot--r"></div><div class="nd-dot nd-dot--y"></div><div class="nd-dot nd-dot--g"></div></div>
+      <h4><i class="fas fa-infinity me-2" style="color:#0078d4"></i>NeonDeck &middot; Casino App &middot; Azure DevOps</h4>
+      <div style="display:flex;gap:.4rem;flex-shrink:0">
+        <button class="btn btn-primary btn-sm" id="adoBtnRun" style="border-radius:8px;font-size:.78rem;background:#0078d4;border-color:#0078d4"><i class="fas fa-play me-1"></i> Run Pipeline</button>
+        <button class="btn btn-outline-secondary btn-sm" id="adoBtnReset" style="border-radius:8px;font-size:.78rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
+      </div>
+    </div>
+    <div class="nd-pip-bar" id="adoPipBar">
+      <div class="nd-pip" id="adoPip0"><div class="nd-pip-dot"><i class="fas fa-code"></i></div><div class="nd-pip-lbl">Build</div></div>
+      <div class="nd-pip" id="adoPip1"><div class="nd-pip-dot"><i class="fas fa-vial"></i></div><div class="nd-pip-lbl">Unit Test</div></div>
+      <div class="nd-pip" id="adoPip2"><div class="nd-pip-dot"><i class="fas fa-theater-masks"></i></div><div class="nd-pip-lbl">E2E Tests</div></div>
+      <div class="nd-pip" id="adoPip3"><div class="nd-pip-dot"><i class="fas fa-cloud-upload-alt"></i></div><div class="nd-pip-lbl">Staging</div></div>
+      <div class="nd-pip" id="adoPip4"><div class="nd-pip-dot"><i class="fas fa-check-double"></i></div><div class="nd-pip-lbl">Approval</div></div>
+      <div class="nd-pip" id="adoPip5"><div class="nd-pip-dot"><i class="fas fa-rocket"></i></div><div class="nd-pip-lbl">Production</div></div>
+    </div>
+    <div class="nd-split">
+      <div class="nd-side">
+        <div class="nd-side-lbl">Pipeline Context</div>
+        <div class="nd-ctx-card" id="adoCtx0">
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-code-branch me-1" style="color:#0078d4"></i>PR #347 merged</div>
+          <div class="nd-ctx-row"><span class="lbl">Branch</span><span class="val">main</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Author</span><span class="val">kieth@neondeck.io</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Changed</span><span class="val">14 files</span></div>
+        </div>
+        <div class="nd-ctx-card" id="adoCtx1">
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-gamepad me-1" style="color:#f59e0b"></i>Casino App</div>
+          <div class="nd-ctx-row"><span class="lbl">Component</span><span class="val">Slot Machine UI</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Framework</span><span class="val">React 18 + Vite</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Target</span><span class="val">App Service</span></div>
+        </div>
+        <div class="nd-ctx-card" id="adoCtx2">
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-shield-alt me-1" style="color:#10b981"></i>Quality Gates</div>
+          <div class="nd-ctx-row"><span class="lbl">Coverage</span><span class="val" id="adoCov">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">E2E Pass</span><span class="val" id="adoE2e">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Lighthouse</span><span class="val" id="adoLh">&mdash;</span></div>
+        </div>
+      </div>
+      <div class="nd-dbody" id="adoStage"></div>
+    </div>
+    <div class="nd-log" id="adoLog" style="margin:.4rem .8rem .8rem"></div>
+  </div>
+
+  <div class="nd-dash" id="adoDash">
+    <div style="font-size:.82rem;font-weight:800;margin-bottom:.6rem"><i class="fas fa-chart-bar me-2" style="color:#0078d4"></i>Deployment Tracker</div>
+    <div class="nd-dash-kpis">
+      <div class="nd-kpi"><div class="nd-kpi-val az" id="adoKpiDeploys">0</div><div class="nd-kpi-lbl">Deploys</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val az" id="adoKpiTests">&mdash;</div><div class="nd-kpi-lbl">Tests Passed</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val az" id="adoKpiCov">&mdash;</div><div class="nd-kpi-lbl">Coverage</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val az" id="adoKpiTime">&mdash;</div><div class="nd-kpi-lbl">Deploy Time</div></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table table-sm" style="font-size:.74rem;margin:0">
+        <thead><tr style="opacity:.55"><th>Run</th><th>Commit</th><th>Tests</th><th>Coverage</th><th>Slot</th><th>Status</th><th>Time</th></tr></thead>
+        <tbody id="adoDashTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Interview Callout -->
+<div class="nd-callout nd-callout--az">
+  <h5><i class="fas fa-lightbulb me-2" style="color:#0078d4"></i>Interview: Azure DevOps Pipeline Administration</h5>
+  <p>"At NeonDeck, I administered 200+ Azure DevOps pipelines across the casino gaming and content delivery platforms. I designed multi-stage YAML pipelines with staging slot deployments and approval gates requiring lead engineer sign-off before production swap. Build artifacts were published to Azure Artifacts, and every PR required passing Jest unit tests plus a Playwright E2E suite covering the slot machine, poker table, and live dealer UIs. I configured Key Vault-linked variable groups so zero secrets existed in pipeline definitions, and built service connections using Entra-registered service principals scoped to least-privilege resource groups."</p>
+</div>
+
+</div><!-- /panelDevops -->
+
+
+<!-- ============================================================
+     PANEL 2 &mdash; DATABRICKS: Fintech Transaction Data Pipeline
+     ============================================================ -->
+<div class="nd-panel" id="panelDatabricks">
+
+<section class="nd-sec">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--db">Databricks</span>
+    <h2>Fintech Transaction Pipeline</h2>
+    <p>Medallion architecture ETL that ingests raw casino payment events, cleans and enriches them, then produces gold-layer analytics for fraud detection, revenue reporting, and compliance.</p>
+  </div>
+
+  <!-- Medallion Architecture Visual -->
+  <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;max-width:900px;margin:0 auto 1.5rem">
+    <div style="border-radius:14px;padding:.7rem 1.2rem;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);text-align:center">
+      <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:.2rem">Source</div>
+      <div style="font-size:.78rem;font-weight:700">Payment Gateway</div>
+      <div style="font-size:.62rem;opacity:.55">Stripe &middot; PayPal &middot; Crypto</div>
+    </div>
+    <div style="opacity:.4;font-size:.8rem"><i class="fas fa-arrow-right"></i></div>
+    <div style="border-radius:14px;padding:.7rem 1.2rem;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);text-align:center">
+      <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#b45309;margin-bottom:.2rem">Bronze</div>
+      <div style="font-size:.78rem;font-weight:700">Raw Events</div>
+      <div style="font-size:.62rem;opacity:.55">Auto Loader &middot; JSON</div>
+    </div>
+    <div style="opacity:.4;font-size:.8rem"><i class="fas fa-arrow-right"></i></div>
+    <div style="border-radius:14px;padding:.7rem 1.2rem;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);text-align:center">
+      <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#2563eb;margin-bottom:.2rem">Silver</div>
+      <div style="font-size:.78rem;font-weight:700">Cleaned + Enriched</div>
+      <div style="font-size:.62rem;opacity:.55">Schema enforcement &middot; Dedup</div>
+    </div>
+    <div style="opacity:.4;font-size:.8rem"><i class="fas fa-arrow-right"></i></div>
+    <div style="border-radius:14px;padding:.7rem 1.2rem;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);text-align:center">
+      <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#059669;margin-bottom:.2rem">Gold</div>
+      <div style="font-size:.78rem;font-weight:700">Analytics + ML</div>
+      <div style="font-size:.62rem;opacity:.55">Fraud model &middot; Revenue KPIs</div>
+    </div>
+  </div>
+
+  <!-- DLT Pipeline YAML -->
+  <div class="nd-yaml">
+    <div class="nd-yaml-hdr">
+      <div class="dots"><div class="dot" style="background:#ef4444"></div><div class="dot" style="background:#f59e0b"></div><div class="dot" style="background:#10b981"></div></div>
+      <span>dlt_transaction_pipeline.py &middot; Databricks &middot; Unity Catalog</span>
+    </div>
+    <div class="nd-yaml-body"><pre class="nd-code"><span class="cc"># Delta Live Tables &mdash; NeonDeck Fintech Transaction Pipeline</span>
+<span class="cc"># Medallion architecture: Bronze &rarr; Silver &rarr; Gold</span>
+
+<span class="ck">import</span> <span class="cv">dlt</span>
+<span class="ck">from</span> <span class="cv">pyspark.sql.functions</span> <span class="ck">import</span> <span class="cv">col, when, sum, count, lit</span>
+
+<span class="cc"># -------- BRONZE: Raw payment events from ADLS Gen2 --------</span>
+<span class="cs">@dlt.table</span>(
+    <span class="ck">name</span>=<span class="cs">"bronze_transactions"</span>,
+    <span class="ck">comment</span>=<span class="cs">"Raw payment events from Stripe/PayPal/Crypto"</span>
+)
+<span class="ck">def</span> <span class="cv">bronze_transactions</span>():
+    <span class="ck">return</span> (
+        spark.readStream.format(<span class="cs">"cloudFiles"</span>)
+        .option(<span class="cs">"cloudFiles.format"</span>, <span class="cs">"json"</span>)
+        .option(<span class="cs">"cloudFiles.schemaLocation"</span>, <span class="cs">"dbfs:/schemas/txn"</span>)
+        .load(<span class="cs">"abfss://raw@ndfintech.dfs.core.windows.net/transactions/"</span>)
+    )
+
+<span class="cc"># -------- SILVER: Cleaned, deduplicated, enriched --------</span>
+<span class="cs">@dlt.table</span>(<span class="ck">name</span>=<span class="cs">"silver_transactions"</span>)
+<span class="cs">@dlt.expect_or_drop</span>(<span class="cs">"valid_amount"</span>, <span class="cs">"amount > 0"</span>)
+<span class="cs">@dlt.expect_or_drop</span>(<span class="cs">"valid_currency"</span>, <span class="cs">"currency IN ('USD','EUR','GBP','BTC')"</span>)
+<span class="ck">def</span> <span class="cv">silver_transactions</span>():
+    <span class="ck">return</span> (
+        dlt.read_stream(<span class="cs">"bronze_transactions"</span>)
+        .dropDuplicates([<span class="cs">"transaction_id"</span>])
+        .withColumn(<span class="cs">"amount_usd"</span>, <span class="cc">/* FX conversion */</span>)
+        .withColumn(<span class="cs">"risk_score"</span>, <span class="cc">/* ML model inference */</span>)
+    )
+
+<span class="cc"># -------- GOLD: Aggregated analytics --------</span>
+<span class="cs">@dlt.table</span>(<span class="ck">name</span>=<span class="cs">"gold_revenue_daily"</span>)
+<span class="ck">def</span> <span class="cv">gold_revenue_daily</span>():
+    <span class="ck">return</span> (
+        dlt.read(<span class="cs">"silver_transactions"</span>)
+        .groupBy(<span class="cs">"transaction_date"</span>, <span class="cs">"payment_method"</span>, <span class="cs">"game_category"</span>)
+        .agg(
+            sum(<span class="cs">"amount_usd"</span>).alias(<span class="cs">"total_revenue"</span>),
+            count(<span class="cs">"*"</span>).alias(<span class="cs">"transaction_count"</span>),
+            sum(when(col(<span class="cs">"risk_score"</span>) > <span class="num">0.8</span>, <span class="num">1</span>).otherwise(<span class="num">0</span>)).alias(<span class="cs">"flagged_transactions"</span>)
+        )
+    )</pre>
+    </div>
+  </div>
+</section>
+
+<!-- Databricks Interactive Demo -->
+<section class="nd-sec">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--db">Live Demo</span>
+    <h2>Transaction Pipeline Simulator</h2>
+    <p>Click Run to simulate processing 50,000 NeonDeck casino payment events through the Bronze &rarr; Silver &rarr; Gold medallion layers.</p>
+  </div>
+
+  <div class="nd-demo" id="demoDatabricks">
+    <div class="nd-demo-bar" style="background:rgba(255,54,33,.04)">
+      <div class="nd-dots"><div class="nd-dot nd-dot--r"></div><div class="nd-dot nd-dot--y"></div><div class="nd-dot nd-dot--g"></div></div>
+      <h4><i class="fas fa-database me-2" style="color:#ff3621"></i>NeonDeck &middot; DLT Pipeline &middot; Unity Catalog</h4>
+      <div style="display:flex;gap:.4rem;flex-shrink:0">
+        <button class="btn btn-sm" id="dbBtnRun" style="border-radius:8px;font-size:.78rem;background:#ff3621;border-color:#ff3621;color:#fff"><i class="fas fa-play me-1"></i> Run Pipeline</button>
+        <button class="btn btn-outline-secondary btn-sm" id="dbBtnReset" style="border-radius:8px;font-size:.78rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
+      </div>
+    </div>
+    <div class="nd-pip-bar" id="dbPipBar">
+      <div class="nd-pip" id="dbPip0"><div class="nd-pip-dot"><i class="fas fa-download"></i></div><div class="nd-pip-lbl">Ingest</div></div>
+      <div class="nd-pip" id="dbPip1"><div class="nd-pip-dot"><i class="fas fa-layer-group"></i></div><div class="nd-pip-lbl">Bronze</div></div>
+      <div class="nd-pip" id="dbPip2"><div class="nd-pip-dot"><i class="fas fa-filter"></i></div><div class="nd-pip-lbl">Silver</div></div>
+      <div class="nd-pip" id="dbPip3"><div class="nd-pip-dot"><i class="fas fa-chart-line"></i></div><div class="nd-pip-lbl">Gold</div></div>
+      <div class="nd-pip" id="dbPip4"><div class="nd-pip-dot"><i class="fas fa-shield-alt"></i></div><div class="nd-pip-lbl">Quality</div></div>
+      <div class="nd-pip" id="dbPip5"><div class="nd-pip-dot"><i class="fas fa-check-circle"></i></div><div class="nd-pip-lbl">Complete</div></div>
+    </div>
+    <div class="nd-split">
+      <div class="nd-side">
+        <div class="nd-side-lbl">Pipeline Context</div>
+        <div class="nd-ctx-card" id="dbCtx0">
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-receipt me-1" style="color:#ff3621"></i>Transaction Batch</div>
+          <div class="nd-ctx-row"><span class="lbl">Events</span><span class="val" id="dbEvtCount">50,000</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Source</span><span class="val">ADLS Gen2</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Format</span><span class="val">JSON (Auto Loader)</span></div>
+        </div>
+        <div class="nd-ctx-card" id="dbCtx1">
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-coins me-1" style="color:#f59e0b"></i>Payment Mix</div>
+          <div class="nd-ctx-row"><span class="lbl">Stripe</span><span class="val" id="dbPmStripe">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">PayPal</span><span class="val" id="dbPmPaypal">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Crypto</span><span class="val" id="dbPmCrypto">&mdash;</span></div>
+        </div>
+        <div class="nd-ctx-card" id="dbCtx2">
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-exclamation-triangle me-1" style="color:#ef4444"></i>Fraud Detection</div>
+          <div class="nd-ctx-row"><span class="lbl">Flagged</span><span class="val" id="dbFraud">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Blocked</span><span class="val" id="dbBlocked">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Revenue</span><span class="val" id="dbRevenue">&mdash;</span></div>
+        </div>
+      </div>
+      <div class="nd-dbody" id="dbStage"></div>
+    </div>
+    <div class="nd-log" id="dbLog" style="margin:.4rem .8rem .8rem"></div>
+  </div>
+
+  <div class="nd-dash" id="dbDash">
+    <div style="font-size:.82rem;font-weight:800;margin-bottom:.6rem"><i class="fas fa-chart-bar me-2" style="color:#ff3621"></i>Pipeline Metrics</div>
+    <div class="nd-dash-kpis">
+      <div class="nd-kpi"><div class="nd-kpi-val db" id="dbKpiRows">0</div><div class="nd-kpi-lbl">Rows Processed</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val db" id="dbKpiQuality">&mdash;</div><div class="nd-kpi-lbl">Data Quality</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val db" id="dbKpiFraud">&mdash;</div><div class="nd-kpi-lbl">Fraud Flagged</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val db" id="dbKpiTime">&mdash;</div><div class="nd-kpi-lbl">Pipeline Time</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Interview Callout -->
+<div class="nd-callout nd-callout--db">
+  <h5><i class="fas fa-fire me-2" style="color:#c92a1e"></i>Interview: Databricks &amp; Data Engineering</h5>
+  <p>"I built and maintained the NeonDeck fintech transaction pipeline processing 2M+ daily payment events across Stripe, PayPal, and cryptocurrency gateways. The pipeline uses Delta Live Tables with a medallion architecture &mdash; Bronze captures raw JSON via Auto Loader from ADLS Gen2, Silver applies schema enforcement, deduplication, and FX normalization, and Gold produces daily revenue aggregations and fraud-flagged transaction feeds. I implemented data quality expectations that automatically quarantine invalid records, and the ML-based fraud scoring model runs inline at the Silver layer, flagging 0.3% of transactions for compliance review. Unity Catalog governs all table access with row-level security on PII columns."</p>
+</div>
+
+</div><!-- /panelDatabricks -->
+
+
+<!-- ============================================================
+     PANEL 3 &mdash; ENTRA ID: RBAC for Developers Deploying CI/CD
+     ============================================================ -->
+<div class="nd-panel" id="panelEntraid">
+
+<section class="nd-sec">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--en">Entra ID</span>
+    <h2>Developer RBAC &amp; Identity Governance</h2>
+    <p>Every developer who deploys across the three CI/CD pipelines has role-based access controlled by Azure Entra ID &mdash; with PIM elevation, conditional access, and just-in-time permissions.</p>
+  </div>
+
+  <!-- RBAC Matrix -->
+  <div class="nd-rbac-wrap">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>DevOps Pipelines</th>
+          <th>Databricks Notebooks</th>
+          <th>Databricks Clusters</th>
+          <th>Key Vault Secrets</th>
+          <th>Production Deploy</th>
+          <th>Access Method</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:700"><i class="fas fa-code me-1" style="color:#0078d4"></i>App Developer</td>
+          <td><span class="nd-perm nd-perm--y">Run</span></td>
+          <td><span class="nd-perm nd-perm--n">None</span></td>
+          <td><span class="nd-perm nd-perm--n">None</span></td>
+          <td><span class="nd-perm nd-perm--n">None</span></td>
+          <td><span class="nd-perm nd-perm--n">None</span></td>
+          <td><span style="font-size:.68rem;opacity:.7">Direct Entra Group</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700"><i class="fas fa-database me-1" style="color:#ff3621"></i>Data Engineer</td>
+          <td><span class="nd-perm nd-perm--y">View</span></td>
+          <td><span class="nd-perm nd-perm--y">Edit</span></td>
+          <td><span class="nd-perm nd-perm--y">Start/Stop</span></td>
+          <td><span class="nd-perm nd-perm--n">None</span></td>
+          <td><span class="nd-perm nd-perm--n">None</span></td>
+          <td><span style="font-size:.68rem;opacity:.7">Direct Entra Group</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700"><i class="fas fa-user-cog me-1" style="color:#7c3aed"></i>Lead Engineer</td>
+          <td><span class="nd-perm nd-perm--y">Run + Edit</span></td>
+          <td><span class="nd-perm nd-perm--y">Edit</span></td>
+          <td><span class="nd-perm nd-perm--y">Manage</span></td>
+          <td><span class="nd-perm nd-perm--pim">PIM 4hr</span></td>
+          <td><span class="nd-perm nd-perm--pim">PIM 4hr</span></td>
+          <td><span style="font-size:.68rem;opacity:.7">PIM Elevation</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700"><i class="fas fa-shield-alt me-1" style="color:#059669"></i>Platform Admin</td>
+          <td><span class="nd-perm nd-perm--y">Full</span></td>
+          <td><span class="nd-perm nd-perm--y">Full</span></td>
+          <td><span class="nd-perm nd-perm--y">Full</span></td>
+          <td><span class="nd-perm nd-perm--pim">PIM 4hr</span></td>
+          <td><span class="nd-perm nd-perm--pim">PIM + Approval</span></td>
+          <td><span style="font-size:.68rem;opacity:.7">PIM + Manager Approval</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700"><i class="fas fa-gavel me-1" style="color:#ef4444"></i>Compliance</td>
+          <td><span class="nd-perm nd-perm--y">Audit</span></td>
+          <td><span class="nd-perm nd-perm--y">Audit</span></td>
+          <td><span class="nd-perm nd-perm--n">None</span></td>
+          <td><span class="nd-perm nd-perm--y">Read</span></td>
+          <td><span class="nd-perm nd-perm--n">None</span></td>
+          <td><span style="font-size:.68rem;opacity:.7">Direct Entra Group</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Access Policies -->
+<section class="nd-sec">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--en">Policies</span>
+    <h2>Conditional Access &amp; PIM</h2>
+    <p>Zero-trust policies enforce MFA, device compliance, and time-boxed elevated access across all three deployment targets.</p>
+  </div>
+  <div class="nd-info-grid">
+    <div class="nd-info">
+      <div class="nd-info-icon" style="background:var(--nd-grad-en)"><i class="fas fa-fingerprint"></i></div>
+      <div><div class="nd-info-name">Conditional Access</div><div class="nd-info-desc">MFA required for all DevOps and Databricks access. Intune-compliant devices only for production environments.</div></div>
+    </div>
+    <div class="nd-info">
+      <div class="nd-info-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-clock"></i></div>
+      <div><div class="nd-info-name">PIM Elevation</div><div class="nd-info-desc">Production deploy and Key Vault access require just-in-time elevation &mdash; 4-hour max window with justification.</div></div>
+    </div>
+    <div class="nd-info">
+      <div class="nd-info-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-users-cog"></i></div>
+      <div><div class="nd-info-name">SCIM Provisioning</div><div class="nd-info-desc">Entra groups auto-sync to Databricks Unity Catalog and Azure DevOps project permissions via SCIM.</div></div>
+    </div>
+    <div class="nd-info">
+      <div class="nd-info-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-clipboard-check"></i></div>
+      <div><div class="nd-info-name">Access Reviews</div><div class="nd-info-desc">Quarterly Entra access reviews for all elevated roles. Auto-revocation of stale assignments feeds SOC 2 evidence.</div></div>
+    </div>
+    <div class="nd-info">
+      <div class="nd-info-icon" style="background:var(--nd-grad-az)"><i class="fas fa-key"></i></div>
+      <div><div class="nd-info-name">Key Vault Integration</div><div class="nd-info-desc">Service principals for DevOps and Databricks authenticate via Key Vault-linked variable groups &mdash; no hard-coded secrets.</div></div>
+    </div>
+    <div class="nd-info">
+      <div class="nd-info-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><i class="fas fa-sign-in-alt"></i></div>
+      <div><div class="nd-info-name">SSO Configuration</div><div class="nd-info-desc">SAML/OIDC SSO for Databricks workspaces and Azure DevOps org &mdash; single identity plane across all three pipelines.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Entra ID Interactive Demo -->
+<section class="nd-sec">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--en">Live Demo</span>
+    <h2>Developer Access Simulator</h2>
+    <p>Click Run to simulate a developer requesting PIM elevation to deploy across all three CI/CD pipelines &mdash; watch conditional access checks, MFA verification, and role activation in real time.</p>
+  </div>
+
+  <div class="nd-demo" id="demoEntraid">
+    <div class="nd-demo-bar" style="background:rgba(124,58,237,.04)">
+      <div class="nd-dots"><div class="nd-dot nd-dot--r"></div><div class="nd-dot nd-dot--y"></div><div class="nd-dot nd-dot--g"></div></div>
+      <h4><i class="fas fa-user-shield me-2" style="color:#7c3aed"></i>NeonDeck &middot; Entra ID &middot; PIM Elevation</h4>
+      <div style="display:flex;gap:.4rem;flex-shrink:0">
+        <button class="btn btn-sm" id="enBtnRun" style="border-radius:8px;font-size:.78rem;background:#7c3aed;border-color:#7c3aed;color:#fff"><i class="fas fa-play me-1"></i> Run Simulation</button>
+        <button class="btn btn-outline-secondary btn-sm" id="enBtnReset" style="border-radius:8px;font-size:.78rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
+      </div>
+    </div>
+    <div class="nd-pip-bar" id="enPipBar">
+      <div class="nd-pip" id="enPip0"><div class="nd-pip-dot"><i class="fas fa-sign-in-alt"></i></div><div class="nd-pip-lbl">Sign In</div></div>
+      <div class="nd-pip" id="enPip1"><div class="nd-pip-dot"><i class="fas fa-fingerprint"></i></div><div class="nd-pip-lbl">MFA</div></div>
+      <div class="nd-pip" id="enPip2"><div class="nd-pip-dot"><i class="fas fa-laptop"></i></div><div class="nd-pip-lbl">Device Check</div></div>
+      <div class="nd-pip" id="enPip3"><div class="nd-pip-dot"><i class="fas fa-arrow-up"></i></div><div class="nd-pip-lbl">PIM Request</div></div>
+      <div class="nd-pip" id="enPip4"><div class="nd-pip-dot"><i class="fas fa-check"></i></div><div class="nd-pip-lbl">Approval</div></div>
+      <div class="nd-pip" id="enPip5"><div class="nd-pip-dot"><i class="fas fa-unlock"></i></div><div class="nd-pip-lbl">Activated</div></div>
+    </div>
+    <div class="nd-split">
+      <div class="nd-side">
+        <div class="nd-side-lbl">Identity Context</div>
+        <div class="nd-ctx-card" id="enCtx0">
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-user me-1" style="color:#7c3aed"></i>Developer</div>
+          <div class="nd-ctx-row"><span class="lbl">User</span><span class="val">kieth@neondeck.io</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Base Role</span><span class="val">Lead Engineer</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Groups</span><span class="val">sg-eng-leads</span></div>
+        </div>
+        <div class="nd-ctx-card" id="enCtx1">
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-laptop me-1" style="color:#10b981"></i>Device</div>
+          <div class="nd-ctx-row"><span class="lbl">Compliance</span><span class="val" id="enDevice">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">MFA</span><span class="val" id="enMfa">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Location</span><span class="val" id="enLoc">&mdash;</span></div>
+        </div>
+        <div class="nd-ctx-card" id="enCtx2">
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-key me-1" style="color:#f59e0b"></i>Elevated Roles</div>
+          <div class="nd-ctx-row"><span class="lbl">DevOps</span><span class="val" id="enRoleAdo">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Databricks</span><span class="val" id="enRoleDb">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Key Vault</span><span class="val" id="enRoleKv">&mdash;</span></div>
+        </div>
+      </div>
+      <div class="nd-dbody" id="enStage"></div>
+    </div>
+    <div class="nd-log" id="enLog" style="margin:.4rem .8rem .8rem"></div>
+  </div>
+
+  <div class="nd-dash" id="enDash">
+    <div style="font-size:.82rem;font-weight:800;margin-bottom:.6rem"><i class="fas fa-chart-bar me-2" style="color:#7c3aed"></i>Access Governance</div>
+    <div class="nd-dash-kpis">
+      <div class="nd-kpi"><div class="nd-kpi-val en" id="enKpiElev">0</div><div class="nd-kpi-lbl">PIM Elevations</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val en" id="enKpiMfa">&mdash;</div><div class="nd-kpi-lbl">MFA Challenges</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val en" id="enKpiRoles">&mdash;</div><div class="nd-kpi-lbl">Roles Activated</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val en" id="enKpiWindow">&mdash;</div><div class="nd-kpi-lbl">Window</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Interview Callout -->
+<div class="nd-callout nd-callout--en">
+  <h5><i class="fas fa-user-shield me-2" style="color:#7c3aed"></i>Interview: Azure Entra ID &amp; Identity Governance</h5>
+  <p>"I managed Azure Entra ID for NeonDeck's 3,400-user organization &mdash; configuring SAML/OIDC SSO for Databricks and Azure DevOps, deploying Conditional Access policies requiring MFA and Intune-compliant devices, and implementing PIM with approval workflows capping all elevated roles at 4-hour windows. I built the SCIM provisioning integration between Entra groups and Databricks Unity Catalog, reducing the access provisioning process from a 2-day manual ticket to 5 minutes automated. Quarterly Entra access reviews feed directly into our SOC 2 Type II audit evidence. Every developer who touches production &mdash; whether deploying the casino app via DevOps, running a DLT pipeline in Databricks, or rotating a Key Vault secret &mdash; must pass through this identity governance layer."</p>
+</div>
+
+</div><!-- /panelEntraid -->
+
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+(function(){
+'use strict';
+
+/* ================================================================
+   TAB NAVIGATION
+   ================================================================ */
+var tabs = document.querySelectorAll('.nd-tab');
+var panels = document.querySelectorAll('.nd-panel');
+tabs.forEach(function(tab){
+  tab.addEventListener('click', function(){
+    tabs.forEach(function(t){t.classList.remove('active')});
+    panels.forEach(function(p){p.classList.remove('active')});
+    tab.classList.add('active');
+    var id = 'panel' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1);
+    document.getElementById(id).classList.add('active');
+  });
+});
+
+/* ================================================================
+   SHARED UTILITIES
+   ================================================================ */
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function delay(ms){return new Promise(function(r){setTimeout(r,ms)});}
+function pip(prefix,i,state){
+  var el=document.getElementById(prefix+'Pip'+i);
+  el.classList.remove('active','active-db','active-en','done');
+  if(state)el.classList.add(state);
+}
+function showCtx(id){var e=document.getElementById(id);if(e)e.classList.add('vis');}
+function log(area,msg){
+  var el=document.getElementById(area);
+  el.innerHTML+='<div style="animation:ndSlide .3s ease both">'+(new Date().toLocaleTimeString())+' '+msg+'</div>';
+  el.scrollTop=el.scrollHeight;
+}
+function app(target,html){
+  var el=document.getElementById(target);
+  el.innerHTML+=html;
+  el.scrollTop=el.scrollHeight;
+}
+function showChks(card){
+  var chks=card.querySelectorAll('.nd-chk');
+  var d=0;
+  chks.forEach(function(c){setTimeout(function(){c.classList.add('show')},d);d+=180;});
+  return d;
+}
+
+/* ================================================================
+   DEMO 1: AZURE DEVOPS &mdash; Casino Gaming App
+   ================================================================ */
+var adoRunning=false, adoCount=0;
+var adoBtnRun=document.getElementById('adoBtnRun');
+var adoBtnReset=document.getElementById('adoBtnReset');
+
+function adoGenData(){
+  return {
+    commit: rnd(1000,9999).toString(16),
+    tests: rnd(140,190),
+    coverage: rnd(82,96),
+    e2eTests: rnd(18,32),
+    lighthouse: rnd(88,99),
+    buildTime: (rnd(20,45)/10).toFixed(1),
+    e2eTime: (rnd(15,35)/10).toFixed(1),
+    deployTime: (rnd(8,20)/10).toFixed(1),
+    slotSwap: (rnd(3,8)/10).toFixed(1)
+  };
+}
+
+function adoRun(){
+  if(adoRunning)return; adoRunning=true;
+  adoBtnRun.disabled=true;
+  adoBtnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Running...';
+  adoBtnReset.style.display='none';
+  document.getElementById('adoStage').innerHTML='';
+  document.getElementById('adoLog').innerHTML='';
+  for(var i=0;i<6;i++)pip('ado',i,null);
+  var d=adoGenData();
+  var t0=Date.now();
+
+  showCtx('adoCtx0');
+  log('adoLog','<i class="fas fa-code-branch me-1" style="color:#0078d4"></i> PR #347 merged to main &mdash; pipeline triggered');
+
+  // Step 1: Build
+  pip('ado',0,'active');
+  delay(600).then(function(){
+    showCtx('adoCtx1');
+    app('adoStage','<div class="nd-step" id="adoStep0"><h6><i class="fas fa-code me-2" style="color:#0078d4"></i>Stage 1 &mdash; Build &amp; Unit Test</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> npm ci &mdash; installing 1,247 packages</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> npm run build &mdash; Vite bundling casino-app</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Jest: '+d.tests+' tests, '+d.coverage+'% coverage</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Artifact: casino-app.zip ('+rnd(8,14)+' MB)</div></div>');
+    showChks(document.getElementById('adoStep0'));
+    log('adoLog','<i class="fas fa-hammer me-1"></i> Building React app with Vite...');
+    return delay(1400);
+  }).then(function(){
+    // Check off build items
+    document.querySelectorAll('#adoStep0 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('adoStep0').classList.add('nd-step--ok');
+    pip('ado',0,'done');
+    log('adoLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Build complete in '+d.buildTime+'s &mdash; '+d.tests+' tests passed');
+    document.getElementById('adoCov').textContent=d.coverage+'%';
+
+    // Step 2: Unit test detail
+    pip('ado',1,'active');
+    return delay(500);
+  }).then(function(){
+    app('adoStage','<div class="nd-step" id="adoStep1"><h6><i class="fas fa-vial me-2" style="color:#3b82f6"></i>Stage 2 &mdash; Test Results</h6>'+
+      '<div class="nd-json"><span class="key">"testSuites"</span>: <span class="num">'+rnd(12,18)+'</span>,\n'+
+      '<span class="key">"tests"</span>: <span class="num">'+d.tests+'</span>,\n'+
+      '<span class="key">"passed"</span>: <span class="num">'+d.tests+'</span>,\n'+
+      '<span class="key">"failed"</span>: <span class="num">0</span>,\n'+
+      '<span class="key">"coverage"</span>: <span class="num">'+d.coverage+'</span>,\n'+
+      '<span class="key">"duration"</span>: <span class="str">"'+d.buildTime+'s"</span></div></div>');
+    pip('ado',1,'done');
+    log('adoLog','<i class="fas fa-vial me-1"></i> Unit test results published');
+
+    // Step 3: E2E
+    pip('ado',2,'active');
+    return delay(800);
+  }).then(function(){
+    app('adoStage','<div class="nd-step" id="adoStep2"><h6><i class="fas fa-theater-masks me-2" style="color:#8b5cf6"></i>Stage 3 &mdash; Playwright E2E Tests</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Slot Machine UI &mdash; spin, payout, jackpot flows</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Poker Table &mdash; deal, bet, fold, showdown</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Live Dealer &mdash; video stream, chat, tip</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Lighthouse audit: '+d.lighthouse+'/100</div></div>');
+    showChks(document.getElementById('adoStep2'));
+    log('adoLog','<i class="fas fa-theater-masks me-1"></i> Running Playwright E2E suite ('+d.e2eTests+' tests)...');
+    return delay(1600);
+  }).then(function(){
+    document.querySelectorAll('#adoStep2 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('adoStep2').classList.add('nd-step--ok');
+    pip('ado',2,'done');
+    document.getElementById('adoE2e').textContent=d.e2eTests+'/'+d.e2eTests;
+    document.getElementById('adoLh').textContent=d.lighthouse+'/100';
+    log('adoLog','<i class="fas fa-check me-1" style="color:#10b981"></i> All E2E tests passed in '+d.e2eTime+'s');
+
+    // Step 4: Deploy to staging
+    pip('ado',3,'active');
+    return delay(600);
+  }).then(function(){
+    app('adoStage','<div class="nd-step" id="adoStep3"><h6><i class="fas fa-cloud-upload-alt me-2" style="color:#0078d4"></i>Stage 4 &mdash; Deploy to Staging Slot</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Deploying casino-app.zip to app-neondeck-casino/staging</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Health check: /api/health &rarr; 200 OK</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Smoke test: slot machine renders, WebSocket connected</div></div>');
+    showChks(document.getElementById('adoStep3'));
+    log('adoLog','<i class="fas fa-cloud-upload-alt me-1"></i> Deploying to staging slot...');
+    return delay(1200);
+  }).then(function(){
+    document.querySelectorAll('#adoStep3 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('adoStep3').classList.add('nd-step--ok');
+    pip('ado',3,'done');
+    log('adoLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Staging deployment verified');
+
+    // Step 5: Approval gate
+    pip('ado',4,'active');
+    return delay(800);
+  }).then(function(){
+    app('adoStage','<div class="nd-step" id="adoStep4"><h6><i class="fas fa-check-double me-2" style="color:#f59e0b"></i>Stage 5 &mdash; Approval Gate</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Waiting for approval from sg-eng-leads...</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Approved by kieth@neondeck.io (PIM elevated)</div></div>');
+    showChks(document.getElementById('adoStep4'));
+    log('adoLog','<i class="fas fa-hourglass-half me-1" style="color:#f59e0b"></i> Awaiting manual approval...');
+    return delay(1000);
+  }).then(function(){
+    document.querySelectorAll('#adoStep4 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('adoStep4').classList.add('nd-step--ok');
+    pip('ado',4,'done');
+    log('adoLog','<i class="fas fa-thumbs-up me-1" style="color:#10b981"></i> Approval granted');
+
+    // Step 6: Production swap
+    pip('ado',5,'active');
+    return delay(600);
+  }).then(function(){
+    var elapsed=((Date.now()-t0)/1000).toFixed(1);
+    app('adoStage','<div class="nd-step nd-step--ok" id="adoStep5"><h6><i class="fas fa-rocket me-2" style="color:#10b981"></i>Stage 6 &mdash; Production Slot Swap</h6>'+
+      '<p style="text-align:center;font-size:.86rem;color:#10b981;font-weight:700;margin:0">'+
+      '<i class="fas fa-check-double me-1"></i> Casino app deployed to production</p>'+
+      '<p style="text-align:center;font-size:.72rem;opacity:.55;margin:.12rem 0">' +
+      d.tests+' tests passed &middot; '+d.coverage+'% coverage &middot; '+d.e2eTests+' E2E scenarios &middot; '+elapsed+'s total</p></div>');
+    pip('ado',5,'done');
+    log('adoLog','<i class="fas fa-rocket me-1" style="color:#10b981"></i> Production deployment complete in '+elapsed+'s');
+    showCtx('adoCtx2');
+
+    // Show dashboard
+    adoCount++;
+    var dash=document.getElementById('adoDash');
+    dash.style.display='';
+    document.getElementById('adoKpiDeploys').textContent=adoCount;
+    document.getElementById('adoKpiTests').textContent=d.tests;
+    document.getElementById('adoKpiCov').textContent=d.coverage+'%';
+    document.getElementById('adoKpiTime').textContent=elapsed+'s';
+    document.getElementById('adoDashTable').innerHTML=
+      '<tr><td>#'+adoCount+'</td><td style="font-family:monospace;font-size:.68rem">'+d.commit+'</td>'+
+      '<td>'+d.tests+'</td><td>'+d.coverage+'%</td><td>staging &rarr; prod</td>'+
+      '<td><span class="nd-ds ok">Deployed</span></td><td>'+elapsed+'s</td></tr>'+
+      document.getElementById('adoDashTable').innerHTML;
+
+    adoRunning=false;
+    adoBtnRun.disabled=false;
+    adoBtnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Pipeline';
+    adoBtnReset.style.display='';
+  });
+}
+
+function adoReset(){
+  adoRunning=false;
+  document.getElementById('adoStage').innerHTML='';
+  document.getElementById('adoLog').innerHTML='';
+  for(var i=0;i<6;i++)pip('ado',i,null);
+  ['adoCtx0','adoCtx1','adoCtx2'].forEach(function(id){
+    var e=document.getElementById(id);if(e)e.classList.remove('vis');
+  });
+  document.getElementById('adoCov').textContent='\u2014';
+  document.getElementById('adoE2e').textContent='\u2014';
+  document.getElementById('adoLh').textContent='\u2014';
+  adoBtnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Pipeline';
+  adoBtnReset.style.display='none';
+}
+adoBtnRun.addEventListener('click',adoRun);
+adoBtnReset.addEventListener('click',adoReset);
+
+
+/* ================================================================
+   DEMO 2: DATABRICKS &mdash; Fintech Transaction Pipeline
+   ================================================================ */
+var dbRunning=false, dbCount=0;
+var dbBtnRun=document.getElementById('dbBtnRun');
+var dbBtnReset=document.getElementById('dbBtnReset');
+
+function dbGenData(){
+  var total=rnd(45000,55000);
+  var stripe=rnd(55,70);
+  var paypal=rnd(20,30);
+  var crypto=100-stripe-paypal;
+  var dropped=rnd(80,200);
+  var flagged=rnd(100,200);
+  var blocked=rnd(5,25);
+  var revenue=(rnd(2200,3800)*1000);
+  return {
+    total:total, stripe:stripe, paypal:paypal, crypto:crypto,
+    silverCount:total-dropped, dropped:dropped,
+    flagged:flagged, blocked:blocked,
+    revenue:revenue,
+    quality:(100-dropped/total*100).toFixed(1),
+    goldRows:rnd(280,420)
+  };
+}
+
+function fmtNum(n){return n.toLocaleString();}
+function fmtMoney(n){return '$'+fmtNum(n);}
+
+function dbRun(){
+  if(dbRunning)return; dbRunning=true;
+  dbBtnRun.disabled=true;
+  dbBtnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Running...';
+  dbBtnReset.style.display='none';
+  document.getElementById('dbStage').innerHTML='';
+  document.getElementById('dbLog').innerHTML='';
+  for(var i=0;i<6;i++)pip('db',i,null);
+  var d=dbGenData();
+  var t0=Date.now();
+
+  showCtx('dbCtx0');
+  log('dbLog','<i class="fas fa-database me-1" style="color:#ff3621"></i> DLT pipeline triggered &mdash; processing '+fmtNum(d.total)+' payment events');
+
+  // Step 1: Ingest
+  pip('db',0,'active-db');
+  delay(600).then(function(){
+    app('dbStage','<div class="nd-step" id="dbStep0"><h6><i class="fas fa-download me-2" style="color:#8b5cf6"></i>Stage 1 &mdash; Auto Loader Ingestion</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Scanning ADLS Gen2: abfss://raw@ndfintech.dfs.core.windows.net/</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Schema inference on '+fmtNum(d.total)+' JSON events</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Checkpoint: dbfs:/checkpoints/transactions/</div></div>');
+    showChks(document.getElementById('dbStep0'));
+    log('dbLog','<i class="fas fa-download me-1"></i> Auto Loader scanning for new files...');
+    return delay(1200);
+  }).then(function(){
+    document.querySelectorAll('#dbStep0 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('dbStep0').classList.add('nd-step--ok');
+    pip('db',0,'done');
+    log('dbLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Ingested '+fmtNum(d.total)+' events from ADLS Gen2');
+
+    // Step 2: Bronze
+    pip('db',1,'active-db');
+    showCtx('dbCtx1');
+    document.getElementById('dbPmStripe').textContent=d.stripe+'%';
+    document.getElementById('dbPmPaypal').textContent=d.paypal+'%';
+    document.getElementById('dbPmCrypto').textContent=d.crypto+'%';
+    return delay(600);
+  }).then(function(){
+    app('dbStage','<div class="nd-step" id="dbStep1"><h6><i class="fas fa-layer-group me-2" style="color:#f59e0b"></i>Stage 2 &mdash; Bronze Layer</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Writing Delta table: catalog.bronze.transactions</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Partitioned by: transaction_date, payment_method</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Payment mix: Stripe '+d.stripe+'% | PayPal '+d.paypal+'% | Crypto '+d.crypto+'%</div></div>');
+    showChks(document.getElementById('dbStep1'));
+    log('dbLog','<i class="fas fa-layer-group me-1"></i> Writing Bronze layer...');
+    return delay(1200);
+  }).then(function(){
+    document.querySelectorAll('#dbStep1 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('dbStep1').classList.add('nd-step--ok');
+    pip('db',1,'done');
+    log('dbLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Bronze: '+fmtNum(d.total)+' rows written');
+
+    // Step 3: Silver
+    pip('db',2,'active-db');
+    return delay(600);
+  }).then(function(){
+    app('dbStage','<div class="nd-step" id="dbStep2"><h6><i class="fas fa-filter me-2" style="color:#3b82f6"></i>Stage 3 &mdash; Silver Layer (Clean &amp; Enrich)</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> De-duplicating on transaction_id</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Applying DQ expectations: valid_amount, valid_currency</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> '+d.dropped+' rows quarantined (failed expectations)</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> FX normalization to USD &mdash; '+fmtNum(d.silverCount)+' clean rows</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> ML fraud scoring: risk_score column added</div></div>');
+    showChks(document.getElementById('dbStep2'));
+    log('dbLog','<i class="fas fa-filter me-1"></i> Silver: cleaning, enriching, fraud scoring...');
+    return delay(1800);
+  }).then(function(){
+    document.querySelectorAll('#dbStep2 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('dbStep2').classList.add('nd-step--ok');
+    pip('db',2,'done');
+    log('dbLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Silver: '+fmtNum(d.silverCount)+' rows | '+d.dropped+' quarantined');
+
+    // Step 4: Gold
+    pip('db',3,'active-db');
+    showCtx('dbCtx2');
+    document.getElementById('dbFraud').textContent=d.flagged;
+    document.getElementById('dbBlocked').textContent=d.blocked;
+    document.getElementById('dbRevenue').textContent=fmtMoney(d.revenue);
+    return delay(600);
+  }).then(function(){
+    app('dbStage','<div class="nd-step" id="dbStep3"><h6><i class="fas fa-chart-line me-2" style="color:#10b981"></i>Stage 4 &mdash; Gold Layer (Analytics)</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Aggregating by date, payment_method, game_category</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> gold_revenue_daily: '+d.goldRows+' summary rows</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> gold_fraud_alerts: '+d.flagged+' flagged, '+d.blocked+' blocked</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Total revenue: '+fmtMoney(d.revenue)+'</div></div>');
+    showChks(document.getElementById('dbStep3'));
+    log('dbLog','<i class="fas fa-chart-line me-1"></i> Building Gold aggregations...');
+    return delay(1400);
+  }).then(function(){
+    document.querySelectorAll('#dbStep3 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('dbStep3').classList.add('nd-step--ok');
+    pip('db',3,'done');
+    log('dbLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Gold: '+d.goldRows+' aggregated rows | revenue '+fmtMoney(d.revenue));
+
+    // Step 5: Quality validation
+    pip('db',4,'active-db');
+    return delay(600);
+  }).then(function(){
+    app('dbStage','<div class="nd-step" id="dbStep4"><h6><i class="fas fa-shield-alt me-2" style="color:#f59e0b"></i>Stage 5 &mdash; Data Quality Validation</h6>'+
+      '<div class="nd-json"><span class="key">"pipeline"</span>: <span class="str">"neondeck_fintech_txn"</span>,\n'+
+      '<span class="key">"bronze_rows"</span>: <span class="num">'+fmtNum(d.total)+'</span>,\n'+
+      '<span class="key">"silver_rows"</span>: <span class="num">'+fmtNum(d.silverCount)+'</span>,\n'+
+      '<span class="key">"quarantined"</span>: <span class="num">'+d.dropped+'</span>,\n'+
+      '<span class="key">"gold_rows"</span>: <span class="num">'+d.goldRows+'</span>,\n'+
+      '<span class="key">"data_quality"</span>: <span class="num">'+d.quality+'</span>%,\n'+
+      '<span class="key">"fraud_flagged"</span>: <span class="num">'+d.flagged+'</span>,\n'+
+      '<span class="key">"total_revenue"</span>: <span class="str">"'+fmtMoney(d.revenue)+'"</span></div></div>');
+    pip('db',4,'done');
+    log('dbLog','<i class="fas fa-shield-alt me-1"></i> Quality validation complete: '+d.quality+'%');
+
+    // Step 6: Complete
+    pip('db',5,'active-db');
+    return delay(400);
+  }).then(function(){
+    var elapsed=((Date.now()-t0)/1000).toFixed(1);
+    app('dbStage','<div class="nd-step nd-step--ok"><h6><i class="fas fa-check-circle me-2" style="color:#10b981"></i>Pipeline Complete</h6>'+
+      '<p style="text-align:center;font-size:.86rem;color:#10b981;font-weight:700;margin:0">'+
+      '<i class="fas fa-check-double me-1"></i> DLT Pipeline Succeeded</p>'+
+      '<p style="text-align:center;font-size:.72rem;opacity:.55;margin:.12rem 0">'+
+      fmtNum(d.total)+' events &rarr; '+fmtNum(d.silverCount)+' clean &rarr; '+d.goldRows+' gold rows &middot; '+elapsed+'s</p></div>');
+    pip('db',5,'done');
+    log('dbLog','<i class="fas fa-check-double me-1" style="color:#10b981"></i> Pipeline complete in '+elapsed+'s');
+
+    // Dashboard
+    dbCount++;
+    var dash=document.getElementById('dbDash');
+    dash.style.display='';
+    document.getElementById('dbKpiRows').textContent=fmtNum(d.total);
+    document.getElementById('dbKpiQuality').textContent=d.quality+'%';
+    document.getElementById('dbKpiFraud').textContent=d.flagged;
+    document.getElementById('dbKpiTime').textContent=elapsed+'s';
+
+    dbRunning=false;
+    dbBtnRun.disabled=false;
+    dbBtnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Pipeline';
+    dbBtnReset.style.display='';
+  });
+}
+
+function dbReset(){
+  dbRunning=false;
+  document.getElementById('dbStage').innerHTML='';
+  document.getElementById('dbLog').innerHTML='';
+  for(var i=0;i<6;i++)pip('db',i,null);
+  ['dbCtx0','dbCtx1','dbCtx2'].forEach(function(id){
+    var e=document.getElementById(id);if(e)e.classList.remove('vis');
+  });
+  ['dbPmStripe','dbPmPaypal','dbPmCrypto','dbFraud','dbBlocked','dbRevenue'].forEach(function(id){
+    document.getElementById(id).textContent='\u2014';
+  });
+  dbBtnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Pipeline';
+  dbBtnReset.style.display='none';
+}
+dbBtnRun.addEventListener('click',dbRun);
+dbBtnReset.addEventListener('click',dbReset);
+
+
+/* ================================================================
+   DEMO 3: ENTRA ID &mdash; Developer RBAC Simulation
+   ================================================================ */
+var enRunning=false, enCount=0;
+var enBtnRun=document.getElementById('enBtnRun');
+var enBtnReset=document.getElementById('enBtnReset');
+
+function enRun(){
+  if(enRunning)return; enRunning=true;
+  enBtnRun.disabled=true;
+  enBtnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Running...';
+  enBtnReset.style.display='none';
+  document.getElementById('enStage').innerHTML='';
+  document.getElementById('enLog').innerHTML='';
+  for(var i=0;i<6;i++)pip('en',i,null);
+  var t0=Date.now();
+
+  showCtx('enCtx0');
+  log('enLog','<i class="fas fa-user me-1" style="color:#7c3aed"></i> kieth@neondeck.io initiating PIM elevation request');
+
+  // Step 1: Sign-in
+  pip('en',0,'active-en');
+  delay(600).then(function(){
+    app('enStage','<div class="nd-step" id="enStep0"><h6><i class="fas fa-sign-in-alt me-2" style="color:#7c3aed"></i>Step 1 &mdash; Interactive Sign-In</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> SSO redirect to login.microsoftonline.com</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Token issued: tenant neondeck.onmicrosoft.com</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Conditional Access Policy: CA-001-RequireMFA evaluated</div></div>');
+    showChks(document.getElementById('enStep0'));
+    log('enLog','<i class="fas fa-sign-in-alt me-1"></i> Redirecting to Azure AD login...');
+    return delay(1000);
+  }).then(function(){
+    document.querySelectorAll('#enStep0 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('enStep0').classList.add('nd-step--ok');
+    pip('en',0,'done');
+    log('enLog','<i class="fas fa-check me-1" style="color:#10b981"></i> SSO sign-in successful');
+
+    // Step 2: MFA
+    pip('en',1,'active-en');
+    showCtx('enCtx1');
+    return delay(500);
+  }).then(function(){
+    app('enStage','<div class="nd-step" id="enStep1"><h6><i class="fas fa-fingerprint me-2" style="color:#3b82f6"></i>Step 2 &mdash; MFA Challenge</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Push notification sent to Microsoft Authenticator</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Number matching: user confirmed code 47</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> MFA claim added to token</div></div>');
+    showChks(document.getElementById('enStep1'));
+    log('enLog','<i class="fas fa-fingerprint me-1"></i> MFA push notification sent...');
+    return delay(1200);
+  }).then(function(){
+    document.querySelectorAll('#enStep1 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('enStep1').classList.add('nd-step--ok');
+    pip('en',1,'done');
+    document.getElementById('enMfa').textContent='Verified';
+    document.getElementById('enMfa').style.color='#059669';
+    log('enLog','<i class="fas fa-check me-1" style="color:#10b981"></i> MFA verified via Authenticator');
+
+    // Step 3: Device compliance
+    pip('en',2,'active-en');
+    return delay(500);
+  }).then(function(){
+    app('enStage','<div class="nd-step" id="enStep2"><h6><i class="fas fa-laptop me-2" style="color:#10b981"></i>Step 3 &mdash; Device Compliance Check</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Intune device ID: DESKTOP-ND847X</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> OS: Windows 11 23H2 &mdash; patched</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> BitLocker: enabled &mdash; Defender: active</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Conditional Access: CA-003-DeviceCompliance &rarr; PASS</div></div>');
+    showChks(document.getElementById('enStep2'));
+    log('enLog','<i class="fas fa-laptop me-1"></i> Evaluating device compliance...');
+    return delay(1400);
+  }).then(function(){
+    document.querySelectorAll('#enStep2 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('enStep2').classList.add('nd-step--ok');
+    pip('en',2,'done');
+    document.getElementById('enDevice').textContent='Compliant';
+    document.getElementById('enDevice').style.color='#059669';
+    document.getElementById('enLoc').textContent='East US 2';
+    log('enLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Device compliant (Intune + BitLocker + Defender)');
+
+    // Step 4: PIM request
+    pip('en',3,'active-en');
+    return delay(500);
+  }).then(function(){
+    app('enStage','<div class="nd-step" id="enStep3"><h6><i class="fas fa-arrow-up me-2" style="color:#f59e0b"></i>Step 4 &mdash; PIM Elevation Request</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Requesting: Production Deploy Admin (4-hour window)</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Justification: "Deploy casino app v2.4.1 + DLT pipeline update"</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Scope: Azure DevOps + Databricks + Key Vault</div></div>');
+    showChks(document.getElementById('enStep3'));
+    log('enLog','<i class="fas fa-arrow-up me-1" style="color:#f59e0b"></i> PIM elevation requesting 3 roles...');
+    return delay(1300);
+  }).then(function(){
+    document.querySelectorAll('#enStep3 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('enStep3').classList.add('nd-step--ok');
+    pip('en',3,'done');
+    log('enLog','<i class="fas fa-check me-1" style="color:#10b981"></i> PIM request submitted');
+
+    // Step 5: Manager approval
+    pip('en',4,'active-en');
+    showCtx('enCtx2');
+    return delay(500);
+  }).then(function(){
+    app('enStage','<div class="nd-step" id="enStep4"><h6><i class="fas fa-check me-2" style="color:#7c3aed"></i>Step 5 &mdash; Manager Approval</h6>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Approval request sent to manager@neondeck.io</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Manager approved: "Approved for v2.4.1 release"</div></div>');
+    showChks(document.getElementById('enStep4'));
+    log('enLog','<i class="fas fa-hourglass-half me-1" style="color:#f59e0b"></i> Awaiting manager approval...');
+    return delay(1000);
+  }).then(function(){
+    document.querySelectorAll('#enStep4 .nd-chk .pending').forEach(function(el){
+      el.className='pass';el.innerHTML='<i class="fas fa-check-circle"></i>';
+    });
+    document.getElementById('enStep4').classList.add('nd-step--ok');
+    pip('en',4,'done');
+    log('enLog','<i class="fas fa-thumbs-up me-1" style="color:#10b981"></i> Manager approved elevation');
+
+    // Step 6: Roles activated
+    pip('en',5,'active-en');
+    return delay(500);
+  }).then(function(){
+    var elapsed=((Date.now()-t0)/1000).toFixed(1);
+    document.getElementById('enRoleAdo').textContent='Prod Deploy';
+    document.getElementById('enRoleAdo').style.color='#0078d4';
+    document.getElementById('enRoleDb').textContent='Workspace Admin';
+    document.getElementById('enRoleDb').style.color='#ff3621';
+    document.getElementById('enRoleKv').textContent='Secrets Officer';
+    document.getElementById('enRoleKv').style.color='#f59e0b';
+
+    app('enStage','<div class="nd-step nd-step--ok"><h6><i class="fas fa-unlock me-2" style="color:#10b981"></i>Step 6 &mdash; Roles Activated</h6>'+
+      '<div class="nd-json"><span class="key">"user"</span>: <span class="str">"kieth@neondeck.io"</span>,\n'+
+      '<span class="key">"elevatedRoles"</span>: [\n'+
+      '  <span class="str">"Azure DevOps &mdash; Production Deploy Admin"</span>,\n'+
+      '  <span class="str">"Databricks &mdash; Workspace Admin"</span>,\n'+
+      '  <span class="str">"Key Vault &mdash; Secrets Officer"</span>\n],\n'+
+      '<span class="key">"window"</span>: <span class="str">"4 hours"</span>,\n'+
+      '<span class="key">"expiresAt"</span>: <span class="str">"'+new Date(Date.now()+4*3600000).toISOString().slice(0,19)+'Z"</span>,\n'+
+      '<span class="key">"mfa"</span>: <span class="str">"verified"</span>,\n'+
+      '<span class="key">"deviceCompliant"</span>: <span class="num">true</span></div>'+
+      '<p style="text-align:center;font-size:.86rem;color:#10b981;font-weight:700;margin:.6rem 0 0">'+
+      '<i class="fas fa-unlock me-1"></i> All 3 pipeline roles activated &mdash; 4-hour window</p>'+
+      '<p style="text-align:center;font-size:.72rem;opacity:.55;margin:.12rem 0">'+
+      'MFA verified &middot; Device compliant &middot; Manager approved &middot; '+elapsed+'s</p></div>');
+    pip('en',5,'done');
+    log('enLog','<i class="fas fa-unlock me-1" style="color:#10b981"></i> 3 roles activated &mdash; 4-hour window from now');
+
+    // Dashboard
+    enCount++;
+    var dash=document.getElementById('enDash');
+    dash.style.display='';
+    document.getElementById('enKpiElev').textContent=enCount;
+    document.getElementById('enKpiMfa').textContent='Verified';
+    document.getElementById('enKpiRoles').textContent='3';
+    document.getElementById('enKpiWindow').textContent='4 hrs';
+
+    enRunning=false;
+    enBtnRun.disabled=false;
+    enBtnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Simulation';
+    enBtnReset.style.display='';
+  });
+}
+
+function enReset(){
+  enRunning=false;
+  document.getElementById('enStage').innerHTML='';
+  document.getElementById('enLog').innerHTML='';
+  for(var i=0;i<6;i++)pip('en',i,null);
+  ['enCtx0','enCtx1','enCtx2'].forEach(function(id){
+    var e=document.getElementById(id);if(e)e.classList.remove('vis');
+  });
+  ['enDevice','enMfa','enLoc','enRoleAdo','enRoleDb','enRoleKv'].forEach(function(id){
+    var el=document.getElementById(id);
+    el.textContent='\u2014';el.style.color='';
+  });
+  enBtnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Simulation';
+  enBtnReset.style.display='none';
+}
+enBtnRun.addEventListener('click',enRun);
+enBtnReset.addEventListener('click',enReset);
+
+})();
+</script>
+{% endblock %}

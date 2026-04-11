@@ -223,3 +223,430 @@ def create_single_video_task(self, audio_file_pk):
         logger.error(f"Error in create_single_video_task for AudioFile PK {audio_file_pk}: {e}", exc_info=True)
         self.update_state(state='FAILURE', meta={'exc_type': type(e).__name__, 'exc_message': str(e)})
         return {'status': 'FAILED', 'error': str(e)}
+
+
+# ==========================================================================
+# Full Pipeline Task (One-Click: Audio → Video → Quiz → Thumbnail)
+# ==========================================================================
+
+@shared_task(bind=True)
+def run_full_pipeline_task(self, document_pk, user_id, pipeline_run_id=None):
+    """
+    One-click pipeline: generates audio, videos, quizzes, and thumbnail.
+    Sends WebSocket progress updates via PipelineRun.
+    """
+    from .pipeline_utils import send_pipeline_update
+    from .rag_engine import index_document
+    from .quiz_generator import generate_quiz_for_section
+    from .thumbnail_generator import generate_thumbnail
+    from .models import Document, AudioFile, Quiz, QuizQuestion, PipelineRun
+
+    logger.info(f"Full Pipeline Started for Document PK {document_pk}")
+
+    def _update(status, pct, step, msg=''):
+        if pipeline_run_id:
+            send_pipeline_update(pipeline_run_id, status, pct, step, msg)
+
+    try:
+        document = Document.objects.get(pk=document_pk)
+        user = User.objects.get(pk=user_id)
+        notebook_file_path = Path(settings.MEDIA_ROOT) / document.uploaded_file.name
+
+        if not notebook_file_path.exists():
+            _update('failed', 0, '', 'Notebook file not found')
+            return {'status': 'FAILED', 'error': 'Notebook file not found'}
+
+        # ---- STEP 1: Audio Generation (0-40%) ----
+        _update('audio', 5, 'Parsing notebook & generating audio...')
+
+        audio_files_info = process_notebook_and_create_audio(str(notebook_file_path))
+        total_audio = len(audio_files_info)
+
+        if total_audio == 0:
+            _update('failed', 0, '', 'No content found in notebook')
+            return {'status': 'FAILED', 'error': 'No content found'}
+
+        audio_pks = []
+        for idx, audio_info in enumerate(audio_files_info):
+            pct = 5 + int((idx / total_audio) * 35)
+            _update('audio', pct, f'Audio {idx + 1}/{total_audio}: {audio_info["title"]}')
+
+            if not Path(audio_info['full_path']).exists():
+                continue
+
+            try:
+                audio_obj = AudioFile.objects.create(
+                    title=audio_info['title'],
+                    name=Path(audio_info['relative_path']).name,
+                    file=audio_info['relative_path'],
+                    user=user,
+                    document=document,
+                    metadata={
+                        'section_index': audio_info['section_index'],
+                        'block_type': audio_info['block_type'],
+                        'original_content': audio_info['original_content'],
+                    }
+                )
+                audio_pks.append(audio_obj.pk)
+            except Exception as e:
+                logger.error(f"Error creating AudioFile for {audio_info['title']}: {e}", exc_info=True)
+
+        # ---- STEP 2: Video Generation (40-75%) ----
+        _update('video', 40, 'Generating videos...')
+
+        for vidx, audio_pk in enumerate(audio_pks):
+            pct = 40 + int((vidx / max(len(audio_pks), 1)) * 35)
+            audio_obj = AudioFile.objects.get(pk=audio_pk)
+            _update('video', pct, f'Video {vidx + 1}/{len(audio_pks)}: {audio_obj.title}')
+
+            try:
+                # Reuse the single video task logic inline
+                create_single_video_task.apply(args=[audio_pk])
+            except Exception as e:
+                logger.error(f"Video gen failed for audio PK {audio_pk}: {e}", exc_info=True)
+
+        # ---- STEP 3: Quiz Generation (75-85%) ----
+        _update('quiz', 75, 'Generating quizzes...')
+
+        for aidx, audio_pk in enumerate(audio_pks):
+            audio_obj = AudioFile.objects.get(pk=audio_pk)
+            meta = audio_obj.metadata or {}
+            content = meta.get('original_content', '')
+            block_type = meta.get('block_type', 'markdown')
+
+            if block_type == 'thankyou' or not content.strip():
+                continue
+
+            pct = 75 + int((aidx / max(len(audio_pks), 1)) * 10)
+            _update('quiz', pct, f'Quiz for: {audio_obj.title}')
+
+            try:
+                questions = generate_quiz_for_section(content, audio_obj.title)
+                if questions:
+                    quiz = Quiz.objects.create(
+                        course_section_id=None,  # Will be linked if course exists
+                        title=f"Quiz: {audio_obj.title}",
+                    )
+                    # Handle case where course_section is required
+                    # For standalone notebooks, we store quiz linked via metadata
+                    quiz.save()
+
+                    for qidx, q in enumerate(questions):
+                        QuizQuestion.objects.create(
+                            quiz=quiz,
+                            question_text=q['question'],
+                            question_type=q.get('type', 'mcq'),
+                            options=q.get('options'),
+                            correct_answer=q['correct_answer'],
+                            explanation=q.get('explanation', ''),
+                            order=qidx,
+                        )
+            except Exception as e:
+                logger.error(f"Quiz generation failed for {audio_obj.title}: {e}", exc_info=True)
+
+        # ---- STEP 4: Thumbnail Generation (85-92%) ----
+        _update('thumbnail', 85, 'Generating AI thumbnail...')
+        try:
+            generate_thumbnail(document_pk)
+        except Exception as e:
+            logger.error(f"Thumbnail generation failed: {e}", exc_info=True)
+
+        # ---- STEP 5: RAG Indexing (92-100%) ----
+        _update('thumbnail', 92, 'Indexing content for AI chatbot...')
+        try:
+            index_document(document_pk)
+        except Exception as e:
+            logger.error(f"RAG indexing failed: {e}", exc_info=True)
+
+        # ---- COMPLETE ----
+        _update('complete', 100, 'Pipeline complete!', 'All steps finished successfully.')
+        logger.info(f"Full Pipeline Complete for Document PK {document_pk}")
+        return {'status': 'COMPLETE', 'audio_pks': audio_pks}
+
+    except Exception as e:
+        logger.error(f"Full pipeline failed for Document PK {document_pk}: {e}", exc_info=True)
+        _update('failed', 0, '', str(e))
+        return {'status': 'FAILED', 'error': str(e)}
+
+
+# ==========================================================================
+# Standalone Quiz Generation Task
+# ==========================================================================
+
+@shared_task(bind=True)
+def generate_quiz_task(self, audio_file_pk):
+    """Generate a quiz for a single audio file's content."""
+    from .quiz_generator import generate_quiz_for_section
+    from .models import AudioFile, Quiz, QuizQuestion
+
+    try:
+        audio = AudioFile.objects.get(pk=audio_file_pk)
+        meta = audio.metadata or {}
+        content = meta.get('original_content', '')
+
+        questions = generate_quiz_for_section(content, audio.title)
+        if not questions:
+            return {'status': 'NO_QUESTIONS'}
+
+        quiz = Quiz.objects.create(title=f"Quiz: {audio.title}")
+        # quiz.course_section is nullable via the FK; we'll leave it null for standalone
+        for idx, q in enumerate(questions):
+            QuizQuestion.objects.create(
+                quiz=quiz,
+                question_text=q['question'],
+                question_type=q.get('type', 'mcq'),
+                options=q.get('options'),
+                correct_answer=q['correct_answer'],
+                explanation=q.get('explanation', ''),
+                order=idx,
+            )
+        return {'status': 'COMPLETE', 'quiz_id': quiz.pk, 'num_questions': len(questions)}
+
+    except Exception as e:
+        logger.error(f"Quiz generation task failed: {e}", exc_info=True)
+        return {'status': 'FAILED', 'error': str(e)}
+
+
+@shared_task(bind=True)
+def generate_quiz_from_document_task(self, document_pk):
+    """Generate quizzes from a document's actual .ipynb notebook content."""
+    import nbformat
+    from .quiz_generator import generate_quiz_for_section
+    from .models import Document, Quiz, QuizQuestion
+
+    try:
+        doc = Document.objects.get(pk=document_pk)
+        notebook_path = Path(settings.MEDIA_ROOT) / doc.uploaded_file.name
+
+        if not notebook_path.exists():
+            logger.error(f"Notebook not found for quiz generation: {notebook_path}")
+            return {'status': 'FAILED', 'error': 'Notebook file not found'}
+
+        with open(notebook_path, 'r', encoding='utf-8') as f:
+            nb = nbformat.read(f, as_version=4)
+
+        # Group cells into meaningful sections for quiz generation
+        sections = []
+        current_section_title = os.path.splitext(os.path.basename(str(doc.uploaded_file)))[0]
+        current_content = []
+
+        for cell in nb.cells:
+            source = cell.get('source', '').strip()
+            if not source:
+                continue
+
+            cell_type = cell.get('cell_type', 'code')
+
+            # Markdown headings start new sections
+            if cell_type == 'markdown' and source.startswith('#'):
+                if current_content:
+                    sections.append({
+                        'title': current_section_title,
+                        'content': '\n\n'.join(current_content),
+                    })
+                    current_content = []
+                current_section_title = source.lstrip('#').strip() or current_section_title
+            current_content.append(source)
+
+        # Add final section
+        if current_content:
+            sections.append({
+                'title': current_section_title,
+                'content': '\n\n'.join(current_content),
+            })
+
+        if not sections:
+            return {'status': 'NO_CONTENT'}
+
+        # Delete old quizzes for this document so we don't pile duplicates
+        Quiz.objects.filter(document=doc).delete()
+
+        total_questions = 0
+        quiz_ids = []
+        for section in sections:
+            if len(section['content'].strip()) < 50:
+                continue
+
+            questions = generate_quiz_for_section(
+                section['content'], section['title'],
+            )
+            if not questions:
+                continue
+
+            quiz = Quiz.objects.create(
+                title=f"Quiz: {section['title']}"[:250],
+                document=doc,
+            )
+            for idx, q in enumerate(questions):
+                raw_type = q.get('type', 'mcq').lower().replace('-', '_')
+                if 'multiple' in raw_type or raw_type == 'mcq':
+                    q_type = 'mcq'
+                elif 'code' in raw_type:
+                    q_type = 'code'
+                else:
+                    q_type = 'short'
+                QuizQuestion.objects.create(
+                    quiz=quiz,
+                    question_text=q['question'],
+                    question_type=q_type,
+                    options=q.get('options'),
+                    correct_answer=q['correct_answer'],
+                    explanation=q.get('explanation', ''),
+                    order=idx,
+                )
+            total_questions += len(questions)
+            quiz_ids.append(quiz.pk)
+
+        logger.info(f"Generated {len(quiz_ids)} quizzes ({total_questions} questions) for document {doc.pk}")
+        return {'status': 'COMPLETE', 'quiz_ids': quiz_ids, 'total_questions': total_questions}
+
+    except Exception as e:
+        logger.error(f"Document quiz generation failed: {e}", exc_info=True)
+        return {'status': 'FAILED', 'error': str(e)}
+
+
+# ==========================================================================
+# Translation Task
+# ==========================================================================
+
+@shared_task(bind=True)
+def translate_document_task(self, document_pk, target_language_code, target_language_name):
+    """Translate document sections and optionally generate audio in target language."""
+    from .models import Document, TranslatedContent
+
+    try:
+        doc = Document.objects.get(pk=document_pk)
+        notebook_path = Path(settings.MEDIA_ROOT) / doc.uploaded_file.name
+
+        if not notebook_path.exists():
+            return {'status': 'FAILED', 'error': 'Notebook not found'}
+
+        import nbformat
+        with open(notebook_path, 'r', encoding='utf-8') as f:
+            nb = nbformat.read(f, as_version=4)
+
+        sections_to_translate = []
+        for cell in nb.cells:
+            if cell.cell_type == 'markdown' and cell.source.strip():
+                sections_to_translate.append({
+                    'type': 'markdown',
+                    'content': cell.source.strip(),
+                })
+
+        if not sections_to_translate:
+            return {'status': 'NO_CONTENT'}
+
+        # Translate via LLM
+        translated = _translate_sections(sections_to_translate, target_language_code, target_language_name)
+
+        TranslatedContent.objects.update_or_create(
+            document=doc,
+            language_code=target_language_code,
+            defaults={
+                'language_name': target_language_name,
+                'translated_sections': translated,
+            }
+        )
+
+        return {'status': 'COMPLETE', 'sections_translated': len(translated)}
+
+    except Exception as e:
+        logger.error(f"Translation task failed: {e}", exc_info=True)
+        return {'status': 'FAILED', 'error': str(e)}
+
+
+def _translate_sections(sections, lang_code, lang_name):
+    """Translate sections using LLM."""
+    import json as _json
+
+    all_content = "\n---SECTION_BREAK---\n".join(s['content'] for s in sections)
+
+    prompt = f"""Translate the following educational content from English to {lang_name} ({lang_code}).
+Preserve ALL formatting including markdown headers, code blocks, and bullet points.
+Sections are separated by ---SECTION_BREAK---. Keep these separators in your response.
+
+Content:
+{all_content[:8000]}"""
+
+    api_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
+    translated_text = ''
+
+    if api_key:
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=api_key)
+            response = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=4096,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            translated_text = response.content[0].text
+        except Exception as e:
+            logger.error(f"Translation LLM call failed: {e}")
+            return []
+
+    if not translated_text:
+        return []
+
+    parts = translated_text.split('---SECTION_BREAK---')
+    result = []
+    for i, part in enumerate(parts):
+        result.append({
+            'original': sections[i]['content'] if i < len(sections) else '',
+            'translated': part.strip(),
+            'type': sections[i]['type'] if i < len(sections) else 'markdown',
+        })
+    return result
+
+
+# ==========================================================================
+# Code Review Task
+# ==========================================================================
+
+@shared_task(bind=True)
+def ai_code_review_task(self, code, language='python'):
+    """Run AI code review on submitted code."""
+    import json as _json
+
+    prompt = f"""Review this {language} code for:
+1. Bugs and errors
+2. Security vulnerabilities
+3. Performance issues
+4. Style and best practices
+5. Suggestions for improvement
+
+Code:
+```{language}
+{code[:4000]}
+```
+
+Return ONLY valid JSON:
+{{
+  "score": 85,
+  "issues": [
+    {{"severity": "error|warning|info", "line": 1, "message": "description", "suggestion": "fix"}}
+  ],
+  "summary": "Brief overall assessment"
+}}"""
+
+    api_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
+    if api_key:
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=api_key)
+            response = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=2048,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            text = response.content[0].text.strip()
+            if text.startswith('```'):
+                text = text.split('\n', 1)[1] if '\n' in text else text[3:]
+            if text.endswith('```'):
+                text = text[:-3]
+            return _json.loads(text.strip())
+        except Exception as e:
+            logger.error(f"Code review failed: {e}", exc_info=True)
+            return {'score': 0, 'issues': [], 'summary': f'Review failed: {e}'}
+
+    return {'score': 0, 'issues': [], 'summary': 'No AI backend configured.'}

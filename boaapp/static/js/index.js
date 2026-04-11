@@ -1,138 +1,171 @@
-$(document).ready(function () {
-  // --- Badge Toggle ---
-  $(".badge-pill").click(function () {
-    $(this).siblings(".details").slideToggle();
+document.addEventListener('DOMContentLoaded', function () {
+
+  // --- Badge Toggle (vanilla JS) ---
+  document.querySelectorAll('.badge-pill').forEach(function (badge) {
+    badge.addEventListener('click', function () {
+      const details = this.parentElement.querySelector('.details');
+      if (details) {
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+      }
+    });
   });
 
-  // --- Console Log on Load ---
-  console.log('Page loaded');
-
   // --- Scrolling Images Animation ---
-  $('.scrolling-image-wrapper').each(function () {
-    var $this = $(this);
-    // Note: Applying animation via CSS might be cleaner if duration is constant
-    $this.css('animation', 'scroll-images 10s linear infinite');
+  document.querySelectorAll('.scrolling-image-wrapper').forEach(function (el) {
+    el.style.animation = 'scroll-images 10s linear infinite';
   });
 
   // --- Theme Toggle Logic ---
-  const toggleBtn = document.getElementById("theme-toggle-btn");
-  const overlay = document.getElementById("theme-transition-overlay");
-  const htmlElement = document.documentElement; // Target the <html> element
+  const toggleBtn = document.getElementById('theme-toggle-btn');
+  const overlay = document.getElementById('theme-transition-overlay');
+  const htmlElement = document.documentElement;
 
-  /**
-   * Applies the selected theme to the document and saves it to localStorage.
-   * @param {string} theme - The theme to apply ('light' or 'dark').
-   * @param {boolean} isInitialLoad - True if this is the first load, false otherwise (prevents flash on load).
-   */
-  function applyTheme(theme, isInitialLoad = false) {
-    htmlElement.setAttribute("data-theme", theme); // Set on <html> for CSS variable overrides
-    document.body.setAttribute("data-theme", theme); // Also set on <body> for the ::before overlay selector
-    localStorage.setItem("theme", theme);
+  function applyTheme(theme, isInitialLoad) {
+    htmlElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
 
-    // Update button text/icon (using Font Awesome icons from base_generic.html)
     if (toggleBtn) {
-      if (theme === "dark") {
-        toggleBtn.innerHTML = '<i class="fas fa-sun"></i> Light Mode'; // Sun icon
-      } else {
-        toggleBtn.innerHTML = '<i class="fas fa-moon"></i> Dark Mode'; // Moon icon
-      }
-      // Remove rotation class after transition (or immediately if initial load)
+      toggleBtn.innerHTML = theme === 'dark'
+        ? '<i class="fas fa-sun"></i> Light Mode'
+        : '<i class="fas fa-moon"></i> Dark Mode';
       if (!isInitialLoad) {
-        setTimeout(() => toggleBtn.classList.remove("rotating"), 400); // Match transition duration
+        setTimeout(function () { toggleBtn.classList.remove('rotating'); }, 400);
       } else {
-        toggleBtn.classList.remove("rotating");
+        toggleBtn.classList.remove('rotating');
       }
     }
 
-    // Trigger flash animation only on toggle, not initial load
     if (overlay && !isInitialLoad) {
-      const flashClass = theme === "light" ? "flash-light" : "flash-dark";
-      console.log(`Applying flash for theme: ${theme}, Class: ${flashClass}`); // Debug log
-
-      overlay.classList.remove("flash-dark", "flash-light");
-      // Ensure removal happens before adding the new class
-      requestAnimationFrame(() => { // Use requestAnimationFrame for better timing
+      var flashClass = theme === 'light' ? 'flash-light' : 'flash-dark';
+      overlay.classList.remove('flash-dark', 'flash-light');
+      requestAnimationFrame(function () {
         overlay.classList.add(flashClass);
-        overlay.style.opacity = "1";
-        setTimeout(() => { overlay.style.opacity = "0"; }, 400); // Match CSS transition
+        overlay.style.opacity = '1';
+        setTimeout(function () { overlay.style.opacity = '0'; }, 400);
       });
     }
   }
 
   function toggleTheme() {
-    const currentTheme = htmlElement.getAttribute("data-theme") || "light";
-    const newTheme = currentTheme === "light" ? "dark" : "light";
-    if (toggleBtn) { toggleBtn.classList.add("rotating"); }
-    applyTheme(newTheme, false); // Apply theme with flash animation
+    var currentTheme = htmlElement.getAttribute('data-theme') || 'light';
+    var newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    if (toggleBtn) { toggleBtn.classList.add('rotating'); }
+    applyTheme(newTheme, false);
   }
 
-  const preferredTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  applyTheme(preferredTheme, true); // Apply initial theme without flash
+  var preferredTheme = localStorage.getItem('theme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(preferredTheme, true);
 
-  if (toggleBtn) { toggleBtn.addEventListener("click", toggleTheme); }
-  else { console.error("Theme toggle button with ID 'theme-toggle-btn' not found!"); }
-  // --- End Theme Toggle Logic ---
+  if (toggleBtn) { toggleBtn.addEventListener('click', toggleTheme); }
 
   // --- Accordion Deep Linking (Bootstrap 5) ---
-  const urlParams = new URLSearchParams(window.location.search);
-  const openAccordionId = urlParams.get('open');
+  var urlParams = new URLSearchParams(window.location.search);
+  var openAccordionId = urlParams.get('open');
 
   if (openAccordionId) {
-    const targetAccordionPanel = document.getElementById(openAccordionId);
-    if (targetAccordionPanel) {
-      if (targetAccordionPanel.classList.contains('collapse')) {
-        // Bootstrap 5 way to show a collapse element
-        var collapseElement = new bootstrap.Collapse(targetAccordionPanel, {
-          toggle: false // Initialize but don't toggle immediately
-        });
-        collapseElement.show();
+    var targetPanel = document.getElementById(openAccordionId);
+    if (targetPanel && targetPanel.classList.contains('collapse')) {
+      var collapseInstance = new bootstrap.Collapse(targetPanel, { toggle: false });
+      collapseInstance.show();
 
-        const headerId = targetAccordionPanel.getAttribute('aria-labelledby');
-        if (headerId) {
-          const headerElement = document.getElementById(headerId);
-          if (headerElement) {
-            setTimeout(function () {
-              headerElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-              });
-            }, 350);
-          }
+      var headerId = targetPanel.getAttribute('aria-labelledby');
+      if (headerId) {
+        var headerEl = document.getElementById(headerId);
+        if (headerEl) {
+          setTimeout(function () {
+            headerEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 350);
         }
-      } else {
-        console.warn(`Element with ID '${openAccordionId}' is not a Bootstrap collapse panel.`);
       }
-    } else {
-      console.warn(`Accordion panel with ID '${openAccordionId}' not found.`);
     }
   }
-  // --- End Accordion Deep Linking ---
+
+  // --- Navbar Scroll Effect ---
+  var navbar = document.querySelector('.navbar');
+  if (navbar) {
+    window.addEventListener('scroll', function () {
+      if (window.scrollY > 20) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    }, { passive: true });
+  }
+
+  // --- Scroll Animations (IntersectionObserver) ---
+  var animatedElements = document.querySelectorAll('.fade-in-up');
+  if (animatedElements.length > 0 && 'IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          // Animate company cards
+          if (entry.target.classList.contains('company-card')) {
+            entry.target.classList.add('animate-in');
+          }
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    animatedElements.forEach(function (el) {
+      observer.observe(el);
+    });
+  }
+
+  // --- Company Card Expand Icon Rotation ---
+  document.querySelectorAll('.company-card-header[data-bs-toggle="collapse"]').forEach(function (header) {
+    var targetId = header.getAttribute('data-bs-target');
+    var target = document.querySelector(targetId);
+    if (target) {
+      target.addEventListener('show.bs.collapse', function () {
+        header.querySelector('.expand-icon')?.classList.add('rotated');
+      });
+      target.addEventListener('hide.bs.collapse', function () {
+        header.querySelector('.expand-icon')?.classList.remove('rotated');
+      });
+    }
+  });
 
 });
 
-function updateProgress() {
-  const fileName = document.getElementById('file_name').value;
-  fetch(`/upload/progress/${encodeURIComponent(fileName)}/`)
-    .then(response => response.json())
-    .then(data => {
-      const progressBar = document.querySelector(".progress-bar");
-      progressBar.style.width = data.progress + "%";
-      progressBar.innerHTML = data.progress + "%";
+// --- Portfolio two-pane nav (event delegation — works for static and panel-injected content) ---
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('.pf-nav-item');
+  if (!btn) return;
+  var split = btn.closest('.pf-split') || document;
+  split.querySelectorAll('.pf-nav-item').forEach(function (b) {
+    b.classList.remove('pf-active');
+  });
+  split.querySelectorAll('.pf-panel').forEach(function (p) {
+    p.style.display = 'none';
+  });
+  btn.classList.add('pf-active');
+  var target = split.querySelector('#' + btn.dataset.target);
+  if (target) { target.style.display = ''; }
+});
 
-      // If progress is less than 100, continue polling
+// --- Upload Progress ---
+function updateProgress() {
+  var fileName = document.getElementById('file_name').value;
+  fetch('/upload/progress/' + encodeURIComponent(fileName) + '/')
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      var progressBar = document.querySelector('.progress-bar');
+      progressBar.style.width = data.progress + '%';
+      progressBar.innerHTML = data.progress + '%';
+
       if (data.progress < 100) {
         setTimeout(updateProgress, 1000);
-      } else if (progressBar) { // Ensure progressBar exists before redirecting
-        // Delay for a moment before redirecting
-        setTimeout(() => {
-          window.location.href = "/upload/success/";
-        }, 2000); // 2 seconds for user to see 100% completion
+      } else if (progressBar) {
+        setTimeout(function () {
+          window.location.href = '/upload/success/';
+        }, 2000);
       }
     })
-    .catch(error => {
-      console.error("Error updating progress:", error);
-      // Optionally, re-enable button or show error message to user here
+    .catch(function (error) {
+      console.error('Error updating progress:', error);
     });
 }
-
-// --- End Accordion specific to uploadit.html ---

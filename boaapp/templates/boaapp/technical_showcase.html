@@ -4,84 +4,152 @@
 {% block title %}Technical Showcase{% endblock %}
 
 {% block content %}
-<div class="custom-margin-bottom text-center">
-    <h1 class="text-center mb-4">Technical Showcase</h1>
-    <p class="lead mb-4" style="max-width: 800px; margin: auto;">
-        A visual representation of the key technologies and tools utilized across my various roles and projects.
-    </p>
+<style>
+:root{--c-blue:#3b82f6;--c-violet:#8b5cf6;--c-card:#ffffff;--c-border:rgba(0,0,0,.05);--c-muted:#64748b;--c-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);--c-shadow-lg:0 20px 50px rgba(0,0,0,.1);--c-radius:24px}
+[data-theme="dark"]{--c-card:rgba(22,27,45,.95);--c-border:rgba(255,255,255,.07);--c-muted:#94a3b8;--c-shadow:0 2px 8px rgba(0,0,0,.25);--c-shadow-lg:0 20px 50px rgba(0,0,0,.4)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.ts-hero{text-align:center;padding:3.5rem 1rem 2.5rem;animation:fadeUp .6s ease both}
+.pt-tag{display:inline-block;padding:.35rem 1.1rem;border-radius:999px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.1);color:var(--c-blue)}
+.ts-hero h1{font-size:clamp(2rem,4.5vw,2.8rem);font-weight:800;margin-bottom:.7rem;color:#0f172a;letter-spacing:-.02em}
+[data-theme="dark"] .ts-hero h1{color:#f1f5f9}
+.ts-hero .lead{font-size:1rem;color:var(--c-muted);max-width:640px;margin:0 auto;line-height:1.7}
+.ts-grid{max-width:800px;margin:0 auto 4rem;display:flex;flex-direction:column;gap:2rem;padding:0 .5rem}
+.ts-company{border-radius:var(--c-radius);border:1px solid var(--c-border);background:var(--c-card);box-shadow:var(--c-shadow);overflow:hidden;transition:box-shadow .3s,transform .3s}
+.ts-company:hover{box-shadow:var(--c-shadow-lg);transform:translateY(-3px)}
+.ts-head{display:flex;align-items:center;gap:1.8rem;padding:2.5rem 2.5rem 1.5rem}
+.ts-head img{height:80px;width:80px;max-width:80px;object-fit:contain;border-radius:18px;border:1px solid var(--c-border);background:#fff;padding:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+[data-theme="dark"] .ts-head img{background:rgba(255,255,255,.08);box-shadow:none}
+.ts-org{flex:1;min-width:0}
+.ts-name{font-size:1.25rem;font-weight:800;margin:0 0 .35rem;line-height:1.3;display:block;color:#0f172a;letter-spacing:-.01em}
+[data-theme="dark"] .ts-name{color:#f1f5f9}
+.ts-subtitle{font-size:.88rem;font-weight:500;color:var(--c-muted);line-height:1.5}
+.ts-body{padding:.5rem 2.5rem 2.5rem}
+.ts-logos{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem}
+.ts-logos img{height:56px;max-width:88px;object-fit:contain;padding:10px;border:1px solid var(--c-border);border-radius:14px;background:#fff;transition:transform .2s,box-shadow .2s;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.ts-logos img:hover{transform:scale(1.08);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+[data-theme="dark"] .ts-logos img{background:rgba(255,255,255,.06);box-shadow:none}
+.ts-text-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.25rem}
+.ts-text-tag{font-size:.76rem;font-weight:600;padding:.35rem .85rem;border-radius:10px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.1);color:var(--c-blue)}
+.ts-links{font-size:.88rem;color:var(--c-muted);margin:0;line-height:1.7}
+.ts-links a{color:var(--c-blue);text-decoration:none}
+.ts-links a:hover{text-decoration:underline}
+</style>
 
-    <div class="accordion" id="technicalAccordion" style="max-width: 800px; margin: auto;">
+<div class="ts-hero">
+  <div class="pt-tag"><i class="fas fa-microchip me-1"></i> Technical Stack</div>
+  <h1>Technical Showcase</h1>
+  <p class="lead">Key technologies and tools applied across enterprise roles and production systems.</p>
+</div>
 
-        {# American Airlines #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingTechAA">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTechAA" aria-expanded="false" aria-controls="collapseTechAA">
-                        <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines Logo" class="accordion-company-logo">
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseTechAA" class="collapse" aria-labelledby="headingTechAA" data-parent="#technicalAccordion">
-                <div class="card-body text-center">
-                    {# <h5 class="mb-3">Technologies Used at American Airlines</h5> #}
-                    <div class="d-flex flex-wrap justify-content-center align-items-center">
-                        <img src="{% static 'css/img/kiko_logo.png' %}" alt="Kiko Logo" class="m-2 tech-logo" title="Kiko">
-                        <img src="{% static 'css/img/rovr_logo.png' %}" alt="ROVR Logo" class="m-2 tech-logo" title="ROVR">
-                        <img src="{% static 'css/img/tableau_logo.png' %}" alt="Tableau Logo" class="m-2 tech-logo" title="Tableau">
-                        <img src="{% static 'css/img/python_logo.png' %}" alt="Python Logo" class="m-2 tech-logo" title="Python">
-                        <img src="{% static 'css/img/java_logo.png' %}" alt="Java Logo" class="m-2 tech-logo" title="Java">
-                        <img src="{% static 'css/img/databricks_Logo.png' %}" alt="Databricks Logo" class="m-2 tech-logo" title="Databricks">
-                        <img src="{% static 'css/img/azure_logo.png' %}" alt="Azure Logo" class="m-2 tech-logo" title="Azure">
-                    </div>
-                    <p class="mt-3"><small>These technologies were integral to my role at American Airlines. See how they were applied in my <a href="{% url 'portfolio_showcase' %}?open=collapseAA">Work History</a> and specific <a href="{% url 'companyandme' %}?open=collapseAABaggage">Industry Engineering projects</a>.</small></p>
-                </div>
+<div class="ts-grid">
+
+    {# Witherite Law Firm #}
+    <div class="ts-company">
+        <div class="ts-head">
+            <img src="{% static 'css/img/witherite_logo.png' %}" alt="Witherite Law Firm" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+            <div class="ts-org">
+                <span class="ts-name">Witheritelaw</span>
+                <span class="ts-subtitle">Enterprise Application Architecture &middot; AI Automation &middot; OCR Pipelines</span>
             </div>
         </div>
-
-        {# Citibank #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingTechCiti">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTechCiti" aria-expanded="false" aria-controls="collapseTechCiti">
-                        <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank Logo" class="accordion-company-logo">
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseTechCiti" class="collapse" aria-labelledby="headingTechCiti" data-parent="#technicalAccordion">
-                <div class="card-body text-center">
-                    {# <h5 class="mb-3">Technologies Used at Citibank</h5> #}
-                    <div class="d-flex flex-wrap justify-content-center align-items-center">
-                        <img src="{% static 'css/img/snowflake_citi_logo.png' %}" alt="Snowflake Logo" class="m-2 tech-logo" title="Snowflake">
-                        <img src="{% static 'css/img/lti_logo.png' %}" alt="LTI Logo" class="m-2 tech-logo" title="LTI">
-                        <img src="{% static 'css/img/tectia_logo.png' %}" alt="Tectia Logo" class="m-2 tech-logo" title="Tectia">
-                        <img src="{% static 'css/img/hadoop_logo.png' %}" alt="Hadoop Logo" class="m-2 tech-logo" title="Hadoop">
-                    </div>
-                    <p class="mt-3"><small>My work at Citibank leveraging these tools is described in my <a href="{% url 'portfolio_showcase' %}?open=collapseCiti">Work History</a> and further detailed in <a href="{% url 'companyandme' %}?open=collapseCitiData">Project Insights</a>.</small></p>
+        <div class="ts-body">
+                <div class="ts-logos">
+                    <img src="{% static 'css/img/azure_logo.png' %}" alt="Azure" title="Microsoft Azure">
+                    <img src="{% static 'css/img/azure_function_logo.png' %}" alt="Azure Functions" title="Azure Functions">
+                    <img src="{% static 'css/img/azure_blob_storage_logo.png' %}" alt="Azure Blob Storage" title="Azure Blob Storage">
+                    <img src="{% static 'css/img/azure_computer_vision_logo.png' %}" alt="Azure Computer Vision" title="Azure Computer Vision OCR">
+                    <img src="{% static 'css/img/python_logo.png' %}" alt="Python" title="Python">
+                    <img src="{% static 'css/img/json_logo.png' %}" alt="JSON/REST API" title="JSON / REST APIs">
+                    <img src="{% static 'css/img/api_icon.png' %}" alt="API Integration" title="API Integration">
+                    <img src="{% static 'css/img/filevine_logo.png' %}" alt="Filevine" title="Filevine CRM">
                 </div>
-            </div>
-        </div>
-
-        {# Code Ninjas #}
-        <div class="card mb-2">
-            <div class="card-header" id="headingTechCodeNinjas">
-                <h2 class="mb-0">
-                    <button class="btn btn-link w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTechCodeNinjas" aria-expanded="false" aria-controls="collapseTechCodeNinjas">
-                        <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas Logo" class="accordion-company-logo">
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseTechCodeNinjas" class="collapse" aria-labelledby="headingTechCodeNinjas" data-parent="#technicalAccordion">
-                <div class="card-body text-center">
-                    {# <h5 class="mb-3">Technologies Used at Code Ninjas</h5> #}
-                    <div class="d-flex flex-wrap justify-content-center align-items-center">
-                        <img src="{% static 'css/img/homebase.png' %}" alt="Homebase Logo" class="m-2 tech-logo" title="Homebase">
-                        <img src="{% static 'css/img/vonage_business_logo.png' %}" alt="Vonage Logo" class="m-2 tech-logo" title="Vonage">
-                    </div>
-                    <p class="mt-3"><small>See the application of these tools during my time at Code Ninjas in my <a href="{% url 'portfolio_showcase' %}?open=collapseCodeNinjas">Work History</a>.</small></p>
+                <div class="ts-text-tags">
+                    <span class="ts-text-tag">Acumatica ERP</span>
+                    <span class="ts-text-tag">Claude AI</span>
+                    <span class="ts-text-tag">Power Apps</span>
+                    <span class="ts-text-tag">Power Automate</span>
+                    <span class="ts-text-tag">Invoice OCR Pipeline</span>
+                    <span class="ts-text-tag">Multi-Tenant Architecture</span>
                 </div>
-            </div>
+                <p class="ts-links">
+                    6 production systems in 6 months — OCR, AP/AR automation, AI agents, and multi-tenant architecture.
+                    See my <a href="{% url 'portfolio_showcase' %}?open=collapseWitherite">Work History</a> and
+                    <a href="{% url 'witheritelaw' %}">Industry Engineering</a>.
+                </p>
         </div>
-
     </div>
+
+    {# American Airlines #}
+    <div class="ts-company">
+        <div class="ts-head">
+            <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+            <div class="ts-org">
+                <span class="ts-name">American Airlines</span>
+                <span class="ts-subtitle">Data Engineering &middot; ML Automation &middot; Cloud Infrastructure</span>
+            </div>
+        </div>
+        <div class="ts-body">
+                <div class="ts-logos">
+                    <img src="{% static 'css/img/kiko_logo.png' %}" alt="Kiko" title="Kiko">
+                    <img src="{% static 'css/img/rovr_logo.png' %}" alt="ROVR" title="ROVR">
+                    <img src="{% static 'css/img/tableau_logo.png' %}" alt="Tableau" title="Tableau">
+                    <img src="{% static 'css/img/python_logo.png' %}" alt="Python" title="Python">
+                    <img src="{% static 'css/img/java_logo.png' %}" alt="Java" title="Java">
+                    <img src="{% static 'css/img/databricks_Logo.png' %}" alt="Databricks" title="Databricks">
+                    <img src="{% static 'css/img/azure_logo.png' %}" alt="Azure" title="Azure">
+                </div>
+                <p class="ts-links">
+                    See how these technologies were applied in my
+                    <a href="{% url 'portfolio_showcase' %}?open=collapseAA">Work History</a> and
+                    <a href="{% url 'companyandme' %}?open=collapseAABaggage">Industry Engineering</a>.
+                </p>
+        </div>
+    </div>
+
+    {# Citibank #}
+    <div class="ts-company">
+        <div class="ts-head">
+            <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+            <div class="ts-org">
+                <span class="ts-name">Citibank</span>
+                <span class="ts-subtitle">Big Data Platform &middot; ETL &middot; Hadoop Ecosystem &middot; DevOps</span>
+            </div>
+        </div>
+        <div class="ts-body">
+                <div class="ts-logos">
+                    <img src="{% static 'css/img/snowflake_citi_logo.png' %}" alt="Snowflake" title="Snowflake">
+                    <img src="{% static 'css/img/lti_logo.png' %}" alt="LTI" title="LTI">
+                    <img src="{% static 'css/img/tectia_logo.png' %}" alt="Tectia" title="Tectia">
+                    <img src="{% static 'css/img/hadoop_logo.png' %}" alt="Hadoop" title="Hadoop">
+                </div>
+                <p class="ts-links">
+                    My work at Citibank is described in my
+                    <a href="{% url 'portfolio_showcase' %}?open=collapseCiti">Work History</a> and
+                    <a href="{% url 'companyandme' %}?open=collapseCitiData">Project Insights</a>.
+                </p>
+        </div>
+    </div>
+
+    {# Code Ninjas #}
+    <div class="ts-company">
+        <div class="ts-head">
+            <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas" style="width:80px;height:80px;max-width:80px;object-fit:contain">
+            <div class="ts-org">
+                <span class="ts-name">Code Ninjas</span>
+                <span class="ts-subtitle">Workforce Scheduling &middot; VoIP Communication Systems</span>
+            </div>
+        </div>
+        <div class="ts-body">
+                <div class="ts-logos">
+                    <img src="{% static 'css/img/homebase.png' %}" alt="Homebase" title="Homebase">
+                    <img src="{% static 'css/img/vonage_business_logo.png' %}" alt="Vonage" title="Vonage">
+                </div>
+                <p class="ts-links">
+                    See the application of these tools in my
+                    <a href="{% url 'portfolio_showcase' %}?open=collapseCodeNinjas">Work History</a>.
+                </p>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

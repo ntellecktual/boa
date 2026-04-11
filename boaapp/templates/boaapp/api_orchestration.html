@@ -1,0 +1,527 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}thenumerix | API Integration &amp; Orchestration{% endblock %}
+
+{% block content %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   API INTEGRATION & ORCHESTRATION
+   ══════════════════════════════════════════════════════════ */
+:root{
+  --ao-blue:#3b82f6;--ao-violet:#8b5cf6;--ao-emerald:#10b981;--ao-amber:#f59e0b;--ao-rose:#ef4444;--ao-indigo:#6366f1;
+  --ao-grad-b:linear-gradient(135deg,#6366f1,#3b82f6);
+  --ao-grad-v:linear-gradient(135deg,#8b5cf6,#6d28d9);
+  --ao-grad-g:linear-gradient(135deg,#10b981,#059669);
+  --ao-grad-a:linear-gradient(135deg,#f59e0b,#d97706);
+  --ao-surface:rgba(255,255,255,.75);--ao-border:rgba(0,0,0,.08);
+  --ao-shadow:0 4px 24px rgba(0,0,0,.07);--ao-shadow-lg:0 12px 48px rgba(0,0,0,.13);
+}
+[data-theme="dark"]{
+  --ao-surface:rgba(22,28,45,.8);--ao-border:rgba(255,255,255,.08);
+  --ao-shadow:0 4px 24px rgba(0,0,0,.4);--ao-shadow-lg:0 12px 48px rgba(0,0,0,.55);
+}
+@keyframes aoFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes aoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes aoOrbit{0%{transform:rotate(0deg) translateX(6px) rotate(0deg)}100%{transform:rotate(360deg) translateX(6px) rotate(-360deg)}}
+
+.ao-hero{text-align:center;padding:3.5rem 0 2.5rem;position:relative;overflow:hidden}
+.ao-hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(99,102,241,.11) 0%,transparent 70%),
+             radial-gradient(ellipse 45% 35% at 80% 110%,rgba(16,185,129,.08) 0%,transparent 60%);pointer-events:none}
+.ao-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .9rem;border-radius:999px;
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);font-size:.72rem;font-weight:700;
+  color:var(--ao-indigo);margin-bottom:.9rem;text-transform:uppercase;letter-spacing:.06em}
+.ao-hero h1{font-size:clamp(1.9rem,4.5vw,3.1rem);font-weight:800;line-height:1.1;margin-bottom:.8rem;
+  background:linear-gradient(135deg,#312e81 0%,#6366f1 50%,#10b981 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+[data-theme="dark"] .ao-hero h1{background:linear-gradient(135deg,#e2e8f0 0%,#818cf8 50%,#6ee7b7 100%);
+  -webkit-background-clip:text;background-clip:text}
+.ao-hero .lead{font-size:1rem;opacity:.7;max-width:620px;margin:0 auto 2rem}
+.ao-kpi-strip{display:flex;justify-content:center;flex-wrap:wrap;gap:1rem;margin-top:1rem}
+.ao-kpi{display:flex;align-items:center;gap:.6rem;padding:.6rem 1.1rem;border-radius:14px;
+  background:var(--ao-surface);border:1px solid var(--ao-border);backdrop-filter:blur(8px);
+  box-shadow:var(--ao-shadow);animation:aoFloat 3s ease-in-out infinite}
+.ao-kpi:nth-child(2){animation-delay:.5s}.ao-kpi:nth-child(3){animation-delay:1s}.ao-kpi:nth-child(4){animation-delay:1.5s}
+.ao-kpi-val{font-size:1.15rem;font-weight:800;background:var(--ao-grad-b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ao-kpi-lbl{font-size:.72rem;opacity:.65;line-height:1.3}
+
+.ao-sec{padding:1.8rem 0;animation:aoFadeUp .6s ease both}
+.ao-sec-head{text-align:center;margin-bottom:1.4rem}
+.ao-sec-head h2{font-size:1.55rem;font-weight:800;margin-bottom:.25rem}
+.ao-sec-head p{font-size:.88rem;opacity:.65;max-width:540px;margin:0 auto}
+.ao-tag{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.63rem;
+  font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
+.ao-tag--i{background:rgba(99,102,241,.11);color:#4f46e5}
+.ao-tag--g{background:rgba(16,185,129,.11);color:#059669}
+.ao-tag--v{background:rgba(139,92,246,.11);color:#7c3aed}
+.ao-tag--a{background:rgba(245,158,11,.11);color:#b45309}
+
+/* ── Gateway Flow ── */
+.ao-flow{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap;gap:0;max-width:960px;margin:0 auto 1.5rem}
+.ao-flow-node{display:flex;flex-direction:column;align-items:center;padding:1rem .75rem;
+  border-radius:17px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  backdrop-filter:blur(10px);box-shadow:var(--ao-shadow);min-width:100px;text-align:center;
+  transition:transform .25s,box-shadow .25s}
+.ao-flow-node:hover{transform:translateY(-4px);box-shadow:var(--ao-shadow-lg)}
+.ao-flow-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:1.1rem;color:#fff;margin-bottom:.48rem}
+.ao-flow-lbl{font-size:.71rem;font-weight:700;line-height:1.25}
+.ao-flow-sub{font-size:.58rem;opacity:.52;margin-top:.14rem}
+.ao-flow-arr{display:flex;align-items:center;padding:0 .25rem;opacity:.35;font-size:.82rem;align-self:center}
+
+/* ── Pattern Cards ── */
+.ao-patterns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;max-width:960px;margin:0 auto}
+@media(max-width:768px){.ao-patterns{grid-template-columns:1fr}}
+.ao-card{border-radius:20px;padding:1.5rem;border:1px solid var(--ao-border);
+  background:var(--ao-surface);backdrop-filter:blur(12px);box-shadow:var(--ao-shadow);
+  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.ao-card:hover{transform:translateY(-4px);box-shadow:var(--ao-shadow-lg)}
+.ao-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.ao-card--res::before{background:var(--ao-grad-b)}
+.ao-card--rel::before{background:var(--ao-grad-g)}
+.ao-card--sec::before{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.ao-card-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;
+  justify-content:center;font-size:1.2rem;color:#fff;margin-bottom:.9rem}
+.ao-card h3{font-size:1.05rem;font-weight:800;margin-bottom:.18rem}
+.ao-card .sub{font-size:.76rem;opacity:.6;margin-bottom:.9rem}
+.ao-ck{display:flex;align-items:center;gap:.4rem;font-size:.78rem;margin-bottom:.4rem}
+.ao-ck i{font-size:.7rem}
+.ao-ck .done{color:var(--ao-emerald)}.ao-ck .info{color:var(--ao-indigo)}
+
+/* ── Integration Grid ── */
+.ao-integrations{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;max-width:940px;margin:0 auto}
+.ao-integ{border-radius:14px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  backdrop-filter:blur(8px);padding:.9rem 1rem;display:flex;align-items:flex-start;gap:.7rem;
+  transition:transform .2s,box-shadow .2s}
+.ao-integ:hover{transform:translateY(-2px);box-shadow:var(--ao-shadow)}
+.ao-integ-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0}
+.ao-integ-name{font-size:.81rem;font-weight:700;margin-bottom:.18rem}
+.ao-integ-desc{font-size:.72rem;opacity:.65;line-height:1.4}
+
+/* ── Demo Panel ── */
+.ao-demo{border-radius:22px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  backdrop-filter:blur(14px);box-shadow:var(--ao-shadow-lg);overflow:hidden;max-width:940px;margin:0 auto}
+.ao-demo-bar{padding:.85rem 1.4rem;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--ao-border);background:rgba(99,102,241,.035);gap:.8rem;flex-wrap:wrap}
+.ao-demo-bar h4{font-size:.9rem;font-weight:800;margin:0;flex:1}
+.ao-dots{display:flex;gap:.38rem}
+.ao-dot{width:11px;height:11px;border-radius:50%}
+.ao-dot--r{background:#ef4444}.ao-dot--y{background:#f59e0b}.ao-dot--g{background:#10b981}
+.ao-demo-body{padding:1.2rem}
+.ao-log{font-family:monospace;font-size:.73rem;line-height:1.7;background:#0f172a;color:#94a3b8;
+  border-radius:12px;padding:1rem 1.2rem;max-height:340px;overflow-y:auto}
+.ao-log .ts{color:#64748b}.ao-log .ok{color:#6ee7b7}.ao-log .warn{color:#fcd34d}
+.ao-log .err{color:#fca5a5}.ao-log .src{color:#a5b4fc}.ao-log .num{color:#fcd34d}
+
+/* ── Pills & Callout ── */
+.ao-stack{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;max-width:800px;margin:1rem auto 0}
+.ao-pill{padding:.25rem .7rem;border-radius:999px;font-size:.72rem;font-weight:700}
+.ao-pill--i{background:rgba(99,102,241,.12);color:#4f46e5}
+.ao-pill--b{background:rgba(59,130,246,.12);color:#2563eb}
+.ao-pill--g{background:rgba(16,185,129,.12);color:#059669}
+.ao-pill--v{background:rgba(139,92,246,.12);color:#7c3aed}
+.ao-pill--a{background:rgba(245,158,11,.12);color:#b45309}
+.ao-pill--r{background:rgba(239,68,68,.12);color:#dc2626}
+.ao-callout{border-radius:16px;padding:1.1rem 1.4rem;border:1px solid var(--ao-border);
+  background:var(--ao-surface);backdrop-filter:blur(10px);max-width:760px;margin:1.3rem auto 0}
+.ao-callout--i{border-color:rgba(99,102,241,.22);background:rgba(99,102,241,.04)}
+.ao-callout h5{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
+.ao-callout p{font-size:.81rem;opacity:.75;margin:0;line-height:1.55}
+
+@media(max-width:640px){
+  .ao-flow{flex-direction:column;align-items:center}
+  .ao-flow-arr{transform:rotate(90deg)}
+}
+
+/* ── Interactive Demo ── */
+.ao-pip-bar{display:flex;align-items:center;justify-content:center;gap:0;padding:.75rem 1.2rem;border-bottom:1px solid var(--ao-border);flex-wrap:wrap}
+.ao-pip{display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:default;position:relative;padding:0 .8rem}
+.ao-pip::after{content:'';position:absolute;top:15px;left:calc(50% + 18px);width:calc(100% - 12px);height:2px;background:var(--ao-border)}
+.ao-pip:last-child::after{display:none}
+.ao-pip-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:var(--ao-surface);border:2px solid var(--ao-border);color:#94a3b8;transition:all .35s;position:relative;z-index:1}
+.ao-pip-lbl{font-size:.58rem;font-weight:700;opacity:.55;white-space:nowrap}
+.ao-pip.active .ao-pip-dot{border-color:var(--ao-indigo);background:rgba(99,102,241,.12);color:var(--ao-indigo);box-shadow:0 0 0 4px rgba(99,102,241,.12);animation:aoPulse 1.2s ease-in-out infinite}
+.ao-pip.done .ao-pip-dot{border-color:var(--ao-emerald);background:var(--ao-emerald);color:#fff}
+.ao-pip.done .ao-pip-lbl,.ao-pip.active .ao-pip-lbl{opacity:1}
+@keyframes aoPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.ao-i-body{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:260px}
+@media(max-width:700px){.ao-i-body{grid-template-columns:1fr}}
+.ao-prev-pane{border-right:1px solid var(--ao-border);padding:.7rem;font-size:.73rem;overflow-y:auto;max-height:380px}
+.ao-pane-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;opacity:.45;margin-bottom:.35rem}
+.ao-ord-card{border-radius:10px;border:1px solid var(--ao-border);padding:.55rem .65rem;margin-bottom:.4rem;font-size:.7rem;opacity:0;transition:opacity .3s}
+.ao-ord-card.vis{opacity:1}
+.ao-ord-row{display:flex;justify-content:space-between;font-size:.66rem;padding:.1rem 0}
+.ao-ord-row .lbl{opacity:.6}.ao-ord-row .val{font-weight:600}
+.ao-stage{padding:.8rem;overflow-y:auto;max-height:380px}
+.ao-step-card{border-radius:14px;border:1px solid var(--ao-border);background:rgba(255,255,255,.55);padding:.85rem 1rem;margin-bottom:.65rem;animation:aoFadeUp .35s ease both}
+[data-theme="dark"] .ao-step-card{background:rgba(255,255,255,.04)}
+.ao-step-card--ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
+.ao-step-card h6{font-size:.82rem;font-weight:800;margin-bottom:.45rem}
+.ao-chk{display:flex;align-items:center;gap:.4rem;font-size:.76rem;margin-bottom:.3rem;opacity:0;transition:opacity .3s}
+.ao-chk.show{opacity:1}
+.ao-json{font-family:monospace;font-size:.71rem;background:#0f172a;color:#94a3b8;border-radius:10px;padding:.65rem .85rem;line-height:1.55;margin-top:.45rem}
+.ao-json .key{color:#a5b4fc}.ao-json .str{color:#6ee7b7}.ao-json .num{color:#fcd34d}
+.ao-log2{font-family:monospace;font-size:.67rem;line-height:1.55;max-height:140px;overflow-y:auto;padding:.4rem;background:rgba(0,0,0,.03);border-radius:8px;margin-top:.25rem}
+[data-theme="dark"] .ao-log2{background:rgba(255,255,255,.03)}
+.ao-dash2{border-radius:18px;border:1px solid var(--ao-border);background:var(--ao-surface);backdrop-filter:blur(12px);box-shadow:var(--ao-shadow);padding:1rem 1.3rem;max-width:940px;margin:1rem auto 0;display:none}
+.ao-dash2-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:.7rem}
+@media(max-width:600px){.ao-dash2-kpis{grid-template-columns:repeat(2,1fr)}}
+.ao-dkpi{text-align:center;padding:.55rem;border-radius:12px;border:1px solid var(--ao-border)}
+.ao-dkpi-val{font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,#6366f1,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ao-dkpi-lbl{font-size:.58rem;opacity:.55;margin-top:.08rem}
+.ao-ds{display:inline-block;padding:.1rem .38rem;border-radius:6px;font-size:.6rem;font-weight:700}
+.ao-ds.completed{background:#d1fae5;color:#065f46}.ao-ds.compensated{background:#fef3c7;color:#92400e}
+@keyframes aoFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes aoSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+</style>
+
+<!-- ═════════════════════ HERO ═════════════════════ -->
+<section class="ao-hero">
+  <div class="ao-badge"><i class="fas fa-project-diagram"></i>&nbsp; Integration</div>
+  <h1>API Integration &amp;<br>Orchestration</h1>
+  <p class="lead">Enterprise API gateway with circuit breakers, saga orchestration, rate limiting, and intelligent retry — connecting 25+ services with 99.9% reliability.</p>
+  <div class="ao-kpi-strip">
+    <div class="ao-kpi"><div><div class="ao-kpi-val">25+</div><div class="ao-kpi-lbl">API Integrations</div></div></div>
+    <div class="ao-kpi"><div><div class="ao-kpi-val">99.9%</div><div class="ao-kpi-lbl">Uptime</div></div></div>
+    <div class="ao-kpi"><div><div class="ao-kpi-val">42ms</div><div class="ao-kpi-lbl">Avg Latency</div></div></div>
+    <div class="ao-kpi"><div><div class="ao-kpi-val">3.2M</div><div class="ao-kpi-lbl">Calls / Day</div></div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ GATEWAY FLOW ═════════════════════ -->
+<section class="ao-sec">
+  <div class="ao-sec-head">
+    <span class="ao-tag ao-tag--i">Architecture</span>
+    <h2>API Gateway Flow</h2>
+    <p>Every request passes through centralized routing, auth, rate limiting, and observability.</p>
+  </div>
+  <div class="ao-flow">
+    <div class="ao-flow-node">
+      <div class="ao-flow-icon" style="background:var(--ao-grad-b)"><i class="fas fa-mobile-alt"></i></div>
+      <div class="ao-flow-lbl">Client</div>
+      <div class="ao-flow-sub">Web / Mobile</div>
+    </div>
+    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ao-flow-node">
+      <div class="ao-flow-icon" style="background:var(--ao-grad-v)"><i class="fas fa-shield-alt"></i></div>
+      <div class="ao-flow-lbl">Gateway</div>
+      <div class="ao-flow-sub">Auth / Rate</div>
+    </div>
+    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ao-flow-node">
+      <div class="ao-flow-icon" style="background:var(--ao-grad-g)"><i class="fas fa-route"></i></div>
+      <div class="ao-flow-lbl">Router</div>
+      <div class="ao-flow-sub">Load Balance</div>
+    </div>
+    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ao-flow-node">
+      <div class="ao-flow-icon" style="background:var(--ao-grad-a)"><i class="fas fa-cogs"></i></div>
+      <div class="ao-flow-lbl">Services</div>
+      <div class="ao-flow-sub">Microservices</div>
+    </div>
+    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ao-flow-node">
+      <div class="ao-flow-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-heartbeat"></i></div>
+      <div class="ao-flow-lbl">Circuit Breaker</div>
+      <div class="ao-flow-sub">Fallback</div>
+    </div>
+    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ao-flow-node">
+      <div class="ao-flow-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-chart-bar"></i></div>
+      <div class="ao-flow-lbl">Observability</div>
+      <div class="ao-flow-sub">Trace / Log</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ THREE PILLARS ═════════════════════ -->
+<section class="ao-sec">
+  <div class="ao-sec-head">
+    <span class="ao-tag ao-tag--g">Patterns</span>
+    <h2>Resilience, Reliability &amp; Security</h2>
+    <p>Enterprise patterns that keep services running when things go wrong.</p>
+  </div>
+  <div class="ao-patterns">
+
+    <div class="ao-card ao-card--res">
+      <div class="ao-card-icon" style="background:var(--ao-grad-b)"><i class="fas fa-life-ring"></i></div>
+      <h3>Resilience Patterns</h3>
+      <p class="sub">Graceful degradation under failure</p>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Circuit breaker (closed → open → half-open)</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Exponential backoff with jitter</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Bulkhead isolation (thread pools)</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Timeout budgets per service</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Fallback responses (cached or default)</div>
+      <div class="ao-ck"><i class="fas fa-info-circle info"></i> 99.9% uptime even during partial outages</div>
+    </div>
+
+    <div class="ao-card ao-card--rel">
+      <div class="ao-card-icon" style="background:var(--ao-grad-g)"><i class="fas fa-sync-alt"></i></div>
+      <h3>Orchestration Patterns</h3>
+      <p class="sub">Coordinate multi-service workflows</p>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Saga (orchestration + choreography)</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Compensating transactions for rollback</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Idempotency keys (deduplication)</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Request/reply + async fire-and-forget</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Event-driven choreography (pub/sub)</div>
+      <div class="ao-ck"><i class="fas fa-info-circle info"></i> Distributed tracing with correlation IDs</div>
+    </div>
+
+    <div class="ao-card ao-card--sec">
+      <div class="ao-card-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-lock"></i></div>
+      <h3>Security &amp; Governance</h3>
+      <p class="sub">Zero-trust API security at every layer</p>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> OAuth 2.0 / JWT token validation</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Rate limiting (token bucket algorithm)</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> API versioning (URI + header-based)</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Request/response schema validation</div>
+      <div class="ao-ck"><i class="fas fa-check-circle done"></i> CORS, HSTS, CSP headers</div>
+      <div class="ao-ck"><i class="fas fa-info-circle info"></i> OpenAPI spec auto-generation</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═════════════════════ INTEGRATION GRID ═════════════════════ -->
+<section class="ao-sec">
+  <div class="ao-sec-head">
+    <span class="ao-tag ao-tag--a">Connectors</span>
+    <h2>Integration Connectors</h2>
+    <p>Pre-built connectors with retry logic, auth management, and schema mapping.</p>
+  </div>
+  <div class="ao-integrations">
+    <div class="ao-integ">
+      <div class="ao-integ-icon" style="background:var(--ao-grad-b)"><i class="fas fa-credit-card"></i></div>
+      <div><div class="ao-integ-name">Payment APIs</div><div class="ao-integ-desc">Stripe, PayPal, Square — PCI-compliant with tokenization</div></div>
+    </div>
+    <div class="ao-integ">
+      <div class="ao-integ-icon" style="background:var(--ao-grad-v)"><i class="fas fa-envelope"></i></div>
+      <div><div class="ao-integ-name">Communication</div><div class="ao-integ-desc">SendGrid, Twilio, Slack — multi-channel notification hub</div></div>
+    </div>
+    <div class="ao-integ">
+      <div class="ao-integ-icon" style="background:var(--ao-grad-g)"><i class="fas fa-cloud"></i></div>
+      <div><div class="ao-integ-name">Cloud Services</div><div class="ao-integ-desc">Azure, AWS, GCP — unified SDK wrappers with caching</div></div>
+    </div>
+    <div class="ao-integ">
+      <div class="ao-integ-icon" style="background:var(--ao-grad-a)"><i class="fas fa-database"></i></div>
+      <div><div class="ao-integ-name">Data Sources</div><div class="ao-integ-desc">REST, GraphQL, gRPC — schema-driven client generation</div></div>
+    </div>
+    <div class="ao-integ">
+      <div class="ao-integ-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-robot"></i></div>
+      <div><div class="ao-integ-name">AI / ML Services</div><div class="ao-integ-desc">OpenAI, Azure AI, HuggingFace — async batch + real-time</div></div>
+    </div>
+    <div class="ao-integ">
+      <div class="ao-integ-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-file-invoice"></i></div>
+      <div><div class="ao-integ-name">ERP / Finance</div><div class="ao-integ-desc">SAP, NetSuite, QuickBooks — bi-directional sync</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ LIVE ORCHESTRATION DEMO ═════════════════════ -->
+<section class="ao-sec">
+  <div class="ao-sec-head">
+    <span class="ao-tag ao-tag--i">Live Demo</span>
+    <h2>Saga Orchestration Run</h2>
+    <p>Click Run to watch a distributed order saga — payment, inventory, shipping, and notification across 4 services.</p>
+  </div>
+
+  <div class="ao-demo">
+    <div class="ao-demo-bar">
+      <div class="ao-dots"><div class="ao-dot ao-dot--r"></div><div class="ao-dot ao-dot--y"></div><div class="ao-dot ao-dot--g"></div></div>
+      <h4><i class="fas fa-project-diagram me-2" style="color:var(--ao-indigo)"></i>Saga Orchestrator — Live Simulator</h4>
+      <div style="display:flex;gap:.5rem;flex-shrink:0">
+        <button class="btn btn-primary btn-sm" id="aoBtnRun" style="border-radius:8px;font-size:.79rem;background:var(--ao-indigo);border-color:var(--ao-indigo)"><i class="fas fa-play me-1"></i> Run Saga</button>
+        <button class="btn btn-outline-secondary btn-sm" id="aoBtnReset" style="border-radius:8px;font-size:.79rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
+      </div>
+    </div>
+
+    <div class="ao-pip-bar">
+      <div class="ao-pip" id="aoPip0"><div class="ao-pip-dot"><i class="fas fa-shield-alt"></i></div><div class="ao-pip-lbl">Gateway</div></div>
+      <div class="ao-pip" id="aoPip1"><div class="ao-pip-dot"><i class="fas fa-credit-card"></i></div><div class="ao-pip-lbl">Payment</div></div>
+      <div class="ao-pip" id="aoPip2"><div class="ao-pip-dot"><i class="fas fa-boxes"></i></div><div class="ao-pip-lbl">Inventory</div></div>
+      <div class="ao-pip" id="aoPip3"><div class="ao-pip-dot"><i class="fas fa-truck"></i></div><div class="ao-pip-lbl">Shipping</div></div>
+      <div class="ao-pip" id="aoPip4"><div class="ao-pip-dot"><i class="fas fa-bell"></i></div><div class="ao-pip-lbl">Notify</div></div>
+      <div class="ao-pip" id="aoPip5"><div class="ao-pip-dot"><i class="fas fa-check-double"></i></div><div class="ao-pip-lbl">Complete</div></div>
+    </div>
+
+    <div class="ao-i-body">
+      <div class="ao-prev-pane">
+        <div class="ao-pane-lbl">Order Details</div>
+        <div class="ao-ord-card" id="aoOrdCard"></div>
+        <div class="ao-pane-lbl" style="margin-top:.2rem">Saga Log</div>
+        <div class="ao-log2" id="aoLogArea"></div>
+      </div>
+      <div class="ao-stage" id="aoStage"></div>
+    </div>
+  </div>
+
+  <div class="ao-dash2" id="aoDashboard">
+    <div style="font-size:.84rem;font-weight:800;margin-bottom:.7rem"><i class="fas fa-project-diagram me-2" style="color:var(--ao-indigo)"></i>Saga Dashboard</div>
+    <div class="ao-dash2-kpis">
+      <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiSagas">0</div><div class="ao-dkpi-lbl">Sagas Run</div></div>
+      <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiSpans">—</div><div class="ao-dkpi-lbl">Total Spans</div></div>
+      <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiLatency">—</div><div class="ao-dkpi-lbl">Avg Latency</div></div>
+      <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiRate">—</div><div class="ao-dkpi-lbl">Error Rate</div></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table table-sm" style="font-size:.77rem;margin:0">
+        <thead><tr style="opacity:.6"><th>Order</th><th>Amount</th><th>Services</th><th>Spans</th><th>Latency</th><th>Status</th></tr></thead>
+        <tbody id="aoDashTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ TECH STACK ═════════════════════ -->
+<section class="ao-sec">
+  <div class="ao-sec-head">
+    <span class="ao-tag ao-tag--v">Technology</span>
+    <h2>Integration Tech Stack</h2>
+  </div>
+  <div class="ao-stack">
+    <span class="ao-pill ao-pill--i">FastAPI</span>
+    <span class="ao-pill ao-pill--b">Django REST</span>
+    <span class="ao-pill ao-pill--g">Kong / APIM</span>
+    <span class="ao-pill ao-pill--v">GraphQL</span>
+    <span class="ao-pill ao-pill--a">gRPC</span>
+    <span class="ao-pill ao-pill--r">Celery</span>
+    <span class="ao-pill ao-pill--i">Redis</span>
+    <span class="ao-pill ao-pill--b">RabbitMQ</span>
+    <span class="ao-pill ao-pill--g">OpenTelemetry</span>
+    <span class="ao-pill ao-pill--v">Jaeger</span>
+    <span class="ao-pill ao-pill--a">OAuth 2.0</span>
+    <span class="ao-pill ao-pill--r">Pydantic</span>
+    <span class="ao-pill ao-pill--i">httpx / aiohttp</span>
+    <span class="ao-pill ao-pill--b">Docker</span>
+  </div>
+  <div class="ao-callout ao-callout--i" style="margin-top:1.5rem">
+    <h5><i class="fas fa-lightbulb" style="color:var(--ao-indigo)"></i> Interview Talking Point</h5>
+    <p>"I design API integration layers with circuit breakers, exponential backoff, and saga orchestration for distributed transactions. At Witherite, I built a gateway handling 3.2M+ API calls/day across 25 services with 99.9% uptime. I use idempotency keys for deduplication, distributed tracing with OpenTelemetry, and compensating transactions for rollbacks when downstream services fail."</p>
+  </div>
+</section>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+(function(){'use strict';
+var btnRun=document.getElementById('aoBtnRun'),btnReset=document.getElementById('aoBtnReset'),
+    stage=document.getElementById('aoStage'),dashWrap=document.getElementById('aoDashboard'),
+    running=false,sagas=[],totalSpans=0,totalLat=0;
+
+function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function app(h){stage.insertAdjacentHTML('beforeend',h);stage.scrollTop=stage.scrollHeight}
+function log(m){var la=document.getElementById('aoLogArea');if(!la)return;
+  var ts=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  la.insertAdjacentHTML('beforeend','<div style="animation:aoSlide .2s ease">'+ts+' '+m+'</div>');la.scrollTop=la.scrollHeight}
+function pip(i,s){for(var j=0;j<6;j++){var e=document.getElementById('aoPip'+j);e.classList.remove('active','done');
+  if(j<i)e.classList.add('done');else if(j===i)e.classList.add(s==='active'?'active':'done')}}
+function money(n){return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+
+var products=['MacBook Pro 16"','iPhone 15 Pro','AirPods Max','iPad Air','Apple Watch Ultra','Sony WH-1000XM5'];
+var skus=['SKU-1847','SKU-2293','SKU-3014','SKU-4521','SKU-5678','SKU-6102'];
+var carriers=['FedEx 2-Day','UPS Ground','DHL Express','USPS Priority'];
+var processors=['Stripe','Adyen','Braintree','Square'];
+var emails=['alex@corp.io','jordan@startup.com','taylor@dev.co','morgan@tech.io'];
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+function rn(a,b){return Math.floor(Math.random()*(b-a)+a)}
+
+function gen(){var idx=rn(0,products.length),qty=rn(1,4),price=rn(29,1499);
+  return{orderId:'ORD-2024-'+rn(10000,99999),corrId:Math.random().toString(16).substr(2,8),
+    product:products[idx],sku:skus[idx],qty:qty,price:price,total:price*qty,
+    processor:rand(processors),carrier:rand(carriers),email:rand(emails),
+    rateUsed:rn(80,400),rateLimit:1000,spans:rn(6,12),services:4}}
+
+function s1(r){pip(0,'active');log('\ud83d\udee1\ufe0f Gateway: POST /api/v2/orders');
+  var oc=document.getElementById('aoOrdCard');
+  oc.innerHTML='<div class="ao-ord-row"><span class="lbl">Order</span><span class="val">'+r.orderId+'</span></div>'+
+    '<div class="ao-ord-row"><span class="lbl">Product</span><span class="val">'+r.product+'</span></div>'+
+    '<div class="ao-ord-row"><span class="lbl">Qty</span><span class="val">'+r.qty+'</span></div>'+
+    '<div class="ao-ord-row"><span class="lbl">Total</span><span class="val">'+money(r.total)+'</span></div>'+
+    '<div class="ao-ord-row"><span class="lbl">Correlation</span><span class="val" style="font-family:monospace;font-size:.6rem">'+r.corrId+'</span></div>';
+  oc.classList.add('vis');
+  app('<div class="ao-step-card"><h6>\ud83d\udee1\ufe0f Step 1 \u2014 API Gateway</h6>'+
+    '<div class="ao-json">'+
+    '<span class="key">"auth"</span>: <span class="str">"JWT valid"</span>,\n'+
+    '<span class="key">"rate"</span>: <span class="num">'+r.rateUsed+'/'+r.rateLimit+'</span> <span class="str">"rpm"</span>,\n'+
+    '<span class="key">"idempotency_key"</span>: <span class="str">"'+r.corrId+'"</span>,\n'+
+    '<span class="key">"circuit_breakers"</span>: <span class="str">"all closed"</span></div></div>');
+  pip(0,'done');log('\u2705 Auth + rate limit OK');return wait(700)}
+
+function s2(r){pip(1,'active');log('\ud83d\udcb3 '+r.processor+': authorizing '+money(r.total));
+  app('<div class="ao-step-card" id="aoPayCard"><h6>\ud83d\udcb3 Step 2 \u2014 Payment ('+r.processor+')</h6>'+
+    '<p id="aoPayStatus" style="text-align:center;font-size:.82rem;margin:0">'+
+    '<i class="fas fa-spinner fa-spin me-1" style="color:#6366f1"></i> Authorizing '+money(r.total)+'\u2026</p></div>');
+  return wait(1400).then(function(){
+    document.getElementById('aoPayStatus').innerHTML=
+      '<i class="fas fa-check-circle me-1" style="color:#10b981"></i> <b>AUTHORIZED</b> '+money(r.total)+' via '+r.processor;
+    pip(1,'done');log('\u2705 Payment authorized');return wait(400)})}
+
+function s3(r){pip(2,'active');log('\ud83d\udce6 Reserving '+r.sku+' qty='+r.qty);
+  app('<div class="ao-step-card" id="aoInvCard"><h6>\ud83d\udce6 Step 3 \u2014 Inventory Reserve</h6>'+
+    '<p id="aoInvStatus" style="text-align:center;font-size:.82rem;margin:0">'+
+    '<i class="fas fa-spinner fa-spin me-1" style="color:#6366f1"></i> Reserving '+r.product+' ('+r.sku+')\u2026</p></div>');
+  return wait(1100).then(function(){
+    document.getElementById('aoInvStatus').innerHTML=
+      '<i class="fas fa-check-circle me-1" style="color:#10b981"></i> <b>RESERVED</b> '+r.sku+' \u00d7 '+r.qty+' \u2014 stock updated';
+    pip(2,'done');log('\u2705 Inventory reserved');return wait(400)})}
+
+function s4(r){pip(3,'active');log('\ud83d\ude9a Creating shipping label');
+  app('<div class="ao-step-card" id="aoShipCard"><h6>\ud83d\ude9a Step 4 \u2014 Shipping ('+r.carrier+')</h6>'+
+    '<p id="aoShipStatus" style="text-align:center;font-size:.82rem;margin:0">'+
+    '<i class="fas fa-spinner fa-spin me-1" style="color:#6366f1"></i> Generating '+r.carrier+' label\u2026</p></div>');
+  return wait(1200).then(function(){
+    document.getElementById('aoShipStatus').innerHTML=
+      '<i class="fas fa-check-circle me-1" style="color:#10b981"></i> <b>LABEL CREATED</b> \u2014 '+r.carrier+' tracking generated';
+    pip(3,'done');log('\u2705 Label created');return wait(400)})}
+
+function s5(r){pip(4,'active');log('\ud83d\udd14 Sending notifications\u2026');
+  app('<div class="ao-step-card"><h6>\ud83d\udd14 Step 5 \u2014 Notifications</h6>'+
+    '<div class="ao-json">'+
+    '<span class="key">"payment_capture"</span>: <span class="str">"CAPTURED '+money(r.total)+'"</span>,\n'+
+    '<span class="key">"email"</span>: <span class="str">"'+r.email+'"</span>,\n'+
+    '<span class="key">"slack"</span>: <span class="str">"#orders \u2192 '+r.orderId+' fulfilled"</span>,\n'+
+    '<span class="key">"webhook"</span>: <span class="str">"POST /webhooks/order-complete"</span></div></div>');
+  return wait(900).then(function(){pip(4,'done');log('\u2705 Notifications sent');return wait(400)})}
+
+function s6(r,elapsed){pip(5,'active');sagas.push(r);totalSpans+=r.spans;totalLat+=elapsed;
+  dashWrap.style.display='block';
+  document.getElementById('aoKpiSagas').textContent=sagas.length;
+  document.getElementById('aoKpiSpans').textContent=totalSpans;
+  document.getElementById('aoKpiLatency').textContent=(totalLat/sagas.length*1000).toFixed(0)+'ms';
+  document.getElementById('aoKpiRate').textContent='0.0%';
+  document.getElementById('aoDashTable').insertAdjacentHTML('afterbegin',
+    '<tr style="animation:aoFadeUp .35s ease both"><td><b>'+r.orderId+'</b></td>'+
+    '<td>'+money(r.total)+'</td><td>'+r.services+'</td><td>'+r.spans+'</td>'+
+    '<td>'+(elapsed*1000).toFixed(0)+'ms</td>'+
+    '<td><span class="ao-ds completed">\u2705 Completed</span></td></tr>');
+  app('<div class="ao-step-card ao-step-card--ok"><h6>\u2705 Saga Complete</h6>'+
+    '<p style="text-align:center;font-size:.88rem;color:#10b981;font-weight:700;margin:0">'+
+    '<i class="fas fa-check-double me-1"></i> '+r.orderId+' \u2014 '+r.spans+' spans, '+r.services+' services, '+(elapsed*1000).toFixed(0)+'ms</p>'+
+    '<p style="text-align:center;font-size:.74rem;opacity:.6;margin:.15rem 0 0">'+
+    r.product+' \u00d7 '+r.qty+' \u2014 '+money(r.total)+' via '+r.processor+' \u2192 '+r.carrier+'</p></div>');
+  pip(5,'done');log('\u2705 Saga committed');return wait(600)}
+
+function runDemo(){if(running)return;running=true;btnRun.disabled=true;
+  btnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Orchestrating\u2026';btnReset.style.display='none';
+  var r=gen(),start=performance.now();
+  s1(r).then(function(){return s2(r)}).then(function(){return s3(r)})
+  .then(function(){return s4(r)}).then(function(){return s5(r)})
+  .then(function(){return s6(r,(performance.now()-start)/1000)})
+  .then(function(){running=false;btnRun.disabled=false;
+    btnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Another Order';btnReset.style.display='';
+    document.getElementById('aoDashboard').scrollIntoView({behavior:'smooth',block:'nearest'})})}
+
+function resetDemo(){sagas=[];totalSpans=0;totalLat=0;stage.innerHTML='';dashWrap.style.display='none';
+  document.getElementById('aoDashTable').innerHTML='';
+  var oc=document.getElementById('aoOrdCard');oc.innerHTML='';oc.classList.remove('vis');
+  document.getElementById('aoLogArea').innerHTML='';
+  btnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Saga';btnReset.style.display='none';
+  for(var i=0;i<6;i++)document.getElementById('aoPip'+i).classList.remove('active','done')}
+
+btnRun.addEventListener('click',runDemo);btnReset.addEventListener('click',resetDemo);
+})();
+</script>
+{% endblock %}

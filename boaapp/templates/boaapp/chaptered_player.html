@@ -1,0 +1,92 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}Chaptered Player - {{ document.uploaded_file.name }}{% endblock %}
+
+{% block content %}
+<style>
+.player-wrap{max-width:1000px;margin:0 auto;padding:1rem}
+.player-grid{display:grid;grid-template-columns:1fr 280px;gap:1rem}
+@media(max-width:768px){.player-grid{grid-template-columns:1fr}}
+.video-pane{background:#000;border-radius:14px;overflow:hidden}
+.video-pane video{width:100%;display:block}
+.chapters-pane{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;overflow:hidden;max-height:480px;overflow-y:auto}
+.chapters-header{padding:.6rem .8rem;font-size:.8rem;font-weight:700;border-bottom:1px solid var(--border,#e2e8f0);position:sticky;top:0;background:var(--card-bg,#fff);z-index:1}
+.chapter-item{display:flex;align-items:center;gap:.5rem;padding:.5rem .8rem;cursor:pointer;border-bottom:1px solid var(--border,#e2e8f0);transition:background .15s;font-size:.78rem}
+.chapter-item:hover{background:rgba(59,130,246,.04)}
+.chapter-item.active{background:rgba(59,130,246,.1);font-weight:600}
+.chapter-num{width:24px;height:24px;border-radius:6px;background:var(--accent,#3b82f6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;flex-shrink:0}
+.chapter-item.active .chapter-num{background:#22c55e}
+.chapter-title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chapter-play{font-size:.65rem;opacity:.4}
+.audio-section{margin-top:1rem}
+.audio-section h4{font-size:.85rem;font-weight:700;margin-bottom:.5rem}
+.audio-item{display:flex;align-items:center;gap:.5rem;padding:.4rem .8rem;background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:10px;margin-bottom:.4rem;font-size:.78rem}
+.audio-item audio{height:30px;flex:1}
+</style>
+
+<div class="player-wrap">
+  <div class="text-center mb-3">
+    <h2 style="font-size:1.2rem;font-weight:800"><i class="fas fa-film me-2"></i>Chaptered Player</h2>
+    <p style="font-size:.75rem;opacity:.5">{{ document.uploaded_file.name|cut:"documents/" }}</p>
+  </div>
+
+  <div class="player-grid">
+    <div>
+      <div class="video-pane">
+        {% if chapters and chapters.0.video_url %}
+        <video id="mainPlayer" controls>
+          <source src="{{ chapters.0.video_url }}" type="video/mp4">
+        </video>
+        {% else %}
+        <div style="padding:3rem;text-align:center;color:#fff;font-size:.85rem">
+          <i class="fas fa-video-slash d-block" style="font-size:2rem;margin-bottom:.5rem;opacity:.3"></i>
+          No videos generated yet. Run the pipeline first!
+        </div>
+        {% endif %}
+      </div>
+
+      {% if chapters %}
+      <div class="audio-section">
+        <h4><i class="fas fa-headphones me-2"></i>Audio Narration</h4>
+        {% for ch in chapters %}
+        {% if ch.audio_url %}
+        <div class="audio-item">
+          <span style="font-weight:600">{{ ch.title|truncatechars:30 }}</span>
+          <audio controls preload="none"><source src="{{ ch.audio_url }}" type="audio/mpeg"></audio>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="chapters-pane">
+      <div class="chapters-header"><i class="fas fa-list me-1"></i>Chapters ({{ chapters|length }})</div>
+      {% for ch in chapters %}
+      <div class="chapter-item {% if forloop.first %}active{% endif %}" data-video="{{ ch.video_url|default:'' }}" onclick="playChapter(this)">
+        <div class="chapter-num">{{ forloop.counter }}</div>
+        <div class="chapter-title">{{ ch.title }}</div>
+        <div class="chapter-play"><i class="fas fa-play"></i></div>
+      </div>
+      {% endfor %}
+      {% if not chapters %}
+      <div style="padding:1.5rem;text-align:center;font-size:.78rem;opacity:.5">No chapters yet</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+function playChapter(el) {
+  document.querySelectorAll('.chapter-item').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const videoUrl = el.dataset.video;
+  const player = document.getElementById('mainPlayer');
+  if (player && videoUrl) {
+    player.src = videoUrl;
+    player.play();
+  }
+}
+</script>
+{% endblock %}

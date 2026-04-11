@@ -2,66 +2,81 @@
 {% load static %}
 {% block title %}thenumerix | Available Courses{% endblock %}
 {% block content %}
-<div class="course-list">
-<div>
-  <h1 class="display-4 mb-4">Explore Our Courses</h1>
-  <p class="lead mb-4" style="max-width: 800px; margin: auto;">Embark on your learning journey. Choose a course to get started.</p>
-        {% if user.is_authenticated %}
-        <p class="mb-4">Welcome, {{ user.username }}! Find your next challenge below.</p>
-        {% else %}
-        <p class="mb-4">Please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">register</a> to enroll in courses.</p>
-        {% endif %}
+<style>
+.cl-hero{text-align:center;padding:2rem 0 1.5rem}
+.cl-hero h1{font-size:2rem;font-weight:800;margin-bottom:.3rem}
+.cl-hero .lead{font-size:1rem;opacity:.8;max-width:560px;margin:0 auto}
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem;max-width:960px;margin:0 auto 2rem}
+.cl-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1.4rem;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
+.cl-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.cl-card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:.8rem;background:linear-gradient(135deg,var(--accent,#3b82f6),#8b5cf6);color:#fff}
+.cl-card h3{font-size:1.05rem;font-weight:700;margin-bottom:.4rem}
+.cl-card p{font-size:.85rem;opacity:.75;flex:1}
+.cl-card-meta{display:flex;align-items:center;gap:.8rem;margin-top:.8rem;font-size:.75rem;opacity:.6}
+.cl-card-meta i{width:14px;text-align:center}
+.cl-card-footer{margin-top:1rem;display:flex;align-items:center;justify-content:space-between}
+.cl-badge{display:inline-block;padding:.2rem .5rem;border-radius:6px;font-size:.65rem;font-weight:700}
+.cl-badge--enrolled{background:#d1fae5;color:#065f46}
+.cl-badge--sections{background:#eff6ff;color:#1e40af}
+</style>
+
+<div class="cl-hero">
+    <h1>📚 Courses</h1>
+    <p class="lead">Hands-on learning paths — enroll, learn the material, build a project, then teach it.</p>
+</div>
+
+{% if messages %}
+<div style="max-width:960px;margin:0 auto .8rem">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    {% if messages %}
-    <div style="max-width: 960px; margin: auto; text-align: left;" class="mb-3">
-      {% for message in messages %}
-          <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-      {% endfor %}
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if not user.is_authenticated %}
+<div style="max-width:960px;margin:0 auto 1rem">
+    <div class="alert alert-info"><i class="fas fa-info-circle me-1"></i> <a href="{% url 'login' %}">Sign in</a> or <a href="{% url 'register' %}">register</a> to enroll in courses.</div>
+</div>
+{% endif %}
+
+<div class="cl-grid">
+    {% for course in courses %}
+    <div class="cl-card">
+        <div class="cl-card-icon"><i class="fas fa-book-open"></i></div>
+        <h3>{{ course.title }}</h3>
+        <p>{{ course.description|truncatewords:30 }}</p>
+        <div class="cl-card-meta">
+            {% if course.instructor %}
+            <span><i class="fas fa-chalkboard-teacher"></i> {{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+            {% endif %}
+            <span><i class="fas fa-layer-group"></i> {{ course.sections.count }} section{{ course.sections.count|pluralize }}</span>
+            <span><i class="fas fa-clock"></i> {{ course.updated_at|date:"M d, Y" }}</span>
+        </div>
+        <div class="cl-card-footer">
+            {% if user.is_authenticated %}
+                {% if course.id in user_enrollments_ids %}
+                    <span class="cl-badge cl-badge--enrolled"><i class="fas fa-check-circle me-1"></i>Enrolled</span>
+                    <a href="{% url 'course_detail' course.id %}" class="btn btn-sm" style="border-radius:8px">Continue <i class="fas fa-arrow-right ms-1"></i></a>
+                {% else %}
+                    <span class="cl-badge cl-badge--sections">{{ course.sections.count }} section{{ course.sections.count|pluralize }}</span>
+                    <form method="POST" action="{% url 'enroll_course' course.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-sm" style="border-radius:8px">Enroll <i class="fas fa-plus ms-1"></i></button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <span class="cl-badge cl-badge--sections">{{ course.sections.count }} section{{ course.sections.count|pluralize }}</span>
+                <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm" style="border-radius:8px">Login to Enroll</a>
+            {% endif %}
+        </div>
     </div>
-    {% endif %}
-    <div style="max-width: 960px; margin: auto;"> 
-      {% if courses %}
-          <div class="row">
-              {% for course in courses %}
-              <div class="col">
-                  <div class="card h-100 shadow-sm">
-                      <div class="card-body d-flex flex-column">
-                          <h5 class="card-title">{{ course.title }}</h5>
-                          <p class="card-text flex-grow-1">{{ course.description|truncatewords:30 }}</p>
-                          {% if course.instructor %}
-                              <h4 class="card-text"><small class="instructor">Instructor: {{ course.instructor.get_full_name|default:course.instructor.username }}</small></h4>
-                          {% endif %}
-                          
-                          {% if user.is_authenticated %}
-                              {% if course.id in user_enrollments_ids %}
-                                  <a href="{% url 'course_detail' course.id %}" class="btn mt-auto">Go to Course</a>
-                              {% else %}
-                                  <form method="POST" action="{% url 'enroll_course' course.id %}">
-                                      {% csrf_token %}
-                                      <input type="hidden" name="course_id" value="{{ course.id }}">
-                                      <button type="submit" class="btn btn-primary mt-auto">Enroll in Course</button>
-                                  </form>
-                              {% endif %}
-                          {% else %}
-                               <a href="{% url 'login' %}" class="btn btn-outline-primary mt-auto">Login to Enroll</a>
-                          {% endif %}
-                      </div>
-                      <div class="card-footer">
-                          <small class="updated">Last updated: {{ course.updated_at|date:"M d, Y" }}</small>
-                      </div>
-                    </div>
-                </div>
-                {% endfor %}
-              </div>
-          {% else %}
-              <div class="alert alert-info text-center" role="alert">
-                  No courses available at the moment. Please check back later!
-              </div>
-          {% endif %}
-      </div>
-  </div>
+    {% empty %}
+    <div class="text-center" style="grid-column:1/-1">
+        <div class="alert alert-info"><i class="fas fa-info-circle me-1"></i> No courses available yet. Check back soon!</div>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}

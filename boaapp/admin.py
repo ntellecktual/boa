@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from .models import Document, AudioFile, VideoFile, Course, Enrollment, CourseSection
+from .models import (
+    Document, AudioFile, VideoFile, Course, Enrollment, CourseSection,
+    Quiz, QuizQuestion, QuizAttempt, ChatConversation, ChatMessage,
+    LearningEvent, CourseThumbnail, TranslatedContent, WebhookConfig,
+    PipelineRun, CodeReview,
+)
 
 
 @admin.register(Document)
@@ -47,3 +52,58 @@ class EnrollmentAdmin(admin.ModelAdmin):
 #     list_display = ('title', 'course', 'order')
 #     list_filter = ('course',)
 #     search_fields = ('title', 'course__title')
+
+
+class QuizQuestionInline(admin.TabularInline):
+    model = QuizQuestion
+    extra = 0
+
+
+@admin.register(Quiz)
+class QuizAdmin(admin.ModelAdmin):
+    list_display = ('title', 'document', 'course_section', 'difficulty', 'created_at')
+    list_filter = ('difficulty', 'generated_by')
+    inlines = [QuizQuestionInline]
+
+
+@admin.register(QuizAttempt)
+class QuizAttemptAdmin(admin.ModelAdmin):
+    list_display = ('user', 'quiz', 'score', 'total_questions', 'completed_at')
+    list_filter = ('quiz', 'completed_at')
+
+
+@admin.register(ChatConversation)
+class ChatConversationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'document', 'title', 'created_at')
+
+
+@admin.register(LearningEvent)
+class LearningEventAdmin(admin.ModelAdmin):
+    list_display = ('user', 'event_type', 'created_at')
+    list_filter = ('event_type', 'created_at')
+
+
+@admin.register(PipelineRun)
+class PipelineRunAdmin(admin.ModelAdmin):
+    list_display = ('document', 'user', 'status', 'progress_pct', 'started_at', 'completed_at')
+    list_filter = ('status',)
+
+
+@admin.register(WebhookConfig)
+class WebhookConfigAdmin(admin.ModelAdmin):
+    list_display = ('user', 'repo_full_name', 'branch', 'is_active')
+
+
+@admin.register(TranslatedContent)
+class TranslatedContentAdmin(admin.ModelAdmin):
+    list_display = ('document', 'language_name', 'language_code', 'created_at')
+
+
+@admin.register(CourseThumbnail)
+class CourseThumbnailAdmin(admin.ModelAdmin):
+    list_display = ('document', 'generated_at')
+
+
+@admin.register(CodeReview)
+class CodeReviewAdmin(admin.ModelAdmin):
+    list_display = ('user', 'language', 'created_at')

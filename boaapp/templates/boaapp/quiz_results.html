@@ -1,0 +1,63 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}Quiz Results - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<style>
+.results-container{max-width:800px;margin:0 auto;padding:1rem}
+.score-ring{width:120px;height:120px;border-radius:50%;border:6px solid;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:2rem;font-weight:800}
+.score-ring.pass{border-color:#22c55e;color:#16a34a}
+.score-ring.fail{border-color:#ef4444;color:#dc2626}
+.result-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1rem;margin-bottom:.8rem}
+.result-card.correct{border-left:4px solid #22c55e}
+.result-card.incorrect{border-left:4px solid #ef4444}
+.result-card h5{font-size:.85rem;font-weight:700;margin-bottom:.5rem}
+.result-answer{font-size:.78rem;padding:.4rem .6rem;border-radius:6px;margin-bottom:.3rem}
+.result-explanation{font-size:.75rem;opacity:.7;font-style:italic;margin-top:.3rem}
+</style>
+
+<div class="results-container">
+  <div class="text-center mb-4">
+    <h2 style="font-size:1.3rem;font-weight:800">Quiz Results</h2>
+    <div class="score-ring {% if percentage >= 70 %}pass{% else %}fail{% endif %}">
+      {{ percentage }}%
+    </div>
+    <p style="font-size:.9rem;font-weight:600">{{ score }}/{{ total }} correct</p>
+    <p style="font-size:.75rem;opacity:.5">{{ quiz.title }}</p>
+  </div>
+
+  {% for r in results %}
+  <div class="result-card {% if r.is_correct %}correct{% else %}incorrect{% endif %}">
+    <h5>
+      {% if r.is_correct %}
+        <i class="fas fa-check-circle text-success me-1"></i>
+      {% else %}
+        <i class="fas fa-times-circle text-danger me-1"></i>
+      {% endif %}
+      {{ r.question }}
+    </h5>
+    <div class="result-answer" style="background:{% if r.is_correct %}rgba(34,197,94,.08){% else %}rgba(239,68,68,.08){% endif %}">
+      <strong>Your answer:</strong> {{ r.user_answer|default:"(no answer)" }}
+    </div>
+    {% if not r.is_correct %}
+    <div class="result-answer" style="background:rgba(34,197,94,.08)">
+      <strong>Correct:</strong> {{ r.correct_answer }}
+    </div>
+    {% endif %}
+    {% if r.explanation %}
+    <div class="result-explanation"><i class="fas fa-lightbulb me-1"></i>{{ r.explanation }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="text-center mt-3">
+    <a href="{% url 'quiz_take' quiz.pk %}" class="btn btn-primary me-2">
+      <i class="fas fa-redo me-1"></i>Retake Quiz
+    </a>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left me-1"></i>Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}

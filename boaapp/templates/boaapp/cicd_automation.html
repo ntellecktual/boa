@@ -1,0 +1,1001 @@
+﻿{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}thenumerix | Azure DevOps &amp; Databricks Platform Engineering{% endblock %}
+
+{% block extra_head %}
+<style>
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   AZURE DEVOPS & DATABRICKS PLATFORM &mdash; NeonDeck Entertainment
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+:root{
+  --ci-blue:#3b82f6;--ci-violet:#8b5cf6;--ci-emerald:#10b981;--ci-amber:#f59e0b;--ci-rose:#ef4444;
+  --ci-azure:#0078d4;--ci-db:#ff3621;
+  --ci-grad-b:linear-gradient(135deg,#3b82f6,#8b5cf6);
+  --ci-grad-g:linear-gradient(135deg,#10b981,#059669);
+  --ci-grad-a:linear-gradient(135deg,#f59e0b,#d97706);
+  --ci-grad-az:linear-gradient(135deg,#0078d4,#004578);
+  --ci-grad-db:linear-gradient(135deg,#ff3621,#c92a1e);
+  --ci-surface:rgba(255,255,255,.75);--ci-border:rgba(0,0,0,.08);
+  --ci-shadow:0 4px 24px rgba(0,0,0,.07);--ci-shadow-lg:0 12px 48px rgba(0,0,0,.13);
+}
+[data-theme="dark"]{
+  --ci-surface:rgba(22,28,45,.8);--ci-border:rgba(255,255,255,.08);
+  --ci-shadow:0 4px 24px rgba(0,0,0,.4);--ci-shadow-lg:0 12px 48px rgba(0,0,0,.55);
+}
+@keyframes ciFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ciFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes ciPulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes ciSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+
+.ci-hero{text-align:center;padding:3.5rem 0 2.5rem;position:relative;overflow:hidden}
+.ci-hero::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(0,120,212,.12) 0%,transparent 70%),
+             radial-gradient(ellipse 45% 35% at 15% 110%,rgba(255,54,33,.08) 0%,transparent 60%)}
+.ci-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .9rem;border-radius:999px;
+  background:rgba(0,120,212,.1);border:1px solid rgba(0,120,212,.2);font-size:.72rem;font-weight:700;
+  color:#0078d4;margin-bottom:.9rem;text-transform:uppercase;letter-spacing:.06em}
+.ci-hero h1{font-size:clamp(1.8rem,4vw,2.9rem);font-weight:800;line-height:1.12;margin-bottom:.8rem;
+  background:linear-gradient(135deg,#1e3a5f 0%,#0078d4 40%,#ff3621 75%,#f59e0b 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+[data-theme="dark"] .ci-hero h1{background:linear-gradient(135deg,#e2e8f0 0%,#60a5fa 40%,#ff6b5b 75%,#fcd34d 100%);
+  -webkit-background-clip:text;background-clip:text}
+.ci-hero .lead{font-size:.97rem;opacity:.7;max-width:640px;margin:0 auto 2rem}
+.ci-kpi-strip{display:flex;justify-content:center;flex-wrap:wrap;gap:1rem;margin-top:1rem}
+.ci-kpi{display:flex;align-items:center;gap:.6rem;padding:.6rem 1.1rem;border-radius:14px;
+  background:var(--ci-surface);border:1px solid var(--ci-border);backdrop-filter:blur(8px);
+  box-shadow:var(--ci-shadow);animation:ciFloat 3s ease-in-out infinite}
+.ci-kpi:nth-child(2){animation-delay:.5s}.ci-kpi:nth-child(3){animation-delay:1s}.ci-kpi:nth-child(4){animation-delay:1.5s}
+.ci-kpi-val{font-size:1.15rem;font-weight:800;background:var(--ci-grad-az);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ci-kpi-lbl{font-size:.72rem;opacity:.65;line-height:1.3}
+
+.ci-sec{padding:1.8rem 0;animation:ciFadeUp .6s ease both}
+.ci-sec-head{text-align:center;margin-bottom:1.4rem}
+.ci-sec-head h2{font-size:1.55rem;font-weight:800;margin-bottom:.25rem}
+.ci-sec-head p{font-size:.88rem;opacity:.65;max-width:580px;margin:0 auto}
+.ci-tag{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.63rem;
+  font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
+.ci-tag--b{background:rgba(59,130,246,.11);color:#2563eb}
+.ci-tag--g{background:rgba(16,185,129,.11);color:#059669}
+.ci-tag--v{background:rgba(139,92,246,.11);color:#7c3aed}
+.ci-tag--a{background:rgba(245,158,11,.11);color:#b45309}
+.ci-tag--az{background:rgba(0,120,212,.11);color:#0078d4}
+.ci-tag--db{background:rgba(255,54,33,.11);color:#c92a1e}
+
+/* â”€â”€ Three Pillar Cards â”€â”€ */
+.ci-stages{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;max-width:960px;margin:0 auto}
+@media(max-width:768px){.ci-stages{grid-template-columns:1fr}}
+.ci-stage{border-radius:20px;padding:1.5rem;border:1px solid var(--ci-border);
+  background:var(--ci-surface);backdrop-filter:blur(12px);box-shadow:var(--ci-shadow);
+  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.ci-stage:hover{transform:translateY(-4px);box-shadow:var(--ci-shadow-lg)}
+.ci-stage::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.ci-stage--ci::before{background:var(--ci-grad-az)}
+.ci-stage--cd::before{background:var(--ci-grad-db)}
+.ci-stage--iac::before{background:var(--ci-grad-b)}
+.ci-stage-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;
+  justify-content:center;font-size:1.2rem;color:#fff;margin-bottom:.9rem}
+.ci-stage h3{font-size:1.05rem;font-weight:800;margin-bottom:.18rem}
+.ci-stage .sub{font-size:.76rem;opacity:.6;margin-bottom:.9rem}
+.ci-ck{display:flex;align-items:center;gap:.4rem;font-size:.78rem;margin-bottom:.4rem}
+.ci-ck i{font-size:.7rem}
+.ci-ck .done{color:var(--ci-emerald)}.ci-ck .info{color:#0078d4}
+
+/* â”€â”€ YAML Code Block â”€â”€ */
+.ci-yaml-tabs{display:flex;gap:0;border-bottom:1px solid var(--ci-border);max-width:940px;margin:0 auto;overflow-x:auto}
+.ci-yaml-tab{padding:.45rem .9rem;font-size:.73rem;font-weight:700;cursor:pointer;opacity:.5;
+  border-bottom:2px solid transparent;white-space:nowrap;transition:opacity .2s,border-color .2s}
+.ci-yaml-tab.active{opacity:1;border-color:#0078d4;color:#0078d4}
+.ci-yaml-pane{display:none}.ci-yaml-pane.active{display:block}
+.ci-yaml-wrap{max-width:940px;margin:0 auto;border-radius:0 0 18px 18px;overflow:hidden;
+  border:1px solid var(--ci-border);border-top:none;box-shadow:var(--ci-shadow-lg)}
+.ci-yaml-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:.65rem 1.1rem;background:#0f172a;border-bottom:1px solid rgba(255,255,255,.06)}
+.ci-yaml-hdr span{font-size:.72rem;color:#7dd3fc;font-weight:700;font-family:monospace}
+.ci-yaml-dots{display:flex;gap:.35rem}
+.ci-yaml-dot{width:11px;height:11px;border-radius:50%}
+.ci-yaml-dot--r{background:#ef4444}.ci-yaml-dot--y{background:#f59e0b}.ci-yaml-dot--g{background:#10b981}
+.ci-yaml-body{background:#0f172a;padding:1.1rem 1.4rem;overflow-x:auto}
+pre.ci-code{margin:0;font-family:'Courier New',monospace;font-size:.73rem;line-height:1.7;color:#e2e8f0;white-space:pre}
+.ck{color:#7dd3fc}.cv{color:#6ee7b7}.cs{color:#fcd34d}.cc{color:#94a3b8;font-style:italic}.cm{color:#f9a8d4}
+
+/* â”€â”€ Databricks Cluster Grid â”€â”€ */
+.ci-cluster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;max-width:940px;margin:0 auto}
+.ci-cluster{border-radius:18px;padding:1.2rem 1.3rem;border:1px solid var(--ci-border);
+  background:var(--ci-surface);backdrop-filter:blur(10px);box-shadow:var(--ci-shadow);
+  position:relative;overflow:hidden;transition:transform .22s,box-shadow .22s}
+.ci-cluster:hover{transform:translateY(-3px);box-shadow:var(--ci-shadow-lg)}
+.ci-cluster::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ci-grad-db)}
+.ci-cluster-hdr{display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem}
+.ci-cluster-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;
+  justify-content:center;font-size:.9rem;color:#fff;background:var(--ci-grad-db);flex-shrink:0}
+.ci-cluster-name{font-size:.88rem;font-weight:800}
+.ci-cluster-env{font-size:.62rem;opacity:.55}
+.ci-policy-row{display:flex;justify-content:space-between;align-items:center;
+  font-size:.73rem;padding:.22rem 0;border-bottom:1px solid var(--ci-border)}
+.ci-policy-row:last-child{border:none}
+.ci-policy-lbl{opacity:.6}.ci-policy-val{font-weight:700;font-size:.71rem}
+.ci-cluster-tag{display:inline-block;padding:.1rem .45rem;border-radius:6px;font-size:.6rem;font-weight:700}
+.ci-cluster-tag--on{background:#d1fae5;color:#065f46}
+.ci-cluster-tag--pol{background:rgba(0,120,212,.1);color:#0078d4}
+
+/* â”€â”€ Unity Catalog Flow â”€â”€ */
+.ci-unity-flow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center;max-width:860px;margin:1rem auto 0}
+.ci-unity-node{border-radius:12px;padding:.55rem 1rem;font-size:.73rem;font-weight:700;
+  border:1px solid var(--ci-border);background:var(--ci-surface);backdrop-filter:blur(8px);text-align:center}
+.ci-unity-arr{opacity:.4;font-size:.8rem}
+.ci-unity-node--catalog{border-color:rgba(0,120,212,.3);background:rgba(0,120,212,.06)}
+.ci-unity-node--schema{border-color:rgba(255,54,33,.3);background:rgba(255,54,33,.05)}
+.ci-unity-node--table{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
+
+/* â”€â”€ Entra ID â”€â”€ */
+.ci-entra-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;max-width:940px;margin:0 auto}
+.ci-entra-card{border-radius:14px;border:1px solid var(--ci-border);background:var(--ci-surface);
+  backdrop-filter:blur(8px);padding:.9rem 1rem;transition:transform .2s,box-shadow .2s}
+.ci-entra-card:hover{transform:translateY(-2px);box-shadow:var(--ci-shadow)}
+.ci-entra-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:.85rem;color:#fff;margin-bottom:.55rem}
+.ci-entra-name{font-size:.81rem;font-weight:700;margin-bottom:.15rem}
+.ci-entra-desc{font-size:.71rem;opacity:.62;line-height:1.4}
+
+/* â”€â”€ RBAC Matrix â”€â”€ */
+.ci-rbac-wrap{max-width:940px;margin:1.2rem auto 0;border-radius:16px;overflow:hidden;
+  border:1px solid var(--ci-border);background:var(--ci-surface);backdrop-filter:blur(10px)}
+.ci-rbac-wrap table{margin:0;font-size:.75rem}
+.ci-rbac-wrap thead th{background:rgba(0,120,212,.06);font-size:.68rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.06em;opacity:.7;padding:.55rem .8rem}
+.ci-rbac-wrap td{padding:.45rem .8rem;vertical-align:middle}
+.ci-perm{display:inline-block;padding:.1rem .38rem;border-radius:6px;font-size:.6rem;font-weight:700}
+.ci-perm--yes{background:#d1fae5;color:#065f46}
+.ci-perm--no{background:#f1f5f9;color:#94a3b8}
+.ci-perm--pim{background:#ede9fe;color:#6d28d9}
+
+/* â”€â”€ IaC Tools â”€â”€ */
+.ci-iac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.85rem;max-width:940px;margin:0 auto}
+.ci-iac{border-radius:14px;border:1px solid var(--ci-border);background:var(--ci-surface);
+  backdrop-filter:blur(8px);padding:.9rem 1rem;display:flex;align-items:flex-start;gap:.7rem;
+  transition:transform .2s,box-shadow .2s}
+.ci-iac:hover{transform:translateY(-2px);box-shadow:var(--ci-shadow)}
+.ci-iac-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0}
+.ci-iac-name{font-size:.81rem;font-weight:700;margin-bottom:.18rem}
+.ci-iac-desc{font-size:.72rem;opacity:.65;line-height:1.4}
+
+/* â”€â”€ Compliance Grid â”€â”€ */
+.ci-comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.85rem;max-width:940px;margin:0 auto}
+.ci-comp{border-radius:16px;padding:1rem 1.1rem;border:1px solid var(--ci-border);background:var(--ci-surface);
+  backdrop-filter:blur(8px);text-align:center;transition:transform .22s}
+.ci-comp:hover{transform:translateY(-3px)}
+.ci-comp-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff;margin:0 auto .6rem}
+.ci-comp-name{font-size:.8rem;font-weight:800;margin-bottom:.15rem}
+.ci-comp-desc{font-size:.67rem;opacity:.58;line-height:1.35}
+
+/* â”€â”€ Demo Panel â”€â”€ */
+.ci-demo{border-radius:22px;border:1px solid var(--ci-border);background:var(--ci-surface);
+  backdrop-filter:blur(14px);box-shadow:var(--ci-shadow-lg);overflow:hidden;max-width:940px;margin:0 auto}
+.ci-demo-bar{padding:.85rem 1.4rem;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--ci-border);background:rgba(0,120,212,.04);gap:.8rem;flex-wrap:wrap}
+.ci-demo-bar h4{font-size:.9rem;font-weight:800;margin:0;flex:1}
+.ci-dots{display:flex;gap:.38rem}
+.ci-dot{width:11px;height:11px;border-radius:50%}
+.ci-dot--r{background:#ef4444}.ci-dot--y{background:#f59e0b}.ci-dot--g{background:#10b981}
+.ci-pip-bar{display:flex;align-items:center;justify-content:center;gap:0;padding:.75rem 1.2rem;
+  border-bottom:1px solid var(--ci-border);flex-wrap:wrap}
+.ci-pip{display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:default;position:relative;padding:0 .7rem}
+.ci-pip::after{content:'';position:absolute;top:15px;left:calc(50% + 18px);width:calc(100% - 12px);height:2px;background:var(--ci-border)}
+.ci-pip:last-child::after{display:none}
+.ci-pip-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;background:var(--ci-surface);border:2px solid var(--ci-border);color:#94a3b8;
+  transition:all .35s;position:relative;z-index:1}
+.ci-pip-lbl{font-size:.58rem;font-weight:700;opacity:.55;white-space:nowrap}
+.ci-pip.active .ci-pip-dot{border-color:#0078d4;background:rgba(0,120,212,.12);color:#0078d4;
+  box-shadow:0 0 0 4px rgba(0,120,212,.12);animation:ciPulse 1.2s ease-in-out infinite}
+.ci-pip.done .ci-pip-dot{border-color:var(--ci-emerald);background:var(--ci-emerald);color:#fff}
+.ci-pip.done .ci-pip-lbl,.ci-pip.active .ci-pip-lbl{opacity:1}
+.ci-i-body{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:260px}
+@media(max-width:700px){.ci-i-body{grid-template-columns:1fr}}
+.ci-prev-pane{border-right:1px solid var(--ci-border);padding:.7rem;font-size:.73rem;overflow-y:auto;max-height:400px}
+.ci-pane-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;opacity:.45;margin-bottom:.35rem}
+.ci-pr-card{border-radius:10px;border:1px solid var(--ci-border);padding:.55rem .65rem;margin-bottom:.4rem;font-size:.7rem;opacity:0;transition:opacity .3s}
+.ci-pr-card.vis{opacity:1}
+.ci-pr-row{display:flex;justify-content:space-between;font-size:.66rem;padding:.1rem 0}
+.ci-pr-row .lbl{opacity:.6}.ci-pr-row .val{font-weight:600}
+.ci-stage-out{padding:.8rem;overflow-y:auto;max-height:400px}
+.ci-step-card{border-radius:14px;border:1px solid var(--ci-border);background:rgba(255,255,255,.55);
+  padding:.85rem 1rem;margin-bottom:.65rem;animation:ciFadeUp .35s ease both}
+[data-theme="dark"] .ci-step-card{background:rgba(255,255,255,.04)}
+.ci-step-card--ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
+.ci-step-card h6{font-size:.82rem;font-weight:800;margin-bottom:.45rem}
+.ci-chk{display:flex;align-items:center;gap:.4rem;font-size:.76rem;margin-bottom:.3rem;opacity:0;transition:opacity .3s}
+.ci-chk.show{opacity:1}
+.ci-chk .pass{color:var(--ci-emerald);font-size:.72rem}
+.ci-json{font-family:monospace;font-size:.71rem;background:#0f172a;color:#94a3b8;
+  border-radius:10px;padding:.65rem .85rem;line-height:1.55;margin-top:.45rem}
+.ci-json .key{color:#7dd3fc}.ci-json .str{color:#6ee7b7}.ci-json .num{color:#fcd34d}
+.ci-log2{font-family:monospace;font-size:.67rem;line-height:1.55;max-height:140px;overflow-y:auto;
+  padding:.4rem;background:rgba(0,0,0,.03);border-radius:8px;margin-top:.25rem}
+[data-theme="dark"] .ci-log2{background:rgba(255,255,255,.03)}
+.ci-dash2{border-radius:18px;border:1px solid var(--ci-border);background:var(--ci-surface);
+  backdrop-filter:blur(12px);box-shadow:var(--ci-shadow);padding:1rem 1.3rem;max-width:940px;margin:1rem auto 0;display:none}
+.ci-dash2-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:.7rem}
+@media(max-width:600px){.ci-dash2-kpis{grid-template-columns:repeat(2,1fr)}}
+.ci-dkpi{text-align:center;padding:.55rem;border-radius:12px;border:1px solid var(--ci-border)}
+.ci-dkpi-val{font-size:1.1rem;font-weight:800;background:var(--ci-grad-az);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ci-dkpi-lbl{font-size:.58rem;opacity:.55;margin-top:.08rem}
+.ci-ds{display:inline-block;padding:.1rem .38rem;border-radius:6px;font-size:.6rem;font-weight:700}
+.ci-ds.deployed{background:#d1fae5;color:#065f46}.ci-ds.failed{background:#fee2e2;color:#991b1b}
+
+/* â”€â”€ Pills & Callouts â”€â”€ */
+.ci-stack{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;max-width:840px;margin:1rem auto 0}
+.ci-pill{padding:.25rem .7rem;border-radius:999px;font-size:.72rem;font-weight:700}
+.ci-pill--b{background:rgba(59,130,246,.12);color:#2563eb}
+.ci-pill--g{background:rgba(16,185,129,.12);color:#059669}
+.ci-pill--v{background:rgba(139,92,246,.12);color:#7c3aed}
+.ci-pill--a{background:rgba(245,158,11,.12);color:#b45309}
+.ci-pill--r{background:rgba(239,68,68,.12);color:#dc2626}
+.ci-pill--az{background:rgba(0,120,212,.12);color:#0078d4}
+.ci-pill--db{background:rgba(255,54,33,.12);color:#c92a1e}
+.ci-callout{border-radius:16px;padding:1.1rem 1.4rem;border:1px solid var(--ci-border);
+  background:var(--ci-surface);backdrop-filter:blur(10px);max-width:840px;margin:1.3rem auto 0}
+.ci-callout--az{border-color:rgba(0,120,212,.22);background:rgba(0,120,212,.04)}
+.ci-callout--db{border-color:rgba(255,54,33,.22);background:rgba(255,54,33,.04)}
+.ci-callout--g{border-color:rgba(16,185,129,.22);background:rgba(16,185,129,.04)}
+.ci-callout h5{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
+.ci-callout p{font-size:.81rem;opacity:.75;margin:0;line-height:1.55}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HERO â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ci-hero">
+  <div class="ci-badge"><i class="fas fa-infinity"></i>&nbsp; Platform Engineering &middot; NeonDeck Entertainment</div>
+  <h1>Azure DevOps &amp; Databricks<br>Platform Administration</h1>
+  <p class="lead">Enterprise platform engineering for a global casino gaming &amp; media content company &mdash; Azure DevOps pipelines, Databricks workspace governance, Azure Entra ID identity management, and IaC-driven infrastructure at scale.</p>
+  <div class="ci-kpi-strip">
+    <div class="ci-kpi"><div><div class="ci-kpi-val">47</div><div class="ci-kpi-lbl">Databricks Clusters</div></div></div>
+    <div class="ci-kpi"><div><div class="ci-kpi-val">200+</div><div class="ci-kpi-lbl">Azure DevOps Pipelines</div></div></div>
+    <div class="ci-kpi"><div><div class="ci-kpi-val">3,400</div><div class="ci-kpi-lbl">Entra ID Managed Users</div></div></div>
+    <div class="ci-kpi"><div><div class="ci-kpi-val">99.97%</div><div class="ci-kpi-lbl">Platform Uptime</div></div></div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• THREE PILLARS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ci-sec">
+  <div class="ci-sec-head">
+    <span class="ci-tag ci-tag--az">Platform</span>
+    <h2>Core Platform Pillars</h2>
+    <p>Three enterprise platforms &mdash; administered, secured, and integrated as a unified engineering environment for NeonDeck's 3,400-user global operation.</p>
+  </div>
+  <div class="ci-stages">
+
+    <div class="ci-stage ci-stage--ci">
+      <div class="ci-stage-icon" style="background:var(--ci-grad-az)"><i class="fas fa-infinity"></i></div>
+      <h3>Azure DevOps</h3>
+      <p class="sub">End-to-end ALM platform administration</p>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> YAML pipeline authoring &amp; governance</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Variable groups &amp; service connections</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Organization &amp; project configuration</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Azure Artifacts feed management</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Branch policies &amp; security models</div>
+      <div class="ci-ck"><i class="fas fa-info-circle info"></i> AZ-400 certified practices</div>
+    </div>
+
+    <div class="ci-stage ci-stage--cd">
+      <div class="ci-stage-icon" style="background:var(--ci-grad-db)"><i class="fas fa-fire"></i></div>
+      <h3>Databricks</h3>
+      <p class="sub">Workspace, cluster &amp; data governance</p>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Cluster policies &amp; autoscaling rules</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Unity Catalog &mdash; metastore governance</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Delta Live Tables job orchestration</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Spot instance policy &mdash; 62% cost &darr;</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> RBAC via Entra group SCIM sync</div>
+      <div class="ci-ck"><i class="fas fa-info-circle info"></i> Unity Catalog row-level security</div>
+    </div>
+
+    <div class="ci-stage ci-stage--iac">
+      <div class="ci-stage-icon" style="background:var(--ci-grad-b)"><i class="fas fa-user-shield"></i></div>
+      <h3>Azure Entra ID</h3>
+      <p class="sub">Identity governance &amp; access management</p>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> SSO &amp; enterprise app registrations</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Conditional access &amp; MFA policies</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Privileged Identity Management (PIM)</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> Group-based user provisioning</div>
+      <div class="ci-ck"><i class="fas fa-check-circle done"></i> SCIM sync &rarr; Databricks &amp; DevOps</div>
+      <div class="ci-ck"><i class="fas fa-info-circle info"></i> SOC 2 / GDPR identity compliance</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• YAML PIPELINE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ci-sec">
+  <div class="ci-sec-head">
+    <span class="ci-tag ci-tag--az">Azure DevOps</span>
+    <h2>YAML Pipeline Architecture</h2>
+    <p>Multi-stage Azure DevOps pipelines deploying Databricks notebooks, Delta Live Table configurations, and Terraform-managed infrastructure across NeonDeck's environment tiers.</p>
+  </div>
+
+  <div class="ci-yaml-tabs" id="ciYamlTabBar">
+    <div class="ci-yaml-tab active" data-pane="pane-pipeline">azure-pipelines.yml</div>
+    <div class="ci-yaml-tab" data-pane="pane-terraform">databricks.tf</div>
+    <div class="ci-yaml-tab" data-pane="pane-vargroup">Variable Groups / Svc Connections</div>
+  </div>
+  <div class="ci-yaml-wrap">
+    <div class="ci-yaml-hdr">
+      <div class="ci-yaml-dots">
+        <div class="ci-yaml-dot ci-yaml-dot--r"></div>
+        <div class="ci-yaml-dot ci-yaml-dot--y"></div>
+        <div class="ci-yaml-dot ci-yaml-dot--g"></div>
+      </div>
+      <span id="ciYamlFilename">neondeck-databricks-deploy.yml &middot; Azure DevOps &middot; neondeck-gaming org</span>
+    </div>
+    <div class="ci-yaml-body">
+
+      <div class="ci-yaml-pane active" id="pane-pipeline"><pre class="ci-code"><span class="cc"># NeonDeck Entertainment &mdash; Databricks Platform Deployment Pipeline</span>
+<span class="cc"># Organization: neondeck-gaming  |  Project: DataPlatform  |  AZ-400 compliant</span>
+
+<span class="ck">trigger</span>:
+  <span class="ck">branches</span>:
+    <span class="ck">include</span>: [<span class="cs">main</span>, <span class="cs">release/*</span>]
+  <span class="ck">paths</span>:
+    <span class="ck">include</span>: [<span class="cs">databricks/**</span>, <span class="cs">terraform/**</span>, <span class="cs">pipelines/**</span>]
+
+<span class="ck">variables</span>:
+  - <span class="ck">group</span>: <span class="cv">neondeck-databricks-prod</span>    <span class="cc"># Key Vault-linked variable group</span>
+  - <span class="ck">group</span>: <span class="cv">neondeck-entra-svc-conn</span>     <span class="cc"># Entra service principal credentials</span>
+  - <span class="ck">name</span>: <span class="cv">databricksWorkspace</span>
+    <span class="ck">value</span>: <span class="cs">adb-neondeck-prod-eastus2</span>
+
+<span class="ck">stages</span>:
+  - <span class="ck">stage</span>: <span class="cv">Validate</span>
+    <span class="ck">displayName</span>: <span class="cs">Validate &amp; Lint</span>
+    <span class="ck">jobs</span>:
+      - <span class="ck">job</span>: <span class="cv">ValidateNotebooks</span>
+        <span class="ck">pool</span>: { <span class="ck">vmImage</span>: <span class="cs">ubuntu-latest</span> }
+        <span class="ck">steps</span>:
+          - <span class="ck">task</span>: <span class="cv">UsePythonVersion@0</span>
+            <span class="ck">inputs</span>: { <span class="ck">versionSpec</span>: <span class="cs">'3.11'</span> }
+          - <span class="ck">script</span>: <span class="cs">pip install databricks-cli dbx ruff</span>
+          - <span class="ck">script</span>: <span class="cs">ruff check notebooks/ pipelines/</span>
+            <span class="ck">displayName</span>: <span class="cs">Lint Python notebooks</span>
+          - <span class="ck">script</span>: <span class="cs">databricks fs ls dbfs:/neondeck</span>
+            <span class="ck">displayName</span>: <span class="cs">Validate DBFS connectivity</span>
+            <span class="ck">env</span>:
+              <span class="ck">DATABRICKS_HOST</span>: <span class="cs">$(databricksHost)</span>
+              <span class="ck">DATABRICKS_TOKEN</span>: <span class="cs">$(databricksToken)</span>  <span class="cc"># resolved from Key Vault VG</span>
+
+  - <span class="ck">stage</span>: <span class="cv">Terraform</span>
+    <span class="ck">displayName</span>: <span class="cs">Infrastructure Plan + Apply</span>
+    <span class="ck">dependsOn</span>: <span class="cv">Validate</span>
+    <span class="ck">jobs</span>:
+      - <span class="ck">deployment</span>: <span class="cv">TerraformApply</span>
+        <span class="ck">environment</span>: <span class="cs">production</span>   <span class="cc"># requires approval gate</span>
+        <span class="ck">strategy</span>:
+          <span class="ck">runOnce</span>:
+            <span class="ck">deploy</span>:
+              <span class="ck">steps</span>:
+                - <span class="ck">task</span>: <span class="cv">TerraformTaskV4@4</span>
+                  <span class="ck">inputs</span>:
+                    <span class="ck">command</span>: <span class="cs">plan</span>
+                    <span class="ck">workingDirectory</span>: <span class="cs">$(System.DefaultWorkingDirectory)/terraform</span>
+                    <span class="ck">backendServiceArm</span>: <span class="cs">neondeck-azure-svc-conn</span>
+                    <span class="ck">backendAzureRmResourceGroupName</span>: <span class="cs">rg-neondeck-tfstate</span>
+                    <span class="ck">backendAzureRmStorageAccountName</span>: <span class="cs">ndtfstateprod</span>
+                - <span class="ck">task</span>: <span class="cv">TerraformTaskV4@4</span>
+                  <span class="ck">inputs</span>: { <span class="ck">command</span>: <span class="cs">apply</span>, <span class="ck">commandOptions</span>: <span class="cs">-auto-approve</span> }
+
+  - <span class="ck">stage</span>: <span class="cv">DatabricksDeploy</span>
+    <span class="ck">displayName</span>: <span class="cs">Deploy to Databricks</span>
+    <span class="ck">dependsOn</span>: <span class="cv">Terraform</span>
+    <span class="ck">jobs</span>:
+      - <span class="ck">job</span>: <span class="cv">DeployNotebooks</span>
+        <span class="ck">steps</span>:
+          - <span class="ck">script</span>: <span class="cs">dbx deploy --environment=production --cluster-id=$(clusterIdProd)</span>
+          - <span class="ck">script</span>: <span class="cs">databricks jobs reset --job-id=$(playerEtlJobId) --json @jobs/player_etl.json</span>
+            <span class="ck">displayName</span>: <span class="cs">Update Player ETL DLT job definition</span>
+          - <span class="ck">task</span>: <span class="cv">AzureCLI@2</span>
+            <span class="ck">displayName</span>: <span class="cs">Sync Entra groups &rarr; Unity Catalog grants</span>
+            <span class="ck">inputs</span>:
+              <span class="ck">azureSubscription</span>: <span class="cs">neondeck-azure-svc-conn</span>
+              <span class="ck">scriptType</span>: <span class="cs">pscore</span>
+              <span class="ck">scriptPath</span>: <span class="cs">scripts/Sync-EntraGroupsToUnityCatalog.ps1</span></pre>
+      </div>
+
+      <div class="ci-yaml-pane" id="pane-terraform"><pre class="ci-code"><span class="cc"># terraform/databricks.tf &mdash; NeonDeck Databricks Workspace &amp; Cluster Policies</span>
+
+<span class="ck">resource</span> <span class="cv">"azurerm_databricks_workspace"</span> <span class="cm">"neondeck_prod"</span> {
+  <span class="ck">name</span>                = <span class="cs">"adb-neondeck-prod-eastus2"</span>
+  <span class="ck">resource_group_name</span> = <span class="cv">azurerm_resource_group.platform.name</span>
+  <span class="ck">location</span>            = <span class="cs">"East US 2"</span>
+  <span class="ck">sku</span>                 = <span class="cs">"premium"</span>
+  <span class="ck">custom_parameters</span> {
+    <span class="ck">virtual_network_id</span>  = <span class="cv">azurerm_virtual_network.platform.id</span>
+    <span class="ck">public_subnet_name</span>  = <span class="cs">"snet-databricks-public"</span>
+    <span class="ck">private_subnet_name</span> = <span class="cs">"snet-databricks-private"</span>
+    <span class="ck">no_public_ip</span>        = <span class="cv">true</span>  <span class="cc"># Secure Cluster Connectivity mode</span>
+  }
+}
+
+<span class="ck">resource</span> <span class="cv">"databricks_cluster_policy"</span> <span class="cm">"gaming_analytics"</span> {
+  <span class="ck">name</span> = <span class="cs">"NeonDeck-GamingAnalytics-Policy"</span>
+  <span class="ck">definition</span> = <span class="cv">jsonencode</span>({
+    <span class="cs">"spark_version"</span>            : { <span class="cs">"type"</span>: <span class="cs">"fixed"</span>,     <span class="cs">"value"</span>: <span class="cs">"14.3.x-scala2.12"</span> },
+    <span class="cs">"node_type_id"</span>             : { <span class="cs">"type"</span>: <span class="cs">"allowlist"</span>, <span class="cs">"values"</span>: [<span class="cs">"Standard_DS4_v2"</span>, <span class="cs">"Standard_DS5_v2"</span>] },
+    <span class="cs">"autoscale.min_workers"</span>    : { <span class="cs">"type"</span>: <span class="cs">"range"</span>,     <span class="cs">"minValue"</span>: 2, <span class="cs">"maxValue"</span>: 4 },
+    <span class="cs">"autoscale.max_workers"</span>    : { <span class="cs">"type"</span>: <span class="cs">"range"</span>,     <span class="cs">"minValue"</span>: 4, <span class="cs">"maxValue"</span>: 20 },
+    <span class="cs">"azure_attributes.availability"</span>: { <span class="cs">"type"</span>: <span class="cs">"fixed"</span>, <span class="cs">"value"</span>: <span class="cs">"SPOT_WITH_FALLBACK_AZURE"</span> },
+    <span class="cs">"spark_conf.spark.databricks.io.cache.enabled"</span>: { <span class="cs">"type"</span>: <span class="cs">"fixed"</span>, <span class="cs">"value"</span>: <span class="cs">"true"</span> }
+  })
+}
+
+<span class="ck">resource</span> <span class="cv">"databricks_metastore_assignment"</span> <span class="cm">"prod"</span> {
+  <span class="ck">metastore_id</span> = <span class="cv">databricks_metastore.neondeck.id</span>
+  <span class="ck">workspace_id</span> = <span class="cv">azurerm_databricks_workspace.neondeck_prod.workspace_id</span>
+}
+
+<span class="ck">resource</span> <span class="cv">"databricks_grants"</span> <span class="cm">"catalog_gaming"</span> {
+  <span class="ck">catalog</span> = <span class="cv">databricks_catalog.gaming.name</span>
+  <span class="ck">grant</span> { <span class="ck">principal</span> = <span class="cs">"data-engineers@neondeck.com"</span>; <span class="ck">privileges</span> = [<span class="cs">"USE_CATALOG"</span>, <span class="cs">"CREATE_SCHEMA"</span>] }
+  <span class="ck">grant</span> { <span class="ck">principal</span> = <span class="cs">"analysts@neondeck.com"</span>;      <span class="ck">privileges</span> = [<span class="cs">"USE_CATALOG"</span>, <span class="cs">"SELECT"</span>] }
+  <span class="ck">grant</span> { <span class="ck">principal</span> = <span class="cs">"compliance@neondeck.com"</span>;   <span class="ck">privileges</span> = [<span class="cs">"USE_CATALOG"</span>, <span class="cs">"SELECT"</span>] }
+}</pre>
+      </div>
+
+      <div class="ci-yaml-pane" id="pane-vargroup"><pre class="ci-code"><span class="cc"># Azure DevOps Variable Groups &mdash; neondeck-gaming organization</span>
+<span class="cc"># All secrets linked to Azure Key Vault: kv-neondeck-prod</span>
+
+<span class="ck">Variable Group</span>: <span class="cv">neondeck-databricks-prod</span>
+  <span class="ck">databricksHost</span>     : <span class="cs">https://adb-xxxxx.azuredatabricks.net</span>
+  <span class="ck">databricksToken</span>    : <span class="cm">$(kv-databricks-pat-prod)</span>      <span class="cc"># Key Vault secret</span>
+  <span class="ck">clusterIdProd</span>      : <span class="cs">0412-153200-abc123</span>
+  <span class="ck">playerEtlJobId</span>     : <span class="cs">8841</span>
+  <span class="ck">unityMetastoreId</span>   : <span class="cs">xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</span>
+
+<span class="ck">Variable Group</span>: <span class="cv">neondeck-entra-svc-conn</span>
+  <span class="ck">tenantId</span>           : <span class="cm">$(kv-entra-tenant-id)</span>          <span class="cc"># Key Vault secret</span>
+  <span class="ck">clientId</span>           : <span class="cm">$(kv-sp-client-id)</span>             <span class="cc"># Key Vault secret</span>
+  <span class="ck">clientSecret</span>       : <span class="cm">$(kv-sp-client-secret)</span>         <span class="cc"># Key Vault secret</span>
+
+<span class="ck">Service Connection</span>: <span class="cv">neondeck-azure-svc-conn</span>
+  <span class="ck">type</span>               : <span class="cs">Azure Resource Manager</span>
+  <span class="ck">authMethod</span>         : <span class="cs">Service Principal (Entra App Registration)</span>
+  <span class="ck">scope</span>              : <span class="cs">sub-neondeck-prod</span>
+  <span class="ck">rbac</span>               : <span class="cs">Contributor on rg-neondeck-platform</span>
+
+<span class="cc"># PowerShell: sync Key Vault secrets into ADO Variable Group (nightly)</span>
+<span class="cm">Sync-AzKeyVaultToDevOpsVariableGroup.ps1</span>:
+  <span class="ck">$secrets</span> = <span class="cv">Get-AzKeyVaultSecret</span> -VaultName <span class="cs">"kv-neondeck-prod"</span>
+  <span class="ck">foreach</span> (<span class="ck">$s</span> in <span class="ck">$secrets</span>) {
+    <span class="cv">Update-AzDevOpsVariableGroup</span> -Org <span class="cs">"neondeck-gaming"</span> `
+      -GroupName <span class="cs">"neondeck-databricks-prod"</span> `
+      -Variable <span class="ck">$s</span>.Name -IsSecret <span class="cv">$true</span>
+  }</pre>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• DATABRICKS ADMIN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ci-sec">
+  <div class="ci-sec-head">
+    <span class="ci-tag ci-tag--db">Databricks</span>
+    <h2>Workspace Administration</h2>
+    <p>Cluster policy governance, cost optimization, and Unity Catalog metastore across gaming analytics, ML training, and player compliance workloads.</p>
+  </div>
+  <div class="ci-cluster-grid">
+
+    <div class="ci-cluster">
+      <div class="ci-cluster-hdr">
+        <div class="ci-cluster-icon"><i class="fas fa-chart-line"></i></div>
+        <div>
+          <div class="ci-cluster-name">Gaming Analytics Cluster</div>
+          <div class="ci-cluster-env">Policy: NeonDeck-GamingAnalytics &middot; Prod</div>
+        </div>
+      </div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Spark Version</span><span class="ci-policy-val">14.3 LTS (Scala 2.12)</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Node Type</span><span class="ci-policy-val">Standard_DS4_v2</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Autoscale</span><span class="ci-policy-val">2â€“20 workers</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Spot Instances</span><span class="ci-policy-val"><span class="ci-cluster-tag ci-cluster-tag--on">ENABLED &mdash; 62% cost &darr;</span></span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">SCC Mode</span><span class="ci-policy-val"><span class="ci-cluster-tag ci-cluster-tag--on">No Public IP</span></span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Unity Catalog</span><span class="ci-policy-val"><span class="ci-cluster-tag ci-cluster-tag--pol">gaming.player_events</span></span></div>
+    </div>
+
+    <div class="ci-cluster">
+      <div class="ci-cluster-hdr">
+        <div class="ci-cluster-icon"><i class="fas fa-brain"></i></div>
+        <div>
+          <div class="ci-cluster-name">ML Training Cluster</div>
+          <div class="ci-cluster-env">Policy: NeonDeck-MLTraining &middot; Prod</div>
+        </div>
+      </div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Spark Version</span><span class="ci-policy-val">14.3 ML Runtime (GPU)</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Node Type</span><span class="ci-policy-val">Standard_NC6s_v3 (GPU)</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Autoscale</span><span class="ci-policy-val">1â€“8 workers (fixed)</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Auto-terminate</span><span class="ci-policy-val">30 min idle</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">MLflow Registry</span><span class="ci-policy-val"><span class="ci-cluster-tag ci-cluster-tag--on">Unity Catalog</span></span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Tags</span><span class="ci-policy-val">cost-center: ml-platform</span></div>
+    </div>
+
+    <div class="ci-cluster">
+      <div class="ci-cluster-hdr">
+        <div class="ci-cluster-icon"><i class="fas fa-database"></i></div>
+        <div>
+          <div class="ci-cluster-name">Player ETL &mdash; Delta Live Tables</div>
+          <div class="ci-cluster-env">Policy: NeonDeck-ETLProcessing &middot; Prod</div>
+        </div>
+      </div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Spark Version</span><span class="ci-policy-val">14.3 LTS Photon</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Pipeline Type</span><span class="ci-policy-val">Delta Live Tables</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Autoscale</span><span class="ci-policy-val">4â€“32 workers (enhanced)</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Storage</span><span class="ci-policy-val">Delta Lake &mdash; ADLS Gen2</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Schedule</span><span class="ci-policy-val">Cron: 0 */3 * * * UTC</span></div>
+      <div class="ci-policy-row"><span class="ci-policy-lbl">Table</span><span class="ci-policy-val"><span class="ci-cluster-tag ci-cluster-tag--pol">gaming.silver.player_session</span></span></div>
+    </div>
+
+  </div>
+
+  <div class="ci-sec-head" style="margin-top:2rem;margin-bottom:.8rem">
+    <span class="ci-tag ci-tag--db">Unity Catalog</span>
+    <h2>Data Governance Hierarchy</h2>
+    <p>Three-layer Unity Catalog metastore governing player data, compliance records, and content analytics under SOC 2 and GDPR access controls.</p>
+  </div>
+  <div class="ci-unity-flow">
+    <div class="ci-unity-node ci-unity-node--catalog"><strong>Metastore</strong><br><small>neondeck-prod-metastore</small></div>
+    <div class="ci-unity-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ci-unity-node ci-unity-node--catalog"><strong>Catalog: gaming</strong><br><small>Player &amp; betting data</small></div>
+    <div class="ci-unity-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ci-unity-node ci-unity-node--schema"><strong>Schema: bronze</strong><br><small>Raw ingest layer</small></div>
+    <div class="ci-unity-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ci-unity-node ci-unity-node--schema"><strong>Schema: silver</strong><br><small>Cleansed + joined</small></div>
+    <div class="ci-unity-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ci-unity-node ci-unity-node--table"><strong>Schema: gold</strong><br><small>Aggregated reporting</small></div>
+  </div>
+  <div class="ci-unity-flow" style="margin-top:.6rem">
+    <div class="ci-unity-node ci-unity-node--catalog"><strong>Catalog: compliance</strong><br><small>GDPR / SOC 2 restricted</small></div>
+    <div class="ci-unity-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ci-unity-node ci-unity-node--schema"><strong>Schema: audit_logs</strong><br><small>Immutable access records</small></div>
+    <div class="ci-unity-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ci-unity-node ci-unity-node--table"><strong>Table: data_access_events</strong><br><small>Row-level security (RLS)</small></div>
+    <div class="ci-unity-arr"><i class="fas fa-arrow-right"></i></div>
+    <div class="ci-unity-node" style="border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05)"><strong><i class="fas fa-lock"></i> Restricted</strong><br><small>compliance@ only &middot; PIM required</small></div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ENTRA ID & RBAC â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ci-sec">
+  <div class="ci-sec-head">
+    <span class="ci-tag ci-tag--v">Entra ID</span>
+    <h2>Identity &amp; Access Management</h2>
+    <p>Azure Entra ID governs all access to Azure DevOps, Databricks, and data assets &mdash; with conditional access policies enforcing MFA, device compliance, and just-in-time PIM roles.</p>
+  </div>
+  <div class="ci-entra-grid">
+    <div class="ci-entra-card">
+      <div class="ci-entra-icon" style="background:var(--ci-grad-az)"><i class="fas fa-sign-in-alt"></i></div>
+      <div class="ci-entra-name">Enterprise SSO</div>
+      <div class="ci-entra-desc">SAML 2.0 &amp; OIDC for Azure DevOps, Databricks, and 18 SaaS apps. App registrations with client credential flow for unattended service principals.</div>
+    </div>
+    <div class="ci-entra-card">
+      <div class="ci-entra-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><i class="fas fa-shield-alt"></i></div>
+      <div class="ci-entra-name">Conditional Access</div>
+      <div class="ci-entra-desc">Require MFA + compliant device for all Databricks access. Geo-block from non-licensed gaming jurisdictions. Session risk triggers step-up auth.</div>
+    </div>
+    <div class="ci-entra-card">
+      <div class="ci-entra-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-user-clock"></i></div>
+      <div class="ci-entra-name">PIM Just-in-Time</div>
+      <div class="ci-entra-desc">Privileged Identity Management for Owner/Contributor roles. Max 4-hour activation, approval required, all activations logged to Azure Monitor.</div>
+    </div>
+    <div class="ci-entra-card">
+      <div class="ci-entra-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-users-cog"></i></div>
+      <div class="ci-entra-name">SCIM Provisioning</div>
+      <div class="ci-entra-desc">Automated user &amp; group lifecycle: Entra group changes propagate to Databricks Unity Catalog permissions and Azure DevOps project access within 5 min.</div>
+    </div>
+    <div class="ci-entra-card">
+      <div class="ci-entra-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-clipboard-check"></i></div>
+      <div class="ci-entra-name">Access Reviews</div>
+      <div class="ci-entra-desc">Quarterly automated Entra access reviews for all privileged roles. Non-responded reviews auto-revoke. Integrated with SOC 2 audit evidence collection.</div>
+    </div>
+    <div class="ci-entra-card">
+      <div class="ci-entra-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-key"></i></div>
+      <div class="ci-entra-name">Managed Identities</div>
+      <div class="ci-entra-desc">System-assigned MI on ADF, AKS, and Functions eliminates stored creds. Databricks service principals use Entra Workload Identity Federation.</div>
+    </div>
+  </div>
+  <div class="ci-rbac-wrap">
+    <table class="table table-sm table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Entra Group</th>
+          <th>Azure DevOps</th>
+          <th>Databricks Workspace</th>
+          <th>UC: gaming catalog</th>
+          <th>UC: compliance catalog</th>
+          <th>Key Vault</th>
+        </tr>
+      </thead>
+      <tbody style="font-size:.73rem">
+        <tr><td><strong>platform-admins</strong></td><td><span class="ci-perm ci-perm--yes">Project Admin</span></td><td><span class="ci-perm ci-perm--yes">Workspace Admin</span></td><td><span class="ci-perm ci-perm--yes">Metastore Admin</span></td><td><span class="ci-perm ci-perm--yes">Metastore Admin</span></td><td><span class="ci-perm ci-perm--pim">PIM required</span></td></tr>
+        <tr><td><strong>data-engineers</strong></td><td><span class="ci-perm ci-perm--yes">Contributor</span></td><td><span class="ci-perm ci-perm--yes">Can Restart</span></td><td><span class="ci-perm ci-perm--yes">USE + CREATE</span></td><td><span class="ci-perm ci-perm--no">No Access</span></td><td><span class="ci-perm ci-perm--no">No Access</span></td></tr>
+        <tr><td><strong>analysts</strong></td><td><span class="ci-perm ci-perm--yes">Reader</span></td><td><span class="ci-perm ci-perm--yes">Can Attach</span></td><td><span class="ci-perm ci-perm--yes">SELECT only</span></td><td><span class="ci-perm ci-perm--no">No Access</span></td><td><span class="ci-perm ci-perm--no">No Access</span></td></tr>
+        <tr><td><strong>ml-engineers</strong></td><td><span class="ci-perm ci-perm--yes">Contributor</span></td><td><span class="ci-perm ci-perm--yes">Can Restart</span></td><td><span class="ci-perm ci-perm--yes">USE + MODIFY</span></td><td><span class="ci-perm ci-perm--no">No Access</span></td><td><span class="ci-perm ci-perm--no">No Access</span></td></tr>
+        <tr><td><strong>compliance</strong></td><td><span class="ci-perm ci-perm--yes">Reader</span></td><td><span class="ci-perm ci-perm--yes">Can Attach</span></td><td><span class="ci-perm ci-perm--no">No Access</span></td><td><span class="ci-perm ci-perm--yes">SELECT only</span></td><td><span class="ci-perm ci-perm--pim">PIM required</span></td></tr>
+        <tr><td><strong>devops-svc-principal</strong></td><td><span class="ci-perm ci-perm--yes">Project Admin</span></td><td><span class="ci-perm ci-perm--yes">Token + jobs API</span></td><td><span class="ci-perm ci-perm--yes">USE_CATALOG</span></td><td><span class="ci-perm ci-perm--no">No Access</span></td><td><span class="ci-perm ci-perm--yes">Get/List secrets</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• IaC TOOLCHAIN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ci-sec">
+  <div class="ci-sec-head">
+    <span class="ci-tag ci-tag--g">IaC</span>
+    <h2>Infrastructure as Code Toolchain</h2>
+    <p>Every resource &mdash; Databricks workspace, cluster policy, Entra app registration, Key Vault secret &mdash; is managed as code with remote state locking and drift detection.</p>
+  </div>
+  <div class="ci-iac-grid">
+    <div class="ci-iac">
+      <div class="ci-iac-icon" style="background:linear-gradient(135deg,#7b4fff,#4f46e5)"><i class="fas fa-layer-group"></i></div>
+      <div><div class="ci-iac-name">Terraform</div><div class="ci-iac-desc">Databricks workspace, cluster policies, Unity Catalog grants, Entra app registrations &mdash; remote state in Azure Blob with state locking</div></div>
+    </div>
+    <div class="ci-iac">
+      <div class="ci-iac-icon" style="background:var(--ci-grad-az)"><i class="fas fa-cubes"></i></div>
+      <div><div class="ci-iac-name">Bicep / ARM</div><div class="ci-iac-desc">Azure-native resources: ADLS Gen2, ADF pipelines, Key Vault, VNet peering, Databricks VNet injection &mdash; What-If previews before every deploy</div></div>
+    </div>
+    <div class="ci-iac">
+      <div class="ci-iac-icon" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)"><i class="fas fa-terminal"></i></div>
+      <div><div class="ci-iac-name">PowerShell + Azure CLI</div><div class="ci-iac-desc">Admin automation: Key Vault sync, Entra group &rarr; Unity Catalog sync, cluster restart runbooks, Databricks PAT rotation scripts</div></div>
+    </div>
+    <div class="ci-iac">
+      <div class="ci-iac-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><i class="fas fa-key"></i></div>
+      <div><div class="ci-iac-name">Azure Key Vault</div><div class="ci-iac-desc">Zero hardcoded credentials: Databricks PATs, SP client secrets, ADF strings all in Key Vault &mdash; linked to ADO variable groups via VG secret references</div></div>
+    </div>
+    <div class="ci-iac">
+      <div class="ci-iac-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-heartbeat"></i></div>
+      <div><div class="ci-iac-name">Azure Monitor + Log Analytics</div><div class="ci-iac-desc">Databricks cluster metrics, ADF pipeline health, DevOps agent pool utilization &mdash; custom KQL dashboards with PagerDuty alert routing</div></div>
+    </div>
+    <div class="ci-iac">
+      <div class="ci-iac-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-sync-alt"></i></div>
+      <div><div class="ci-iac-name">Azure Data Factory</div><div class="ci-iac-desc">Orchestrates data movement from gaming event streaming &rarr; ADLS Gen2 &rarr; Databricks DLT pipelines. Parameterized pipelines deployed via Azure DevOps</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• LIVE DEMO â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ci-sec">
+  <div class="ci-sec-head">
+    <span class="ci-tag ci-tag--b">Live Demo</span>
+    <h2>Azure DevOps Pipeline Simulator</h2>
+    <p>Click Run to simulate a NeonDeck Entertainment Azure DevOps pipeline &mdash; from PR merge through Terraform, Databricks cluster validation, Entra group sync, to production deployment.</p>
+  </div>
+
+  <div class="ci-demo">
+    <div class="ci-demo-bar">
+      <div class="ci-dots"><div class="ci-dot ci-dot--r"></div><div class="ci-dot ci-dot--y"></div><div class="ci-dot ci-dot--g"></div></div>
+      <h4><i class="fas fa-infinity me-2" style="color:#0078d4"></i>NeonDeck &middot; Azure DevOps &middot; DataPlatform Project</h4>
+      <div style="display:flex;gap:.5rem;flex-shrink:0">
+        <button class="btn btn-primary btn-sm" id="ciBtnRun" style="border-radius:8px;font-size:.79rem;background:#0078d4;border-color:#0078d4"><i class="fas fa-play me-1"></i> Run Pipeline</button>
+        <button class="btn btn-outline-secondary btn-sm" id="ciBtnReset" style="border-radius:8px;font-size:.79rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
+      </div>
+    </div>
+    <div class="ci-pip-bar">
+      <div class="ci-pip" id="ciPip0"><div class="ci-pip-dot"><i class="fas fa-code-branch"></i></div><div class="ci-pip-lbl">Trigger</div></div>
+      <div class="ci-pip" id="ciPip1"><div class="ci-pip-dot"><i class="fas fa-check-double"></i></div><div class="ci-pip-lbl">Validate</div></div>
+      <div class="ci-pip" id="ciPip2"><div class="ci-pip-dot"><i class="fas fa-layer-group"></i></div><div class="ci-pip-lbl">Terraform</div></div>
+      <div class="ci-pip" id="ciPip3"><div class="ci-pip-dot"><i class="fas fa-fire"></i></div><div class="ci-pip-lbl">Databricks</div></div>
+      <div class="ci-pip" id="ciPip4"><div class="ci-pip-dot"><i class="fas fa-user-shield"></i></div><div class="ci-pip-lbl">Entra Sync</div></div>
+      <div class="ci-pip" id="ciPip5"><div class="ci-pip-dot"><i class="fas fa-rocket"></i></div><div class="ci-pip-lbl">Production</div></div>
+    </div>
+    <div class="ci-i-body">
+      <div class="ci-prev-pane">
+        <div class="ci-pane-lbl">Pipeline Context</div>
+        <div class="ci-pr-card" id="ciPrCard"></div>
+        <div class="ci-pane-lbl" style="margin-top:.2rem">Activity Log</div>
+        <div class="ci-log2" id="ciLogArea"></div>
+      </div>
+      <div class="ci-stage-out" id="ciStage"></div>
+    </div>
+  </div>
+
+  <div class="ci-dash2" id="ciDashboard">
+    <div style="font-size:.84rem;font-weight:800;margin-bottom:.7rem"><i class="fas fa-chart-bar me-2" style="color:#0078d4"></i>Platform Deployment Tracker</div>
+    <div class="ci-dash2-kpis">
+      <div class="ci-dkpi"><div class="ci-dkpi-val" id="ciKpiDeploys">0</div><div class="ci-dkpi-lbl">Pipeline Runs</div></div>
+      <div class="ci-dkpi"><div class="ci-dkpi-val" id="ciKpiTests">&mdash;</div><div class="ci-dkpi-lbl">Notebooks Deployed</div></div>
+      <div class="ci-dkpi"><div class="ci-dkpi-val" id="ciKpiCoverage">&mdash;</div><div class="ci-dkpi-lbl">Cluster Policy</div></div>
+      <div class="ci-dkpi"><div class="ci-dkpi-val" id="ciKpiTime">&mdash;</div><div class="ci-dkpi-lbl">Deploy Time</div></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table table-sm" style="font-size:.77rem;margin:0">
+        <thead><tr style="opacity:.6"><th>Pipeline</th><th>Branch</th><th>TF Changes</th><th>Notebooks</th><th>Cluster</th><th>Status</th><th>Time</th></tr></thead>
+        <tbody id="ciDashTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• COMPLIANCE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ci-sec">
+  <div class="ci-sec-head">
+    <span class="ci-tag ci-tag--g">Compliance</span>
+    <h2>Regulatory &amp; Security Controls</h2>
+    <p>Casino gaming platforms operate under strict regulatory frameworks. The NeonDeck platform enforces SOC 2 Type II, GDPR, and gaming-specific AML/KYC controls across all DevOps and data assets.</p>
+  </div>
+  <div class="ci-comp-grid">
+    <div class="ci-comp">
+      <div class="ci-comp-icon"><i class="fas fa-shield-alt"></i></div>
+      <div class="ci-comp-name">SOC 2 Type II</div>
+      <div class="ci-comp-desc">Azure DevOps audit logs, Databricks access events, and Entra PIM activations stored in Log Analytics as annual SOC 2 evidence package</div>
+    </div>
+    <div class="ci-comp">
+      <div class="ci-comp-icon"><i class="fas fa-globe-europe"></i></div>
+      <div class="ci-comp-name">GDPR</div>
+      <div class="ci-comp-desc">Player PII isolated in compliance Unity Catalog with row-level security. Data residency enforced via Azure Policy &mdash; EU player data stays in EEA regions</div>
+    </div>
+    <div class="ci-comp">
+      <div class="ci-comp-icon"><i class="fas fa-dice"></i></div>
+      <div class="ci-comp-name">Gaming Regulatory</div>
+      <div class="ci-comp-desc">AML transaction monitoring on Delta Live Tables. KYC document processing via Azure Cognitive Services &mdash; all gated by Entra Conditional Access geo-restrictions</div>
+    </div>
+    <div class="ci-comp">
+      <div class="ci-comp-icon"><i class="fas fa-lock"></i></div>
+      <div class="ci-comp-name">DevSecOps</div>
+      <div class="ci-comp-desc">Microsoft Defender for DevOps SAST on every PR. Trivy container scanning in Build stage. ADO policy blocks secrets in pipeline YAML and variable groups</div>
+    </div>
+    <div class="ci-comp">
+      <div class="ci-comp-icon"><i class="fas fa-clipboard-list"></i></div>
+      <div class="ci-comp-name">Capacity Planning</div>
+      <div class="ci-comp-desc">Quarterly Databricks cost reviews via Azure Cost Management. Cluster pool right-sizing using Ganglia metrics. Auto-terminate policies cut idle spend 40%</div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TECH STACK â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ci-sec">
+  <div class="ci-sec-head">
+    <span class="ci-tag ci-tag--v">Technology</span>
+    <h2>Platform Tech Stack</h2>
+  </div>
+  <div class="ci-stack">
+    <span class="ci-pill ci-pill--az">Azure DevOps</span>
+    <span class="ci-pill ci-pill--db">Databricks</span>
+    <span class="ci-pill ci-pill--az">Azure Entra ID</span>
+    <span class="ci-pill ci-pill--v">Terraform</span>
+    <span class="ci-pill ci-pill--az">Bicep / ARM</span>
+    <span class="ci-pill ci-pill--b">Unity Catalog</span>
+    <span class="ci-pill ci-pill--g">Delta Live Tables</span>
+    <span class="ci-pill ci-pill--az">Azure Key Vault</span>
+    <span class="ci-pill ci-pill--a">Azure Monitor</span>
+    <span class="ci-pill ci-pill--g">Log Analytics (KQL)</span>
+    <span class="ci-pill ci-pill--az">Azure Data Factory</span>
+    <span class="ci-pill ci-pill--az">Azure Synapse</span>
+    <span class="ci-pill ci-pill--b">PowerShell</span>
+    <span class="ci-pill ci-pill--v">Azure CLI</span>
+    <span class="ci-pill ci-pill--g">ADLS Gen2</span>
+    <span class="ci-pill ci-pill--az">PIM</span>
+    <span class="ci-pill ci-pill--r">Conditional Access</span>
+    <span class="ci-pill ci-pill--b">dbx / Databricks CLI</span>
+    <span class="ci-pill ci-pill--v">YAML Pipelines</span>
+    <span class="ci-pill ci-pill--g">SCIM Provisioning</span>
+  </div>
+
+  <div class="ci-callout ci-callout--az" style="margin-top:1.5rem">
+    <h5><i class="fas fa-lightbulb me-2" style="color:#0078d4"></i>Interview: Azure DevOps Administration (AZ-400)</h5>
+    <p>"At NeonDeck, I administered 200+ Azure DevOps pipelines across the gaming analytics and content delivery platforms. I designed multi-stage YAML pipelines with Key Vault-linked variable groups, enforced branch policies requiring PR review and passing quality gates before merge, and built service connections using Entra-registered service principals scoped to least-privilege resource groups. I automated nightly Key Vault secret sync into ADO variable groups via PowerShell, eliminating all manual credential rotation."</p>
+  </div>
+  <div class="ci-callout ci-callout--db" style="margin-top:1rem">
+    <h5><i class="fas fa-fire me-2" style="color:#c92a1e"></i>Interview: Databricks Workspace Administration</h5>
+    <p>"I administered 3 Databricks workspaces (prod, staging, dev) with Unity Catalog metastore governance covering player data, ML artifacts, and GDPR-restricted compliance schemas. I authored Terraform cluster policies that enforced Spot-with-Fallback instances, reducing compute spend by 62%. I orchestrated Delta Live Tables for the player session ETL pipeline running every 3 hours, and synced Entra group membership to Unity Catalog grants via SCIM provisioning and PowerShell scripts. I maintained cluster health monitoring via Azure Monitor with PagerDuty alerting for job failures."</p>
+  </div>
+  <div class="ci-callout ci-callout--g" style="margin-top:1rem">
+    <h5><i class="fas fa-user-shield me-2" style="color:#059669"></i>Interview: Azure Entra ID &amp; Identity Governance</h5>
+    <p>"I managed Azure Entra ID for a 3,400-user organization &mdash; configuring SAML/OIDC SSO for Databricks and Azure DevOps, deploying Conditional Access policies requiring MFA and Intune-compliant devices, and implementing PIM with approval workflows capping all elevated roles at 4-hour windows. I built the SCIM provisioning integration between Entra groups and Databricks Unity Catalog, reducing access provisioning from a 2-day manual ticket process to 5 minutes automated. I ran quarterly Entra access reviews feeding directly into our SOC 2 Type II audit evidence package."</p>
+  </div>
+</section>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+(function () { 'use strict';
+  var btnRun = document.getElementById('ciBtnRun'),
+      btnReset = document.getElementById('ciBtnReset'),
+      stage = document.getElementById('ciStage'),
+      dashWrap = document.getElementById('ciDashboard'),
+      running = false, deploys = [], totalTime = 0;
+
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function app(h) { stage.insertAdjacentHTML('beforeend', h); stage.scrollTop = stage.scrollHeight; }
+  function log(m) {
+    var la = document.getElementById('ciLogArea'); if (!la) return;
+    var ts = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    la.insertAdjacentHTML('beforeend', '<div style="animation:ciSlide .2s ease">' + ts + ' ' + m + '</div>');
+    la.scrollTop = la.scrollHeight;
+  }
+  function pip(i, s) {
+    for (var j = 0; j < 6; j++) {
+      var e = document.getElementById('ciPip' + j); e.classList.remove('active', 'done');
+      if (j < i) e.classList.add('done');
+      else if (j === i) e.classList.add(s === 'active' ? 'active' : 'done');
+    }
+  }
+
+  var pipelines = ['player-etl-dlt', 'gaming-analytics-nb', 'ml-churn-model', 'live-odds-stream', 'compliance-audit-dlt', 'content-recsys-nb'];
+  var authors = ['kieth', 'alex.chen', 'maya.patel', 'jordan.ross', 'taylor.m'];
+  var clusters = ['adb-gaming-analytics', 'adb-player-etl-dlt', 'adb-ml-training', 'adb-live-odds'];
+  var policies = ['NeonDeck-GamingAnalytics', 'NeonDeck-ETLProcessing', 'NeonDeck-MLTraining'];
+  var branches = ['feature/player-session-fix', 'feature/delta-schema-update', 'feature/cluster-policy-v2', 'feature/entra-sync-patch', 'feature/unity-cat-grants'];
+  function rand(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function rn(a, b) { return Math.floor(Math.random() * (b - a) + a); }
+
+  function gen() {
+    return { pl: rand(pipelines), branch: rand(branches), pr: rn(800, 1400), author: rand(authors),
+      cluster: rand(clusters), policy: rand(policies), notebooks: rn(3, 12),
+      tfAdd: rn(0, 3), tfChange: rn(0, 4), entraGroups: rn(2, 8), scimSync: rn(120, 400),
+      workers: rn(4, 24), costEstimate: (Math.random() * 8 + 2).toFixed(2) };
+  }
+
+  function s1(r) {
+    pip(0, 'active');
+    log('&#x1F4E5; PR #' + r.pr + ' merged &rarr; <b>main</b> | pipeline: <b>' + r.pl + '-deploy.yml</b>');
+    var pc = document.getElementById('ciPrCard');
+    pc.innerHTML = '<div class="ci-pr-row"><span class="lbl">Pipeline</span><span class="val">' + r.pl + '</span></div>' +
+      '<div class="ci-pr-row"><span class="lbl">Branch</span><span class="val">' + r.branch + '</span></div>' +
+      '<div class="ci-pr-row"><span class="lbl">Author</span><span class="val">' + r.author + '</span></div>' +
+      '<div class="ci-pr-row"><span class="lbl">PR</span><span class="val">#' + r.pr + '</span></div>' +
+      '<div class="ci-pr-row"><span class="lbl">Svc Conn</span><span class="val">neondeck-azure-svc-conn</span></div>' +
+      '<div class="ci-pr-row"><span class="lbl">Var Group</span><span class="val">neondeck-databricks-prod</span></div>';
+    pc.classList.add('vis');
+    app('<div class="ci-step-card"><h6>&#x1F4E5; Stage 1 &mdash; Pipeline Trigger</h6>' +
+      '<div class="ci-chk show"><i class="fas fa-check-circle pass"></i> PR #' + r.pr + ' merged &rarr; <b>' + r.branch + '</b> &rarr; main</div>' +
+      '<div class="ci-chk show"><i class="fas fa-check-circle pass"></i> Service connection <b>neondeck-azure-svc-conn</b> authenticated via Entra SP</div>' +
+      '<div class="ci-chk show"><i class="fas fa-check-circle pass"></i> Variable group <b>neondeck-databricks-prod</b> (Key Vault linked) &mdash; all secrets resolved</div>' +
+      '<div class="ci-chk show"><i class="fas fa-check-circle pass"></i> Agent pool: <b>ubuntu-hosted-pool</b> &mdash; agent acquired</div></div>');
+    pip(0, 'done'); return wait(700);
+  }
+
+  function s2(r) {
+    pip(1, 'active'); log('&#x1F50D; Validate stage: notebook lint + DBFS connectivity check...');
+    app('<div class="ci-step-card" id="ciValCard"><h6>&#x1F50D; Stage 2 &mdash; Validate &amp; Lint</h6><div id="ciValChecks"></div></div>');
+    var tc = document.getElementById('ciValChecks');
+    var checks = [
+      'ruff check notebooks/ &rarr; <b>PASS</b> (0 errors, 0 warnings)',
+      'databricks fs ls dbfs:/neondeck &rarr; <b>connected</b> (workspace: ' + r.cluster + ')',
+      'Databricks CLI: cluster policy <b>' + r.policy + '</b> &rarr; found &amp; active',
+      'Key Vault <b>kv-neondeck-prod</b>: all ' + rn(6, 10) + ' pipeline secrets resolved'
+    ];
+    function reveal(i) {
+      if (i >= checks.length) return Promise.resolve();
+      return wait(550).then(function () {
+        log('\u2705 ' + checks[i].replace(/<[^>]+>/g, ''));
+        tc.insertAdjacentHTML('beforeend', '<div class="ci-chk show"><i class="fas fa-check-circle pass"></i> ' + checks[i] + '</div>');
+        return reveal(i + 1);
+      });
+    }
+    return reveal(0).then(function () { pip(1, 'done'); return wait(400); });
+  }
+
+  function s3(r) {
+    pip(2, 'active'); log('&#x1F3D7;&#xFE0F; Terraform plan &rarr; apply...');
+    app('<div class="ci-step-card" id="ciTfCard"><h6>&#x1F3D7;&#xFE0F; Stage 3 &mdash; Terraform Infrastructure</h6>' +
+      '<p id="ciTfStatus" style="text-align:center;font-size:.82rem;margin:0">' +
+      '<i class="fas fa-spinner fa-spin me-1" style="color:#0078d4"></i> terraform plan &rarr; ' + r.tfAdd + ' add, ' + r.tfChange + ' change, 0 destroy</p></div>');
+    return wait(2000).then(function () {
+      document.getElementById('ciTfStatus').innerHTML =
+        '<i class="fas fa-check-circle me-1" style="color:#10b981"></i> terraform apply complete &mdash; ' + r.tfAdd + ' resources added';
+      log('\u2705 Terraform apply &mdash; cluster policy <b>' + r.policy + '</b> updated');
+      app('<div class="ci-chk show" style="font-size:.75rem;margin:.2rem .85rem"><i class="fas fa-check-circle pass"></i> databricks_cluster_policy.<b>' + r.policy + '</b> &mdash; updated</div>' +
+        '<div class="ci-chk show" style="font-size:.75rem;margin:.2rem .85rem"><i class="fas fa-check-circle pass"></i> databricks_grants.gaming_catalog &mdash; applied</div>' +
+        '<div class="ci-chk show" style="font-size:.75rem;margin:.2rem .85rem"><i class="fas fa-check-circle pass"></i> State saved &rarr; ndtfstateprod/terraform.tfstate</div>');
+      pip(2, 'done'); return wait(500);
+    });
+  }
+
+  function s4(r) {
+    pip(3, 'active'); log('&#x1F525; Deploying ' + r.notebooks + ' notebooks to Databricks workspace: ' + r.cluster);
+    app('<div class="ci-step-card" id="ciDbCard"><h6>&#x1F525; Stage 4 &mdash; Databricks Deploy</h6>' +
+      '<p id="ciDbStatus" style="text-align:center;font-size:.82rem;margin:0">' +
+      '<i class="fas fa-spinner fa-spin me-1" style="color:#ff3621"></i> dbx deploy --cluster-id $(clusterIdProd) --environment=production&hellip;</p></div>');
+    return wait(2000).then(function () {
+      document.getElementById('ciDbStatus').innerHTML =
+        '<i class="fas fa-check-circle me-1" style="color:#10b981"></i> ' + r.notebooks + ' notebooks deployed &mdash; workspace: <b>' + r.cluster + '</b>';
+      var jobJson = '{\n  <span class="key">"job_id"</span>: <span class="num">8841</span>,\n  <span class="key">"pipeline"</span>: <span class="str">"' + r.pl + '"</span>,\n  <span class="key">"cluster_id"</span>: <span class="str">"' + r.cluster + '"</span>,\n  <span class="key">"spark_version"</span>: <span class="str">"14.3 LTS Photon"</span>,\n  <span class="key">"workers"</span>: <span class="num">' + r.workers + '</span>,\n  <span class="key">"policy"</span>: <span class="str">"' + r.policy + '"</span>,\n  <span class="key">"spot_instances"</span>: <span class="str">"SPOT_WITH_FALLBACK_AZURE"</span>,\n  <span class="key">"status"</span>: <span class="str">"RUNNING"</span>\n}';
+      app('<div class="ci-json">' + jobJson + '</div>');
+      pip(3, 'done'); log('\u2705 Databricks job 8841 reset &mdash; ' + r.notebooks + ' notebooks active on ' + r.cluster); return wait(500);
+    });
+  }
+
+  function s5(r) {
+    pip(4, 'active'); log('&#x1F464; Syncing Entra groups &rarr; Unity Catalog grants...');
+    app('<div class="ci-step-card" id="ciEntraCard"><h6>&#x1F464; Stage 5 &mdash; Azure Entra ID Sync</h6>' +
+      '<p id="ciEntraStatus" style="text-align:center;font-size:.82rem;margin:0">' +
+      '<i class="fas fa-spinner fa-spin me-1" style="color:#0078d4"></i> Sync-EntraGroupsToUnityCatalog.ps1 &mdash; scanning ' + r.entraGroups + ' groups&hellip;</p></div>');
+    return wait(1600).then(function () {
+      document.getElementById('ciEntraStatus').innerHTML =
+        '<i class="fas fa-check-circle me-1" style="color:#10b981"></i> ' + r.entraGroups + ' Entra groups synced &rarr; Unity Catalog grants | ' + r.scimSync + ' SCIM provisioning events processed';
+      app('<div class="ci-chk show" style="font-size:.75rem;margin:.2rem .85rem"><i class="fas fa-check-circle pass"></i> data-engineers &rarr; gaming.USE_CATALOG + CREATE_SCHEMA &mdash; synced</div>' +
+        '<div class="ci-chk show" style="font-size:.75rem;margin:.2rem .85rem"><i class="fas fa-check-circle pass"></i> analysts &rarr; gaming.SELECT &mdash; synced</div>' +
+        '<div class="ci-chk show" style="font-size:.75rem;margin:.2rem .85rem"><i class="fas fa-check-circle pass"></i> Conditional Access: MFA + Intune compliant device policy &mdash; active</div>' +
+        '<div class="ci-chk show" style="font-size:.75rem;margin:.2rem .85rem"><i class="fas fa-check-circle pass"></i> PIM: platform-admins activation window &mdash; 4h max, approval required &mdash; verified</div>');
+      pip(4, 'done'); log('\u2705 Entra sync complete &mdash; ' + r.scimSync + ' SCIM events, ' + r.entraGroups + ' groups reconciled'); return wait(400);
+    });
+  }
+
+  function s6(r, elapsed) {
+    pip(5, 'active'); log('&#x1F680; Production activation &mdash; DLT pipeline starting...');
+    app('<div class="ci-step-card" id="ciDeployCard"><h6>&#x1F680; Stage 6 &mdash; Production Activation</h6>' +
+      '<p id="ciDeployStatus" style="text-align:center;font-size:.82rem;margin:0">' +
+      '<i class="fas fa-spinner fa-spin me-1" style="color:#0078d4"></i> Triggering DLT pipeline run &mdash; est. cost: $' + r.costEstimate + '/hr&hellip;</p></div>');
+    return wait(2000).then(function () {
+      log('\u2705 DLT pipeline started &mdash; Photon-enabled cluster initializing');
+      document.getElementById('ciDeployStatus').innerHTML =
+        '<i class="fas fa-spinner fa-spin me-1" style="color:#ff3621"></i> Cluster initializing: ' + r.workers + ' workers | policy: ' + r.policy + '&hellip;';
+      return wait(1500);
+    }).then(function () {
+      document.getElementById('ciDeployCard').classList.add('ci-step-card--ok');
+      document.getElementById('ciDeployStatus').innerHTML =
+        '<i class="fas fa-check-double me-1" style="color:#10b981"></i> <b>' + r.pl + '</b> &mdash; ' + r.notebooks + ' notebooks LIVE &mdash; ' + r.workers + ' workers &mdash; $' + r.costEstimate + '/hr';
+      pip(5, 'done'); deploys.push(r); totalTime += elapsed;
+      dashWrap.style.display = 'block';
+      document.getElementById('ciKpiDeploys').textContent = deploys.length;
+      document.getElementById('ciKpiTests').textContent = r.notebooks;
+      document.getElementById('ciKpiCoverage').textContent = r.policy.replace('NeonDeck-', '');
+      document.getElementById('ciKpiTime').textContent = elapsed.toFixed(1) + 's';
+      document.getElementById('ciDashTable').insertAdjacentHTML('afterbegin',
+        '<tr style="animation:ciFadeUp .35s ease both"><td><b>' + r.pl + '</b></td><td>' + r.branch + '</td>' +
+        '<td>+' + r.tfAdd + '/~' + r.tfChange + '</td><td>' + r.notebooks + '</td><td>' + r.cluster + '</td>' +
+        '<td><span class="ci-ds deployed">\u2705 Deployed</span></td><td>' + elapsed.toFixed(1) + 's</td></tr>');
+      app('<div class="ci-step-card ci-step-card--ok"><h6>&#x1F3C1; Pipeline Complete</h6>' +
+        '<p style="text-align:center;font-size:.88rem;color:#10b981;font-weight:700;margin:0">' +
+        '<i class="fas fa-check-double me-1"></i> ' + r.pl + ' deployed in ' + elapsed.toFixed(1) + 's &mdash; ' + r.notebooks + ' notebooks live on ' + r.cluster + '</p></div>');
+      log('&#x1F3C1; Pipeline complete &mdash; NeonDeck DataPlatform updated');
+      return wait(600);
+    });
+  }
+
+  function runDemo() {
+    if (running) return;
+    running = true; btnRun.disabled = true;
+    btnRun.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Running&hellip;'; btnReset.style.display = 'none';
+    var r = gen(), start = performance.now();
+    s1(r).then(function () { return s2(r); }).then(function () { return s3(r); })
+      .then(function () { return s4(r); }).then(function () { return s5(r); })
+      .then(function () { return s6(r, (performance.now() - start) / 1000); })
+      .then(function () {
+        running = false; btnRun.disabled = false;
+        btnRun.innerHTML = '<i class="fas fa-play me-1"></i> Run Another Pipeline'; btnReset.style.display = '';
+        document.getElementById('ciDashboard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+  }
+
+  function resetDemo() {
+    deploys = []; totalTime = 0; stage.innerHTML = ''; dashWrap.style.display = 'none';
+    document.getElementById('ciDashTable').innerHTML = '';
+    var pc = document.getElementById('ciPrCard'); pc.innerHTML = ''; pc.classList.remove('vis');
+    document.getElementById('ciLogArea').innerHTML = '';
+    btnRun.innerHTML = '<i class="fas fa-play me-1"></i> Run Pipeline'; btnReset.style.display = 'none';
+    for (var i = 0; i < 6; i++) document.getElementById('ciPip' + i).classList.remove('active', 'done');
+  }
+
+  btnRun.addEventListener('click', runDemo);
+  btnReset.addEventListener('click', resetDemo);
+
+  // YAML tab switching
+  document.getElementById('ciYamlTabBar').addEventListener('click', function (e) {
+    var t = e.target.closest('.ci-yaml-tab'); if (!t) return;
+    var pane = t.dataset.pane;
+    document.querySelectorAll('.ci-yaml-tab').forEach(function (x) { x.classList.remove('active'); });
+    document.querySelectorAll('.ci-yaml-pane').forEach(function (x) { x.classList.remove('active'); });
+    t.classList.add('active');
+    document.getElementById(pane).classList.add('active');
+    var labels = {
+      'pane-pipeline': 'neondeck-databricks-deploy.yml \u00b7 Azure DevOps \u00b7 neondeck-gaming org',
+      'pane-terraform': 'databricks.tf \u00b7 Terraform \u00b7 rg-neondeck-platform',
+      'pane-vargroup': 'Variable Groups &amp; Service Connections \u00b7 kv-neondeck-prod'
+    };
+    document.getElementById('ciYamlFilename').textContent = labels[pane] || '';
+  });
+}());
+</script>
+{% endblock %}

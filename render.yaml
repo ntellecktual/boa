@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: thenumerix
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /login/
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "thenumerix.onrender.com,localhost,127.0.0.1"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DB_ENGINE
+        value: "django.db.backends.postgresql"
+      - key: DB_NAME
+        fromDatabase:
+          name: thenumerix-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: thenumerix-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: thenumerix-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: thenumerix-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: thenumerix-db
+          property: port
+      - key: USE_LLM
+        value: "False"
+      - key: CELERY_BROKER_URL
+        value: "memory://"
+      # Set these manually in the Render dashboard:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+databases:
+  - name: thenumerix-db
+    plan: free
+    databaseName: thenumerix
+    user: thenumerix

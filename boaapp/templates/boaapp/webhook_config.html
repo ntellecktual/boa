@@ -1,0 +1,81 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}GitHub Webhook Config{% endblock %}
+
+{% block content %}
+<style>
+.webhook-wrap{max-width:700px;margin:0 auto;padding:1rem}
+.webhook-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1rem;margin-bottom:1rem}
+.webhook-card h4{font-size:.85rem;font-weight:700;margin-bottom:.5rem}
+.webhook-url-box{background:#1e1e2e;color:#cdd6f4;padding:.6rem .8rem;border-radius:8px;font-size:.75rem;font-family:monospace;white-space:nowrap;overflow-x:auto;margin-bottom:.5rem}
+.webhook-list .wh-item{display:flex;align-items:center;justify-content:space-between;padding:.5rem .8rem;border:1px solid var(--border,#e2e8f0);border-radius:10px;margin-bottom:.4rem;font-size:.8rem}
+.wh-active{color:#22c55e}
+.wh-inactive{color:#ef4444}
+</style>
+
+<div class="webhook-wrap">
+  <div class="text-center mb-4">
+    <h2 style="font-size:1.3rem;font-weight:800"><i class="fab fa-github me-2"></i>GitHub Webhooks</h2>
+    <p style="font-size:.75rem;opacity:.5">Auto-process notebooks on push</p>
+  </div>
+
+  <div class="webhook-card">
+    <h4><i class="fas fa-link me-2"></i>Webhook URL</h4>
+    <p style="font-size:.75rem;opacity:.6;margin-bottom:.4rem">Add this URL to your GitHub repository &rarr; Settings &rarr; Webhooks:</p>
+    <div class="webhook-url-box" id="webhookUrl">{{ webhook_url }}</div>
+    <button class="btn btn-sm btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('webhookUrl').textContent)">
+      <i class="fas fa-copy me-1"></i>Copy URL
+    </button>
+  </div>
+
+  <div class="webhook-card">
+    <h4><i class="fas fa-plus me-2"></i>Add Configuration</h4>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-2">
+        <label class="form-label" style="font-size:.78rem;font-weight:600">Repository (owner/name)</label>
+        <input type="text" name="repo_full_name" class="form-control form-control-sm" placeholder="e.g. thenumerix/my-notebooks" required>
+      </div>
+      <div class="row mb-2">
+        <div class="col">
+          <label class="form-label" style="font-size:.78rem;font-weight:600">Branch</label>
+          <input type="text" name="branch" class="form-control form-control-sm" value="main">
+        </div>
+        <div class="col">
+          <label class="form-label" style="font-size:.78rem;font-weight:600">Notebook Path (optional)</label>
+          <input type="text" name="notebook_path" class="form-control form-control-sm" placeholder="notebooks/*.ipynb">
+        </div>
+      </div>
+      <div class="mb-2">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="auto_pipeline" value="1" id="autoPipeline" checked>
+          <label class="form-check-label" for="autoPipeline" style="font-size:.78rem">Auto-run full pipeline on push</label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-save me-1"></i>Save Config</button>
+    </form>
+  </div>
+
+  {% if configs %}
+  <div class="webhook-card">
+    <h4><i class="fas fa-list me-2"></i>Active Configurations</h4>
+    <div class="webhook-list">
+      {% for cfg in configs %}
+      <div class="wh-item">
+        <div>
+          <strong>{{ cfg.repo_full_name }}</strong>
+          <span style="font-size:.65rem;opacity:.5">({{ cfg.branch }})</span>
+          {% if cfg.notebook_path %}<span style="font-size:.65rem;opacity:.5"> &middot; {{ cfg.notebook_path }}</span>{% endif %}
+        </div>
+        <span class="{% if cfg.is_active %}wh-active{% else %}wh-inactive{% endif %}">
+          <i class="fas fa-circle" style="font-size:.5rem"></i>
+          {% if cfg.is_active %}Active{% else %}Inactive{% endif %}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

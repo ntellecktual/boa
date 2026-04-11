@@ -1,113 +1,129 @@
-{% extends 'boaapp/base_generic.html' %} {% load static %} {% load camel_filters
-%} {% load widget_tweaks %} {% get_media_prefix as MEDIA_URL %}
-<!DOCTYPE html>
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% load camel_filters %}
+{% load widget_tweaks %}
+{% get_media_prefix as MEDIA_URL %}
 
-{% block title %}{{ page_title }}{% endblock %}
-{% block body_class %}uploadit{% endblock %} {# Add 'uploadit' class to the main body #}
+{% block title %}Upload Notebook{% endblock %}
+{% block body_class %}uploadit{% endblock %}
 
-{# Remove the extra <body> tag below #}
 {% block content %}
-<div class="container upload-container custom-container text-center">
-  <h1 class="mb-4">📤 Upload Your Data Course</h1>
+<style>
+.upl-wrap{max-width:520px;margin:0 auto;padding:1.5rem 0 2rem}
+.upl-head{text-align:center;margin-bottom:1.2rem}
+.upl-head h1{font-size:1.5rem;font-weight:800}
+.upl-head p{font-size:.85rem;opacity:.7}
+.upl-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.upl-dropzone{border:2px dashed var(--border,#cbd5e1);border-radius:12px;padding:2rem 1rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:1rem}
+.upl-dropzone:hover,.upl-dropzone.dragover{border-color:var(--accent,#3b82f6);background:rgba(59,130,246,.04)}
+.upl-dropzone i{font-size:2rem;color:var(--accent,#3b82f6);margin-bottom:.5rem}
+.upl-dropzone p{margin:0;font-size:.85rem;opacity:.7}
+.upl-dropzone .file-name{font-weight:700;color:var(--accent,#3b82f6);margin-top:.3rem}
+.upl-dropzone input[type="file"]{display:none}
+.upl-btn{border-radius:10px;font-weight:600;font-size:.95rem;padding:.65rem 1.5rem}
+#progressIndicator .progress{height:6px;border-radius:4px}
+</style>
 
-  {% if user.is_authenticated %}
-  <p class="mb-4">
-    You, <strong>{{ user.username }}</strong>, are uploading your course
-    content.
-  </p>
-  {% endif %} {% if messages %}
-  <div class="alert alert-danger">
-    {% for message in messages %}
-    <p>{{ message }}</p>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <form
-    id="uploadForm"
-    method="post"
-    enctype="multipart/form-data"
-    action="{% url 'upload_document' %}"
-    class="form p-4 shadow rounded bg-light"
-    style="max-width: 500px; margin: auto"
-  >
-    {% csrf_token %}
-    <div class="mb-3">
-      <label for="{{ form.uploaded_file.id_for_label }}" class="form-label fw-bold">
-        Choose your Jupyter notebook file (.ipynb)
-      </label>
-      {{ form.uploaded_file|add_class:"form-control" }}
-        {% if form.uploaded_file.errors %}
-          <div class="invalid-feedback d-block"> {# Show errors below field #}
-              {% for error in form.uploaded_file.errors %}
-                  {{ error }}
-              {% endfor %}
-          </div>
-      {% endif %}
+<div class="upl-wrap">
+    <div class="upl-head">
+        <h1><i class="fas fa-cloud-upload-alt me-2"></i>Upload Notebook</h1>
+        {% if user.is_authenticated %}
+        <p>Uploading as <strong>{{ user.username }}</strong></p>
+        {% endif %}
     </div>
 
-    {# Upload Button #}
-    <button type="submit" class="btn btn-lg btn-success w-100 mt-3">
-      🚀 Upload File
-    </button>
-    {# Progress Indicator Placeholder #}
-    <div id="progressIndicator" class="mt-3" style="display: none;">
-      <div class="progress" role="progressbar" aria-label="Processing upload" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-          <div class="progress-bar progress-bar-striped progress-bar-animated bg-info">Processing...</div> {# Use bg-info or another color #}
-      </div>
-      <p id="progressText" class="mt-2 text-muted">Please wait while your notebook is processed...</p>
-      {# Detailed status would go here, updated via JS polling if backend supports it #}
-  </div>
-    {# Link to Dashboard #}
-    <a
-      href="{% url 'dashboard' %}"
-      class="btn btn-outline-secondary w-100 mt-3" {# Use w-100 for consistency #}
-    >
-      📊 Go to Dashboard
-    </a>
-  </form>
+    {% if messages %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {% for message in messages %}<p class="mb-0">{{ message }}</p>{% endfor %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <div class="upl-card">
+        <form id="uploadForm" method="post" enctype="multipart/form-data" action="{% url 'upload_document' %}">
+            {% csrf_token %}
+
+            <div class="upl-dropzone" id="dropZone">
+                <i class="fas fa-file-code"></i>
+                <p>Drag &amp; drop your <strong>.ipynb</strong> file here</p>
+                <p style="font-size:.75rem">or click to browse</p>
+                <div class="file-name" id="fileName"></div>
+                {{ form.uploaded_file }}
+            </div>
+
+            {% if form.uploaded_file.errors %}
+            <div class="text-danger small mb-2">
+                {% for error in form.uploaded_file.errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" id="uploadButton" class="btn btn-success w-100 upl-btn" disabled>
+                <i class="fas fa-rocket me-1"></i>Upload &amp; Process
+            </button>
+
+            <div id="progressIndicator" class="mt-3" style="display:none">
+                <div class="progress" role="progressbar">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info w-100"></div>
+                </div>
+                <p id="progressText" class="mt-2 text-muted text-center small">Processing notebook, please wait...</p>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+                <a href="{% url 'uploadit' %}" class="btn btn-outline-secondary flex-fill upl-btn">
+                    <i class="fas fa-arrow-left me-1"></i>Back
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary flex-fill upl-btn">
+                    <i class="fas fa-chart-bar me-1"></i>Dashboard
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("uploadForm");
-    const fileInput = document.querySelector('input[type="file"]'); // More specific selector
-    const uploadButton = document.getElementById("uploadButton");
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = dropZone.querySelector('input[type="file"]');
+    const fileNameEl = document.getElementById("fileName");
+    const uploadBtn = document.getElementById("uploadButton");
     const progressIndicator = document.getElementById("progressIndicator");
     const progressText = document.getElementById("progressText");
 
-    // Remove client-side filename check - rely on server-side validation
-    // const uploadedFiles = {{ existing_filenames|safe }};
+    function handleFile(file) {
+        if (!file) return;
+        if (!file.name.toLowerCase().endsWith('.ipynb')) {
+            fileNameEl.textContent = "Invalid file type — .ipynb only";
+            fileNameEl.style.color = "#ef4444";
+            uploadBtn.disabled = true;
+            return;
+        }
+        fileNameEl.textContent = file.name;
+        fileNameEl.style.color = "";
+        uploadBtn.disabled = false;
+    }
+
+    dropZone.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => handleFile(fileInput.files[0]));
+
+    dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("dragover"); });
+    dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+    dropZone.addEventListener("drop", e => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
 
     form.addEventListener("submit", function (e) {
-      // Basic check if a file is selected
-      if (!fileInput.files || fileInput.files.length === 0) {
-        e.preventDefault(); // Stop submission
-        alert("Please select a file to upload.");
-        return;
-      }
-      // Check file extension
-      const fileName = fileInput.files[0].name;
-      if (!fileName.toLowerCase().endsWith('.ipynb')) {
-          e.preventDefault(); // Stop submission
-          alert("Invalid file type. Please select a .ipynb file.");
-          return;
-      }
-
-      // Disable button and show progress indicator
-      uploadButton.disabled = true;
-      uploadButton.innerHTML = `
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Uploading...
-      `;
-      progressIndicator.style.display = "block";
-      progressText.textContent = "Processing notebook, please wait..."; // Initial message
-
-      // The form will now submit normally. The browser handles navigation.
-      // For real-time progress display, AJAX submission and a backend
-      // progress endpoint would be necessary.
-
-    }); // End form submit listener
-  }); // End DOMContentLoaded listener
+        if (!fileInput.files || !fileInput.files.length) { e.preventDefault(); return; }
+        if (!fileInput.files[0].name.toLowerCase().endsWith('.ipynb')) { e.preventDefault(); return; }
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Processing...';
+        progressIndicator.style.display = "block";
+    });
+});
 </script>
 {% endblock %}

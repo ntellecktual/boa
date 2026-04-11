@@ -1,0 +1,55 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}Quizzes - {{ document.uploaded_file.name }}{% endblock %}
+
+{% block content %}
+<style>
+.quiz-container{max-width:800px;margin:0 auto;padding:1rem}
+.quiz-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1.2rem;margin-bottom:1rem;transition:transform .15s,box-shadow .15s}
+.quiz-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.quiz-card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem}
+.quiz-meta{font-size:.7rem;opacity:.5;margin-bottom:.8rem}
+.quiz-badge{font-size:.6rem;padding:.2rem .5rem;border-radius:20px;font-weight:600}
+</style>
+
+<div class="quiz-container">
+  <div class="text-center mb-4">
+    <h2 style="font-size:1.4rem;font-weight:800"><i class="fas fa-brain me-2"></i>AI-Generated Quizzes</h2>
+    <p style="font-size:.85rem;opacity:.6">Test your understanding of: {{ document.uploaded_file.name|cut:"documents/" }}</p>
+  </div>
+
+  <div class="text-center mb-3">
+    <form method="post" action="{% url 'generate_quizzes' document.pk %}" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-magic me-1"></i>Generate New Quizzes
+      </button>
+    </form>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary ms-2">
+      <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+    </a>
+  </div>
+
+  {% if quizzes %}
+    {% for quiz in quizzes %}
+    <div class="quiz-card">
+      <h4>{{ quiz.title }}</h4>
+      <div class="quiz-meta">
+        <span class="quiz-badge bg-primary text-white">{{ quiz.questions.count }} questions</span>
+        <span class="quiz-badge bg-info text-white ms-1">{{ quiz.get_difficulty_display }}</span>
+        <span class="ms-2">{{ quiz.created_at|date:"M d, Y" }}</span>
+      </div>
+      <a href="{% url 'quiz_take' quiz.pk %}" class="btn btn-success btn-sm">
+        <i class="fas fa-play me-1"></i>Take Quiz
+      </a>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="quiz-card text-center" style="padding:2rem">
+      <i class="fas fa-clipboard-question d-block" style="font-size:2rem;opacity:.25;margin-bottom:.5rem"></i>
+      <p style="font-size:.85rem;opacity:.6;margin:0">No quizzes yet. Click "Generate New Quizzes" to create AI-powered assessments!</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

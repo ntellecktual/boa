@@ -1,69 +1,134 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}{% load widget_tweaks %}
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}thenumerix | Register{% endblock %}</title>
+{% block title %}thenumerix | Register{% endblock %}
 
-   </head>
-   <body>
-    {% block content %}
-    <div class="container login-custom-container custom-margin-bottom">
-      <h1 class="display-4 mb-4 d-flex flex-column align-items-center justify-content-center">
-        <span>Register Now:</span>
-      </h1>
-      <span>Join thenumerix community.</span>
+{% block extra_head %}
+<style>
+/* ══════════════════════════════════════════════════════
+   REGISTER PAGE — Glassmorphic Design (matches login)
+   ══════════════════════════════════════════════════════ */
+:root{
+  --rg-blue:#3b82f6;
+  --rg-violet:#8b5cf6;
+  --rg-emerald:#10b981;
+  --rg-surface:rgba(255,255,255,.8);
+  --rg-border:rgba(0,0,0,.08);
+  --rg-shadow:0 4px 24px rgba(0,0,0,.07);
+  --rg-shadow-lg:0 12px 48px rgba(0,0,0,.14);
+}
+[data-theme="dark"]{
+  --rg-surface:rgba(18,24,40,.85);
+  --rg-border:rgba(255,255,255,.09);
+  --rg-shadow:0 4px 24px rgba(0,0,0,.45);
+  --rg-shadow-lg:0 12px 48px rgba(0,0,0,.6);
+}
+@keyframes rgFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.rg-wrap{
+  min-height:calc(100vh - 64px);display:flex;align-items:center;
+  justify-content:center;padding:2rem 1rem;position:relative;
+}
+.rg-wrap::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 65% 55% at 70% 25%,rgba(16,185,129,.08) 0%,transparent 65%),
+             radial-gradient(ellipse 50% 45% at 25% 75%,rgba(139,92,246,.06) 0%,transparent 60%);
+}
+.rg-card{
+  width:100%;max-width:440px;border-radius:22px;
+  border:1px solid var(--rg-border);background:var(--rg-surface);
+  backdrop-filter:blur(16px);box-shadow:var(--rg-shadow-lg);
+  padding:2.2rem 2rem;position:relative;overflow:hidden;
+  animation:rgFadeUp .45s ease both;
+}
+.rg-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--rg-emerald),var(--rg-blue));
+}
+.rg-logo{text-align:center;margin-bottom:1.2rem}
+.rg-logo img{height:56px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.12))}
+.rg-title{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:.2rem}
+.rg-sub{font-size:.78rem;opacity:.55;text-align:center;margin-bottom:1.5rem}
+
+.rg-card .form-group{margin-bottom:1rem}
+.rg-card .form-group label{font-size:.78rem;font-weight:600;opacity:.7;margin-bottom:.28rem;display:block}
+.rg-card .form-control{
+  border-radius:10px;border:1px solid var(--rg-border);
+  background:rgba(255,255,255,.6);font-size:.88rem;padding:.55rem .85rem;
+  transition:border-color .2s,box-shadow .2s;width:100%;
+}
+[data-theme="dark"] .rg-card .form-control{background:rgba(255,255,255,.07);color:inherit}
+.rg-card .form-control:focus{
+  border-color:rgba(16,185,129,.5);
+  box-shadow:0 0 0 3px rgba(16,185,129,.12);outline:none;
+}
+.rg-card .form-text{font-size:.66rem;opacity:.5;margin-top:.25rem;line-height:1.4}
+.rg-card .invalid-feedback{font-size:.72rem;color:#ef4444;margin-top:.2rem}
+
+.rg-alert{
+  border-radius:10px;padding:.65rem .9rem;margin-bottom:1rem;font-size:.8rem;
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#dc2626;
+}
+[data-theme="dark"] .rg-alert{background:rgba(239,68,68,.12);color:#fca5a5}
+
+.rg-card .rg-btn{
+  border-radius:10px;font-weight:700;padding:.62rem;font-size:.9rem;
+  background:linear-gradient(135deg,var(--rg-emerald),#059669);
+  border:none;box-shadow:0 4px 14px rgba(16,185,129,.32);color:#fff;
+  transition:opacity .2s,transform .2s;width:100%;cursor:pointer;
+}
+.rg-card .rg-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+.rg-footer{font-size:.76rem;text-align:center;opacity:.58;margin-top:1rem}
+.rg-footer a{opacity:1;font-weight:600}
+
+.rg-divider{display:flex;align-items:center;gap:.7rem;margin:1.2rem 0;opacity:.35}
+.rg-divider::before,.rg-divider::after{content:'';flex:1;height:1px;background:currentColor}
+.rg-divider span{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rg-wrap">
+  <div class="rg-card">
+    <div class="rg-logo">
+      <img src="{% static 'logo.png' %}" alt="thenumerix Logo" />
     </div>
+    <h1 class="rg-title">Create Account</h1>
+    <p class="rg-sub">Join the thenumerix community</p>
 
-    <div class="container login-list custom-margin-bottom">
-      <form class="form" method="POST" style="max-width: 500px; width: 100%;"> {% comment %} Added max-width and width for consistency {% endcomment %}
-        {% csrf_token %}
+    <form method="POST">
+      {% csrf_token %}
 
-        {% comment %} Display Non-Field Errors (e.g., password mismatch) {% endcomment %}
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger" role="alert">
-            {% for error in form.non_field_errors %}
-              <p class="mb-0">{{ error }}</p>
-            {% endfor %}
-          </div>
+      {% if form.non_field_errors %}
+      <div class="rg-alert" role="alert">
+        {% for error in form.non_field_errors %}<p class="mb-0">{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
+
+      {% for field in form %}
+      <div class="form-group">
+        {{ field.label_tag }}
+        {{ field }}
+        {% if field.help_text %}
+        <small class="form-text">{{ field.help_text }}</small>
         {% endif %}
-        {% for field in form %}
-          <div class="form-group mb-3">
-            {{ field.label_tag }} {# Use standard label tag helper #}
-            {{ field }} {# Render field with default widget #}
-            {% if field.help_text %}
-              <small class="form-text text-muted">{{ field.help_text }}</small> {# Basic help text display #}
-            {% endif %}
-            {% for error in field.errors %}
-              <div class="invalid-feedback d-block"> {# Show field-specific errors #}
-                  {{ error }}
-              </div>
-            {% endfor %}
-          </div>
+        {% for error in field.errors %}
+        <div class="invalid-feedback d-block">{{ error }}</div>
         {% endfor %}
+      </div>
+      {% endfor %}
 
-        <button type="submit" class="btn login btn-block w-100">Register</button>
-      </form>
-    </div>
-    {% endblock %}
+      <div class="rg-divider"><span>ready?</span></div>
 
-    {% block extra_js %}
-    <script>
-      // Ensure Bootstrap JS is loaded before this script runs (usually in base_generic.html)
-      document.addEventListener('DOMContentLoaded', function () {
-        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-          // Optional: Add configuration options here if needed
-          return new bootstrap.Popover(popoverTriggerEl, {
-             // Example: place popover on top
-             // placement: 'top'
-          });
-        });
-      });
-    </script>
-    {% endblock %}
-  </body>
-</html>
+      <button type="submit" class="rg-btn">
+        <i class="fas fa-user-plus me-2"></i>Register
+      </button>
+    </form>
+
+    <p class="rg-footer">
+      Already have an account? <a href="{% url 'login' %}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

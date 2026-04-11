@@ -1,74 +1,97 @@
-{% extends "boaapp/base_generic.html" %} {% load static %} {% get_media_prefix
-as MEDIA_URL %} {% load camel_filters %}
-<!DOCTYPE html>
-    {% block content %}
-    <div class="container custom-container mt-4">
-      <div class="alert alert-success" role="alert">
-        <input type="hidden" id="file_name" value="{{ file_name }}" />
-        <h4 class="alert-heading">Done!</h4>
-        <span>You have uploaded:</span>
-        <h4 id="displayedFileName">{{ file_name|camelcase_file }}</h4>
-        <span>
-          Your {{ audio_names|length }} documents has been successfully uploaded and processed.
-        </span>
-        <br />
+{% extends "boaapp/base_generic.html" %}
+{% load static %}
+{% get_media_prefix as MEDIA_URL %}
+{% load camel_filters %}
 
-        {% if audio_names %}
-        <div class="list-group" id="audioList">
-          {% for file in audio_names %}
-          <div
-            class="d-flex justify-content-between align-items-center mb-2 audio-item {% if forloop.counter > 3 %}d-none extra-audio{% endif %}"
-          >
-            <div>🎧 {{ file|slice:"5:"|camelcase_filename }}</div>
-            <a
-              href="/media/audio/{{ file }}"
-              class="btn upload btn-primary"
-              download
-            >
-              ⬇️ Download
-            </a>
-            <a href="/generate_video/{{ file }}" class="btn upload btn-secondary">
-              🎞️ Generate Video
-            </a>
-          </div>
-          {% endfor %}
+{% block title %}Upload Success{% endblock %}
+
+{% block content %}
+<style>
+.us-wrap{max-width:640px;margin:0 auto;padding:1.5rem 0 2rem}
+.us-banner{background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(59,130,246,.08));border:1px solid rgba(34,197,94,.25);border-radius:14px;padding:1.5rem;text-align:center;margin-bottom:1.5rem}
+.us-banner i{font-size:2rem;color:#22c55e;margin-bottom:.4rem}
+.us-banner h2{font-size:1.3rem;font-weight:800;margin-bottom:.2rem}
+.us-banner .us-file{font-size:1rem;font-weight:600;color:var(--accent,#3b82f6)}
+.us-banner .us-count{font-size:.8rem;opacity:.65;margin-top:.3rem}
+.us-list{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.5rem}
+.us-audio{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:10px;padding:.7rem 1rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.us-audio-name{flex:1;font-size:.82rem;font-weight:600;min-width:120px}
+.us-audio .btn{font-size:.72rem;padding:.3rem .7rem;border-radius:8px;white-space:nowrap}
+.us-actions{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+.us-actions .btn{border-radius:10px;font-weight:600;font-size:.85rem;padding:.55rem 1.2rem}
+.us-toggle{text-align:center;margin-top:.5rem}
+.us-toggle button{background:none;border:none;color:var(--accent,#3b82f6);font-size:.8rem;cursor:pointer;text-decoration:underline}
+</style>
+
+<div class="us-wrap">
+    <input type="hidden" id="file_name" value="{{ file_name }}" />
+
+    <div class="us-banner">
+        <i class="fas fa-check-circle"></i>
+        <h2>Upload Complete</h2>
+        <div class="us-file" id="displayedFileName">{{ file_name|camelcase_file }}</div>
+        <div class="us-count">
+            <i class="fas fa-headphones me-1"></i>{{ audio_names|length }} audio section{{ audio_names|length|pluralize }} generated successfully
         </div>
-        {% endif %}
-      </div>
-      <div class="d-flex flex-column align-items-center gap-3">
-        <a
-          href="{% url 'upload_document' %}"
-          class="btn btn-lg upload btn-success w-100 mt-3"
-          >🚀 Upload More Files</a>
-        <a href="{% url 'generate_all_videos' %}" class="btn btn-info w-100 mt-2">
-          🎬 Generate All Videos
-        </a>
-        <a href="{% url 'dashboard' %}" class="btn upload"
-          >📊 Go to Dashboard</a>
-      </div>
+        <div style="margin-top:.5rem;font-size:.75rem;opacity:.6">
+            <i class="fas fa-info-circle me-1"></i>Head to the Dashboard to generate videos from your audio files
+        </div>
     </div>
-    <script>
-      function toggleAudioList() {
-        const extraAudios = document.querySelectorAll('.extra-audio');
-        const btn = document.getElementById('toggleButton');
-        const countText = document.getElementById('audioCount');
-        const currentCount = document.getElementById('current-count');
-        const showing = extraAudios.length && extraAudios[0].classList.contains('d-none');
-        const total = parseInt(document.getElementById('totalAudioFiles').value);
 
-        extraAudios.forEach(item => item.classList.toggle('d-none'));
-      
-        if (showing) {
-          btn.innerText = 'Show Less';
-          currentCount.innerText = total;
-          countText.innerHTML = `Showing <span id="current-count">${total}</span> of ${total} audio file${total !== 1 ? 's' : ''}`;
-        } else {
-          const limited = Math.min(3, total);
-          btn.innerText = 'Show All';
-          currentCount.innerText = limited;
-          countText.innerHTML = `Showing <span id="current-count">${limited}</span> of ${total} audio file${total !== 1 ? 's' : ''}`;
-        }
-      }
-    </script>
-    {% endblock %}
+    {% if audio_names %}
+    <input type="hidden" id="totalAudioFiles" value="{{ audio_names|length }}" />
+    <div class="us-list" id="audioList">
+        {% for file in audio_names %}
+        <div class="us-audio {% if forloop.counter > 5 %}d-none extra-audio{% endif %}">
+            <i class="fas fa-headphones" style="color:var(--accent,#3b82f6)"></i>
+            <span class="us-audio-name">{{ file|slice:"5:"|camelcase_filename }}</span>
+            <a href="/media/audio/{{ file }}" class="btn btn-outline-primary btn-sm" download>
+                <i class="fas fa-download me-1"></i>Download
+            </a>
+            <a href="/generate_video/{{ file }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-video me-1"></i>Video
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% if audio_names|length > 5 %}
+    <div class="us-toggle">
+        <span id="audioCount">Showing 5 of {{ audio_names|length }}</span>
+        <button id="toggleButton" onclick="toggleAudioList()">Show All</button>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <div class="us-actions">
+        <a href="{% url 'upload_document' %}" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i>Upload More
+        </a>
+        <a href="{% url 'generate_all_videos' %}" class="btn btn-info">
+            <i class="fas fa-film me-1"></i>Generate All Videos
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-chart-bar me-1"></i>Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+function toggleAudioList() {
+    const extras = document.querySelectorAll('.extra-audio');
+    const btn = document.getElementById('toggleButton');
+    const countEl = document.getElementById('audioCount');
+    const total = parseInt(document.getElementById('totalAudioFiles').value);
+    const showing = extras.length && extras[0].classList.contains('d-none');
+
+    extras.forEach(item => item.classList.toggle('d-none'));
+    if (showing) {
+        btn.textContent = 'Show Less';
+        countEl.textContent = `Showing ${total} of ${total}`;
+    } else {
+        countEl.textContent = `Showing 5 of ${total}`;
+        btn.textContent = 'Show All';
+    }
+}
+</script>
+{% endblock %}
 

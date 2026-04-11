@@ -162,3 +162,203 @@ class Enrollment(models.Model):
         if total_learn_sections == 0: 
             return True 
         return self.completed_learn_sections.count() >= total_learn_sections
+
+
+# ==========================================================================
+# Quiz / Assessment Models
+# ==========================================================================
+
+class Quiz(models.Model):
+    course_section = models.ForeignKey(CourseSection, on_delete=models.CASCADE, related_name='quizzes', null=True, blank=True)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='quizzes', null=True, blank=True)
+    title = models.CharField(max_length=255)
+    generated_by = models.CharField(max_length=50, default='ai', choices=[('ai', 'AI Generated'), ('manual', 'Manual')])
+    difficulty = models.CharField(max_length=20, default='intermediate', choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'quizzes'
+
+    def __str__(self):
+        return f"Quiz: {self.title}"
+
+
+class QuizQuestion(models.Model):
+    QUESTION_TYPES = [('mcq', 'Multiple Choice'), ('code', 'Code Challenge'), ('short', 'Short Answer')]
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    question_text = models.TextField()
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES, default='mcq')
+    options = models.JSONField(null=True, blank=True, help_text='List of options for MCQ')
+    correct_answer = models.TextField()
+    explanation = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Q{self.order}: {self.question_text[:60]}"
+
+
+class QuizAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_attempts')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
+    score = models.FloatField(default=0)
+    total_questions = models.PositiveIntegerField(default=0)
+    answers = models.JSONField(default=dict, help_text='Map of question_id -> user_answer')
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.quiz.title}: {self.score}/{self.total_questions}"
+
+
+# ==========================================================================
+# RAG Chatbot Models
+# ==========================================================================
+
+class ChatConversation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_conversations')
+    document = models.ForeignKey(Document, on_delete=models.SET_NULL, null=True, blank=True, related_name='conversations')
+    title = models.CharField(max_length=255, default='New Chat')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username}: {self.title}"
+
+
+class ChatMessage(models.Model):
+    ROLES = [('user', 'User'), ('assistant', 'Assistant'), ('system', 'System')]
+    conversation = models.ForeignKey(ChatConversation, on_delete=models.CASCADE, related_name='messages')
+    role = models.CharField(max_length=10, choices=ROLES)
+    content = models.TextField()
+    sources = models.JSONField(null=True, blank=True, help_text='RAG source references')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"[{self.role}] {self.content[:60]}"
+
+
+# ==========================================================================
+# Learning Analytics Models
+# ==========================================================================
+
+class LearningEvent(models.Model):
+    EVENT_TYPES = [
+        ('page_view', 'Page View'),
+        ('quiz_attempt', 'Quiz Attempt'),
+        ('video_watch', 'Video Watch'),
+        ('audio_listen', 'Audio Listen'),
+        ('code_run', 'Code Run'),
+        ('chat_message', 'Chat Message'),
+        ('section_complete', 'Section Complete'),
+        ('course_enroll', 'Course Enroll'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='learning_events')
+    event_type = models.CharField(max_length=30, choices=EVENT_TYPES)
+    metadata = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'event_type', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username}: {self.event_type} at {self.created_at}"
+
+
+# ==========================================================================
+# AI Thumbnail Model
+# ==========================================================================
+
+class CourseThumbnail(models.Model):
+    document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name='thumbnail')
+    image = models.ImageField(upload_to='thumbnails/')
+    prompt_used = models.TextField(blank=True)
+    generated_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Thumbnail for {self.document}"
+
+
+# ==========================================================================
+# Translation Model
+# ==========================================================================
+
+class TranslatedContent(models.Model):
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='translations')
+    language_code = models.CharField(max_length=10, help_text='e.g., es, fr, de, ja')
+    language_name = models.CharField(max_length=50)
+    translated_sections = models.JSONField(default=list, help_text='List of translated section dicts')
+    audio_files_generated = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('document', 'language_code')
+
+    def __str__(self):
+        return f"{self.document} - {self.language_name}"
+
+
+# ==========================================================================
+# GitHub Webhook Model
+# ==========================================================================
+
+class WebhookConfig(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='webhook_configs')
+    repo_full_name = models.CharField(max_length=255, help_text='e.g., owner/repo')
+    branch = models.CharField(max_length=100, default='main')
+    notebook_path = models.CharField(max_length=500, blank=True, help_text='Path to .ipynb in repo')
+    auto_pipeline = models.BooleanField(default=True, help_text='Auto-run full pipeline on push')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Webhook: {self.repo_full_name} ({self.branch})"
+
+
+# ==========================================================================
+# Pipeline Run Tracking
+# ==========================================================================
+
+class PipelineRun(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('audio', 'Generating Audio'),
+        ('video', 'Generating Videos'),
+        ('quiz', 'Generating Quizzes'),
+        ('thumbnail', 'Generating Thumbnail'),
+        ('complete', 'Complete'),
+        ('failed', 'Failed'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pipeline_runs')
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='pipeline_runs')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    progress_pct = models.PositiveIntegerField(default=0)
+    current_step = models.CharField(max_length=255, blank=True)
+    error_message = models.TextField(blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Pipeline: {self.document} - {self.status} ({self.progress_pct}%)"
+
+
+# ==========================================================================
+# Code Review Model
+# ==========================================================================
+
+class CodeReview(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='code_reviews')
+    code = models.TextField()
+    language = models.CharField(max_length=30, default='python')
+    review_result = models.JSONField(default=dict, help_text='AI review findings')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review by {self.user.username} at {self.created_at}"

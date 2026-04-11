@@ -1,0 +1,144 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}Code Playground{% endblock %}
+
+{% block content %}
+<style>
+.playground{max-width:1100px;margin:0 auto;padding:1rem}
+.playground-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:768px){.playground-grid{grid-template-columns:1fr}}
+.editor-pane,.output-pane{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;overflow:hidden}
+.pane-header{padding:.5rem .8rem;font-size:.75rem;font-weight:700;border-bottom:1px solid var(--border,#e2e8f0);display:flex;justify-content:space-between;align-items:center}
+.code-editor{width:100%;min-height:350px;font-family:'Courier New',monospace;font-size:.8rem;background:#1e1e2e;color:#cdd6f4;border:none;padding:.8rem;resize:vertical;outline:none}
+.output-area{width:100%;min-height:350px;font-family:'Courier New',monospace;font-size:.78rem;background:#0f0f23;color:#a6e3a1;padding:.8rem;white-space:pre-wrap;overflow-y:auto}
+.btn-run{background:#22c55e;color:#fff;border:none;padding:.3rem .8rem;border-radius:8px;font-size:.7rem;font-weight:600;cursor:pointer}
+.btn-review{background:#8b5cf6;color:#fff;border:none;padding:.3rem .8rem;border-radius:8px;font-size:.7rem;font-weight:600;cursor:pointer}
+.review-panel{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1rem;margin-top:1rem}
+.review-panel h4{font-size:.85rem;font-weight:700;margin-bottom:.5rem}
+.review-score{font-size:1.5rem;font-weight:800}
+.review-issue{font-size:.78rem;padding:.4rem .6rem;border-radius:8px;margin-bottom:.4rem}
+.review-issue.error{background:rgba(239,68,68,.08);border-left:3px solid #ef4444}
+.review-issue.warning{background:rgba(245,158,11,.08);border-left:3px solid #f59e0b}
+.review-issue.info{background:rgba(59,130,246,.08);border-left:3px solid #3b82f6}
+.loading-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;border-radius:14px;z-index:10}
+</style>
+
+<div class="playground">
+  <div class="text-center mb-3">
+    <h2 style="font-size:1.3rem;font-weight:800"><i class="fas fa-code me-2"></i>AI Code Playground</h2>
+    <p style="font-size:.75rem;opacity:.5">Write Python in your browser &middot; Powered by Pyodide (WebAssembly)</p>
+  </div>
+
+  <div class="playground-grid">
+    <div class="editor-pane">
+      <div class="pane-header">
+        <span><i class="fas fa-file-code me-1"></i>Editor</span>
+        <div>
+          <button class="btn-run" onclick="runCode()"><i class="fas fa-play me-1"></i>Run</button>
+          <button class="btn-review ms-1" onclick="reviewCode()"><i class="fas fa-robot me-1"></i>AI Review</button>
+        </div>
+      </div>
+      <textarea class="code-editor" id="codeEditor" spellcheck="false">import numpy as np
+
+# Write your Python code here
+data = np.array([1, 2, 3, 4, 5])
+print(f"Mean: {data.mean()}")
+print(f"Std: {data.std():.2f}")
+print(f"Sum: {data.sum()}")
+</textarea>
+    </div>
+    <div class="output-pane" style="position:relative">
+      <div class="pane-header">
+        <span><i class="fas fa-terminal me-1"></i>Output</span>
+        <span id="runStatus" style="font-size:.65rem;opacity:.5">Ready</span>
+      </div>
+      <div class="output-area" id="outputArea">Click "Run" to execute your code...</div>
+      <div class="loading-overlay" id="pyodideLoading" style="display:none">
+        <span><i class="fas fa-circle-notch fa-spin me-2"></i>Loading Python runtime...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="review-panel" id="reviewPanel" style="display:none">
+    <h4><i class="fas fa-robot me-2"></i>AI Code Review</h4>
+    <div id="reviewContent"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+<script>
+let pyodide = null;
+const csrfToken = "{{ csrf_token }}";
+
+async function initPyodide() {
+  if (pyodide) return pyodide;
+  document.getElementById('pyodideLoading').style.display = 'flex';
+  document.getElementById('runStatus').textContent = 'Loading Pyodide...';
+  pyodide = await loadPyodide();
+  await pyodide.loadPackage(['numpy', 'micropip']);
+  document.getElementById('pyodideLoading').style.display = 'none';
+  document.getElementById('runStatus').textContent = 'Ready';
+  return pyodide;
+}
+
+async function runCode() {
+  const code = document.getElementById('codeEditor').value;
+  const outputEl = document.getElementById('outputArea');
+  const statusEl = document.getElementById('runStatus');
+  try {
+    statusEl.textContent = 'Running...';
+    const py = await initPyodide();
+    py.runPython(`import sys; from io import StringIO; sys.stdout = StringIO(); sys.stderr = StringIO()`);
+    try {
+      py.runPython(code);
+    } catch(e) {
+      const stderr = py.runPython('sys.stderr.getvalue()');
+      outputEl.textContent = stderr || e.message;
+      statusEl.textContent = 'Error';
+      return;
+    }
+    const stdout = py.runPython('sys.stdout.getvalue()');
+    outputEl.textContent = stdout || '(no output)';
+    statusEl.textContent = 'Done';
+  } catch(e) {
+    outputEl.textContent = 'Error: ' + e.message;
+    statusEl.textContent = 'Error';
+  }
+}
+
+async function reviewCode() {
+  const code = document.getElementById('codeEditor').value;
+  const panel = document.getElementById('reviewPanel');
+  const content = document.getElementById('reviewContent');
+  panel.style.display = 'block';
+  content.innerHTML = '<p style="font-size:.8rem;opacity:.5"><i class="fas fa-circle-notch fa-spin me-1"></i>Analyzing your code...</p>';
+  try {
+    const resp = await fetch('/api/code-review/', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+      body: JSON.stringify({code, language: 'python'})
+    });
+    const data = await resp.json();
+    if (data.review) {
+      const r = data.review;
+      let html = `<div class="review-score" style="color:${r.score >= 8 ? '#22c55e' : r.score >= 5 ? '#f59e0b' : '#ef4444'}">${r.score}/10</div>`;
+      html += `<p style="font-size:.8rem;margin:.5rem 0">${r.summary || ''}</p>`;
+      if (r.issues && r.issues.length) {
+        r.issues.forEach(i => {
+          html += `<div class="review-issue ${i.severity || 'info'}"><strong>${i.severity || 'info'}:</strong> ${i.message || i}</div>`;
+        });
+      }
+      content.innerHTML = html;
+    } else {
+      content.innerHTML = '<p style="font-size:.8rem;color:#ef4444">Review unavailable. Check API key config.</p>';
+    }
+  } catch(e) {
+    content.innerHTML = '<p style="font-size:.8rem;color:#ef4444">Error: ' + e.message + '</p>';
+  }
+}
+
+// Pre-load Pyodide
+initPyodide();
+</script>
+{% endblock %}
