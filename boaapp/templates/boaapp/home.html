@@ -59,6 +59,12 @@
 .profile-card .p-title{font-size:.82rem;font-weight:700;margin:0;line-height:1.25}
 .profile-card .p-sub{font-size:.68rem;color:var(--dash-muted);margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+/* ── Skill Chips ── */
+.dash-skills{display:flex;flex-wrap:wrap;gap:.4rem;padding:.5rem 0 1.2rem;animation:dashFadeUp .4s ease both;animation-delay:.07s}
+.dash-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .65rem;border-radius:999px;font-size:.68rem;font-weight:600;border:1px solid var(--dash-border);background:var(--dash-surface);color:var(--dash-muted);white-space:nowrap;transition:border-color .2s,color .2s}
+.dash-chip:hover{border-color:rgba(59,130,246,.35);color:#3b82f6}
+.dash-chip i{font-size:.62rem;opacity:.7}
+
 .demo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
 @media(max-width:1024px){.demo-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:768px){.demo-grid{grid-template-columns:repeat(2,1fr)}}
@@ -107,7 +113,21 @@
     </div>
   </div>
 
-  <!-- ── PROFILE ── -->
+  <!-- ── SKILL CHIPS ── -->
+  <div class="dash-skills">
+    <span class="dash-chip"><i class="fab fa-microsoft"></i> Azure</span>
+    <span class="dash-chip"><i class="fab fa-python"></i> Python</span>
+    <span class="dash-chip"><i class="fas fa-fire"></i> Django</span>
+    <span class="dash-chip"><i class="fas fa-stream"></i> Kafka</span>
+    <span class="dash-chip"><i class="fas fa-database"></i> Databricks</span>
+    <span class="dash-chip"><i class="fas fa-brain"></i> MLOps</span>
+    <span class="dash-chip"><i class="fas fa-bolt"></i> Spark</span>
+    <span class="dash-chip"><i class="fas fa-server"></i> PostgreSQL</span>
+    <span class="dash-chip"><i class="fas fa-memory"></i> Redis</span>
+    <span class="dash-chip"><i class="fab fa-docker"></i> Docker</span>
+    <span class="dash-chip"><i class="fas fa-infinity"></i> DevOps</span>
+    <span class="dash-chip"><i class="fas fa-robot"></i> Gen AI</span>
+  </div>
   <div class="dash-section">
     <div class="dash-section-hd">
       <span class="dash-section-lbl"><i class="fas fa-user-circle"></i>&nbsp; Profile</span>
@@ -130,10 +150,11 @@
   <div class="dash-section">
     <div class="dash-section-hd">
       <span class="dash-section-lbl"><i class="fas fa-flask"></i>&nbsp; Live Demos &amp; Projects</span>
-      <span class="dash-section-count">8 projects</span>
+      <span class="dash-section-count">7 projects</span>
     </div>
     <div class="demo-grid">
       <a href="{% url 'process_flows' %}" class="demo-card">
+        <span class="demo-tech-tip">Claude AI · Oracle · Python</span>
         <div class="demo-thumb" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
           <i class="fas fa-arrows-spin demo-bg-icon"></i>
           <img src="{% static 'css/img/oracle.png' %}" alt="Oracle">
@@ -141,10 +162,12 @@
         <div class="demo-body"><p class="demo-title">AI Process Flows <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Finance &amp; Accounting automation with AI</p></div>
       </a>
       <a href="{% url 'uploadit' %}" class="demo-card">
+        <span class="demo-tech-tip">Django · Celery · Redis</span>
         <div class="demo-thumb" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-cloud-upload-alt demo-bg-icon"></i></div>
         <div class="demo-body"><p class="demo-title">UploadIt! <span class="dash-badge dash-badge--new">New</span></p><p class="demo-sub">Upload and manage course content</p></div>
       </a>
       <a href="{% url 'platform_engineering' %}" class="demo-card">
+        <span class="demo-tech-tip">Azure DevOps · Databricks · Entra ID</span>
         <div class="demo-thumb" style="background:linear-gradient(135deg,#0078d4,#004578)">
           <i class="fas fa-code-branch demo-bg-icon"></i>
           <img src="{% static 'css/img/nfl.png' %}" alt="NFL">
@@ -152,6 +175,7 @@
         <div class="demo-body"><p class="demo-title">Platform Engineering <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Azure DevOps, Databricks &amp; Entra ID pipelines</p></div>
       </a>
       <a href="{% url 'mlops_lifecycle' %}" class="demo-card">
+        <span class="demo-tech-tip">XGBoost · MLflow · Azure ML</span>
         <div class="demo-thumb" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
           <i class="fas fa-brain demo-bg-icon"></i>
           <img src="{% static 'css/img/mlb.png' %}" alt="MLB">
@@ -159,6 +183,7 @@
         <div class="demo-body"><p class="demo-title">MLOps Lifecycle <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Model training, registry &amp; deployment</p></div>
       </a>
       <a href="{% url 'streaming_architecture' %}" class="demo-card">
+        <span class="demo-tech-tip">Kafka · Flink · Redis</span>
         <div class="demo-thumb" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
           <i class="fas fa-bolt demo-bg-icon"></i>
           <img src="{% static 'css/img/netlfix.png' %}" alt="Netflix">
@@ -166,10 +191,12 @@
         <div class="demo-body"><p class="demo-title">Streaming Architecture <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Real-time event processing &amp; Kafka</p></div>
       </a>
       <a href="{% url 'api_orchestration' %}" class="demo-card">
+        <span class="demo-tech-tip">API Gateway · Saga · Circuit Breaker</span>
         <div class="demo-thumb" style="background:linear-gradient(135deg,#6366f1,#4338ca)"><i class="fas fa-project-diagram demo-bg-icon"></i></div>
         <div class="demo-body"><p class="demo-title">API Orchestration <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Gateway, sagas &amp; circuit breakers</p></div>
       </a>
       <a href="{% url 'idp_demo' %}" class="demo-card">
+        <span class="demo-tech-tip">OCR · Claude AI · ERP Export</span>
         <div class="demo-thumb" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><i class="fas fa-file-alt demo-bg-icon"></i></div>
         <div class="demo-body"><p class="demo-title">Document Processing <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">AI-powered OCR, extraction &amp; validation</p></div>
       </a>

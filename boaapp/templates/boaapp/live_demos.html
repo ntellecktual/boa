@@ -116,6 +116,23 @@
 
 /* ── Footer ── */
 .dsc-footer{text-align:center;padding:1.5rem 2rem 3rem;opacity:.4;font-size:.72rem}
+
+/* ── Preview Drawer ── */
+#dscDrawer{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--dsc-surface);
+  border-top:1px solid var(--dsc-border);box-shadow:0 -8px 32px rgba(0,0,0,.2);
+  transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);
+  border-radius:20px 20px 0 0;overflow:hidden;display:flex;flex-direction:column;max-height:55vh}
+#dscDrawer.open{transform:translateY(0)}
+.dsc-drawer-handle{width:40px;height:4px;border-radius:2px;background:var(--dsc-border);margin:.75rem auto .2rem;cursor:pointer;flex-shrink:0}
+.dsc-drawer-inner{padding:.75rem 1.5rem 2.5rem;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:.7rem}
+.dsc-drawer-banner{height:76px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;color:rgba(255,255,255,.85);flex-shrink:0}
+.dsc-drawer-title{font-size:1.1rem;font-weight:800;margin:0;line-height:1.3}
+.dsc-drawer-desc{font-size:.82rem;color:var(--dsc-muted);margin:0;line-height:1.65}
+.dsc-drawer-actions{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.1rem;flex-shrink:0}
+.dsc-drawer-open{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.2rem;border-radius:10px;background:#3b82f6;color:#fff;font-size:.82rem;font-weight:700;text-decoration:none;transition:background .2s}
+.dsc-drawer-open:hover{background:#2563eb;color:#fff;text-decoration:none}
+.dsc-drawer-close{padding:.45rem .85rem;border-radius:10px;border:1px solid var(--dsc-border);background:transparent;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--dsc-muted);transition:background .2s}
+.dsc-drawer-close:hover{background:rgba(0,0,0,.06)}
 </style>
 
 <div class="dsc-wrap">
@@ -280,6 +297,22 @@
 
   </div><!-- /dsc-grid -->
 
+  <!-- ── Preview Drawer ── -->
+  <div id="dscDrawer" role="dialog" aria-modal="true" aria-label="Demo preview">
+    <div class="dsc-drawer-handle" id="dscDrawerHandle"></div>
+    <div class="dsc-drawer-inner">
+      <div class="dsc-drawer-banner" id="dscDrawerBanner"></div>
+      <p class="dsc-drawer-title" id="dscDrawerTitle"></p>
+      <p class="dsc-drawer-desc" id="dscDrawerDesc"></p>
+      <div class="dsc-drawer-actions">
+        <a href="#" id="dscDrawerBtn" class="dsc-drawer-open">
+          <i class="fas fa-arrow-up-right-from-square"></i> Open Demo
+        </a>
+        <button class="dsc-drawer-close" id="dscDrawerClose">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
   <div class="dsc-footer">
     <p>thenumerix — production systems, not proof of concepts.</p>
   </div>
@@ -385,6 +418,63 @@
     });
     if(q){cats.forEach(function(c){c.classList.remove('active')});cats[0].classList.add('active')}
   });
+
+  /* ── Preview drawer ── */
+  (function(){
+    var drawer=document.getElementById('dscDrawer');
+    var dTitle=document.getElementById('dscDrawerTitle');
+    var dDesc=document.getElementById('dscDrawerDesc');
+    var dBanner=document.getElementById('dscDrawerBanner');
+    var dBtn=document.getElementById('dscDrawerBtn');
+    var dHandle=document.getElementById('dscDrawerHandle');
+    var dClose=document.getElementById('dscDrawerClose');
+
+    function openDrawer(card){
+      var href=card.getAttribute('href');
+      var titleEl=card.querySelector('.dsc-card-title');
+      var descEl=card.querySelector('.dsc-card-desc');
+      var bannerEl=card.querySelector('.dsc-card-banner');
+      var iconEl=bannerEl?bannerEl.querySelector('i.dsc-bg-icon'):null;
+
+      /* Title — strip inline badge text */
+      dTitle.textContent=titleEl?(titleEl.cloneNode(true).querySelector('span,i')
+        ?titleEl.textContent.replace(/\s*(Live|New)\s*/g,' ').trim()
+        :titleEl.textContent.trim()):'';
+      dDesc.textContent=descEl?descEl.textContent.trim():'';
+      dBtn.setAttribute('href',href||'#');
+
+      dBanner.innerHTML=iconEl?'<i class="'+iconEl.className+'" style="position:relative;z-index:1"></i>':'';
+      dBanner.style.background=bannerEl?bannerEl.style.background:'';
+
+      drawer.classList.add('open');
+      dClose.focus();
+    }
+
+    function closeDrawer(){ drawer.classList.remove('open'); }
+
+    /* Intercept card clicks — show drawer instead of navigating */
+    document.querySelectorAll('.dsc-card').forEach(function(card){
+      card.addEventListener('click',function(e){
+        e.preventDefault();
+        openDrawer(this);
+      });
+    });
+
+    dClose.addEventListener('click',closeDrawer);
+    dHandle.addEventListener('click',closeDrawer);
+
+    /* Close on outside click */
+    document.addEventListener('click',function(e){
+      if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!e.target.closest('.dsc-card')){
+        closeDrawer();
+      }
+    });
+
+    /* Close on Escape */
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape') closeDrawer();
+    });
+  }());
 }());
 </script>
 {% endblock %}

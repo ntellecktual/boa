@@ -120,6 +120,13 @@
 .pt-industry-label{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--c-blue);margin-bottom:.5rem}
 .pt-industry-list{font-size:.88rem;line-height:1.85;padding-left:1.4rem;margin:0 0 .75rem;color:#374151}
 [data-theme="dark"] .pt-industry-list{color:#d1d5db}
+
+/* ── Domain filter pills ── */
+.pt-filter-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.pt-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .85rem;border-radius:999px;font-size:.72rem;font-weight:700;border:1.5px solid var(--c-border);background:var(--c-card);color:var(--c-muted);cursor:pointer;transition:all .2s;user-select:none}
+.pt-pill:hover{border-color:rgba(59,130,246,.3);color:#3b82f6}
+.pt-pill.active{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.35);color:#3b82f6}
+.pt-tab-card.pt-hidden{display:none}
 </style>
 
 <!-- ════════════════════════════════════════════════════════
@@ -141,28 +148,38 @@
      COMPANY TAB CARDS
 ════════════════════════════════════════════════════════ -->
 <div class="pt-tabs">
+  <!-- Domain filter pills -->
+  <div class="pt-filter-pills">
+    <span class="pt-pill active" data-filter="all">All</span>
+    <span class="pt-pill" data-filter="cloud"><i class="fas fa-cloud me-1"></i>Cloud</span>
+    <span class="pt-pill" data-filter="data"><i class="fas fa-database me-1"></i>Data</span>
+    <span class="pt-pill" data-filter="aviation"><i class="fas fa-plane me-1"></i>Aviation</span>
+    <span class="pt-pill" data-filter="finance"><i class="fas fa-chart-line me-1"></i>Finance</span>
+    <span class="pt-pill" data-filter="legal"><i class="fas fa-gavel me-1"></i>Legal</span>
+    <span class="pt-pill" data-filter="devops"><i class="fas fa-infinity me-1"></i>DevOps</span>
+  </div>
   <div class="pt-tab-grid">
-    <div class="pt-tab-card active" data-company="witherite">
+    <div class="pt-tab-card active" data-company="witherite" data-domain="cloud legal">
       <img src="{% static 'css/img/witherite_logo.png' %}" alt="Witheritelaw" class="pt-tab-logo">
       <div class="pt-tab-name">Witherite Law Group</div>
       <div class="pt-tab-role">Enterprise Architect</div>
     </div>
-    <div class="pt-tab-card" data-company="aa">
+    <div class="pt-tab-card" data-company="aa" data-domain="cloud data aviation">
       <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines" class="pt-tab-logo">
       <div class="pt-tab-name">American Airlines</div>
       <div class="pt-tab-role">Engineer / PM</div>
     </div>
-    <div class="pt-tab-card" data-company="citi">
+    <div class="pt-tab-card" data-company="citi" data-domain="cloud data finance devops">
       <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank" class="pt-tab-logo">
       <div class="pt-tab-name">Citibank</div>
       <div class="pt-tab-role">DevOps / Data</div>
     </div>
-    <div class="pt-tab-card" data-company="barvin">
+    <div class="pt-tab-card" data-company="barvin" data-domain="data">
       <img src="{% static 'css/img/barvin_logo.png' %}" alt="Barvin" class="pt-tab-logo">
       <div class="pt-tab-name">Barvin</div>
       <div class="pt-tab-role">Property Manager</div>
     </div>
-    <div class="pt-tab-card" data-company="codeninjas">
+    <div class="pt-tab-card" data-company="codeninjas" data-domain="cloud devops">
       <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas" class="pt-tab-logo">
       <div class="pt-tab-name">Code Ninjas</div>
       <div class="pt-tab-role">DevOps Director</div>
@@ -867,6 +884,31 @@
 {{ block.super }}
 <script>
 (function () {
+  /* Domain filter pills */
+  var pills = document.querySelectorAll('.pt-pill');
+  var tabCards = document.querySelectorAll('.pt-tab-card');
+  pills.forEach(function(pill){
+    pill.addEventListener('click', function(){
+      pills.forEach(function(p){ p.classList.remove('active'); });
+      this.classList.add('active');
+      var f = this.dataset.filter;
+      tabCards.forEach(function(card){
+        var domains = card.dataset.domain || '';
+        if(f === 'all' || domains.indexOf(f) > -1){
+          card.classList.remove('pt-hidden');
+        } else {
+          card.classList.add('pt-hidden');
+          /* if this hidden card was active, reset selection */
+          if(card.classList.contains('active')){
+            card.classList.remove('active');
+            var first = document.querySelector('.pt-tab-card:not(.pt-hidden)');
+            if(first){ first.click(); }
+          }
+        }
+      });
+    });
+  });
+
   var tabs = document.querySelectorAll('.pt-tab-card');
   var panels = document.querySelectorAll('.pt-detail-content');
 

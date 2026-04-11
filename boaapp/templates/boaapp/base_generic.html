@@ -21,6 +21,8 @@
       ::view-transition-new(root){animation:vtFadeIn .2s ease-out both}
       @keyframes vtFadeOut{to{opacity:0}}
       @keyframes vtFadeIn{from{opacity:0}to{opacity:1}}
+      /* Active sidebar link */
+      .sidebar-link.sidebar-active{background:rgba(59,130,246,.12)!important;color:var(--color-accent,#3b82f6)!important;border-left:3px solid var(--color-accent,#3b82f6);padding-left:calc(var(--sidebar-link-px,1rem) - 3px)}
     </style>
     {% block extra_head %}{% endblock %}
 
@@ -181,7 +183,12 @@
       #ptChatBtn{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
         background:linear-gradient(135deg,#5865f2,#3b82f6);color:#fff;font-size:1.2rem;
         box-shadow:0 4px 18px rgba(88,101,242,.45);transition:transform .2s,box-shadow .2s;
-        display:flex;align-items:center;justify-content:center}
+        display:flex;align-items:center;justify-content:center;position:relative}
+      .ptc-toast-badge{position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;
+        background:#ef4444;color:#fff;font-size:.6rem;font-weight:800;
+        display:flex;align-items:center;justify-content:center;border:2px solid #fff;
+        animation:ptcPulse 1.4s ease-in-out infinite}
+      @keyframes ptcPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
       #ptChatBtn:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(88,101,242,.55)}
       #ptChatPanel{display:none;position:absolute;bottom:64px;right:0;width:320px;
         border-radius:16px;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.18);
@@ -253,7 +260,14 @@
       var ENDPOINT='/api/portfolio-chat/';
       var busy=false;
 
-      function toggle(){panel.classList.toggle('open');if(panel.classList.contains('open'))input.focus();}
+      function toggle(){
+        panel.classList.toggle('open');
+        if(panel.classList.contains('open')){
+          input.focus();
+          /* clear toast badge */
+          var b=btn.querySelector('.ptc-toast-badge');if(b)b.remove();
+        }
+      }
       btn.addEventListener('click',toggle);
       closeBtn.addEventListener('click',toggle);
 
@@ -292,7 +306,17 @@
           body:JSON.stringify({message:text})
         })
         .then(function(r){return r.json();})
-        .then(function(d){removeTyping();addMsg(d.reply||'Sorry, something went wrong.','bot');busy=false;})
+        .then(function(d){
+          removeTyping();
+          addMsg(d.reply||'Sorry, something went wrong.','bot');
+          busy=false;
+          /* show toast if panel is closed */
+          if(!panel.classList.contains('open')&&!btn.querySelector('.ptc-toast-badge')){
+            var badge=document.createElement('div');
+            badge.className='ptc-toast-badge';badge.textContent='1';
+            btn.appendChild(badge);
+          }
+        })
         .catch(function(){removeTyping();addMsg('Connection error — please try again.','bot');busy=false;});
       }
 
@@ -309,6 +333,15 @@
     ></script>
     <!-- Custom JS -->
     <script src="{% static 'js/index.js' %}?v={{ timestamp }}"></script>
+    <script>
+    /* ── Active sidebar link ── */
+    (function(){
+      var path=window.location.pathname;
+      document.querySelectorAll('.sidebar-link[href]').forEach(function(a){
+        if(a.getAttribute('href')===path)a.classList.add('sidebar-active');
+      });
+    }());
+    </script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>
