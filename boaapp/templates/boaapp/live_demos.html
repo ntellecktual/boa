@@ -81,13 +81,14 @@
 .dsc-card{border-radius:var(--dsc-radius);overflow:hidden;background:var(--dsc-surface);
   border:1px solid var(--dsc-border);box-shadow:var(--dsc-shadow);
   text-decoration:none;color:var(--dsc-text);display:flex;flex-direction:column;
-  transition:transform .22s,box-shadow .22s}
+  transition:transform .22s,box-shadow .22s;min-height:280px}
 .dsc-card:hover{transform:translateY(-4px);box-shadow:var(--dsc-shadow-lg);color:var(--dsc-text);text-decoration:none}
 
 /* Banner */
-.dsc-card-banner{height:120px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.dsc-card-banner{height:110px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .dsc-card-banner .dsc-bg-icon{font-size:2.8rem;color:rgba(255,255,255,.2);z-index:1}
-.dsc-card-banner .dsc-partner-logo{position:absolute;bottom:8px;right:10px;height:28px;opacity:.85;
+.dsc-card-banner .dsc-partner-logo{position:absolute;bottom:8px;right:10px;height:26px;width:auto;
+  max-width:80px;object-fit:contain;opacity:.85;
   filter:drop-shadow(0 1px 4px rgba(0,0,0,.3));z-index:1}
 
 /* Avatar overlay */
@@ -96,10 +97,10 @@
   border:4px solid var(--dsc-surface);box-shadow:0 2px 8px rgba(0,0,0,.12)}
 
 /* Body */
-.dsc-card-body{padding:.8rem 1rem 1rem;flex:1;display:flex;flex-direction:column}
-.dsc-card-title{font-size:.88rem;font-weight:700;margin:0 0 .2rem;display:flex;align-items:center;gap:.4rem}
+.dsc-card-body{padding:.8rem 1rem 1rem;flex:1;display:flex;flex-direction:column;min-height:110px}
+.dsc-card-title{font-size:.88rem;font-weight:700;margin:0 0 .2rem;display:flex;align-items:center;gap:.4rem;flex-shrink:0}
 .dsc-card-desc{font-size:.75rem;color:var(--dsc-muted);margin:0 0 .8rem;flex:1;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.4em}
 
 /* Stats row */
 .dsc-card-stats{display:flex;align-items:center;gap:1rem;font-size:.68rem;color:var(--dsc-muted)}
@@ -165,8 +166,8 @@
       </div>
     </a>
 
-    <!-- 2 ── ETL Pipeline ── -->
-    <a href="{% url 'etl_pipeline' %}" class="dsc-card" data-tags="data devops">
+    <!-- 2 ── Platform Engineering ── -->
+    <a href="{% url 'platform_engineering' %}" class="dsc-card" data-tags="data devops">
       <div class="dsc-card-banner" style="background:linear-gradient(135deg,#0078d4,#004578)">
         <i class="fas fa-code-branch dsc-bg-icon"></i>
         <img src="{% static 'css/img/nfl.png' %}" alt="NFL" class="dsc-partner-logo" loading="lazy">
@@ -175,8 +176,8 @@
         <i class="fas fa-code-branch"></i>
       </div>
       <div class="dsc-card-body">
-        <p class="dsc-card-title">CI/CD Platform Engineering <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
-        <p class="dsc-card-desc">Three isolated pipelines for NeonDeck Entertainment — Azure DevOps, Databricks, and Entra ID RBAC governance.</p>
+        <p class="dsc-card-title">Platform Engineering <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
+        <p class="dsc-card-desc">Three isolated pipelines — Azure DevOps CI/CD, Databricks workspace governance, and Entra ID RBAC for NeonDeck Entertainment.</p>
         <div class="dsc-card-stats">
           <span><span class="dsc-dot dsc-dot--green"></span>3 Pipelines</span>
           <span><span class="dsc-dot dsc-dot--gray"></span>DevOps &amp; Data</span>
@@ -203,25 +204,7 @@
       </div>
     </a>
 
-    <!-- 4 ── CI/CD Automation ── -->
-    <a href="{% url 'cicd_automation' %}" class="dsc-card" data-tags="devops data">
-      <div class="dsc-card-banner" style="background:linear-gradient(135deg,#475569,#1e293b)">
-        <i class="fas fa-infinity dsc-bg-icon"></i>
-      </div>
-      <div class="dsc-card-avatar" style="background:linear-gradient(135deg,#475569,#0f172a)">
-        <i class="fas fa-infinity"></i>
-      </div>
-      <div class="dsc-card-body">
-        <p class="dsc-card-title">CI/CD Automation <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
-        <p class="dsc-card-desc">Azure DevOps YAML pipelines, Databricks workspace governance, Terraform IaC, and Entra ID RBAC workflows.</p>
-        <div class="dsc-card-stats">
-          <span><span class="dsc-dot dsc-dot--green"></span>Multi-Tab</span>
-          <span><span class="dsc-dot dsc-dot--gray"></span>DevOps</span>
-        </div>
-      </div>
-    </a>
-
-    <!-- 5 ── Streaming Architecture ── -->
+    <!-- 4 ── Streaming Architecture ── -->
     <a href="{% url 'streaming_architecture' %}" class="dsc-card" data-tags="data">
       <div class="dsc-card-banner" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
         <i class="fas fa-bolt dsc-bg-icon"></i>

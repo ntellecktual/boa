@@ -444,14 +444,11 @@ def data_project(request):
 def live_demos(request):
     return render(request, 'boaapp/live_demos.html')
 
-def etl_pipeline(request):
-    return render(request, 'boaapp/etl_pipeline.html')
+def platform_engineering(request):
+    return render(request, 'boaapp/platform_engineering.html')
 
 def mlops_lifecycle(request):
     return render(request, 'boaapp/mlops_lifecycle.html')
-
-def cicd_automation(request):
-    return render(request, 'boaapp/cicd_automation.html')
 
 def streaming_architecture(request):
     return render(request, 'boaapp/streaming_architecture.html')

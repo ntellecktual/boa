@@ -84,9 +84,8 @@ urlpatterns = [
     path('live_demos/', boaapp_views.live_demos, name='live_demos'),
 
     # Demo Showcase Pages
-    path('etl_pipeline/', boaapp_views.etl_pipeline, name='etl_pipeline'),
+    path('platform_engineering/', boaapp_views.platform_engineering, name='platform_engineering'),
     path('mlops_lifecycle/', boaapp_views.mlops_lifecycle, name='mlops_lifecycle'),
-    path('cicd_automation/', boaapp_views.cicd_automation, name='cicd_automation'),
     path('streaming_architecture/', boaapp_views.streaming_architecture, name='streaming_architecture'),
     path('api_orchestration/', boaapp_views.api_orchestration, name='api_orchestration'),
     path('idp_demo/', boaapp_views.idp_demo, name='idp_demo'),

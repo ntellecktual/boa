@@ -93,7 +93,7 @@ staticfiles/       # Collected statics (never edit manually)
 | `course_list` | courses list | Requires login |
 | `analytics` | analytics page | Requires login |
 | `code_playground` | playground | Requires login |
-| `etl_pipeline` | demo page | |
+| `platform_engineering` | demo page | |
 | `mlops_lifecycle` | demo page | |
 | `streaming_architecture` | demo page | |
 | `api_orchestration` | demo page | |
