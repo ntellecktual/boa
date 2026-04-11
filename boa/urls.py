@@ -73,17 +73,12 @@ urlpatterns = [
 
     # Portfolio & Showcase
     path('portfolio_showcase/', boaapp_views.portfolio_showcase, name='portfolio_showcase'),
-    path('technical_showcase/', boaapp_views.technical_showcase_view, name='project_pages'),
     path('education_details/', boaapp_views.education_details_view, name='education_details'),
-    path('companyandme/', boaapp_views.companyandme, name='companyandme'),
-    path('witheritelaw/', boaapp_views.witheritelaw_view, name='witheritelaw'),
 
     # AI Process Flows Demo
     path('process_flows/', boaapp_views.process_flows, name='process_flows'),
 
     # Resume & Skills
-    path('resume/', boaapp_views.display_resume, name='resume'),
-    path('skills/', boaapp_views.skills_section, name='skills_section'),
     path('data_start/', boaapp_views.data_start, name='data_start'),
     path('data_project/', boaapp_views.data_project, name='data_project'),
     path('live_demos/', boaapp_views.live_demos, name='live_demos'),

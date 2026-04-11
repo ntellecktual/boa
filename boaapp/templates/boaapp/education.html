@@ -13,6 +13,11 @@
 .pt-hero h1{font-size:clamp(2rem,4.5vw,2.8rem);font-weight:800;margin-bottom:.7rem;color:#0f172a;letter-spacing:-.02em}
 [data-theme="dark"] .pt-hero h1{color:#f1f5f9}
 .pt-hero .lead{font-size:1rem;color:var(--c-muted);max-width:580px;margin:0 auto;line-height:1.7}
+/* Credential chip */
+.pt-cred{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .9rem;border-radius:999px;font-size:.72rem;font-weight:700;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.1);color:var(--c-blue);margin-bottom:.7rem}
+.pt-cred--green{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.12);color:#059669}
+.pt-cred--violet{background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.12);color:#7c3aed}
+.pt-cred--amber{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.12);color:#b45309}
 .pt-stack{max-width:760px;margin:0 auto 4rem;display:flex;flex-direction:column;gap:2rem;padding:0 .5rem}
 .pt-card{border-radius:var(--c-radius);border:1px solid var(--c-border);background:var(--c-card);box-shadow:var(--c-shadow);overflow:hidden;transition:box-shadow .3s,transform .3s}
 .pt-card:hover{box-shadow:var(--c-shadow-lg);transform:translateY(-3px)}
@@ -51,10 +56,13 @@
       </div>
     </div>
     <div class="pt-content">
+      <span class="pt-cred pt-cred--violet"><i class="fas fa-cloud me-1"></i>Cloud Computing</span>
+      <span class="pt-cred"><i class="fas fa-robot me-1"></i>AI &amp; ML</span>
+      <span class="pt-cred pt-cred--green"><i class="fas fa-infinity me-1"></i>DevOps</span>
       <h5>Post Graduate Doctoral Degree in Cloud Computing</h5>
       <ul>
-        <li>Specialized in Cloud Computing, DevOps, Business Analytics, and Machine Learning, with a strong foundation in Full Stack Development and advanced skills in deploying scalable cloud infrastructure. <small><a href="{% url 'project_pages' %}?open=collapseTechAA">Explore how these cloud skills were applied.</a></small></li>
-        <li>Program includes industry-leading training in AI, Deep Learning, and Business Intelligence, supporting a comprehensive understanding of data engineering and deployment practices. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">See these concepts applied in projects.</a></small></li>
+        <li>Specialized in Cloud Computing, DevOps, Business Analytics, and Machine Learning, with a strong foundation in Full Stack Development and advanced skills in deploying scalable cloud infrastructure. <small><a href="{% url 'portfolio_showcase' %}">Explore how these cloud skills were applied.</a></small></li>
+        <li>Program includes industry-leading training in AI, Deep Learning, and Business Intelligence, supporting a comprehensive understanding of data engineering and deployment practices. <small><a href="{% url 'portfolio_showcase' %}">See these concepts applied in projects.</a></small></li>
       </ul>
       <p><small>This advanced study directly informed approaches in my <a href="{% url 'portfolio_showcase' %}">Professional Roles</a>.</small></p>
     </div>
@@ -70,11 +78,12 @@
       </div>
     </div>
     <div class="pt-content">
+      <span class="pt-cred pt-cred--green"><i class="fas fa-certificate me-1"></i>Industry Certification</span>
       <h5>PCAP &ndash; Certified Associate in Python Programming</h5>
       <ul>
         <li>Professional certification validating the ability to code in Python and apply object-oriented programming principles in data and DevOps projects, ensuring alignment with industry standards for software and deployment practices.</li>
       </ul>
-      <p><small>See my Python expertise in action across various projects in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
+      <p><small>See my Python expertise in action across various projects in the <a href="{% url 'portfolio_showcase' %}">Portfolio &amp; Work History</a>.</small></p>
     </div>
   </div>
 
@@ -88,6 +97,8 @@
       </div>
     </div>
     <div class="pt-content">
+      <span class="pt-cred"><i class="fas fa-database me-1"></i>Big Data</span>
+      <span class="pt-cred pt-cred--violet"><i class="fas fa-infinity me-1"></i>DevOps</span>
       <h5>Master of Science</h5>
       <ul>
         <li>Focused on Python, Spark, and the Hadoop ecosystem, including tools such as Hive, Kafka, and HBase for big data processing. Trained in MapReduce and YARN methodologies, with a competitive program acceptance rate and extensive interview preparation.</li>
@@ -107,11 +118,12 @@
       </div>
     </div>
     <div class="pt-content">
+      <span class="pt-cred pt-cred--amber"><i class="fas fa-chart-line me-1"></i>Finance &amp; Management</span>
       <h5>Bachelor of Science &mdash; Management / Finance &amp; Implementation Methodologies</h5>
       <ul>
         <li>Foundational knowledge in Management and Finance, with practical applications in implementation methodologies, critical for understanding project management and strategic planning within a DevOps framework.</li>
       </ul>
-      <p><small>This management and finance background provided a strategic lens for <a href="{% url 'companyandme' %}?open=collapseAABaggage">Industry Engineering projects</a>.</small></p>
+      <p><small>This management and finance background provided a strategic lens for enterprise projects documented in my <a href="{% url 'portfolio_showcase' %}">Portfolio &amp; Work History</a>.</small></p>
     </div>
   </div>
 

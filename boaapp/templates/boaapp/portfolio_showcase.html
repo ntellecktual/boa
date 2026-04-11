@@ -113,6 +113,13 @@
 
 .pt-detail-content{display:none}
 .pt-detail-content.active{display:block}
+.pt-tech-logos{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem}
+.pt-tech-logo{height:48px;max-width:76px;object-fit:contain;padding:8px;border:1px solid var(--c-border);border-radius:12px;background:#fff;transition:transform .2s,box-shadow .2s}
+.pt-tech-logo:hover{transform:scale(1.06);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+[data-theme="dark"] .pt-tech-logo{background:rgba(255,255,255,.06);box-shadow:none}
+.pt-industry-label{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--c-blue);margin-bottom:.5rem}
+.pt-industry-list{font-size:.88rem;line-height:1.85;padding-left:1.4rem;margin:0 0 .75rem;color:#374151}
+[data-theme="dark"] .pt-industry-list{color:#d1d5db}
 </style>
 
 <!-- ════════════════════════════════════════════════════════
@@ -356,6 +363,38 @@
             </div>
           </div>
 
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseWLGTechStack"
+                    aria-expanded="false" aria-controls="collapseWLGTechStack">
+              <span>🔧</span> Tech Stack
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseWLGTechStack" class="collapse" data-bs-parent="#witheritelawSections">
+              <div class="pt-acc-body">
+                <div class="pt-tech-logos">
+                  <img src="{% static 'css/img/azure_logo.png' %}" alt="Azure" title="Microsoft Azure" class="pt-tech-logo">
+                  <img src="{% static 'css/img/azure_function_logo.png' %}" alt="Azure Functions" title="Azure Functions" class="pt-tech-logo">
+                  <img src="{% static 'css/img/azure_blob_storage_logo.png' %}" alt="Azure Blob Storage" title="Azure Blob Storage" class="pt-tech-logo">
+                  <img src="{% static 'css/img/azure_computer_vision_logo.png' %}" alt="Azure Computer Vision" title="Azure Computer Vision OCR" class="pt-tech-logo">
+                  <img src="{% static 'css/img/python_logo.png' %}" alt="Python" title="Python" class="pt-tech-logo">
+                  <img src="{% static 'css/img/json_logo.png' %}" alt="JSON/REST API" title="JSON / REST APIs" class="pt-tech-logo">
+                  <img src="{% static 'css/img/api_icon.png' %}" alt="API Integration" title="API Integration" class="pt-tech-logo">
+                  <img src="{% static 'css/img/filevine_logo.png' %}" alt="Filevine" title="Filevine CRM" class="pt-tech-logo">
+                </div>
+                <div class="mb-3">
+                  <span class="pt-badge">Acumatica ERP</span>
+                  <span class="pt-badge">Claude AI</span>
+                  <span class="pt-badge">Power Apps</span>
+                  <span class="pt-badge">Power Automate</span>
+                  <span class="pt-badge">Invoice OCR Pipeline</span>
+                  <span class="pt-badge">Multi-Tenant Architecture</span>
+                </div>
+                <p>6 production systems in 6 months — OCR, AP/AR automation, AI agents, and multi-tenant SaaS architecture powering the Halo platform.</p>
+              </div>
+            </div>
+          </div>
+
         </div><!-- /witheritelawSections -->
       </div>
     </div>
@@ -442,7 +481,7 @@
             <div id="collapseAACollab" class="collapse" data-bs-parent="#aaSections">
               <div class="pt-acc-body">
                 <p>Aligned <strong>7 teams (~60 members each)</strong> on security protocols, deployment strategy, and DevOps best practices. Introduced CI/CD onboarding docs — accelerated adoption team-wide.</p>
-                <p><small>🔧 See the full tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechAA">Technical Showcase</a>.</small></p>
+                <p><small>🔧 See the full tech stack in the <strong>Tech Stack</strong> accordion below.</small></p>
               </div>
             </div>
           </div>
@@ -457,11 +496,101 @@
             <div id="collapseAAClients" class="collapse" data-bs-parent="#aaSections">
               <div class="pt-acc-body">
                 <p>🛬 <strong>FAA — Flight Real-Time Data Mapping</strong><br>
-                Integrated + mapped real-time FAA flight data into gate agent internal apps. Bi-weekly stakeholder sessions to resolve accuracy and mapping issues. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
+                Integrated + mapped real-time FAA flight data into gate agent internal apps. Bi-weekly stakeholder sessions to resolve accuracy and mapping issues. <small>→ See the <strong>Industry Engineering</strong> accordion below.</small></p>
                 <p>🧳 <strong>Brock Solutions — Baggage Carousel Visualization</strong><br>
-                Connected AA baggage scan/location data to Brock's visualization systems — <strong>second-by-second updates</strong> for airport staff globally. Built + maintained secure APIs. Weekly alignment on features and config. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
+                Connected AA baggage scan/location data to Brock's visualization systems — <strong>second-by-second updates</strong> for airport staff globally. Built + maintained secure APIs. Weekly alignment on features and config. <small>→ See the <strong>Industry Engineering</strong> accordion below.</small></p>
                 <p>🌐 <strong>Siemens — Networking Real-Time Feeds</strong><br>
-                Collaborated on port upgrades, firewall enhancements, NAT/PAT reconfigurations. Led end-to-end testing of real-time data feeds under high traffic. Weekly health checks and upgrade coordination. <small><a href="{% url 'companyandme' %}?open=collapseAABaggage">→ Industry Engineering Insights</a></small></p>
+                Collaborated on port upgrades, firewall enhancements, NAT/PAT reconfigurations. Led end-to-end testing of real-time data feeds under high traffic. Weekly health checks and upgrade coordination. <small>→ See the <strong>Industry Engineering</strong> accordion below.</small></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseAATechStack"
+                    aria-expanded="false" aria-controls="collapseAATechStack">
+              <span>🔧</span> Tech Stack
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseAATechStack" class="collapse" data-bs-parent="#aaSections">
+              <div class="pt-acc-body">
+                <div class="pt-tech-logos">
+                  <img src="{% static 'css/img/kiko_logo.png' %}" alt="Kiko" title="Kiko" class="pt-tech-logo">
+                  <img src="{% static 'css/img/rovr_logo.png' %}" alt="ROVR" title="ROVR" class="pt-tech-logo">
+                  <img src="{% static 'css/img/tableau_logo.png' %}" alt="Tableau" title="Tableau" class="pt-tech-logo">
+                  <img src="{% static 'css/img/python_logo.png' %}" alt="Python" title="Python" class="pt-tech-logo">
+                  <img src="{% static 'css/img/java_logo.png' %}" alt="Java" title="Java" class="pt-tech-logo">
+                  <img src="{% static 'css/img/databricks_Logo.png' %}" alt="Databricks" title="Databricks" class="pt-tech-logo">
+                  <img src="{% static 'css/img/azure_logo.png' %}" alt="Azure" title="Azure" class="pt-tech-logo">
+                </div>
+                <p><strong>Data Engineering:</strong> Azure Data Lake, Databricks, Cloud Storage</p>
+                <p><strong>ML / Automation / Visualization:</strong> Python, Power Automate, Power BI</p>
+                <p style="margin-bottom:0"><strong>Security:</strong> Coverity, Black Duck, Tanium, Nucleus</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseAAIndustry"
+                    aria-expanded="false" aria-controls="collapseAAIndustry">
+              <span>🏭</span> Industry Engineering Deep Dive
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseAAIndustry" class="collapse" data-bs-parent="#aaSections">
+              <div class="pt-acc-body">
+                <h5>✈️ Baggage Handling System</h5>
+                <div class="pt-industry-label">👥 Who Needs? (Stakeholders)</div>
+                <ul class="pt-industry-list">
+                  <li><strong>Baggage Handlers:</strong> Loading, unloading, and transferring baggage.</li>
+                  <li><strong>Airport Staff:</strong> Customer service and security roles supporting airport operations.</li>
+                  <li><strong>Passengers:</strong> Directly affected by baggage delays or losses.</li>
+                  <li><strong>Airline Operations:</strong> Real-time information for efficient flight operations and customer service.</li>
+                </ul>
+                <div class="pt-industry-label">❓ Why This?</div>
+                <ul class="pt-industry-list">
+                  <li><strong>Purpose:</strong> Track and manage baggage movement network-wide, ensuring efficient operations and reducing losses.</li>
+                  <li><strong>Resolve:</strong> Address baggage delays, lost luggage, and handling inefficiencies.</li>
+                </ul>
+                <div class="pt-industry-label">⚙️ What Functionality?</div>
+                <ul class="pt-industry-list">
+                  <li><strong>Predictive analytics:</strong> ML to forecast baggage trends and flag potential issues.</li>
+                  <li><strong>Automation:</strong> Automate routine tasks to improve efficiency and reduce errors.</li>
+                  <li><strong>Data integration:</strong> Connect flight information with passenger and baggage data systems.</li>
+                </ul>
+                <div class="pt-industry-label">🔧 Tech Stack</div>
+                <ul class="pt-industry-list" style="margin-bottom:1.5rem">
+                  <li>Data Engineering: Azure Data Lake, Databricks, Cloud Storage</li>
+                  <li>ML / Automation / Visualization: Python, Power Automate, Power BI</li>
+                  <li>Security: Coverity, Black Duck, Tanium, Nucleus</li>
+                </ul>
+
+                <h5>🛂 In-Airport Staff Management</h5>
+                <div class="pt-industry-label">👥 Who Needs? (Stakeholders)</div>
+                <ul class="pt-industry-list">
+                  <li><strong>Gate Agents:</strong> Manage passenger boarding and gate operations.</li>
+                  <li><strong>Pilots and Flight Crew:</strong> Access schedules and flight assignments.</li>
+                  <li><strong>Airport Staff:</strong> Customer service, maintenance, and security roles.</li>
+                </ul>
+                <div class="pt-industry-label">✈️ Why This?</div>
+                <ul class="pt-industry-list">
+                  <li><strong>Purpose:</strong> Centralized platform for in-airport staff management ensuring accurate tracking of flight information.</li>
+                  <li><strong>Resolve:</strong> Eliminate manual data entry, information access delays, and inefficiencies in staff coordination.</li>
+                </ul>
+                <div class="pt-industry-label">⚙️ What Functionality?</div>
+                <ul class="pt-industry-list">
+                  <li>Data analytics for operational trend identification and optimization.</li>
+                  <li>Mobile accessibility for on-the-go staff updates.</li>
+                  <li>Staff scheduling: track and manage shifts and assignments.</li>
+                  <li>Real-time flight status, gate assignments, and boarding information.</li>
+                  <li>Terminal and gate management with resource allocation.</li>
+                </ul>
+                <div class="pt-industry-label">🔧 Tech Stack</div>
+                <ul class="pt-industry-list">
+                  <li><strong>Frontend/Backend:</strong> React, Angular, or Vue.js · Node.js or Python (Django/Flask)</li>
+                  <li><strong>Database:</strong> PostgreSQL or MongoDB</li>
+                  <li><strong>Cloud/DevOps:</strong> Azure, Git, Jenkins/CircleCI, Docker/Kubernetes</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -537,7 +666,61 @@
             </button>
             <div id="collapseCitiImpact" class="collapse" data-bs-parent="#citiSections">
               <div class="pt-acc-body">
-                <p>Secure, compliant financial data processing at scale. Agile delivery across multi-functional teams for mission-critical analytics. <small><a href="{% url 'project_pages' %}?open=collapseTechCiti">→ Technical Showcase</a></small></p>
+                <p>Secure, compliant financial data processing at scale. Agile delivery across multi-functional teams for mission-critical analytics. <small>→ See the <strong>Tech Stack</strong> accordion below.</small></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCitiTechStack"
+                    aria-expanded="false" aria-controls="collapseCitiTechStack">
+              <span>🔧</span> Tech Stack
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseCitiTechStack" class="collapse" data-bs-parent="#citiSections">
+              <div class="pt-acc-body">
+                <div class="pt-tech-logos">
+                  <img src="{% static 'css/img/snowflake_citi_logo.png' %}" alt="Snowflake" title="Snowflake" class="pt-tech-logo">
+                  <img src="{% static 'css/img/lti_logo.png' %}" alt="LTI" title="LTI" class="pt-tech-logo">
+                  <img src="{% static 'css/img/tectia_logo.png' %}" alt="Tectia" title="Tectia" class="pt-tech-logo">
+                  <img src="{% static 'css/img/hadoop_logo.png' %}" alt="Hadoop" title="Hadoop" class="pt-tech-logo">
+                </div>
+                <p><strong>Data Engineering:</strong> Python, PySpark, HDFS, HBase, Hive, Hadoop Ecosystem</p>
+                <p><strong>ETL:</strong> Databricks, Python, PySpark</p>
+                <p style="margin-bottom:0"><strong>DevOps:</strong> Jenkins, BMC RLM, Autosys, Docker, Kubernetes, CI/CD, GitBash, Java/J2EE</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCitiIndustry"
+                    aria-expanded="false" aria-controls="collapseCitiIndustry">
+              <span>🏭</span> Industry Engineering Deep Dive
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseCitiIndustry" class="collapse" data-bs-parent="#citiSections">
+              <div class="pt-acc-body">
+                <h5>💰 Data Platform &amp; Analytics</h5>
+                <div class="pt-industry-label">👥 Who? (Stakeholders)</div>
+                <ul class="pt-industry-list">
+                  <li><strong>Data Scientists:</strong> Utilize developed tools and platforms for analysis and modeling.</li>
+                  <li><strong>Business Analysts:</strong> Rely on data insights for informed decisions.</li>
+                  <li><strong>IT Teams:</strong> Maintain and support the data infrastructure.</li>
+                </ul>
+                <div class="pt-industry-label">💰 What? (Faster Money — Functionality)</div>
+                <ul class="pt-industry-list">
+                  <li><strong>Data ingestion:</strong> Extract data from various sources and load into the platform.</li>
+                  <li><strong>Data transformation:</strong> Clean, transform, and prepare data for analysis.</li>
+                  <li><strong>Data governance:</strong> Implement practices to ensure data quality and consistency.</li>
+                </ul>
+                <div class="pt-industry-label">🔧 Tech Stack</div>
+                <ul class="pt-industry-list">
+                  <li><strong>Data Engineering:</strong> Python, PySpark, HDFS, HBase, Hive, Hadoop Ecosystem</li>
+                  <li><strong>ETL:</strong> Databricks, Python, PySpark</li>
+                  <li><strong>DevOps:</strong> Jenkins, BMC RLM, Autosys, Docker, Kubernetes, CI/CD, GitBash, Java/J2EE</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -600,7 +783,6 @@
             <div id="collapseBarvinStakeholders" class="collapse" data-bs-parent="#barvinSections">
               <div class="pt-acc-body">
                 <p>Tenant communications managed via integrated systems — high satisfaction, prompt resolution.</p>
-                <p><small>🔧 See the tech stack in the <a href="{% url 'project_pages' %}">Technical Showcase</a>.</small></p>
               </div>
             </div>
           </div>
@@ -649,7 +831,25 @@
             <div id="collapseCodeNinjasBizDev" class="collapse" data-bs-parent="#codeninjasSections">
               <div class="pt-acc-body">
                 <p>Used analytics to manage and grow <strong>$300k+ in data services</strong> — refined acquisition strategies to expand market reach.</p>
-                <p><small>🔧 See the supporting tech stack in the <a href="{% url 'project_pages' %}?open=collapseTechCodeNinjas">Technical Showcase</a>.</small></p>
+                <p><small>🔧 See the full tech stack in the <strong>Tech Stack</strong> accordion below.</small></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-acc-item">
+            <button class="pt-acc-header" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCodeNinjasTechStack"
+                    aria-expanded="false" aria-controls="collapseCodeNinjasTechStack">
+              <span>🔧</span> Tech Stack
+              <i class="fas fa-chevron-down pt-acc-chevron"></i>
+            </button>
+            <div id="collapseCodeNinjasTechStack" class="collapse" data-bs-parent="#codeninjasSections">
+              <div class="pt-acc-body">
+                <div class="pt-tech-logos">
+                  <img src="{% static 'css/img/homebase.png' %}" alt="Homebase" title="Homebase" class="pt-tech-logo">
+                  <img src="{% static 'css/img/vonage_business_logo.png' %}" alt="Vonage" title="Vonage" class="pt-tech-logo">
+                </div>
+                <p>Homebase for workforce scheduling and Vonage for VoIP communication systems — streamlining operations and client communication for the studio.</p>
               </div>
             </div>
           </div>

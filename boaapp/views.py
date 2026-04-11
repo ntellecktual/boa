@@ -160,19 +160,6 @@ def enroll_course_view(request, course_id):
         return redirect('course_detail', course_id=course.id)
     return redirect('course_list') # Should not be reached via GET directly typically
 
-# boaapp/views.py (Add this function)
-def witheritelaw_view(request):
-    """Render the Witheritelaw Automation Engineer profile page."""
-    context = {
-        'page_title': 'Automation Engineer Profile: Witheritelaw',
-        'job_title': 'Automation Engineer',
-        'company_name': 'Witheritelaw',
-        # You can add more context variables here if needed,
-        # but the main content will be in the template.
-    }
-    return render(request, 'boaapp/witheritelaw.html', context)
-
-
 @login_required
 def mark_section_learned_view(request, section_id):
     section = get_object_or_404(CourseSection, pk=section_id)
@@ -434,10 +421,6 @@ def process_flows(request):
     """Render AI Process Flows demo page."""
     return render(request, 'boaapp/process_flows.html')
 
-def companyandme(request):
-    """Render 'Company and Me' page."""
-    return render(request, 'boaapp/companyandme.html')
-
 def portfolio_showcase(request):
     portfolio_items = PortfolioItem.objects.prefetch_related(
         'scrolling_images').all()
@@ -451,11 +434,6 @@ def portfolio_showcase(request):
 def education_details_view(request):
     # You can pass context here if needed, but for static content, it's simple
     return render(request, 'boaapp/education.html')
-
-def technical_showcase_view(request):
-    # You can pass context here if this page needs more dynamic data later
-    context = {} 
-    return render(request, 'boaapp/technical_showcase.html', context)
 
 def data_start(request):
     return render(request, 'boaapp/data_start.html')
@@ -483,17 +461,6 @@ def api_orchestration(request):
 
 def idp_demo(request):
     return render(request, 'boaapp/idp_demo.html')
-
-def skills_section(request):
-    return render(request, 'boaapp/skills_section.html')
-
-def display_resume(request):
-    try:
-        resume = ResumeDocument.objects.latest('id')
-    except ResumeDocument.DoesNotExist:
-        return render(request, 'boaapp/resume.html', {'error': 'No resume document found'})
-
-    return render(request, 'boaapp/resume.html', {'resume': resume})
 
 @login_required
 def dashboard(request):
