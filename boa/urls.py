@@ -89,6 +89,7 @@ urlpatterns = [
     path('streaming_architecture/', boaapp_views.streaming_architecture, name='streaming_architecture'),
     path('api_orchestration/', boaapp_views.api_orchestration, name='api_orchestration'),
     path('idp_demo/', boaapp_views.idp_demo, name='idp_demo'),
+    path('api/portfolio-chat/', boaapp_views.portfolio_chat_api, name='portfolio_chat_api'),
 ]
 
 if settings.DEBUG:

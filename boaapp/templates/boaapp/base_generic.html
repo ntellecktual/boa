@@ -175,6 +175,132 @@
     <div id="theme-transition-overlay"></div>
     <div id="theme-toast" class="toast-message"></div>
 
+    <!-- ── Floating Portfolio Chat Widget ── -->
+    <style>
+      #ptChat{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;font-family:Inter,sans-serif}
+      #ptChatBtn{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
+        background:linear-gradient(135deg,#5865f2,#3b82f6);color:#fff;font-size:1.2rem;
+        box-shadow:0 4px 18px rgba(88,101,242,.45);transition:transform .2s,box-shadow .2s;
+        display:flex;align-items:center;justify-content:center}
+      #ptChatBtn:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(88,101,242,.55)}
+      #ptChatPanel{display:none;position:absolute;bottom:64px;right:0;width:320px;
+        border-radius:16px;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.18);
+        border:1px solid rgba(0,0,0,.1);background:#fff;flex-direction:column}
+      [data-theme="dark"] #ptChatPanel{background:#1e2030;border-color:rgba(255,255,255,.1)}
+      #ptChatPanel.open{display:flex}
+      .ptc-header{display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;
+        background:linear-gradient(135deg,#5865f2,#3b82f6);color:#fff}
+      .ptc-header-icon{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.2);
+        display:flex;align-items:center;justify-content:center;font-size:.85rem}
+      .ptc-header-text{flex:1;font-size:.82rem;font-weight:700;line-height:1.2}
+      .ptc-header-sub{font-size:.65rem;opacity:.8;font-weight:400}
+      .ptc-close{background:none;border:none;color:#fff;cursor:pointer;font-size:.9rem;opacity:.75;padding:0}
+      .ptc-close:hover{opacity:1}
+      .ptc-messages{flex:1;overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.5rem;
+        max-height:300px;min-height:160px}
+      .ptc-msg{display:flex;gap:.5rem;align-items:flex-end}
+      .ptc-msg--bot{flex-direction:row}
+      .ptc-msg--user{flex-direction:row-reverse}
+      .ptc-bubble{padding:.5rem .7rem;border-radius:12px;font-size:.76rem;line-height:1.45;max-width:82%}
+      .ptc-msg--bot .ptc-bubble{background:#f3f4f8;color:#1a1a2e;border-radius:12px 12px 12px 3px}
+      .ptc-msg--user .ptc-bubble{background:linear-gradient(135deg,#5865f2,#3b82f6);color:#fff;border-radius:12px 12px 3px 12px}
+      [data-theme="dark"] .ptc-msg--bot .ptc-bubble{background:#2a2d40;color:#e2e8f0}
+      .ptc-input-row{display:flex;gap:.4rem;padding:.6rem .75rem;border-top:1px solid rgba(0,0,0,.07)}
+      [data-theme="dark"] .ptc-input-row{border-color:rgba(255,255,255,.07)}
+      .ptc-input{flex:1;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:.4rem .65rem;
+        font-size:.76rem;outline:none;background:#f9fafb;transition:border .2s}
+      .ptc-input:focus{border-color:#5865f2}
+      [data-theme="dark"] .ptc-input{background:#2a2d40;border-color:rgba(255,255,255,.12);color:#e2e8f0}
+      .ptc-send{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;
+        background:linear-gradient(135deg,#5865f2,#3b82f6);color:#fff;font-size:.78rem;
+        display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}
+      .ptc-send:hover{opacity:.85}
+    </style>
+
+    <div id="ptChat">
+      <div id="ptChatPanel" role="dialog" aria-label="Portfolio Assistant">
+        <div class="ptc-header">
+          <div class="ptc-header-icon"><i class="fas fa-robot"></i></div>
+          <div class="ptc-header-text">
+            Portfolio Assistant
+            <div class="ptc-header-sub">Ask about skills, demos &amp; experience</div>
+          </div>
+          <button class="ptc-close" id="ptChatClose" aria-label="Close chat"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="ptc-messages" id="ptcMessages">
+          <div class="ptc-msg ptc-msg--bot">
+            <div class="ptc-bubble">Hey! Ask me about the portfolio demos, tech stack, or Kieth's experience. 👋</div>
+          </div>
+        </div>
+        <div class="ptc-input-row">
+          <input class="ptc-input" id="ptcInput" type="text" placeholder="Ask anything…" maxlength="300" autocomplete="off" />
+          <button class="ptc-send" id="ptcSend" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+      <button id="ptChatBtn" aria-label="Open portfolio assistant" title="Ask me anything">
+        <i class="fas fa-robot"></i>
+      </button>
+    </div>
+
+    <script>
+    (function(){
+      var btn=document.getElementById('ptChatBtn');
+      var panel=document.getElementById('ptChatPanel');
+      var closeBtn=document.getElementById('ptChatClose');
+      var input=document.getElementById('ptcInput');
+      var send=document.getElementById('ptcSend');
+      var msgs=document.getElementById('ptcMessages');
+      var ENDPOINT='/api/portfolio-chat/';
+      var busy=false;
+
+      function toggle(){panel.classList.toggle('open');if(panel.classList.contains('open'))input.focus();}
+      btn.addEventListener('click',toggle);
+      closeBtn.addEventListener('click',toggle);
+
+      function addMsg(text,role){
+        var d=document.createElement('div');
+        d.className='ptc-msg ptc-msg--'+(role==='user'?'user':'bot');
+        var b=document.createElement('div');
+        b.className='ptc-bubble';
+        b.textContent=text;
+        d.appendChild(b);
+        msgs.appendChild(d);
+        msgs.scrollTop=msgs.scrollHeight;
+      }
+
+      function addTyping(){
+        var d=document.createElement('div');
+        d.className='ptc-msg ptc-msg--bot';d.id='ptcTyping';
+        d.innerHTML='<div class="ptc-bubble" style="opacity:.5">…</div>';
+        msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+      }
+      function removeTyping(){var t=document.getElementById('ptcTyping');if(t)t.remove();}
+
+      function sendMsg(){
+        var text=input.value.trim();
+        if(!text||busy)return;
+        busy=true;
+        addMsg(text,'user');
+        input.value='';
+        addTyping();
+        var csrf='{% csrf_token %}'.match(/value="([^"]+)"/);
+        var headers={'Content-Type':'application/json'};
+        if(csrf)headers['X-CSRFToken']=csrf[1];
+        fetch(ENDPOINT,{
+          method:'POST',
+          headers:headers,
+          body:JSON.stringify({message:text})
+        })
+        .then(function(r){return r.json();})
+        .then(function(d){removeTyping();addMsg(d.reply||'Sorry, something went wrong.','bot');busy=false;})
+        .catch(function(){removeTyping();addMsg('Connection error — please try again.','bot');busy=false;});
+      }
+
+      send.addEventListener('click',sendMsg);
+      input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
+    }());
+    </script>
+
     <!-- Bootstrap 5.3 Bundle JS (includes Popper) -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

@@ -459,6 +459,86 @@ def api_orchestration(request):
 def idp_demo(request):
     return render(request, 'boaapp/idp_demo.html')
 
+
+def portfolio_chat_api(request):
+    """Public keyword-based Q&A widget for the portfolio site."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    try:
+        import json as _json
+        data = _json.loads(request.body)
+        message = (data.get('message') or '').strip()[:500]
+    except (ValueError, AttributeError):
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    if not message:
+        return JsonResponse({'reply': "I didn't catch that — ask me anything about the portfolio!"})
+
+    msg = message.lower()
+
+    # ── Skill / tech questions ──
+    if any(k in msg for k in ['azure', 'cloud', 'microsoft']):
+        reply = ("Azure is the backbone of most of the portfolio. The Platform Engineering demo "
+                 "shows Azure DevOps pipelines, Entra ID integration, and Databricks-based ETL. "
+                 "The MLOps demo uses Azure ML for model training and deployment.")
+    elif any(k in msg for k in ['mlops', 'ml', 'machine learning', 'model']):
+        reply = ("The MLOps Lifecycle demo walks through model training, feature stores, experiment "
+                 "tracking with MLflow, and blue-green deployment on AKS. "
+                 "Check it out at the Live Demos page!")
+    elif any(k in msg for k in ['data', 'pipeline', 'etl', 'databricks', 'spark']):
+        reply = ("Data engineering is a core focus — the Platform Engineering demo covers "
+                 "Databricks Spark pipelines, Delta Lake, and CI/CD integration. "
+                 "The Streaming Architecture demo shows Kafka + Flink real-time event processing.")
+    elif any(k in msg for k in ['kafka', 'stream', 'real-time', 'event']):
+        reply = ("The Streaming Architecture demo covers Apache Kafka event brokering, "
+                 "Flink stream processing, schema registries, and CDC patterns used at Netflix-scale.")
+    elif any(k in msg for k in ['devops', 'cicd', 'ci/cd', 'pipeline', 'deploy']):
+        reply = ("The Platform Engineering demo shows three full CI/CD pipelines: "
+                 "Azure DevOps, Databricks Jobs, and Entra ID automation — all for a casino platform use case.")
+    elif any(k in msg for k in ['api', 'gateway', 'orchestrat', 'microservice']):
+        reply = ("The API Orchestration demo covers API gateway patterns, saga choreography, "
+                 "circuit breakers, and service mesh fundamentals.")
+    elif any(k in msg for k in ['document', 'ocr', 'extract', 'idp']):
+        reply = ("The Document Processing (IDP) demo shows AI-powered OCR, structured data "
+                 "extraction, and validation pipelines — great for financial document automation.")
+    elif any(k in msg for k in ['oracle', 'finance', 'accounting', 'process flow']):
+        reply = ("The AI Process Flows demo shows Oracle Finance & Accounting automation "
+                 "workflows powered by AI — procure-to-pay, order-to-cash, and more.")
+    elif any(k in msg for k in ['nfl', 'mlb', 'netflix', 'sport', 'partner']):
+        reply = ("The portfolio demos are built around real enterprise partner use cases: "
+                 "Oracle (finance automation), NFL (Azure DevOps pipelines), "
+                 "MLB (MLOps at scale), and Netflix (streaming architecture).")
+    elif any(k in msg for k in ['education', 'degree', 'school', 'university', 'certif']):
+        reply = ("The Education section covers degrees and certifications. "
+                 "Navigate to Education in the sidebar (or Profile on the home dashboard) for the full details.")
+    elif any(k in msg for k in ['contact', 'email', 'hire', 'available', 'reach']):
+        reply = ("The best way to connect is via GitHub (@ntellecktual) or LinkedIn. "
+                 "Feel free to explore the portfolio demos — they're all fully interactive!")
+    elif any(k in msg for k in ['project', 'portfolio', 'work', 'experience']):
+        reply = ("The Portfolio section showcases enterprise projects across cloud, data, and AI. "
+                 "There are 7 live interactive demos spanning MLOps, streaming, CI/CD, API patterns, "
+                 "document processing, and AI process automation.")
+    elif any(k in msg for k in ['python', 'django', 'stack', 'tech']):
+        reply = ("The site itself is built with Django 5.1, PostgreSQL, Celery + Redis, "
+                 "and deployed on Render. The demos use Bootstrap 5, vanilla JS, and Font Awesome. "
+                 "Python is the primary language across all backend work.")
+    elif any(k in msg for k in ['upload', 'notebook', 'jupyter', 'audio', 'video']):
+        reply = ("UploadIt! lets you upload Jupyter notebooks and auto-generates audio lectures, "
+                 "video content with synced text, quizzes, and a RAG-powered chatbot — "
+                 "all in one pipeline. Try it from the sidebar!")
+    elif any(k in msg for k in ['hello', 'hi', 'hey', 'greet']):
+        reply = ("Hey! I'm the thenumerix assistant. Ask me about the portfolio demos, "
+                 "skills, tech stack, or anything else you see on the site!")
+    elif any(k in msg for k in ['demo', 'live', 'interact']):
+        reply = ("There are 7 live interactive demos: AI Process Flows, UploadIt!, Platform Engineering, "
+                 "MLOps Lifecycle, Streaming Architecture, API Orchestration, and Document Processing. "
+                 "Hit 'Discover' in the sidebar to explore them all!")
+    else:
+        reply = ("I can answer questions about the portfolio demos, tech stack, skills, and experience. "
+                 "Try asking about Azure, MLOps, data pipelines, or any of the live demos!")
+
+    return JsonResponse({'reply': reply})
+
 @login_required
 def dashboard(request):
     user_documents = Document.objects.filter(user=request.user).order_by('-uploaded_at')

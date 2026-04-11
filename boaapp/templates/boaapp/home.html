@@ -3,6 +3,7 @@
 {% block title %}thenumerix | Home{% endblock %}
 
 {% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.1.0/dist/typed.umd.js"></script>
 <style>
 /* ══════════════════════════════════════════════════════
    HOME DASHBOARD — Framer/Spline-inspired layout
@@ -80,6 +81,17 @@
 .learn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
 @media(max-width:768px){.learn-grid{grid-template-columns:repeat(2,1fr)}}
 
+/* ── GitHub Feed ── */
+.gh-feed{display:flex;flex-direction:column;gap:.5rem}
+.gh-evt{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem .8rem;border-radius:10px;background:var(--dash-surface);border:1px solid var(--dash-border);font-size:.75rem;transition:background .15s}
+.gh-evt:hover{background:rgba(59,130,246,.04)}
+.gh-evt-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff;flex-shrink:0;margin-top:.05rem}
+.gh-evt-body{flex:1;min-width:0}
+.gh-evt-line{font-weight:600;color:var(--dash-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gh-evt-sub{color:var(--dash-muted);margin-top:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gh-evt-time{color:var(--dash-muted);font-size:.65rem;flex-shrink:0;padding-top:.1rem}
+.gh-placeholder{text-align:center;padding:1.5rem;color:var(--dash-muted);font-size:.8rem}
+
 .dash-panel{border-radius:var(--dash-radius);border:1px solid var(--dash-border);background:var(--dash-surface);box-shadow:var(--dash-shadow-lg);margin-bottom:1.5rem}
 .dash-panel-header{display:flex;align-items:center;gap:.8rem;padding:.8rem 1rem;border-bottom:1px solid var(--dash-border);position:sticky;top:0;background:var(--dash-surface);border-radius:var(--dash-radius) var(--dash-radius) 0 0;z-index:10}
 .dash-panel-back{display:flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:700;padding:.3rem .65rem;border-radius:8px;border:1px solid var(--dash-border);background:transparent;cursor:pointer;transition:background .2s;color:inherit}
@@ -102,7 +114,7 @@
     <img src="{% static 'logo.png' %}" alt="thenumerix" class="dash-hero-logo" />
     <div class="dash-hero-text">
       <h2>Welcome back, <span>{{ user.username }}</span></h2>
-      <p>Portfolio · Education · Technical Work · AI Apps</p>
+      <p><span id="homeTyped"></span></p>
     </div>
   </div>
 
@@ -185,6 +197,28 @@
     </div>
   </div>
 
+  <!-- ── GITHUB ACTIVITY ── -->
+  <div class="dash-section">
+    <div class="dash-section-hd">
+      <span class="dash-section-lbl"><i class="fab fa-github"></i>&nbsp; GitHub Activity</span>
+      <a href="https://github.com/ntellecktual" target="_blank" rel="noopener" class="dash-section-count" style="text-decoration:none">@ntellecktual →</a>
+    </div>
+    <div class="gh-feed" id="ghFeed">
+      <div class="gh-placeholder"><i class="fas fa-circle-notch fa-spin me-2"></i>Loading activity…</div>
+    </div>
+  </div>
+
+  <!-- ── GITHUB ACTIVITY ── -->
+  <div class="dash-section">
+    <div class="dash-section-hd">
+      <span class="dash-section-lbl"><i class="fab fa-github"></i>&nbsp; GitHub Activity</span>
+      <a href="https://github.com/ntellecktual" target="_blank" rel="noopener" class="dash-section-count" style="text-decoration:none">@ntellecktual →</a>
+    </div>
+    <div class="gh-feed" id="ghFeed">
+      <div class="gh-placeholder"><i class="fas fa-circle-notch fa-spin me-2"></i>Loading activity…</div>
+    </div>
+  </div>
+
   <!-- ── LEARNING ── -->
   <div class="dash-section">
     <div class="dash-section-hd">
@@ -215,6 +249,77 @@
 {% endblock %}
 
 {% block extra_js %}{{ block.super }}
+<script>
+/* ── Typed.js Hero ── */
+new Typed('#homeTyped', {
+  strings: ['Platform Engineer.', 'MLOps Practitioner.', 'Azure Cloud Architect.', 'Data Engineer.', 'Full-Stack Developer.'],
+  typeSpeed: 55,
+  backSpeed: 30,
+  backDelay: 1800,
+  loop: true,
+  smartBackspace: true,
+  cursorChar: '|'
+});
+</script>
+<script>
+/* ── GitHub Activity Feed ── */
+(function(){
+  var feed=document.getElementById('ghFeed');
+  if(!feed)return;
+  var ICONS={
+    PushEvent:{icon:'fa-code-commit',bg:'#3b82f6'},
+    CreateEvent:{icon:'fa-code-branch',bg:'#8b5cf6'},
+    WatchEvent:{icon:'fa-star',bg:'#f59e0b'},
+    ForkEvent:{icon:'fa-code-fork',bg:'#10b981'},
+    PullRequestEvent:{icon:'fa-code-pull-request',bg:'#6366f1'},
+    IssuesEvent:{icon:'fa-circle-dot',bg:'#ef4444'},
+    ReleaseEvent:{icon:'fa-tag',bg:'#06b6d4'}
+  };
+  function timeAgo(d){
+    var s=Math.floor((Date.now()-new Date(d))/1000);
+    if(s<60)return s+'s ago';
+    if(s<3600)return Math.floor(s/60)+'m ago';
+    if(s<86400)return Math.floor(s/3600)+'h ago';
+    return Math.floor(s/86400)+'d ago';
+  }
+  function label(ev){
+    var r=ev.repo?ev.repo.name:'';
+    var p=ev.payload||{};
+    if(ev.type==='PushEvent'){
+      var n=p.size||0;
+      var msg=p.commits&&p.commits[0]?p.commits[0].message.split('\n')[0]:'pushed';
+      return{line:msg,sub:n+' commit'+(n!==1?'s':'')+' to '+r};
+    }
+    if(ev.type==='CreateEvent')return{line:'Created '+p.ref_type+(p.ref?' '+p.ref:''),sub:r};
+    if(ev.type==='WatchEvent')return{line:'Starred '+r,sub:''};
+    if(ev.type==='ForkEvent')return{line:'Forked '+r,sub:''};
+    if(ev.type==='PullRequestEvent')return{line:(p.action||'')+'d PR: '+(p.pull_request?p.pull_request.title:''),sub:r};
+    if(ev.type==='IssuesEvent')return{line:(p.action||'')+'d issue: '+(p.issue?p.issue.title:''),sub:r};
+    if(ev.type==='ReleaseEvent')return{line:'Released '+(p.release?p.release.tag_name:''),sub:r};
+    return{line:ev.type.replace('Event',''),sub:r};
+  }
+  fetch('https://api.github.com/users/ntellecktual/events/public?per_page=8')
+    .then(function(r){return r.json();})
+    .then(function(evts){
+      if(!evts||!evts.length){feed.innerHTML='<div class="gh-placeholder">No recent activity.</div>';return;}
+      var html='';
+      evts.forEach(function(ev){
+        var ic=ICONS[ev.type]||{icon:'fa-circle',bg:'#6b7280'};
+        var lbl=label(ev);
+        html+='<div class="gh-evt">';
+        html+='<div class="gh-evt-icon" style="background:'+ic.bg+'"><i class="fas '+ic.icon+'"></i></div>';
+        html+='<div class="gh-evt-body">';
+        html+='<div class="gh-evt-line">'+lbl.line+'</div>';
+        if(lbl.sub)html+='<div class="gh-evt-sub">'+lbl.sub+'</div>';
+        html+='</div>';
+        html+='<div class="gh-evt-time">'+timeAgo(ev.created_at)+'</div>';
+        html+='</div>';
+      });
+      feed.innerHTML=html;
+    })
+    .catch(function(){feed.innerHTML='<div class="gh-placeholder">Activity unavailable.</div>';});
+}());
+</script>
 <script>
 (function () {
     var grid       = document.getElementById('homeNavGrid');
