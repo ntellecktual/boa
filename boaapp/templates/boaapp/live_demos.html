@@ -1,11 +1,338 @@
 {% extends 'boaapp/base_generic.html' %}
+{% load static %}
 
-{% block title %}Live Demos - BOA{% endblock %}
+{% block title %}thenumerix | Discover Demos{% endblock %}
+
+{% block container_class %}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>Live Demos</h1>
-    <p>Welcome to the Live Demos section. Content coming soon.</p>
-    <a href="{% url 'dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
-</div>
+<style>
+/* ══════════════════════════════════════════════════════════
+   DISCOVER DEMOS — Discord-inspired hub
+   ══════════════════════════════════════════════════════════ */
+:root{
+  --dsc-surface:#fff;--dsc-surface2:#f8f9fc;--dsc-border:rgba(0,0,0,.07);
+  --dsc-text:#1a1a2e;--dsc-muted:#6b7280;
+  --dsc-shadow:0 1px 4px rgba(0,0,0,.06);
+  --dsc-shadow-lg:0 8px 32px rgba(0,0,0,.10);
+  --dsc-radius:16px;
+}
+[data-theme="dark"]{
+  --dsc-surface:#1e2030;--dsc-surface2:#171923;--dsc-border:rgba(255,255,255,.07);
+  --dsc-text:#e2e8f0;--dsc-muted:#94a3b8;
+  --dsc-shadow:0 1px 4px rgba(0,0,0,.3);
+  --dsc-shadow-lg:0 8px 32px rgba(0,0,0,.4);
+}
+
+@keyframes dscFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dscFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* Full-bleed wrapper */
+.dsc-wrap{padding:0;min-height:100vh;background:var(--dsc-surface2)}
+
+/* ── Hero Banner ── */
+.dsc-hero{
+  position:relative;overflow:hidden;padding:3.5rem 2rem 2.8rem;text-align:center;
+  background:linear-gradient(135deg,#5865f2 0%,#7c3aed 40%,#3b82f6 80%,#06b6d4 100%);
+  border-radius:0 0 0 0;
+}
+.dsc-hero::before{content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'%3E%3Ccircle cx='120' cy='80' r='60' fill='rgba(255,255,255,.04)'/%3E%3Ccircle cx='680' cy='120' r='90' fill='rgba(255,255,255,.03)'/%3E%3Ccircle cx='400' cy='320' r='120' fill='rgba(255,255,255,.025)'/%3E%3Ccircle cx='60' cy='340' r='40' fill='rgba(255,255,255,.04)'/%3E%3Ccircle cx='740' cy='350' r='55' fill='rgba(255,255,255,.035)'/%3E%3C/svg%3E") center/cover no-repeat;
+  pointer-events:none;opacity:.8}
+.dsc-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;
+  background:linear-gradient(transparent,var(--dsc-surface2));pointer-events:none}
+
+.dsc-hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;color:#fff;margin:0 0 .5rem;
+  position:relative;z-index:1;text-shadow:0 2px 12px rgba(0,0,0,.15)}
+.dsc-hero p{font-size:.95rem;color:rgba(255,255,255,.8);margin:0 0 1.8rem;position:relative;z-index:1}
+
+/* Search bar */
+.dsc-search{position:relative;max-width:520px;margin:0 auto;z-index:2}
+.dsc-search input{width:100%;padding:.75rem 1.2rem .75rem 2.8rem;border-radius:12px;border:none;
+  font-size:.88rem;background:rgba(0,0,0,.25);color:#fff;backdrop-filter:blur(8px);
+  outline:none;transition:background .2s}
+.dsc-search input::placeholder{color:rgba(255,255,255,.55)}
+.dsc-search input:focus{background:rgba(0,0,0,.35)}
+.dsc-search i{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.5);
+  font-size:.9rem;pointer-events:none}
+
+/* ── Category Pills ── */
+.dsc-cats{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;padding:1.5rem 2rem .5rem;
+  position:relative;z-index:2;margin-top:-1.5rem}
+.dsc-cat{padding:.45rem 1rem;border-radius:999px;font-size:.78rem;font-weight:600;
+  border:1px solid var(--dsc-border);background:var(--dsc-surface);color:var(--dsc-muted);
+  cursor:pointer;transition:all .2s;user-select:none}
+.dsc-cat:hover{border-color:rgba(88,101,242,.3);color:#5865f2}
+.dsc-cat.active{background:#5865f2;color:#fff;border-color:#5865f2}
+
+/* ── Section Titles ── */
+.dsc-section{padding:1.2rem 2rem .6rem;animation:dscFadeUp .4s ease both}
+.dsc-section-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--dsc-muted);margin:0}
+
+/* ── Card Grid ── */
+.dsc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding:1rem 2rem 2rem;
+  animation:dscFadeUp .4s ease both;animation-delay:.05s}
+@media(max-width:1100px){.dsc-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.dsc-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.dsc-grid{grid-template-columns:1fr}}
+
+/* ── Demo Card — Discord community card style ── */
+.dsc-card{border-radius:var(--dsc-radius);overflow:hidden;background:var(--dsc-surface);
+  border:1px solid var(--dsc-border);box-shadow:var(--dsc-shadow);
+  text-decoration:none;color:var(--dsc-text);display:flex;flex-direction:column;
+  transition:transform .22s,box-shadow .22s}
+.dsc-card:hover{transform:translateY(-4px);box-shadow:var(--dsc-shadow-lg);color:var(--dsc-text);text-decoration:none}
+
+/* Banner */
+.dsc-card-banner{height:120px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.dsc-card-banner .dsc-bg-icon{font-size:2.8rem;color:rgba(255,255,255,.2);z-index:1}
+.dsc-card-banner .dsc-partner-logo{position:absolute;bottom:8px;right:10px;height:28px;opacity:.85;
+  filter:drop-shadow(0 1px 4px rgba(0,0,0,.3));z-index:1}
+
+/* Avatar overlay */
+.dsc-card-avatar{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;color:#fff;position:relative;margin:-24px 0 0 16px;z-index:2;
+  border:4px solid var(--dsc-surface);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+
+/* Body */
+.dsc-card-body{padding:.8rem 1rem 1rem;flex:1;display:flex;flex-direction:column}
+.dsc-card-title{font-size:.88rem;font-weight:700;margin:0 0 .2rem;display:flex;align-items:center;gap:.4rem}
+.dsc-card-desc{font-size:.75rem;color:var(--dsc-muted);margin:0 0 .8rem;flex:1;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Stats row */
+.dsc-card-stats{display:flex;align-items:center;gap:1rem;font-size:.68rem;color:var(--dsc-muted)}
+.dsc-card-stats .dsc-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:.25rem}
+.dsc-dot--green{background:#43b581}
+.dsc-dot--gray{background:#747f8d}
+
+/* Status badge */
+.dsc-status{display:inline-flex;align-items:center;gap:.25rem;padding:.1rem .45rem;border-radius:4px;
+  font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.dsc-status--live{background:rgba(67,181,129,.12);color:#43b581}
+.dsc-status--new{background:rgba(88,101,242,.12);color:#5865f2}
+
+/* ── Footer ── */
+.dsc-footer{text-align:center;padding:1.5rem 2rem 3rem;opacity:.4;font-size:.72rem}
+</style>
+
+<div class="dsc-wrap">
+
+  <!-- ══ Hero Banner ══ -->
+  <div class="dsc-hero">
+    <h1>Explore Live Demos</h1>
+    <p>From data engineering, to MLOps, to DevOps — there's a pipeline for that.</p>
+    <div class="dsc-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="dscSearch" placeholder="Search demos..." autocomplete="off" />
+    </div>
+  </div>
+
+  <!-- ══ Category Filter ══ -->
+  <div class="dsc-cats">
+    <span class="dsc-cat active" data-filter="all"><i class="fas fa-compass me-1"></i>All</span>
+    <span class="dsc-cat" data-filter="data"><i class="fas fa-database me-1"></i>Data Engineering</span>
+    <span class="dsc-cat" data-filter="ml"><i class="fas fa-brain me-1"></i>AI / ML</span>
+    <span class="dsc-cat" data-filter="devops"><i class="fas fa-infinity me-1"></i>DevOps</span>
+    <span class="dsc-cat" data-filter="finance"><i class="fas fa-chart-pie me-1"></i>Finance</span>
+    <span class="dsc-cat" data-filter="docs"><i class="fas fa-file-alt me-1"></i>Documents</span>
+  </div>
+
+  <!-- ══ Featured Demos ══ -->
+  <div class="dsc-section">
+    <p class="dsc-section-title">Featured Demos — {{ user.username }}'s Portfolio</p>
+  </div>
+
+  <div class="dsc-grid" id="dscGrid">
+
+    <!-- 1 ── AI Process Flows ── -->
+    <a href="{% url 'process_flows' %}" class="dsc-card" data-tags="finance ml">
+      <div class="dsc-card-banner" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+        <i class="fas fa-arrows-spin dsc-bg-icon"></i>
+        <img src="{% static 'css/img/oracle.png' %}" alt="Oracle" class="dsc-partner-logo" loading="lazy">
+      </div>
+      <div class="dsc-card-avatar" style="background:linear-gradient(135deg,#f59e0b,#b45309)">
+        <i class="fas fa-arrows-spin"></i>
+      </div>
+      <div class="dsc-card-body">
+        <p class="dsc-card-title">AI Process Flows <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
+        <p class="dsc-card-desc">AP/AR finance automation powered by Claude AI — GL coding, entity routing, and three-way match at enterprise scale.</p>
+        <div class="dsc-card-stats">
+          <span><span class="dsc-dot dsc-dot--green"></span>Interactive</span>
+          <span><span class="dsc-dot dsc-dot--gray"></span>Finance &amp; AI</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 2 ── ETL Pipeline ── -->
+    <a href="{% url 'etl_pipeline' %}" class="dsc-card" data-tags="data devops">
+      <div class="dsc-card-banner" style="background:linear-gradient(135deg,#0078d4,#004578)">
+        <i class="fas fa-code-branch dsc-bg-icon"></i>
+        <img src="{% static 'css/img/nfl.png' %}" alt="NFL" class="dsc-partner-logo" loading="lazy">
+      </div>
+      <div class="dsc-card-avatar" style="background:linear-gradient(135deg,#0078d4,#1d4ed8)">
+        <i class="fas fa-code-branch"></i>
+      </div>
+      <div class="dsc-card-body">
+        <p class="dsc-card-title">CI/CD Platform Engineering <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
+        <p class="dsc-card-desc">Three isolated pipelines for NeonDeck Entertainment — Azure DevOps, Databricks, and Entra ID RBAC governance.</p>
+        <div class="dsc-card-stats">
+          <span><span class="dsc-dot dsc-dot--green"></span>3 Pipelines</span>
+          <span><span class="dsc-dot dsc-dot--gray"></span>DevOps &amp; Data</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 3 ── MLOps Lifecycle ── -->
+    <a href="{% url 'mlops_lifecycle' %}" class="dsc-card" data-tags="ml data">
+      <div class="dsc-card-banner" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+        <i class="fas fa-brain dsc-bg-icon"></i>
+        <img src="{% static 'css/img/mlb.png' %}" alt="MLB" class="dsc-partner-logo" loading="lazy">
+      </div>
+      <div class="dsc-card-avatar" style="background:linear-gradient(135deg,#8b5cf6,#4c1d95)">
+        <i class="fas fa-brain"></i>
+      </div>
+      <div class="dsc-card-body">
+        <p class="dsc-card-title">MLOps Lifecycle <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
+        <p class="dsc-card-desc">MLB game prediction pipeline — XGBoost model training, feature store, model registry, real-time serving, and drift monitoring.</p>
+        <div class="dsc-card-stats">
+          <span><span class="dsc-dot dsc-dot--green"></span>Full Pipeline</span>
+          <span><span class="dsc-dot dsc-dot--gray"></span>AI / ML</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 4 ── CI/CD Automation ── -->
+    <a href="{% url 'cicd_automation' %}" class="dsc-card" data-tags="devops data">
+      <div class="dsc-card-banner" style="background:linear-gradient(135deg,#475569,#1e293b)">
+        <i class="fas fa-infinity dsc-bg-icon"></i>
+      </div>
+      <div class="dsc-card-avatar" style="background:linear-gradient(135deg,#475569,#0f172a)">
+        <i class="fas fa-infinity"></i>
+      </div>
+      <div class="dsc-card-body">
+        <p class="dsc-card-title">CI/CD Automation <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
+        <p class="dsc-card-desc">Azure DevOps YAML pipelines, Databricks workspace governance, Terraform IaC, and Entra ID RBAC workflows.</p>
+        <div class="dsc-card-stats">
+          <span><span class="dsc-dot dsc-dot--green"></span>Multi-Tab</span>
+          <span><span class="dsc-dot dsc-dot--gray"></span>DevOps</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 5 ── Streaming Architecture ── -->
+    <a href="{% url 'streaming_architecture' %}" class="dsc-card" data-tags="data">
+      <div class="dsc-card-banner" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
+        <i class="fas fa-bolt dsc-bg-icon"></i>
+        <img src="{% static 'css/img/netlfix.png' %}" alt="Netflix" class="dsc-partner-logo" loading="lazy">
+      </div>
+      <div class="dsc-card-avatar" style="background:linear-gradient(135deg,#06b6d4,#0e7490)">
+        <i class="fas fa-bolt"></i>
+      </div>
+      <div class="dsc-card-body">
+        <p class="dsc-card-title">Streaming Architecture <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
+        <p class="dsc-card-desc">Real-time event processing with Kafka, Flink, and Redis — Netflix-style recommendation engine with live metrics.</p>
+        <div class="dsc-card-stats">
+          <span><span class="dsc-dot dsc-dot--green"></span>Real-time</span>
+          <span><span class="dsc-dot dsc-dot--gray"></span>Streaming</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 6 ── API Orchestration ── -->
+    <a href="{% url 'api_orchestration' %}" class="dsc-card" data-tags="devops">
+      <div class="dsc-card-banner" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
+        <i class="fas fa-project-diagram dsc-bg-icon"></i>
+      </div>
+      <div class="dsc-card-avatar" style="background:linear-gradient(135deg,#6366f1,#312e81)">
+        <i class="fas fa-project-diagram"></i>
+      </div>
+      <div class="dsc-card-body">
+        <p class="dsc-card-title">API Orchestration <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
+        <p class="dsc-card-desc">Saga orchestration, circuit breakers, resilience patterns, and multi-service API gateway workflows.</p>
+        <div class="dsc-card-stats">
+          <span><span class="dsc-dot dsc-dot--green"></span>Saga Demo</span>
+          <span><span class="dsc-dot dsc-dot--gray"></span>APIs</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 7 ── Document Processing ── -->
+    <a href="{% url 'idp_demo' %}" class="dsc-card" data-tags="ml docs finance">
+      <div class="dsc-card-banner" style="background:linear-gradient(135deg,#14b8a6,#0d9488)">
+        <i class="fas fa-file-alt dsc-bg-icon"></i>
+      </div>
+      <div class="dsc-card-avatar" style="background:linear-gradient(135deg,#14b8a6,#0f766e)">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div class="dsc-card-body">
+        <p class="dsc-card-title">Document Processing <span class="dsc-status dsc-status--live"><span class="dsc-dot dsc-dot--green"></span>Live</span></p>
+        <p class="dsc-card-desc">Intelligent document processing pipeline — OCR, classification, extraction, validation, and ERP export for AP invoices.</p>
+        <div class="dsc-card-stats">
+          <span><span class="dsc-dot dsc-dot--green"></span>IDP Pipeline</span>
+          <span><span class="dsc-dot dsc-dot--gray"></span>AI &amp; Finance</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 8 ── UploadIt! ── -->
+    <a href="{% url 'uploadit' %}" class="dsc-card" data-tags="ml docs">
+      <div class="dsc-card-banner" style="background:linear-gradient(135deg,#10b981,#059669)">
+        <i class="fas fa-cloud-upload-alt dsc-bg-icon"></i>
+      </div>
+      <div class="dsc-card-avatar" style="background:linear-gradient(135deg,#10b981,#047857)">
+        <i class="fas fa-cloud-upload-alt"></i>
+      </div>
+      <div class="dsc-card-body">
+        <p class="dsc-card-title">UploadIt! <span class="dsc-status dsc-status--new"><span class="dsc-dot dsc-dot--green"></span>New</span></p>
+        <p class="dsc-card-desc">Upload Jupyter notebooks, auto-generate audio lectures, video content, quizzes, and RAG-powered chat from your course material.</p>
+        <div class="dsc-card-stats">
+          <span><span class="dsc-dot dsc-dot--green"></span>Interactive</span>
+          <span><span class="dsc-dot dsc-dot--gray"></span>Content Pipeline</span>
+        </div>
+      </div>
+    </a>
+
+  </div><!-- /dsc-grid -->
+
+  <div class="dsc-footer">
+    <p>thenumerix — production systems, not proof of concepts.</p>
+  </div>
+
+</div><!-- /dsc-wrap -->
+
+{% endblock %}
+
+{% block extra_js %}{{ block.super }}
+<script>
+(function(){
+  /* ── Category filter ── */
+  var cats=document.querySelectorAll('.dsc-cat');
+  var cards=document.querySelectorAll('.dsc-card');
+  cats.forEach(function(c){
+    c.addEventListener('click',function(){
+      cats.forEach(function(x){x.classList.remove('active')});
+      c.classList.add('active');
+      var f=c.dataset.filter;
+      cards.forEach(function(card){
+        if(f==='all'||card.dataset.tags.indexOf(f)>-1){
+          card.style.display='';card.style.animation='dscFadeUp .3s ease both';
+        }else{card.style.display='none'}
+      });
+    });
+  });
+
+  /* ── Search ── */
+  var input=document.getElementById('dscSearch');
+  input.addEventListener('input',function(){
+    var q=this.value.toLowerCase().trim();
+    cards.forEach(function(card){
+      var txt=(card.textContent||'').toLowerCase();
+      card.style.display=(!q||txt.indexOf(q)>-1)?'':'none';
+    });
+    if(q){cats.forEach(function(c){c.classList.remove('active')});cats[0].classList.add('active')}
+  });
+}());
+</script>
 {% endblock %}

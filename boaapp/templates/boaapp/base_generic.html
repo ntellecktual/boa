@@ -11,8 +11,19 @@
     <meta property="og:description" content="{% block og_description %}Enterprise engineering portfolio — production systems, not proof of concepts.{% endblock %}" />
     <meta property="og:type" content="website" />
     <title>{% block title %}thenumerix | Home{% endblock %}</title>
+    <meta name="view-transition" content="same-origin" />
     <!-- Prevent dark-mode flash: apply saved theme before first paint -->
     <script>!function(){var t=localStorage.getItem('theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',t)}()</script>
+    <style>
+      /* Cross-page View Transitions (browsers that support it) */
+      @view-transition{navigation:auto}
+      ::view-transition-old(root){animation:vtFadeOut .18s ease-in both}
+      ::view-transition-new(root){animation:vtFadeIn .22s ease-out .08s both}
+      @keyframes vtFadeOut{to{opacity:0;transform:translateY(4px)}}
+      @keyframes vtFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+      /* Fallback page-enter animation for all browsers */
+      .main-content{animation:vtFadeIn .3s ease both}
+    </style>
     {% block extra_head %}{% endblock %}
 
     <link
@@ -73,6 +84,10 @@
         </a>
 
         <div class="sidebar-group-label">Demos</div>
+        <a href="{% url 'live_demos' %}" class="sidebar-link">
+          <i class="fas fa-compass"></i>
+          <span class="sidebar-text">Discover</span>
+        </a>
         <a href="{% url 'process_flows' %}" class="sidebar-link">
           <i class="fas fa-arrows-spin"></i>
           <span class="sidebar-text">AI Process Flows</span>
@@ -89,7 +104,7 @@
           <i class="fas fa-brain"></i>
           <span class="sidebar-text">MLOps Lifecycle</span>
         </a>
-        <a href="{% url 'etl_pipeline' %}" class="sidebar-link">
+        <a href="{% url 'cicd_automation' %}" class="sidebar-link">
           <i class="fas fa-infinity"></i>
           <span class="sidebar-text">CI/CD Automation</span>
         </a>
@@ -175,5 +190,16 @@
     <!-- Custom JS -->
     <script src="{% static 'js/index.js' %}?v={{ timestamp }}"></script>
     {% block extra_js %}{% endblock %}
+    <script>
+    /* Smooth navigation: intercept same-origin links for View Transitions API */
+    if(document.startViewTransition){
+      document.addEventListener('click',function(e){
+        var a=e.target.closest('a[href]');
+        if(!a||a.target==="_blank"||a.origin!==location.origin||a.hasAttribute('download'))return;
+        e.preventDefault();
+        document.startViewTransition(function(){window.location.href=a.href});
+      });
+    }
+    </script>
   </body>
 </html>
