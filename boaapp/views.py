@@ -17,7 +17,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from nbconvert import HTMLExporter
 
-from .forms import CustomUserCreationForm, DocumentForm
+from .forms import CustomUserCreationForm, DocumentForm, ProfileUpdateForm
 from .models import (
     AudioFile,
     ChatConversation,
@@ -274,10 +274,24 @@ def health_check(request):
 
 
 def home_view(request):
-    """Authenticated home dashboard, or redirect to login."""
+    """Authenticated dashboard, or public landing page for guests."""
     if request.user.is_authenticated:
         return render(request, 'boaapp/home.html')
-    return redirect('login')
+    return render(request, 'boaapp/landing.html')
+
+
+@login_required
+def profile_view(request):
+    """View and update user profile (name, email)."""
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated.')
+            return redirect('profile')
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+    return render(request, 'boaapp/profile.html', {'form': form})
 
 
 def login_view(request):

@@ -22,6 +22,16 @@ class DocumentForm(forms.ModelForm):
         fields = ('uploaded_file',)
 
 
+class ProfileUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=150, required=False, label='First name')
+    last_name = forms.CharField(max_length=150, required=False, label='Last name')
+    email = forms.EmailField(required=True, label='Email address')
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
+
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, help_text=_('Required. Please enter a valid email address.'))
     # You might add other custom fields here

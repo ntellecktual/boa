@@ -21,6 +21,7 @@ urlpatterns = [
     path('accounts/login/', boaapp_views.login_view, name='accounts_login'),
     path('logout/', boaapp_views.logout_view, name='logout'),
     path('', boaapp_views.home_view, name='home'),
+    path('profile/', boaapp_views.profile_view, name='profile'),
     # Dashboard
     path('dashboard/', boaapp_views.dashboard, name='dashboard'),
     path('dashboard/delete_orphaned/', boaapp_views.delete_orphaned_files, name='delete_orphaned_files'),

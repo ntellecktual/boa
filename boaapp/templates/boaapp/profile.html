@@ -1,0 +1,284 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}thenumerix | Profile{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ══════════════════════════════════════════════════════
+   PROFILE PAGE
+   ══════════════════════════════════════════════════════ */
+:root {
+  --pf-surface: #fff;
+  --pf-border: rgba(0,0,0,.07);
+  --pf-muted: #6b7280;
+  --pf-shadow: 0 4px 24px rgba(0,0,0,.08);
+}
+[data-theme="dark"] {
+  --pf-surface: #1a1d2e;
+  --pf-border: rgba(255,255,255,.08);
+  --pf-muted: #94a3b8;
+  --pf-shadow: 0 4px 24px rgba(0,0,0,.3);
+}
+
+.pf-wrap { max-width: 680px; margin: 2.5rem auto; padding: 0 1rem 4rem; }
+
+/* Avatar hero */
+.pf-hero {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+.pf-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  box-shadow: 0 4px 16px rgba(99,102,241,.3);
+}
+.pf-hero-text h1 { font-size: 1.3rem; font-weight: 800; margin: 0 0 .2rem; }
+.pf-hero-text p { font-size: .8rem; color: var(--pf-muted); margin: 0; }
+
+/* Card */
+.pf-card {
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-border);
+  border-radius: 16px;
+  box-shadow: var(--pf-shadow);
+  overflow: hidden;
+}
+.pf-card-head {
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--pf-border);
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.pf-card-head-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(99,102,241,.1);
+  color: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+}
+.pf-card-head h2 { font-size: .92rem; font-weight: 700; margin: 0; }
+.pf-card-body { padding: 1.4rem; }
+
+/* Form fields */
+.pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+@media (max-width: 540px) { .pf-row { grid-template-columns: 1fr; } }
+
+.pf-field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1rem; }
+.pf-label {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--pf-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.pf-input {
+  border: 1px solid var(--pf-border);
+  border-radius: 10px;
+  padding: .55rem .85rem;
+  font-size: .88rem;
+  background: transparent;
+  color: inherit;
+  transition: border-color .2s, box-shadow .2s;
+  font-family: inherit;
+  width: 100%;
+}
+.pf-input:focus {
+  outline: none;
+  border-color: rgba(99,102,241,.5);
+  box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+}
+[data-theme="dark"] .pf-input { background: rgba(255,255,255,.04); }
+
+.pf-input-readonly {
+  opacity: .55;
+  cursor: default;
+  background: var(--pf-border) !important;
+}
+
+/* Alert */
+.pf-alert-success {
+  padding: .65rem 1rem;
+  border-radius: 10px;
+  font-size: .82rem;
+  font-weight: 500;
+  background: rgba(16,185,129,.08);
+  border: 1px solid rgba(16,185,129,.2);
+  color: #059669;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+[data-theme="dark"] .pf-alert-success { color: #34d399; background: rgba(16,185,129,.12); }
+
+/* Submit */
+.pf-save-btn {
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: .6rem 1.4rem;
+  font-size: .88rem;
+  font-weight: 700;
+  font-family: inherit;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(99,102,241,.25);
+  transition: opacity .2s, transform .2s;
+}
+.pf-save-btn:hover { opacity: .9; transform: translateY(-1px); }
+
+/* Stats strip */
+.pf-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.pf-stat {
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-border);
+  border-radius: 12px;
+  padding: .9rem 1rem;
+  text-align: center;
+}
+.pf-stat-val { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+.pf-stat-lbl { font-size: .65rem; color: var(--pf-muted); margin-top: .2rem; text-transform: uppercase; letter-spacing: .05em; }
+.pf-stat-val.clr-violet { color: #8b5cf6; }
+.pf-stat-val.clr-blue   { color: #3b82f6; }
+.pf-stat-val.clr-emerald{ color: #10b981; }
+
+/* Danger zone */
+.pf-danger-zone {
+  margin-top: 1.5rem;
+  padding: 1rem 1.4rem;
+  border-radius: 12px;
+  border: 1px solid rgba(239,68,68,.2);
+  background: rgba(239,68,68,.04);
+}
+.pf-danger-zone h3 { font-size: .82rem; font-weight: 700; color: #ef4444; margin: 0 0 .4rem; }
+.pf-danger-zone p { font-size: .75rem; color: var(--pf-muted); margin: 0 0 .75rem; }
+.pf-danger-btn {
+  border: 1px solid rgba(239,68,68,.4);
+  background: none;
+  color: #ef4444;
+  border-radius: 8px;
+  padding: .4rem .9rem;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+}
+.pf-danger-btn:hover { background: rgba(239,68,68,.08); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pf-wrap">
+
+  <!-- Hero -->
+  <div class="pf-hero">
+    <div class="pf-avatar">{{ user.first_name|first|default:user.username|first }}</div>
+    <div class="pf-hero-text">
+      <h1>{{ user.get_full_name|default:user.username }}</h1>
+      <p>Member since {{ user.date_joined|date:"F Y" }} &nbsp;&bull;&nbsp; @{{ user.username }}</p>
+    </div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="pf-stats">
+    <div class="pf-stat">
+      <div class="pf-stat-val clr-violet">{{ user.learningevent_set.count }}</div>
+      <div class="pf-stat-lbl">Learning Events</div>
+    </div>
+    <div class="pf-stat">
+      <div class="pf-stat-val clr-blue">{{ user.enrollment_set.count }}</div>
+      <div class="pf-stat-lbl">Courses Enrolled</div>
+    </div>
+    <div class="pf-stat">
+      <div class="pf-stat-val clr-emerald">{{ user.document_set.count }}</div>
+      <div class="pf-stat-lbl">Documents</div>
+    </div>
+  </div>
+
+  {% if messages %}
+  {% for msg in messages %}
+  <div class="pf-alert-success"><i class="fas fa-check-circle"></i> {{ msg }}</div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- Profile form card -->
+  <div class="pf-card">
+    <div class="pf-card-head">
+      <div class="pf-card-head-icon"><i class="fas fa-user-edit"></i></div>
+      <h2>Account Information</h2>
+    </div>
+    <div class="pf-card-body">
+      <form method="POST">
+        {% csrf_token %}
+
+        <!-- Username (read-only) -->
+        <div class="pf-field">
+          <label class="pf-label">Username</label>
+          <input class="pf-input pf-input-readonly" type="text" value="{{ user.username }}" readonly />
+          <small style="font-size:.67rem;color:var(--pf-muted);margin-top:.2rem">Username cannot be changed.</small>
+        </div>
+
+        <div class="pf-row">
+          <div class="pf-field" style="margin-bottom:0">
+            <label class="pf-label" for="id_first_name">First name</label>
+            <input class="pf-input" type="text" id="id_first_name" name="first_name"
+                   value="{{ form.first_name.value|default:'' }}" maxlength="150" placeholder="First name" />
+          </div>
+          <div class="pf-field" style="margin-bottom:0">
+            <label class="pf-label" for="id_last_name">Last name</label>
+            <input class="pf-input" type="text" id="id_last_name" name="last_name"
+                   value="{{ form.last_name.value|default:'' }}" maxlength="150" placeholder="Last name" />
+          </div>
+        </div>
+
+        <div class="pf-field" style="margin-top:1rem">
+          <label class="pf-label" for="id_email">Email address</label>
+          <input class="pf-input" type="email" id="id_email" name="email"
+                 value="{{ form.email.value|default:'' }}" placeholder="you@example.com" required />
+          {% for error in form.email.errors %}
+          <small style="font-size:.7rem;color:#ef4444;">{{ error }}</small>
+          {% endfor %}
+        </div>
+
+        <button type="submit" class="pf-save-btn">
+          <i class="fas fa-save me-2"></i>Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="pf-danger-zone">
+    <h3><i class="fas fa-exclamation-triangle me-1"></i> Danger Zone</h3>
+    <p>Signing out ends your current session across all tabs.</p>
+    <a href="{% url 'logout' %}" class="pf-danger-btn">
+      <i class="fas fa-sign-out-alt me-1"></i>Sign Out
+    </a>
+  </div>
+
+</div>
+{% endblock %}

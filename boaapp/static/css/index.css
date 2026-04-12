@@ -999,6 +999,7 @@ body.step-3-active[data-theme="dark"]  { background-image: url("img/step3dark.pn
 .sidebar.collapsed .sidebar-link {
   justify-content: center;
   padding: 6px;
+  gap: 0;
 }
 
 .sidebar.collapsed .sidebar-link::before {

@@ -26,9 +26,17 @@ document.addEventListener('DOMContentLoaded', function () {
     localStorage.setItem('theme', theme);
 
     if (toggleBtn) {
-      toggleBtn.innerHTML = theme === 'dark'
-        ? '<i class="fas fa-sun"></i> Light Mode'
-        : '<i class="fas fa-moon"></i> Dark Mode';
+      var icon = document.getElementById('theme-toggle-icon');
+      var label = document.getElementById('theme-toggle-label');
+      if (icon && label) {
+        // New icon-wrap structure
+        icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        label.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+      } else {
+        toggleBtn.innerHTML = theme === 'dark'
+          ? '<i class="fas fa-sun"></i> Light Mode'
+          : '<i class="fas fa-moon"></i> Dark Mode';
+      }
       if (!isInitialLoad) {
         setTimeout(function () { toggleBtn.classList.remove('rotating'); }, 400);
       } else {

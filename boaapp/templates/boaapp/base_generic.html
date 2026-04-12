@@ -174,6 +174,26 @@
             </a>
           </div>
         </div>
+
+        <!-- ── Settings ── -->
+        <div class="sb-group" data-group="settings">
+          <button class="sb-group-toggle" type="button" aria-expanded="false">
+            <span class="sb-group-dot" style="--dot:#64748b"></span>
+            <span class="sb-group-label">Settings</span>
+            <span class="sb-group-count">2</span>
+            <i class="fas fa-chevron-down sb-group-chevron"></i>
+          </button>
+          <div class="sb-group-items">
+            <a href="{% url 'profile' %}" class="sidebar-link" data-desc="Update name, email & account info">
+              <span class="sb-icon-wrap sb-icon--violet"><i class="fas fa-user-circle"></i></span>
+              <span class="sidebar-text">Profile</span>
+            </a>
+            <button class="sidebar-link" id="theme-toggle-btn" type="button" data-desc="Switch light / dark mode">
+              <span class="sb-icon-wrap sb-icon--amber"><i class="fas fa-moon" id="theme-toggle-icon"></i></span>
+              <span class="sidebar-text" id="theme-toggle-label">Dark Mode</span>
+            </button>
+          </div>
+        </div>
       </nav>
 
       <!-- Footer -->
@@ -186,13 +206,9 @@
           </div>
         </div>
         <div class="sb-footer-actions">
-          <button class="sidebar-link" id="theme-toggle-btn" type="button">
-            <i class="fas fa-moon"></i>
-            <span class="sidebar-text">Dark Mode</span>
-          </button>
           <a href="{% url 'logout' %}" class="sidebar-link sb-link--danger">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="sidebar-text">Logout</span>
+            <span class="sb-icon-wrap sb-icon--red"><i class="fas fa-sign-out-alt"></i></span>
+            <span class="sidebar-text">Sign Out</span>
           </a>
         </div>
       </div>
