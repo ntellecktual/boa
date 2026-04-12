@@ -126,6 +126,10 @@
           <i class="fas fa-laptop-code"></i>
           <span class="sidebar-text">Playground</span>
         </a>
+        <a href="{% url 'status_page' %}" class="sidebar-link">
+          <i class="fas fa-signal"></i>
+          <span class="sidebar-text">Status</span>
+        </a>
       </nav>
 
       <div class="sidebar-footer">
@@ -286,6 +290,23 @@
       }
       function removeTyping(){var t=document.getElementById('ptcTyping');if(t)t.remove();}
 
+      function notifyIfClosed(){
+        if(!panel.classList.contains('open')&&!btn.querySelector('.ptc-toast-badge')){
+          var badge=document.createElement('div');
+          badge.className='ptc-toast-badge';badge.textContent='1';
+          btn.appendChild(badge);
+        }
+      }
+
+      function addStreamBubble(){
+        var d=document.createElement('div');
+        d.className='ptc-msg ptc-msg--bot';d.id='ptcStream';
+        var b=document.createElement('div');
+        b.className='ptc-bubble';b.textContent='';
+        d.appendChild(b);msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+        return b;
+      }
+
       function sendMsg(){
         var text=input.value.trim();
         if(!text||busy)return;
@@ -294,24 +315,48 @@
         input.value='';
         addTyping();
         var csrf='{% csrf_token %}'.match(/value="([^"]+)"/);
-        var headers={'Content-Type':'application/json'};
+        var headers={'Content-Type':'application/json','Accept':'text/event-stream'};
         if(csrf)headers['X-CSRFToken']=csrf[1];
         fetch(ENDPOINT,{
           method:'POST',
           headers:headers,
           body:JSON.stringify({message:text})
         })
-        .then(function(r){return r.json();})
-        .then(function(d){
-          removeTyping();
-          addMsg(d.reply||'Sorry, something went wrong.','bot');
-          busy=false;
-          /* show toast if panel is closed */
-          if(!panel.classList.contains('open')&&!btn.querySelector('.ptc-toast-badge')){
-            var badge=document.createElement('div');
-            badge.className='ptc-toast-badge';badge.textContent='1';
-            btn.appendChild(badge);
+        .then(function(r){
+          var ct=r.headers.get('content-type')||'';
+          /* SSE streaming response */
+          if(ct.indexOf('text/event-stream')!==-1){
+            removeTyping();
+            var bubble=addStreamBubble();
+            var reader=r.body.getReader();
+            var decoder=new TextDecoder();
+            var buffer='';
+            function read(){
+              reader.read().then(function(result){
+                if(result.done){busy=false;notifyIfClosed();return;}
+                buffer+=decoder.decode(result.value,{stream:true});
+                var lines=buffer.split('\n');
+                buffer=lines.pop();
+                lines.forEach(function(line){
+                  if(line.indexOf('data: ')===0){
+                    var payload=line.slice(6).trim();
+                    if(payload==='[DONE]')return;
+                    try{var obj=JSON.parse(payload);if(obj.delta)bubble.textContent+=obj.delta;msgs.scrollTop=msgs.scrollHeight;}catch(e){}
+                  }
+                });
+                read();
+              }).catch(function(){busy=false;});
+            }
+            read();
+            return;
           }
+          /* JSON fallback */
+          return r.json().then(function(d){
+            removeTyping();
+            addMsg(d.reply||'Sorry, something went wrong.','bot');
+            busy=false;
+            notifyIfClosed();
+          });
         })
         .catch(function(){removeTyping();addMsg('Connection error — please try again.','bot');busy=false;});
       }

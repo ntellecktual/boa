@@ -477,7 +477,10 @@ def idp_demo(request):
 
 
 def portfolio_chat_api(request):
-    """Public keyword-based Q&A widget for the portfolio site."""
+    """Public AI-powered Q&A widget for the portfolio site.
+    Uses Anthropic/OpenAI when available, falls back to keyword matching.
+    Streams responses via SSE when Accept: text/event-stream is set.
+    """
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
     try:
@@ -491,104 +494,309 @@ def portfolio_chat_api(request):
     if not message:
         return JsonResponse({'reply': "I didn't catch that — ask me anything about the portfolio!"})
 
-    msg = message.lower()
+    # ── Try real LLM first ──
+    system_prompt = (
+        'You are the AI assistant for thenumerix.dev — a portfolio site built by a Platform Engineer / '
+        'Data Engineer. The site is built with Django 5.2, PostgreSQL, Celery, Django Channels, and '
+        'deployed on Render. It features 7 live interactive demos:\n'
+        '- AI Process Flows (Oracle Finance & Accounting automation with AI)\n'
+        '- Platform Engineering (Azure DevOps, Databricks & Entra ID pipelines — NFL partner use case)\n'
+        '- MLOps Lifecycle (Model training, MLflow, blue-green deploy on AKS — MLB partner use case)\n'
+        '- Streaming Architecture (Kafka, Flink, real-time event processing — Netflix-scale patterns)\n'
+        '- API Orchestration (Gateway, sagas, circuit breakers, service mesh)\n'
+        '- Document Processing (AI-powered OCR, extraction & validation pipelines)\n'
+        '- UploadIt! (Jupyter notebook → audio lecture → video → quiz → RAG chat pipeline)\n\n'
+        'Technical stack: Python, Azure (DevOps, ML, Entra ID, Databricks), Django, PostgreSQL, '
+        'Kafka, Spark, Docker, Redis, Celery, HTMX, Django Ninja API (Swagger at /api/v1/docs), '
+        'Sentry, structlog, allauth, GitHub Actions CI.\n\n'
+        'Skills: Platform Engineering, MLOps, Data Engineering, Cloud Architecture, Full-Stack Development.\n'
+        'Education: Check the Education page for degrees and certifications.\n'
+        'Contact: GitHub @ntellecktual, or LinkedIn.\n\n'
+        'Keep answers concise (2-4 sentences), friendly, and professional. If asked about hiring or '
+        'availability, be encouraging. If asked something unrelated to the portfolio, politely redirect.'
+    )
 
-    # ── Skill / tech questions ──
+    # Try Anthropic streaming
+    anthropic_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
+    if anthropic_key:
+        try:
+            import anthropic
+
+            client = anthropic.Anthropic(api_key=anthropic_key)
+
+            # Check if client wants SSE streaming
+            if 'text/event-stream' in request.META.get('HTTP_ACCEPT', ''):
+                from django.http import StreamingHttpResponse
+
+                def stream_response():
+                    with client.messages.stream(
+                        model='claude-sonnet-4-20250514',
+                        max_tokens=300,
+                        system=system_prompt,
+                        messages=[{'role': 'user', 'content': message}],
+                    ) as stream:
+                        for text in stream.text_stream:
+                            yield f'data: {_json.dumps({"delta": text})}\n\n'
+                    yield 'data: [DONE]\n\n'
+
+                resp = StreamingHttpResponse(stream_response(), content_type='text/event-stream')
+                resp['Cache-Control'] = 'no-cache'
+                resp['X-Accel-Buffering'] = 'no'
+                return resp
+
+            # Non-streaming fallback
+            response = client.messages.create(
+                model='claude-sonnet-4-20250514',
+                max_tokens=300,
+                system=system_prompt,
+                messages=[{'role': 'user', 'content': message}],
+            )
+            return JsonResponse({'reply': response.content[0].text})
+        except Exception:
+            pass  # Fall through to keyword matching
+
+    # Try OpenAI
+    openai_key = getattr(settings, 'OPENAI_API_KEY', '')
+    if openai_key:
+        try:
+            import openai as _openai
+
+            client = _openai.OpenAI(api_key=openai_key)
+
+            if 'text/event-stream' in request.META.get('HTTP_ACCEPT', ''):
+                from django.http import StreamingHttpResponse
+
+                def stream_response():
+                    stream = client.chat.completions.create(
+                        model='gpt-4o-mini',
+                        max_tokens=300,
+                        stream=True,
+                        messages=[
+                            {'role': 'system', 'content': system_prompt},
+                            {'role': 'user', 'content': message},
+                        ],
+                    )
+                    for chunk in stream:
+                        delta = chunk.choices[0].delta.content
+                        if delta:
+                            yield f'data: {_json.dumps({"delta": delta})}\n\n'
+                    yield 'data: [DONE]\n\n'
+
+                resp = StreamingHttpResponse(stream_response(), content_type='text/event-stream')
+                resp['Cache-Control'] = 'no-cache'
+                resp['X-Accel-Buffering'] = 'no'
+                return resp
+
+            response = client.chat.completions.create(
+                model='gpt-4o-mini',
+                max_tokens=300,
+                messages=[
+                    {'role': 'system', 'content': system_prompt},
+                    {'role': 'user', 'content': message},
+                ],
+            )
+            return JsonResponse({'reply': response.choices[0].message.content})
+        except Exception:
+            pass
+
+    # ── Keyword fallback (zero API cost) ──
+    return _keyword_chat_reply(message)
+
+
+def _keyword_chat_reply(message):
+    """Keyword-based fallback when no LLM API key is configured."""
+    msg = message.lower()
     if any(k in msg for k in ['azure', 'cloud', 'microsoft']):
         reply = (
-            'Azure is the backbone of most of the portfolio. The Platform Engineering demo '
-            'shows Azure DevOps pipelines, Entra ID integration, and Databricks-based ETL. '
-            'The MLOps demo uses Azure ML for model training and deployment.'
+            'Azure is the backbone of the portfolio — Platform Engineering shows Azure DevOps '
+            'pipelines, Entra ID integration, and Databricks ETL. MLOps uses Azure ML.'
         )
     elif any(k in msg for k in ['mlops', 'ml', 'machine learning', 'model']):
-        reply = (
-            'The MLOps Lifecycle demo walks through model training, feature stores, experiment '
-            'tracking with MLflow, and blue-green deployment on AKS. '
-            'Check it out at the Live Demos page!'
-        )
+        reply = 'The MLOps Lifecycle demo covers model training, MLflow tracking, and blue-green deploy on AKS.'
     elif any(k in msg for k in ['data', 'pipeline', 'etl', 'databricks', 'spark']):
-        reply = (
-            'Data engineering is a core focus — the Platform Engineering demo covers '
-            'Databricks Spark pipelines, Delta Lake, and CI/CD integration. '
-            'The Streaming Architecture demo shows Kafka + Flink real-time event processing.'
-        )
+        reply = 'Data engineering: Databricks Spark pipelines, Delta Lake, CI/CD, plus Kafka + Flink for streaming.'
     elif any(k in msg for k in ['kafka', 'stream', 'real-time', 'event']):
-        reply = (
-            'The Streaming Architecture demo covers Apache Kafka event brokering, '
-            'Flink stream processing, schema registries, and CDC patterns used at Netflix-scale.'
-        )
-    elif any(k in msg for k in ['devops', 'cicd', 'ci/cd', 'pipeline', 'deploy']):
-        reply = (
-            'The Platform Engineering demo shows three full CI/CD pipelines: '
-            'Azure DevOps, Databricks Jobs, and Entra ID automation — all for a casino platform use case.'
-        )
+        reply = 'Streaming Architecture covers Kafka event brokering, Flink processing, and CDC patterns.'
+    elif any(k in msg for k in ['devops', 'cicd', 'ci/cd', 'deploy']):
+        reply = 'Platform Engineering shows three CI/CD pipelines: Azure DevOps, Databricks Jobs, and Entra ID.'
     elif any(k in msg for k in ['api', 'gateway', 'orchestrat', 'microservice']):
-        reply = (
-            'The API Orchestration demo covers API gateway patterns, saga choreography, '
-            'circuit breakers, and service mesh fundamentals.'
-        )
+        reply = 'API Orchestration covers gateway patterns, saga choreography, circuit breakers, and service mesh.'
     elif any(k in msg for k in ['document', 'ocr', 'extract', 'idp']):
-        reply = (
-            'The Document Processing (IDP) demo shows AI-powered OCR, structured data '
-            'extraction, and validation pipelines — great for financial document automation.'
-        )
+        reply = 'Document Processing shows AI-powered OCR, data extraction, and validation pipelines.'
     elif any(k in msg for k in ['oracle', 'finance', 'accounting', 'process flow']):
-        reply = (
-            'The AI Process Flows demo shows Oracle Finance & Accounting automation '
-            'workflows powered by AI — procure-to-pay, order-to-cash, and more.'
-        )
-    elif any(k in msg for k in ['nfl', 'mlb', 'netflix', 'sport', 'partner']):
-        reply = (
-            'The portfolio demos are built around real enterprise partner use cases: '
-            'Oracle (finance automation), NFL (Azure DevOps pipelines), '
-            'MLB (MLOps at scale), and Netflix (streaming architecture).'
-        )
-    elif any(k in msg for k in ['education', 'degree', 'school', 'university', 'certif']):
-        reply = (
-            'The Education section covers degrees and certifications. '
-            'Navigate to Education in the sidebar (or Profile on the home dashboard) for the full details.'
-        )
+        reply = 'AI Process Flows demos Oracle Finance & Accounting automation: P2P, O2C, and more.'
     elif any(k in msg for k in ['contact', 'email', 'hire', 'available', 'reach']):
-        reply = (
-            'The best way to connect is via GitHub (@ntellecktual) or LinkedIn. '
-            "Feel free to explore the portfolio demos — they're all fully interactive!"
-        )
+        reply = 'Connect via GitHub (@ntellecktual) or LinkedIn. The portfolio demos are all live and interactive!'
     elif any(k in msg for k in ['project', 'portfolio', 'work', 'experience']):
-        reply = (
-            'The Portfolio section showcases enterprise projects across cloud, data, and AI. '
-            'There are 7 live interactive demos spanning MLOps, streaming, CI/CD, API patterns, '
-            'document processing, and AI process automation.'
-        )
+        reply = '7 live demos spanning MLOps, streaming, CI/CD, API patterns, document processing, and AI automation.'
     elif any(k in msg for k in ['python', 'django', 'stack', 'tech']):
         reply = (
-            'The site itself is built with Django 5.1, PostgreSQL, Celery + Redis, '
-            'and deployed on Render. The demos use Bootstrap 5, vanilla JS, and Font Awesome. '
-            'Python is the primary language across all backend work.'
-        )
-    elif any(k in msg for k in ['upload', 'notebook', 'jupyter', 'audio', 'video']):
-        reply = (
-            'UploadIt! lets you upload Jupyter notebooks and auto-generates audio lectures, '
-            'video content with synced text, quizzes, and a RAG-powered chatbot — '
-            'all in one pipeline. Try it from the sidebar!'
+            'Built with Django 5.2, PostgreSQL, Celery, Channels, HTMX, Django Ninja (Swagger at /api/v1/docs), '
+            'Sentry, structlog, allauth, and deployed on Render with GitHub Actions CI.'
         )
     elif any(k in msg for k in ['hello', 'hi', 'hey', 'greet']):
-        reply = (
-            "Hey! I'm the thenumerix assistant. Ask me about the portfolio demos, "
-            'skills, tech stack, or anything else you see on the site!'
-        )
-    elif any(k in msg for k in ['demo', 'live', 'interact']):
-        reply = (
-            'There are 7 live interactive demos: AI Process Flows, UploadIt!, Platform Engineering, '
-            'MLOps Lifecycle, Streaming Architecture, API Orchestration, and Document Processing. '
-            "Hit 'Discover' in the sidebar to explore them all!"
-        )
+        reply = "Hey! I'm the thenumerix assistant. Ask about portfolio demos, skills, or tech stack!"
     else:
-        reply = (
-            'I can answer questions about the portfolio demos, tech stack, skills, and experience. '
-            'Try asking about Azure, MLOps, data pipelines, or any of the live demos!'
-        )
-
+        reply = 'Ask me about Azure, MLOps, data pipelines, streaming, or any of the live demos!'
     return JsonResponse({'reply': reply})
+
+
+def status_page(request):
+    """Public status page showing system health, uptime, and build info."""
+    import time
+
+    status_data = {
+        'overall': 'operational',
+        'checks': {},
+        'build': {
+            'framework': 'Django 5.2',
+            'python': f'{__import__("sys").version_info.major}.{__import__("sys").version_info.minor}.{__import__("sys").version_info.micro}',
+            'environment': 'production' if not settings.DEBUG else 'development',
+        },
+    }
+
+    # DB check
+    try:
+        start = time.monotonic()
+        from django.db import connection
+
+        connection.ensure_connection()
+        latency = round((time.monotonic() - start) * 1000, 1)
+        status_data['checks']['database'] = {'status': 'operational', 'latency_ms': latency}
+    except Exception as exc:
+        status_data['checks']['database'] = {'status': 'down', 'detail': str(exc)}
+        status_data['overall'] = 'degraded'
+
+    # Cache check
+    try:
+        from django.core.cache import cache
+
+        start = time.monotonic()
+        cache.set('_health', 1, 10)
+        val = cache.get('_health')
+        latency = round((time.monotonic() - start) * 1000, 1)
+        status_data['checks']['cache'] = {
+            'status': 'operational' if val == 1 else 'degraded',
+            'latency_ms': latency,
+        }
+    except Exception:
+        status_data['checks']['cache'] = {'status': 'not_configured'}
+
+    # Model counts
+    try:
+        from .models import Course, Document, PortfolioItem
+
+        status_data['data'] = {
+            'portfolio_items': PortfolioItem.objects.count(),
+            'documents': Document.objects.count(),
+            'courses': Course.objects.count(),
+        }
+    except Exception:
+        pass
+
+    return render(request, 'boaapp/status.html', {'status': status_data})
+
+
+def portfolio_pdf(request):
+    """Generate a PDF version of the portfolio using ReportLab."""
+    import io
+    from datetime import datetime
+
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter
+        from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+        from reportlab.lib.units import inch
+        from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+    except ImportError:
+        return HttpResponse('PDF generation requires reportlab. Install with: pip install reportlab', status=501)
+
+    from .models import PortfolioItem
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.6 * inch, bottomMargin=0.5 * inch)
+    styles = getSampleStyleSheet()
+
+    # Custom styles
+    title_style = ParagraphStyle(
+        'PortTitle', parent=styles['Title'], fontSize=22, spaceAfter=6, textColor=colors.HexColor('#1a1a2e')
+    )
+    subtitle_style = ParagraphStyle(
+        'PortSubtitle', parent=styles['Normal'], fontSize=11, textColor=colors.HexColor('#6b7280'), spaceAfter=16
+    )
+    heading_style = ParagraphStyle(
+        'PortHeading',
+        parent=styles['Heading2'],
+        fontSize=14,
+        textColor=colors.HexColor('#3b82f6'),
+        spaceBefore=18,
+        spaceAfter=8,
+    )
+    body_style = ParagraphStyle('PortBody', parent=styles['Normal'], fontSize=10, leading=14, spaceAfter=6)
+    small_style = ParagraphStyle('PortSmall', parent=styles['Normal'], fontSize=8, textColor=colors.HexColor('#9ca3af'))
+
+    elements = []
+
+    # Header
+    elements.append(Paragraph('thenumerix — Portfolio', title_style))
+    elements.append(Paragraph('Platform Engineer · Data Engineer · Azure Cloud Architect', subtitle_style))
+    elements.append(Spacer(1, 8))
+
+    # Skills table
+    elements.append(Paragraph('Technical Skills', heading_style))
+    skills = [
+        ['Azure (DevOps, ML, Entra ID, Databricks)', 'Python, Django, FastAPI'],
+        ['Kafka, Spark, Flink', 'PostgreSQL, Redis, Delta Lake'],
+        ['Docker, Kubernetes, AKS', 'MLOps, CI/CD, GitHub Actions'],
+        ['HTMX, Bootstrap, REST APIs', 'Sentry, structlog, Celery'],
+    ]
+    skill_table = Table(skills, colWidths=[3.3 * inch, 3.3 * inch])
+    skill_table.setStyle(
+        TableStyle(
+            [
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#374151')),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('LINEBELOW', (0, 0), (-1, -1), 0.5, colors.HexColor('#e5e7eb')),
+            ]
+        )
+    )
+    elements.append(skill_table)
+    elements.append(Spacer(1, 8))
+
+    # Portfolio items from DB
+    items = PortfolioItem.objects.all()
+    if items.exists():
+        elements.append(Paragraph('Portfolio & Experience', heading_style))
+        for item in items:
+            elements.append(Paragraph(f'<b>{item.title}</b>', body_style))
+            desc = item.description[:300] + '...' if len(item.description) > 300 else item.description
+            elements.append(Paragraph(desc, body_style))
+            elements.append(Spacer(1, 4))
+
+    # Live demos section
+    elements.append(Paragraph('Live Interactive Demos', heading_style))
+    demos = [
+        ('AI Process Flows', 'Oracle Finance & Accounting automation with AI'),
+        ('Platform Engineering', 'Azure DevOps, Databricks & Entra ID pipelines'),
+        ('MLOps Lifecycle', 'Model training, MLflow, blue-green deployment on AKS'),
+        ('Streaming Architecture', 'Kafka, Flink, real-time event processing'),
+        ('API Orchestration', 'Gateway, sagas, circuit breakers, service mesh'),
+        ('Document Processing', 'AI-powered OCR, extraction & validation'),
+    ]
+    for name, desc in demos:
+        elements.append(Paragraph(f'<b>{name}</b> — {desc}', body_style))
+
+    elements.append(Spacer(1, 20))
+    elements.append(Paragraph(f'Generated from thenumerix.dev on {datetime.now().strftime("%B %d, %Y")}', small_style))
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="thenumerix_portfolio_{datetime.now().strftime("%Y%m%d")}.pdf"'
+    return response
 
 
 @login_required

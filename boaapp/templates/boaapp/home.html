@@ -4,6 +4,7 @@
 
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/typed.js@2.1.0/dist/typed.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════════════
    HOME DASHBOARD — Framer/Spline-inspired layout
@@ -128,6 +129,25 @@
     <span class="dash-chip"><i class="fas fa-infinity"></i> DevOps</span>
     <span class="dash-chip"><i class="fas fa-robot"></i> Gen AI</span>
   </div>
+
+  <!-- ── SKILLS RADAR CHART ── -->
+  <div class="dash-section">
+    <div class="dash-section-hd">
+      <span class="dash-section-lbl"><i class="fas fa-chart-radar"></i>&nbsp; Skills Proficiency</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:center">
+      <div style="max-width:360px;margin:0 auto;width:100%">
+        <canvas id="skillsRadar" height="320"></canvas>
+      </div>
+      <div class="skills-legend" style="display:flex;flex-direction:column;gap:.4rem;font-size:.78rem;color:var(--dash-muted)">
+        <div style="display:flex;align-items:center;gap:.5rem"><span style="width:12px;height:12px;border-radius:50%;background:rgba(59,130,246,.7);flex-shrink:0"></span><strong style="color:var(--dash-text)">Engineering</strong> — Platform, Data, Cloud Architecture</div>
+        <div style="display:flex;align-items:center;gap:.5rem"><span style="width:12px;height:12px;border-radius:50%;background:rgba(139,92,246,.7);flex-shrink:0"></span><strong style="color:var(--dash-text)">AI/ML</strong> — MLOps, Gen AI, Model Deployment</div>
+        <div style="margin-top:.5rem;font-size:.7rem;opacity:.6">Hover over chart points for details</div>
+        <a href="{% url 'portfolio_pdf' %}" class="btn btn-sm" style="margin-top:.6rem;display:inline-flex;align-items:center;gap:.35rem;padding:.4rem .9rem;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:.72rem;font-weight:700;text-decoration:none;width:fit-content;transition:opacity .2s" target="_blank"><i class="fas fa-file-pdf"></i> Download PDF Portfolio</a>
+      </div>
+    </div>
+  </div>
+
   <div class="dash-section">
     <div class="dash-section-hd">
       <span class="dash-section-lbl"><i class="fas fa-user-circle"></i>&nbsp; Profile</span>
@@ -222,6 +242,70 @@ new Typed('#homeTyped', {
   smartBackspace: true,
   cursorChar: '|'
 });
+</script>
+<script>
+/* ── Skills Radar Chart ── */
+(function(){
+  var ctx=document.getElementById('skillsRadar');
+  if(!ctx)return;
+  var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  var gridColor=isDark?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)';
+  var labelColor=isDark?'#94a3b8':'#6b7280';
+
+  new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:['Azure Cloud','Python/Django','Data Engineering','MLOps / AI','Platform Eng.','Streaming','API Design','CI/CD DevOps','Databases'],
+      datasets:[{
+        label:'Engineering',
+        data:[95,92,93,88,96,85,87,91,90],
+        backgroundColor:'rgba(59,130,246,.15)',
+        borderColor:'rgba(59,130,246,.8)',
+        borderWidth:2,
+        pointBackgroundColor:'rgba(59,130,246,.9)',
+        pointRadius:4,
+        pointHoverRadius:7
+      },{
+        label:'AI / ML',
+        data:[80,88,78,92,75,70,72,82,75],
+        backgroundColor:'rgba(139,92,246,.12)',
+        borderColor:'rgba(139,92,246,.7)',
+        borderWidth:2,
+        pointBackgroundColor:'rgba(139,92,246,.9)',
+        pointRadius:4,
+        pointHoverRadius:7
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        r:{
+          beginAtZero:true,
+          min:0,
+          max:100,
+          ticks:{stepSize:20,color:labelColor,backdropColor:'transparent',font:{size:9}},
+          grid:{color:gridColor},
+          angleLines:{color:gridColor},
+          pointLabels:{color:labelColor,font:{size:10,weight:'600'}}
+        }
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:isDark?'#1e293b':'#fff',
+          titleColor:isDark?'#e2e8f0':'#1a1a2e',
+          bodyColor:isDark?'#94a3b8':'#6b7280',
+          borderColor:isDark?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)',
+          borderWidth:1,
+          cornerRadius:8,
+          padding:10
+        }
+      },
+      animation:{duration:1200,easing:'easeOutQuart'}
+    }
+  });
+}());
 </script>
 <script>
 (function () {
