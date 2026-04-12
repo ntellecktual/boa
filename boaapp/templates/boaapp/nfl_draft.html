@@ -187,6 +187,8 @@
 .dr-pick-pos--rb{background:rgba(59,130,246,.12);color:#2563eb}
 .dr-pick-pos--wr{background:rgba(139,92,246,.12);color:#7c3aed}
 .dr-pick-pos--te{background:rgba(16,185,129,.12);color:#059669}
+.dr-pick-pos--k{background:rgba(234,179,8,.12);color:#ca8a04}
+.dr-pick-pos--dst{background:rgba(244,63,94,.12);color:#e11d48}
 .dr-pick-pts{width:50px;flex-shrink:0;text-align:right;font-weight:600;font-size:.66rem}
 .dr-pick-adp{width:38px;flex-shrink:0;text-align:right;font-size:.6rem;opacity:.4}
 .dr-pick-val{width:38px;flex-shrink:0;text-align:right;font-size:.6rem;font-weight:700}
@@ -274,9 +276,9 @@
 <section class="dr-hero">
   <div class="dr-badge"><i class="fas fa-football-ball"></i>&nbsp; Fantasy Football / Data Engineering / ML</div>
   <h1>2026 Fantasy Football<br>Draft Simulator</h1>
-  <p class="lead">Production-grade fantasy draft engine: 180+ player pool with 2026 projected stats, dynamic PPR/Half-PPR/Standard scoring, Value Over Replacement tiering, 9 distinct AI drafter archetypes (Zero RB, Hero RB, TE Premium, and more), and full post-draft analytics. Built to ESPN Fantasy &amp; CBS Sports Fantasy specification.</p>
+  <p class="lead">Production-grade fantasy draft engine: 220+ player pool across 6 positions (QB/RB/WR/TE/K/DST) with 2026 projected stats powered by SportsData.io, dynamic PPR/Half-PPR/Standard scoring, Value Over Replacement tiering, 9 distinct AI drafter archetypes, and full post-draft analytics with 19-round snake draft.</p>
   <div class="dr-kpi-strip">
-    <div class="dr-kpi"><div><div class="dr-kpi-val">180+</div><div class="dr-kpi-lbl">Player Pool</div></div></div>
+    <div class="dr-kpi"><div><div class="dr-kpi-val">220+</div><div class="dr-kpi-lbl">Player Pool</div></div></div>
     <div class="dr-kpi"><div><div class="dr-kpi-val">12</div><div class="dr-kpi-lbl">Team League</div></div></div>
     <div class="dr-kpi"><div><div class="dr-kpi-val">PPR</div><div class="dr-kpi-lbl">Dynamic Scoring</div></div></div>
     <div class="dr-kpi"><div><div class="dr-kpi-val">9</div><div class="dr-kpi-lbl">AI Strategies</div></div></div>
@@ -293,7 +295,7 @@
     <p>Eight-stage data pipeline: from raw NFL stats to optimized fantasy rosters, engineered for real-time interactive drafting.</p>
   </div>
   <div class="dr-ring">
-    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:var(--dr-grad-b)"><i class="fas fa-database"></i></div><div class="dr-ring-lbl">Ingest</div><div class="dr-ring-sub">ESPN API</div></div>
+    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:var(--dr-grad-b)"><i class="fas fa-database"></i></div><div class="dr-ring-lbl">Ingest</div><div class="dr-ring-sub">SportsData API</div></div>
     <div class="dr-ring-arr"><i class="fas fa-chevron-right"></i></div>
     <div class="dr-ring-node"><div class="dr-ring-icon" style="background:var(--dr-grad-v)"><i class="fas fa-chart-line"></i></div><div class="dr-ring-lbl">Project</div><div class="dr-ring-sub">2026 Stats</div></div>
     <div class="dr-ring-arr"><i class="fas fa-chevron-right"></i></div>
@@ -327,6 +329,8 @@
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>QB:</b> passYds × 0.04 + passTD × 4 + INT × (−2) + rushYds × 0.1 + rushTD × 6</div>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>RB:</b> rushYds × 0.1 + rushTD × 6 + recYds × 0.1 + recTD × 6 + receptions × <em>format</em></div>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>WR/TE:</b> recYds × 0.1 + recTD × 6 + receptions × <em>format</em> + rushYds × 0.1</div>
+      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>K:</b> FG_made × 3 + XP_made × 1</div>
+      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>DST:</b> sacks × 1 + INT × 2 + FR × 2 + TD × 6 + PA bracket</div>
       <div class="dr-ck"><i class="fas fa-info-circle info"></i> Format multiplier: PPR = 1.0 | Half = 0.5 | Standard = 0.0 per reception</div>
       <div class="dr-code"><span class="kw">function</span> <span class="fn">fantasyPts</span>(player, fmt) {
   <span class="kw">const</span> rBonus = fmt==='ppr' ? <span class="num">1</span> : fmt==='half' ? <span class="num">0.5</span> : <span class="num">0</span>;
@@ -341,12 +345,12 @@
       <h3>VOR Tiering &amp; Replacement Value</h3>
       <p class="sub">Value Over Replacement Player (VORP) — the core of premium draft strategy</p>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>VOR</b> = Player's projected points − replacement-level baseline at position</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Replacement thresholds: QB<sub>13</sub>, RB<sub>25</sub>, WR<sub>31</sub>, TE<sub>13</sub> (12-team calibrated)</div>
+      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Replacement thresholds: QB<sub>13</sub>, RB<sub>25</sub>, WR<sub>31</sub>, TE<sub>13</sub>, K<sub>10</sub>, DST<sub>10</sub> (12-team calibrated)</div>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> VOR normalizes cross-position value: a TE1 vs. RB15 vs. WR20</div>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> Tier breaks at natural cluster gaps in VOR distribution</div>
       <div class="dr-ck"><i class="fas fa-info-circle info"></i> Rankings dynamically shift when scoring format changes (high-rec RBs rise in PPR)</div>
       <div class="dr-code"><span class="cm">// Replacement level = pts of Nth-ranked player at position</span>
-<span class="kw">const</span> repLvl = { QB: <span class="num">13</span>, RB: <span class="num">25</span>, WR: <span class="num">31</span>, TE: <span class="num">13</span> };
+<span class="kw">const</span> repLvl = { QB: <span class="num">13</span>, RB: <span class="num">25</span>, WR: <span class="num">31</span>, TE: <span class="num">13</span>, K: <span class="num">10</span>, DST: <span class="num">10</span> };
 player.vor = player.pts - replacementPts[player.pos];
 <span class="cm">// Positive VOR = above replacement = draftable</span></div>
     </div>
@@ -366,10 +370,10 @@ player.vor = player.pts - replacementPts[player.pos];
     <div class="dr-phase dr-phase--draft">
       <div class="dr-phase-icon" style="background:var(--dr-grad-nfl)"><i class="fas fa-football-ball"></i></div>
       <h3>Snake Draft Engine</h3>
-      <p class="sub">12-team, 15-round snake draft — configurable position and scoring</p>
+      <p class="sub">12-team, 19-round snake draft — configurable position and scoring</p>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> Snake order: 1→12, 12→1, 1→12 (even rounds reverse)</div>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> User selects draft position (1st through 12th overall)</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Roster slots: 1 QB, 2 RB, 2 WR, 1 TE, 1 FLEX, 8 Bench = 15 rounds</div>
+      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Roster slots: 3 QB, 5 RB, 5 WR, 2 TE, 2 K, 2 DST = 19 rounds</div>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> Real-time ADP comparison: value picks (green) vs. reaches (red)</div>
       <div class="dr-ck"><i class="fas fa-info-circle info"></i> AI applies ±8% randomness to prevent identical drafts across runs</div>
     </div>
@@ -390,10 +394,10 @@ player.vor = player.pts - replacementPts[player.pos];
       <div class="dr-phase-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-sitemap"></i></div>
       <h3>System Architecture</h3>
       <p class="sub">Client-side engineering — zero backend, full browser execution</p>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> ESPN Site API v2 for live roster/player data ingestion</div>
+      <div class="dr-ck"><i class="fas fa-check-circle done"></i> SportsData.io API for live player data, headshots &amp; projections</div>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> In-memory player store with O(n log n) sort on scoring model change</div>
       <div class="dr-ck"><i class="fas fa-check-circle done"></i> Async draft loop with Promise chains for turn-based simulation</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> DOM recycling with insertAdjacentHTML for 180+ pick animations</div>
+      <div class="dr-ck"><i class="fas fa-check-circle done"></i> DOM recycling with insertAdjacentHTML for 228 pick animations</div>
       <div class="dr-ck"><i class="fas fa-info-circle info"></i> Full dark mode parity — every component tested against both themes</div>
     </div>
 
@@ -441,7 +445,7 @@ player.vor = player.pts - replacementPts[player.pos];
   <div class="dr-dash">
     <div class="dr-dash-bar">
       <div class="dr-dots"><div class="dr-dot dr-dot--r"></div><div class="dr-dot dr-dot--y"></div><div class="dr-dot dr-dot--g"></div></div>
-      <h4><i class="fas fa-football-ball me-2" style="color:#013369"></i>Fantasy Draft Engine v2.0 — 2026 Season</h4>
+      <h4><i class="fas fa-football-ball me-2" style="color:#013369"></i>Fantasy Draft Engine v3.0 — 2026 Season</h4>
       <div style="display:flex;gap:.45rem;flex-shrink:0">
         <button class="btn btn-primary btn-sm" id="drBtnRun" style="border-radius:8px;font-size:.76rem;background:#013369;border-color:#013369"><i class="fas fa-play me-1"></i> Start Draft</button>
         <button class="btn btn-outline-secondary btn-sm" id="drBtnReset" style="border-radius:8px;font-size:.76rem;display:none"><i class="fas fa-redo me-1"></i> New Draft</button>
@@ -510,7 +514,7 @@ player.vor = player.pts - replacementPts[player.pos];
     <h2>Technical Stack</h2>
   </div>
   <div class="dr-stack">
-    <span class="dr-pill dr-pill--b">ESPN Fantasy API</span>
+    <span class="dr-pill dr-pill--b">SportsData.io API</span>
     <span class="dr-pill dr-pill--v">JavaScript ES6+</span>
     <span class="dr-pill dr-pill--g">PPR / Half / Standard Scoring</span>
     <span class="dr-pill dr-pill--a">VOR Algorithm</span>
@@ -520,21 +524,23 @@ player.vor = player.pts - replacementPts[player.pos];
     <span class="dr-pill dr-pill--v">BPA × Need Hybrid</span>
     <span class="dr-pill dr-pill--g">Min-Max Normalization</span>
     <span class="dr-pill dr-pill--a">Async/Await Pipeline</span>
-    <span class="dr-pill dr-pill--b">ESPN CDN Headshots</span>
+    <span class="dr-pill dr-pill--b">SportsData.io Headshots</span>
     <span class="dr-pill dr-pill--r">ADP Value Analysis</span>
     <span class="dr-pill dr-pill--v">Bye Week Optimization</span>
     <span class="dr-pill dr-pill--g">Dark Mode Parity</span>
     <span class="dr-pill dr-pill--gold">Post-Draft Grading</span>
+    <span class="dr-pill dr-pill--r">K/DST Scoring</span>
+    <span class="dr-pill dr-pill--b">19-Round Draft</span>
   </div>
   <div class="dr-callout dr-callout--v" style="margin-top:1.3rem">
     <h5><i class="fas fa-lightbulb" style="color:#013369"></i> Technical Interview Talking Point</h5>
-    <p>"I built a production-grade fantasy football draft simulator that demonstrates full-stack data engineering: it ingests 180+ players with projected 2026 stats from ESPN's public API, runs a multi-format scoring engine (PPR, Half-PPR, Standard) with dynamic VOR tiering, then executes a 12-team snake draft where 11 AI bots each run a distinct strategy archetype — Zero RB, Hero RB, TE Premium, Robust RB, Contrarian, Stars &amp; Scrubs, Late QB, Anchor, and Balanced BPA. The AI pick function computes <code>strategy_weight × VOR × need_factor × scarcity_bonus ± noise</code> per candidate. Post-draft analytics include projected points, ADP value score, bye-week conflict analysis, positional strength bars, and A+→F grading across all teams."</p>
+    <p>"I built a production-grade fantasy football draft simulator that demonstrates full-stack data engineering: it ingests 220+ players across 6 positions (QB, RB, WR, TE, K, DST) with projected 2026 stats via SportsData.io API integration, runs a multi-format scoring engine (PPR, Half-PPR, Standard) with dynamic VOR tiering, then executes a 12-team, 19-round snake draft where 11 AI bots each run a distinct strategy archetype — Zero RB, Hero RB, TE Premium, Robust RB, Contrarian, Stars &amp; Scrubs, Late QB, Anchor, and Balanced BPA. The AI pick function computes <code>strategy_weight × VOR × need_factor × scarcity_bonus ± noise</code> per candidate. Post-draft analytics include projected points, ADP value score, bye-week conflict analysis, positional strength bars, and A+→F grading across all teams. Roster construction mirrors real fantasy leagues: 3 QB, 5 RB, 5 WR, 2 TE, 2 K, 2 DST."</p>
   </div>
   <div class="dr-callout dr-callout--v" style="margin-top:.8rem">
     <h5><i class="fas fa-code" style="color:#013369"></i> Key Engineering Decisions</h5>
     <ul>
-      <li><b>Dynamic VOR recalculation</b> — Switching scoring format triggers a full re-sort of the 180-player pool, because WR/RB rankings shift meaningfully between PPR and Standard. High-reception RBs like Achane and Gibbs gain ~40 fantasy points in PPR vs. Standard.</li>
-      <li><b>Strategy diversity via weight vectors</b> — Rather than hardcoding pick behavior, each AI archetype applies a 4-element weight vector [QB, RB, WR, TE] that multiplies each available player's VOR score, creating naturally divergent rosters.</li>
+      <li><b>Dynamic VOR recalculation</b> — Switching scoring format triggers a full re-sort of the 220-player pool, because WR/RB rankings shift meaningfully between PPR and Standard. High-reception RBs like Achane and Gibbs gain ~40 fantasy points in PPR vs. Standard.</li>
+      <li><b>Strategy diversity via weight vectors</b> — Rather than hardcoding pick behavior, each AI archetype applies a 6-element weight vector [QB, RB, WR, TE, K, DST] that multiplies each available player's VOR score, creating naturally divergent rosters.</li>
       <li><b>Positional scarcity as a 2nd-order signal</b> — The AI counts how many players at each position remain in the top-N available. When a position falls below a threshold, a scarcity multiplier kicks in (1.25×-1.5×) creating realistic "position run" behavior.</li>
       <li><b>ADP-aware value detection</b> — Each pick is compared to ADP. Picks made significantly above ADP are flagged as value picks; picks made below ADP are flagged as reaches. This mirrors ESPN's draft tracker.</li>
     </ul>
@@ -550,7 +556,7 @@ player.vor = player.pts - replacementPts[player.pos];
 /* ══════════════════════════════════════════════════════════════
    CONFIGURATION & DOM
    ══════════════════════════════════════════════════════════════ */
-var ROUNDS=15, NUM_TEAMS=12;
+var ROUNDS=19, NUM_TEAMS=12;
 var scoringFmt='ppr', userSlot=0;
 var running=false;
 
@@ -580,15 +586,15 @@ document.getElementById('drPickPos').addEventListener('change',function(){userSl
    TEAMS & AI STRATEGIES
    ══════════════════════════════════════════════════════════════ */
 var STRATS=[
-  {name:'Robust RB',desc:'Loads 2-3 elite RBs in the first 4 rounds to lock down the backfield.',w:{QB:.5,RB:1.55,WR:.85,TE:.6},clr:['#2563eb','#2563eb','#2563eb','#60a5fa']},
-  {name:'Zero RB',desc:'Fades RB early, stacks WR/TE, then targets RB value in mid rounds.',w:{QB:.7,RB:.45,WR:1.5,TE:1.15},clr:['#8b5cf6','#8b5cf6','#8b5cf6','#a78bfa']},
-  {name:'Hero RB',desc:'Grabs 1 elite RB round 1, then goes WR-heavy for 3-4 rounds.',w:{QB:.6,RB:1.1,WR:1.35,TE:.75},clr:['#059669','#059669','#10b981','#6ee7b7']},
-  {name:'TE Premium',desc:'Secures Bowers or LaPorta early, then exploits RB/WR depth.',w:{QB:.65,RB:1.0,WR:1.0,TE:1.7},clr:['#d97706','#d97706','#f59e0b','#fcd34d']},
-  {name:'Late QB',desc:'Waits on QB until round 8+, maximizes skill position capital.',w:{QB:.25,RB:1.25,WR:1.25,TE:.9},clr:['#dc2626','#dc2626','#ef4444','#fca5a5']},
-  {name:'Stars & Scrubs',desc:'Goes all-in on elite talent early, accepts weaker depth on the bench.',w:{QB:.75,RB:1.2,WR:1.25,TE:.85},clr:['#0891b2','#0891b2','#06b6d4','#67e8f9']},
-  {name:'Balanced BPA',desc:'Pure best-player-available every round, minimal positional bias.',w:{QB:1.0,RB:1.0,WR:1.0,TE:1.0},clr:['#6366f1','#6366f1','#818cf8','#a5b4fc']},
-  {name:'Contrarian',desc:'Targets position runs — when others fade a position, this bot buys it.',w:{QB:1.15,RB:.85,WR:.85,TE:1.25},clr:['#db2777','#db2777','#ec4899','#f9a8d4']},
-  {name:'Anchor RB',desc:'1 top RB in round 1, then strictly BPA with need tiebreakers.',w:{QB:.8,RB:1.15,WR:1.05,TE:.85},clr:['#7c3aed','#7c3aed','#8b5cf6','#c4b5fd']}
+  {name:'Robust RB',desc:'Loads 2-3 elite RBs in the first 4 rounds to lock down the backfield.',w:{QB:.5,RB:1.55,WR:.85,TE:.6,K:.3,DST:.3},clr:['#2563eb','#2563eb','#2563eb','#60a5fa']},
+  {name:'Zero RB',desc:'Fades RB early, stacks WR/TE, then targets RB value in mid rounds.',w:{QB:.7,RB:.45,WR:1.5,TE:1.15,K:.3,DST:.3},clr:['#8b5cf6','#8b5cf6','#8b5cf6','#a78bfa']},
+  {name:'Hero RB',desc:'Grabs 1 elite RB round 1, then goes WR-heavy for 3-4 rounds.',w:{QB:.6,RB:1.1,WR:1.35,TE:.75,K:.3,DST:.3},clr:['#059669','#059669','#10b981','#6ee7b7']},
+  {name:'TE Premium',desc:'Secures Bowers or LaPorta early, then exploits RB/WR depth.',w:{QB:.65,RB:1.0,WR:1.0,TE:1.7,K:.3,DST:.3},clr:['#d97706','#d97706','#f59e0b','#fcd34d']},
+  {name:'Late QB',desc:'Waits on QB until round 8+, maximizes skill position capital.',w:{QB:.25,RB:1.25,WR:1.25,TE:.9,K:.3,DST:.3},clr:['#dc2626','#dc2626','#ef4444','#fca5a5']},
+  {name:'Stars & Scrubs',desc:'Goes all-in on elite talent early, accepts weaker depth on the bench.',w:{QB:.75,RB:1.2,WR:1.25,TE:.85,K:.25,DST:.25},clr:['#0891b2','#0891b2','#06b6d4','#67e8f9']},
+  {name:'Balanced BPA',desc:'Pure best-player-available every round, minimal positional bias.',w:{QB:1.0,RB:1.0,WR:1.0,TE:1.0,K:.5,DST:.5},clr:['#6366f1','#6366f1','#818cf8','#a5b4fc']},
+  {name:'Contrarian',desc:'Targets position runs — when others fade a position, this bot buys it.',w:{QB:1.15,RB:.85,WR:.85,TE:1.25,K:.4,DST:.4},clr:['#db2777','#db2777','#ec4899','#f9a8d4']},
+  {name:'Anchor RB',desc:'1 top RB in round 1, then strictly BPA with need tiebreakers.',w:{QB:.8,RB:1.15,WR:1.05,TE:.85,K:.3,DST:.3},clr:['#7c3aed','#7c3aed','#8b5cf6','#c4b5fd']}
 ];
 /* 12 teams: user + 11 bots. Bots 1-9 get unique strategies, bots 10-11 get random picks from pool */
 var TEAMS=[];
@@ -618,13 +624,15 @@ buildTeams();
       '</div></div>')})})();
 
 /* ══════════════════════════════════════════════════════════════
-   2026 FANTASY PLAYER DATABASE — 180 PLAYERS
+   2026 FANTASY PLAYER DATABASE — 220 PLAYERS
    Projected stats based on 2025 season trajectory
    Format: [name, pos, team, bye, adp, tier, s1, s2, s3, s4, s5]
    QB: passYd, passTD, INT, rushYd, rushTD
    RB: rushYd, rushTD, rec, recYd, recTD
    WR: rec, recYd, recTD, rushYd, rushTD
    TE: rec, recYd, recTD, 0, 0
+   K:  fg_made, fg_att, xp_made, xp_att, fg_50_plus
+   DST: sacks, INT, fumble_rec, def_TD, pts_allowed
    ══════════════════════════════════════════════════════════════ */
 var RAW=[
 ["Ja'Marr Chase",'WR','CIN',7,1,1,112,1580,14,50,0],
@@ -779,11 +787,83 @@ var RAW=[
 ["Ezekiel Elliott",'RB','DAL',7,168,8,380,3,15,100,0],
 ["Allen Lazard",'WR','NYJ',12,172,8,40,480,3,0,0],
 ["Kenneth Gainwell",'RB','PHI',5,176,8,300,2,25,200,1],
-["Kirk Cousins",'QB','ATL',12,180,8,3400,20,12,50,0]
+["Kirk Cousins",'QB','ATL',12,180,8,3400,20,12,50,0],
+/* ── K (Kickers): s1=fg_made, s2=fg_att, s3=xp_made, s4=xp_att, s5=fg_50_plus ── */
+["Chris Boswell",'K','PIT',9,183,6,33,38,45,47,10],
+["Brandon Aubrey",'K','DAL',7,186,6,32,37,40,41,12],
+["Harrison Butker",'K','KC',6,188,6,31,34,48,50,8],
+["Ka'imi Fairbairn",'K','HOU',14,191,7,30,35,42,44,9],
+["Justin Tucker",'K','BAL',8,193,7,29,33,40,41,7],
+["Jake Elliott",'K','PHI',5,195,7,28,33,50,52,6],
+["Evan McPherson",'K','CIN',7,197,7,27,32,38,40,8],
+["Cameron Dicker",'K','LAC',5,199,7,27,31,42,44,7],
+["Tyler Bass",'K','BUF',12,201,7,26,31,44,46,5],
+["Jake Moody",'K','SF',9,203,7,26,30,40,42,6],
+["Younghoe Koo",'K','ATL',12,205,8,25,30,42,43,5],
+["Jason Sanders",'K','MIA',6,207,8,25,29,38,40,6],
+["Dustin Hopkins",'K','CLE',10,209,8,24,29,36,38,7],
+["Matt Gay",'K','IND',14,211,8,24,28,38,40,5],
+["Cairo Santos",'K','CHI',7,213,8,23,27,36,38,4],
+["Jason Myers",'K','SEA',10,215,8,23,28,34,36,5],
+["Greg Zuerlein",'K','NYJ',12,217,8,22,27,38,39,5],
+["Daniel Carlson",'K','LV',10,219,8,22,26,34,36,4],
+["Graham Gano",'K','NYG',8,221,8,21,26,32,34,4],
+["Wil Lutz",'K','DEN',14,223,8,21,25,34,36,3],
+/* ── DST (Defense/ST): s1=sacks, s2=INT, s3=fumble_rec, s4=def_TD, s5=pts_allowed ── */
+["Steelers DST",'DST','PIT',9,185,6,50,18,14,4,295],
+["Vikings DST",'DST','MIN',9,187,6,46,20,12,3,280],
+["Ravens DST",'DST','BAL',8,190,6,48,16,12,3,300],
+["Texans DST",'DST','HOU',14,192,6,45,17,13,3,310],
+["Eagles DST",'DST','PHI',5,194,6,44,15,10,3,305],
+["Bills DST",'DST','BUF',12,196,7,42,16,11,2,315],
+["49ers DST",'DST','SF',9,198,7,43,14,12,2,320],
+["Browns DST",'DST','CLE',10,200,7,40,15,10,2,310],
+["Cowboys DST",'DST','DAL',7,202,7,42,14,11,2,325],
+["Chiefs DST",'DST','KC',6,204,7,40,13,10,2,315],
+["Jets DST",'DST','NYJ',12,206,7,38,15,10,2,330],
+["Dolphins DST",'DST','MIA',6,208,7,38,14,9,2,320],
+["Broncos DST",'DST','DEN',14,210,8,40,12,10,1,325],
+["Lions DST",'DST','DET',5,212,8,36,13,9,2,335],
+["Packers DST",'DST','GB',10,214,8,37,12,9,1,330],
+["Chargers DST",'DST','LAC',5,216,8,36,12,8,1,340],
+["Bears DST",'DST','CHI',7,218,8,35,12,8,2,345],
+["Patriots DST",'DST','NE',14,220,8,34,11,8,1,340],
+["Seahawks DST",'DST','SEA',10,222,8,33,11,7,1,350],
+["Saints DST",'DST','NO',8,224,8,32,10,8,1,355]
 ];
 
-var POS_CLR={QB:'qb',RB:'rb',WR:'wr',TE:'te'};
-function headshot(id){return 'https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/'+id+'.png&w=96&h=70&cb=1'}
+var POS_CLR={QB:'qb',RB:'rb',WR:'wr',TE:'te',K:'k',DST:'dst'};
+var headshotCache={};
+function headshot(name,pos){
+  if(headshotCache[name])return headshotCache[name];
+  var colors={QB:'%23dc2626',RB:'%232563eb',WR:'%237c3aed',TE:'%23059669',K:'%23ca8a04',DST:'%23e11d48'};
+  var c=colors[pos]||'%233b82f6';
+  var ini=name.split(' ').map(function(w){return w.charAt(0)}).join('').substring(0,3);
+  return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' rx='48' fill='"+c+"'/%3E%3Ctext x='48' y='58' text-anchor='middle' fill='white' font-size='30' font-weight='700' font-family='Inter,sans-serif'%3E"+ini+"%3C/text%3E%3C/svg%3E";
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SPORTSDATA.IO HEADSHOT INTEGRATION
+   Fetches real player headshots at draft start; falls back to SVG initials
+   ══════════════════════════════════════════════════════════════ */
+var headshotsLoaded=false;
+function loadHeadshots(){
+  if(headshotsLoaded)return Promise.resolve();
+  return fetch('/api/nfl/headshots/').then(function(r){
+    if(!r.ok)throw new Error('API '+r.status);return r.json()
+  }).then(function(data){
+    data.forEach(function(h){
+      if(h.Name&&h.PreferredHostedHeadshotUrl){
+        headshotCache[h.Name]=h.PreferredHostedHeadshotUrl;
+      }
+    });
+    headshotsLoaded=true;
+    log('📸 Loaded '+Object.keys(headshotCache).length+' SportsData.io headshots');
+  }).catch(function(){
+    log('📸 SportsData.io headshots unavailable — using initials');
+    return Promise.resolve();
+  });
+}
 
 /* ══════════════════════════════════════════════════════════════
    SCORING ENGINE — Dynamic per format
@@ -793,6 +873,13 @@ function calcPts(p,fmt){
   var rBonus=fmt==='ppr'?1:fmt==='half'?0.5:0;
   if(p.pos==='QB')return Math.round((p.s1*0.04+p.s2*4+p.s3*(-2)+p.s4*0.1+p.s5*6)*10)/10;
   if(p.pos==='RB')return Math.round((p.s1*0.1+p.s2*6+p.s3*rBonus+p.s4*0.1+p.s5*6)*10)/10;
+  if(p.pos==='K')return Math.round((p.s1*3+p.s3*1)*10)/10;
+  if(p.pos==='DST'){
+    var pa=p.s5,paBracket=0;
+    if(pa<200)paBracket=10;else if(pa<250)paBracket=6;else if(pa<300)paBracket=3;
+    else if(pa>=350&&pa<400)paBracket=-3;else if(pa>=400)paBracket=-6;
+    return Math.round((p.s1*1+p.s2*2+p.s3*2+p.s4*6+paBracket)*10)/10;
+  }
   /* WR & TE: s1=rec, s2=recYd, s3=recTD, s4=rushYd, s5=rushTD */
   return Math.round((p.s1*rBonus+p.s2*0.1+p.s3*6+p.s4*0.1+p.s5*6)*10)/10;
 }
@@ -806,8 +893,8 @@ function buildPlayers(fmt){
   /* Compute points */
   allPlayers.forEach(function(p){p.pts=calcPts(p,fmt)});
   /* Compute VOR */
-  var repLvl={QB:13,RB:25,WR:31,TE:13};
-  var byPos={QB:[],RB:[],WR:[],TE:[]};
+  var repLvl={QB:13,RB:25,WR:31,TE:13,K:10,DST:10};
+  var byPos={QB:[],RB:[],WR:[],TE:[],K:[],DST:[]};
   allPlayers.forEach(function(p){if(byPos[p.pos])byPos[p.pos].push(p)});
   Object.keys(byPos).forEach(function(pos){
     byPos[pos].sort(function(a,b){return b.pts-a.pts});
@@ -822,6 +909,8 @@ function buildPlayers(fmt){
 function statLine(p){
   if(p.pos==='QB')return p.s1.toLocaleString()+' yd · '+p.s2+' TD · '+p.s3+' INT · '+p.s4+' rush';
   if(p.pos==='RB')return p.s1.toLocaleString()+' rush · '+p.s2+' TD · '+p.s3+' rec · '+p.s4+' rec yd';
+  if(p.pos==='K')return p.s1+'/'+p.s2+' FG · '+p.s3+'/'+p.s4+' XP · '+p.s5+' 50+';
+  if(p.pos==='DST')return p.s1+' sacks · '+p.s2+' INT · '+p.s3+' FR · '+p.s4+' TD';
   return p.s1+' rec · '+p.s2.toLocaleString()+' yd · '+p.s3+' TD';
 }
 
@@ -838,11 +927,11 @@ function snakeOrder(round){
 function aiPick(teamIdx){
   if(!available.length)return null;
   var strat=TEAMS[teamIdx].strat;
-  var w=strat?strat.w:{QB:1,RB:1,WR:1,TE:1};
+  var w=strat?strat.w:{QB:1,RB:1,WR:1,TE:1,K:.5,DST:.5};
   var roster=teamRosters[teamIdx];
-  var posCts={QB:0,RB:0,WR:0,TE:0};
+  var posCts={QB:0,RB:0,WR:0,TE:0,K:0,DST:0};
   roster.forEach(function(p){posCts[p.pos]++});
-  var needs={QB:2,RB:5,WR:5,TE:2};
+  var needs={QB:3,RB:5,WR:5,TE:2,K:2,DST:2};
   var bestIdx=0,bestVal=-Infinity;
   var scanLen=Math.min(available.length,60);
   for(var i=0;i<scanLen;i++){
@@ -873,16 +962,16 @@ function s0Load(){
   document.getElementById('drConfig').innerHTML=
     '<div style="margin-bottom:.2rem"><b>Format:</b> '+scoringFmt.toUpperCase()+'</div>'+
     '<div style="margin-bottom:.2rem"><b>Teams:</b> 12</div>'+
-    '<div style="margin-bottom:.2rem"><b>Rounds:</b> 15</div>'+
+    '<div style="margin-bottom:.2rem"><b>Rounds:</b> 19</div>'+
     '<div style="margin-bottom:.2rem"><b>Your Pick:</b> #'+(userSlot+1)+' overall</div>'+
     '<div style="margin-bottom:.2rem"><b>Players:</b> '+RAW.length+'</div>'+
     '<div><b>AI:</b> 9 archetypes</div>';
-  return wait(500).then(function(){
+  return loadHeadshots().then(function(){return wait(500)}).then(function(){
     buildPlayers(scoringFmt);
-    var posCts={QB:0,RB:0,WR:0,TE:0};allPlayers.forEach(function(p){posCts[p.pos]++});
+    var posCts={QB:0,RB:0,WR:0,TE:0,K:0,DST:0};allPlayers.forEach(function(p){posCts[p.pos]++});
     app('<div class="dr-step-card"><h6>📦 Step 1 — Player Database Loaded</h6>'+
-      '<p style="font-size:.7rem;opacity:.55;margin-bottom:.4rem">2026 projected stats: '+allPlayers.length+' players across 4 positions</p>'+
-      '<div class="dr-json"><span class="key">"database"</span>: {\n  <span class="key">"total"</span>: <span class="num">'+allPlayers.length+'</span>,\n  <span class="key">"QB"</span>: <span class="num">'+posCts.QB+'</span>, <span class="key">"RB"</span>: <span class="num">'+posCts.RB+'</span>, <span class="key">"WR"</span>: <span class="num">'+posCts.WR+'</span>, <span class="key">"TE"</span>: <span class="num">'+posCts.TE+'</span>,\n  <span class="key">"scoring"</span>: <span class="str">"'+scoringFmt.toUpperCase()+'"</span>,\n  <span class="key">"season"</span>: <span class="num">2026</span>\n}</div></div>');
+      '<p style="font-size:.7rem;opacity:.55;margin-bottom:.4rem">2026 projected stats: '+allPlayers.length+' players across 6 positions</p>'+
+      '<div class="dr-json"><span class="key">"database"</span>: {\n  <span class="key">"total"</span>: <span class="num">'+allPlayers.length+'</span>,\n  <span class="key">"QB"</span>: <span class="num">'+posCts.QB+'</span>, <span class="key">"RB"</span>: <span class="num">'+posCts.RB+'</span>, <span class="key">"WR"</span>: <span class="num">'+posCts.WR+'</span>, <span class="key">"TE"</span>: <span class="num">'+posCts.TE+'</span>, <span class="key">"K"</span>: <span class="num">'+posCts.K+'</span>, <span class="key">"DST"</span>: <span class="num">'+posCts.DST+'</span>,\n  <span class="key">"scoring"</span>: <span class="str">"'+scoringFmt.toUpperCase()+'"</span>,\n  <span class="key">"season"</span>: <span class="num">2026</span>\n}</div></div>');
     pip(0,'done');log('✅ '+allPlayers.length+' players loaded');return wait(400)})}
 
 function s1Score(){
@@ -891,11 +980,13 @@ function s1Score(){
     var fmtLabel=scoringFmt==='ppr'?'1.0 pts/rec':scoringFmt==='half'?'0.5 pts/rec':'0.0 pts/rec';
     app('<div class="dr-step-card"><h6>📊 Step 2 — Scoring Engine: '+scoringFmt.toUpperCase()+' ('+fmtLabel+')</h6>'+
       '<p style="font-size:.68rem;opacity:.5;margin-bottom:.35rem">Position-specific formulas applied to 2026 projected stats</p>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.2rem .5rem;font-size:.6rem;margin-bottom:.4rem">'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.2rem .5rem;font-size:.6rem;margin-bottom:.4rem">'+
       '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(239,68,68,.04)"><b style="color:#dc2626">QB</b> = passYd×.04 + passTD×4 + INT×(−2) + rushYd×.1 + rushTD×6</div>'+
       '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(59,130,246,.04)"><b style="color:#2563eb">RB</b> = rushYd×.1 + rushTD×6 + rec×'+fmtLabel.charAt(0)+' + recYd×.1 + recTD×6</div>'+
       '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(139,92,246,.04)"><b style="color:#7c3aed">WR</b> = rec×'+fmtLabel.charAt(0)+' + recYd×.1 + recTD×6 + rushYd×.1</div>'+
-      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(16,185,129,.04)"><b style="color:#059669">TE</b> = rec×'+fmtLabel.charAt(0)+' + recYd×.1 + recTD×6</div></div>'+
+      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(16,185,129,.04)"><b style="color:#059669">TE</b> = rec×'+fmtLabel.charAt(0)+' + recYd×.1 + recTD×6</div>'+
+      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(234,179,8,.04)"><b style="color:#ca8a04">K</b> = FG×3 + XP×1</div>'+
+      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(244,63,94,.04)"><b style="color:#e11d48">DST</b> = sack×1 + INT×2 + FR×2 + TD×6 + PA bracket</div></div>'+
       '<div style="font-size:.62rem;opacity:.4">Top scorer: <b>'+allPlayers[0].name+'</b> ('+allPlayers[0].pos+') — '+allPlayers[0].pts+' proj pts</div></div>');
     pip(1,'done');log('✅ Scoring complete — '+scoringFmt.toUpperCase()+' applied');return wait(400)})}
 
@@ -904,7 +995,7 @@ function s2Rank(){
   return wait(500).then(function(){
     var top15=allPlayers.slice(0,15);
     var html='<div class="dr-step-card"><h6>📈 Step 3 — VOR Rankings & Tier Classification</h6>'+
-      '<p style="font-size:.68rem;opacity:.5;margin-bottom:.3rem">VOR = Player Pts − Replacement Level | Thresholds: QB₁₃ RB₂₅ WR₃₁ TE₁₃</p>'+
+      '<p style="font-size:.68rem;opacity:.5;margin-bottom:.3rem">VOR = Player Pts − Replacement Level | Thresholds: QB₁₃ RB₂₅ WR₃₁ TE₁₃ K₁₀ DST₁₀</p>'+
       '<div style="overflow-x:auto"><table class="table table-sm" style="font-size:.67rem;margin:0">'+
       '<thead><tr style="opacity:.45"><th>Rank</th><th>Player</th><th>Pos</th><th>Team</th><th>Bye</th><th>ADP</th><th>Pts</th><th>VOR</th><th>Tier</th></tr></thead><tbody>';
     top15.forEach(function(p,i){
@@ -918,7 +1009,7 @@ function s2Rank(){
     return wait(400)})}
 
 function s3Draft(){
-  pip(3,'active');log('🏈 Starting 15-round snake draft (12 teams)…');
+  pip(3,'active');log('🏈 Starting 19-round snake draft (12 teams)…');
   available=allPlayers.slice();
   teamRosters=[];allPicks=[];
   for(var t=0;t<NUM_TEAMS;t++)teamRosters.push([]);
@@ -939,11 +1030,11 @@ function s3Draft(){
           var topAvail=available.slice(0,30);
           var html='<div class="dr-user-pick-panel" id="drUserPanel"><h6><i class="fas fa-hand-pointer me-2"></i>Your Pick — Round '+(round+1)+', Pick #'+pickNum+'</h6>'+
             '<div class="dr-pos-filters" id="drPosFilter">'+
-            '<button class="active" data-f="ALL">All</button><button data-f="QB">QB</button><button data-f="RB">RB</button><button data-f="WR">WR</button><button data-f="TE">TE</button></div>'+
+            '<button class="active" data-f="ALL">All</button><button data-f="QB">QB</button><button data-f="RB">RB</button><button data-f="WR">WR</button><button data-f="TE">TE</button><button data-f="K">K</button><button data-f="DST">DST</button></div>'+
             '<div class="dr-avail-list" id="drAvailList">';
           topAvail.forEach(function(p,i){
             html+='<button class="dr-avail-btn" data-aidx="'+i+'" data-pos="'+p.pos+'">'+
-              '<img src="'+headshot(p.id)+'" alt="" onerror="this.style.background=\'#e2e8f0\'">'+
+              '<img src="'+headshot(p.name,p.pos)+'" alt="">'+
               '<div style="min-width:0"><div class="dr-avail-name">'+p.name+'</div>'+
               '<div class="dr-avail-detail">'+p.pos+' · '+p.team+' · Bye '+p.bye+' · ADP '+p.adp+'</div>'+
               '<div class="dr-avail-detail">'+statLine(p)+'</div></div>'+
@@ -994,7 +1085,7 @@ function addPickRow(num,tIdx,p){
     '<div class="dr-pick-num">'+num+'</div>'+
     '<div class="dr-pick-team"><div class="dr-tm-dot" style="background:'+TEAMS[tIdx].color+'"></div>'+TEAMS[tIdx].abbr+'</div>'+
     '<div class="dr-pick-player">'+
-    '<img src="'+headshot(p.id)+'" alt="" onerror="this.style.background=\'#e2e8f0\'">'+
+    '<img src="'+headshot(p.name,p.pos)+'" alt="">'+
     '<div class="dr-pick-info"><div class="dr-pick-name">'+p.name+'</div><div class="dr-pick-meta">'+p.team+' · Bye '+p.bye+'</div></div></div>'+
     '<span class="dr-pick-pos dr-pick-pos--'+POS_CLR[p.pos]+'">'+p.pos+'</span>'+
     '<div class="dr-pick-pts">'+p.pts+' pts</div>'+
@@ -1022,8 +1113,8 @@ function s4Analyze(){
     var scores=teamRosters.map(function(roster,idx){
       var totalVor=0,totalPts=0;
       roster.forEach(function(p){totalVor+=p.vor;totalPts+=p.pts});
-      /* Starter pts: best QB + 2 best RB + 2 best WR + best TE + best FLEX */
-      var byP={QB:[],RB:[],WR:[],TE:[]};
+      /* Starter pts: best QB + 2 best RB + 2 best WR + best TE + best FLEX + best K + best DST */
+      var byP={QB:[],RB:[],WR:[],TE:[],K:[],DST:[]};
       roster.forEach(function(p){if(byP[p.pos])byP[p.pos].push(p)});
       Object.keys(byP).forEach(function(k){byP[k].sort(function(a,b){return b.pts-a.pts})});
       var stPts=0,stCt=0;
@@ -1038,6 +1129,8 @@ function s4Analyze(){
       if(byP.TE[1])flexCands.push(byP.TE[1]);
       flexCands.sort(function(a,b){return b.pts-a.pts});
       if(flexCands[0]){stPts+=flexCands[0].pts;stCt++}
+      if(byP.K[0]){stPts+=byP.K[0].pts;stCt++}
+      if(byP.DST[0]){stPts+=byP.DST[0].pts;stCt++}
       /* Value score */
       var valScore=0;
       allPicks.forEach(function(pk){if(pk.tIdx===idx)valScore+=(pk.player.adp-pk.pick)});
@@ -1062,17 +1155,17 @@ function s4Analyze(){
     document.getElementById('kaRank').textContent='#'+user.rank+'/12';
     document.getElementById('kaVal').textContent=(user.valScore>0?'+':'')+user.valScore;
     document.getElementById('kaBye').textContent=user.byeConflicts;
-    document.getElementById('kaStarters').textContent=user.stCt+'/7';
+    document.getElementById('kaStarters').textContent=user.stCt+'/9';
     document.getElementById('kaFormat').textContent=scoringFmt.toUpperCase();
 
     /* Position strength bars */
     var posStr=document.getElementById('kaPosStr');posStr.innerHTML='';
-    var posTotals={QB:0,RB:0,WR:0,TE:0};var maxPosTotal=1;
+    var posTotals={QB:0,RB:0,WR:0,TE:0,K:0,DST:0};var maxPosTotal=1;
     user.roster.forEach(function(p){posTotals[p.pos]=(posTotals[p.pos]||0)+p.pts});
     Object.values(posTotals).forEach(function(v){if(v>maxPosTotal)maxPosTotal=v});
-    ['QB','RB','WR','TE'].forEach(function(pos){
+    ['QB','RB','WR','TE','K','DST'].forEach(function(pos){
       var pct=Math.round(posTotals[pos]/maxPosTotal*100);
-      var clrs={QB:'#dc2626',RB:'#2563eb',WR:'#7c3aed',TE:'#059669'};
+      var clrs={QB:'#dc2626',RB:'#2563eb',WR:'#7c3aed',TE:'#059669',K:'#ca8a04',DST:'#e11d48'};
       posStr.insertAdjacentHTML('beforeend',
         '<div class="dr-pos-bar"><div class="dr-pos-bar-label" style="color:'+clrs[pos]+'">'+pos+'</div>'+
         '<div style="flex:1;background:var(--dr-border);border-radius:4px;overflow:hidden">'+

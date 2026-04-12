@@ -523,6 +523,35 @@ def nfl_draft(request):
     return render(request, 'boaapp/nfl_draft.html')
 
 
+def nfl_api_proxy(request, endpoint):
+    """Proxy SportsData.io NFL API calls to avoid CORS issues."""
+    import json
+    import urllib.request
+
+    api_key = os.environ.get('SPORTSDATA_API_KEY', '')
+    if not api_key:
+        return JsonResponse({'error': 'API key not configured'}, status=503)
+
+    allowed_endpoints = {
+        'projections': f'https://api.sportsdata.io/v3/nfl/projections/json/PlayerSeasonProjectionStats/2025?key={api_key}',
+        'defense': f'https://api.sportsdata.io/v3/nfl/projections/json/FantasyDefenseProjectionsBySeason/2025?key={api_key}',
+        'headshots': f'https://api.sportsdata.io/v3/nfl/headshots/json/Headshots?key={api_key}',
+    }
+
+    url = allowed_endpoints.get(endpoint)
+    if not url:
+        return JsonResponse({'error': 'Unknown endpoint'}, status=400)
+
+    try:
+        req = urllib.request.Request(url)
+        req.add_header('Ocp-Apim-Subscription-Key', api_key)
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode())
+        return JsonResponse(data, safe=False)
+    except Exception:
+        return JsonResponse({'error': 'API request failed'}, status=502)
+
+
 def api_orchestration(request):
     return render(request, 'boaapp/api_orchestration.html')
 

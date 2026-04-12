@@ -297,6 +297,7 @@ if DEBUG:
 ANTHROPIC_API_KEY = env('ANTHROPIC_API_KEY', default='')
 OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
 ELEVENLABS_API_KEY = env('ELEVENLABS_API_KEY', default='')
+SPORTSDATA_API_KEY = env('SPORTSDATA_API_KEY', default='')
 GITHUB_WEBHOOK_SECRET = env('GITHUB_WEBHOOK_SECRET', default='')
 # Set USE_LLM=False in .env to skip all API calls during development (zero cost)
 USE_LLM = env('USE_LLM')

@@ -84,6 +84,7 @@ urlpatterns = [
     path('mlops_lifecycle/', boaapp_views.mlops_lifecycle, name='mlops_lifecycle'),
     path('streaming_architecture/', boaapp_views.streaming_architecture, name='streaming_architecture'),
     path('nfl_draft/', boaapp_views.nfl_draft, name='nfl_draft'),
+    path('api/nfl/<str:endpoint>/', boaapp_views.nfl_api_proxy, name='nfl_api_proxy'),
     path('api_orchestration/', boaapp_views.api_orchestration, name='api_orchestration'),
     path('idp_demo/', boaapp_views.idp_demo, name='idp_demo'),
     path('api/portfolio-chat/', boaapp_views.portfolio_chat_api, name='portfolio_chat_api'),
