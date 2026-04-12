@@ -1,4 +1,17 @@
-from django.conf import settings
+import os
+
+import pytest
+
+# Set SQLite env vars BEFORE Django settings are imported by pytest-django.
+# This ensures django-environ reads these values instead of .env PostgreSQL creds.
+os.environ['DB_ENGINE'] = 'django.db.backends.sqlite3'
+os.environ['DB_NAME'] = ':memory:'
+os.environ.pop('DB_PASSWORD', None)
+os.environ.pop('DB_USER', None)
+os.environ.pop('DB_HOST', None)
+os.environ.pop('DB_PORT', None)
+
+from django.conf import settings  # noqa: E402
 
 
 def pytest_configure(config):
@@ -23,4 +36,15 @@ def pytest_configure(config):
         'staticfiles': {
             'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
         },
+    }
+
+
+@pytest.fixture(scope='session')
+def django_db_modify_db_settings():
+    """Ensure pytest-django creates a SQLite in-memory DB, not PostgreSQL."""
+    settings.DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
     }

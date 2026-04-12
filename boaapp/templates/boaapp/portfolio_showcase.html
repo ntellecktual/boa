@@ -12,7 +12,7 @@
   --c-blue:#3b82f6;--c-violet:#8b5cf6;--c-emerald:#10b981;--c-amber:#f59e0b;
   --c-card:#ffffff;--c-border:rgba(0,0,0,.05);--c-muted:#64748b;
   --c-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);
-  --c-shadow-lg:0 20px 50px rgba(0,0,0,.1);--c-radius:18px;
+  --c-shadow-lg:0 20px 50px rgba(0,0,0,.1);--c-radius:20px;
   --c-text:#0f172a;
 }
 [data-theme="dark"]{
@@ -22,14 +22,13 @@
 }
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ptFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 
-/* Hero */
+/* ── HERO ── */
 .pt-hero{text-align:center;padding:3rem 1rem 1.5rem;animation:fadeUp .6s ease both}
 .pt-tag{display:inline-block;padding:.35rem 1.1rem;border-radius:999px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.1);color:var(--c-blue)}
 .pt-hero h1{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:800;margin-bottom:.5rem;color:var(--c-text);letter-spacing:-.02em}
 .pt-hero .lead{font-size:.92rem;color:var(--c-muted);max-width:560px;margin:0 auto;line-height:1.7}
-
-/* Stats */
 .pt-stats{display:flex;justify-content:center;flex-wrap:wrap;gap:.8rem;margin:1.5rem 0}
 .pt-stat{display:flex;align-items:center;gap:.5rem;padding:.55rem 1rem;border-radius:14px;border:1px solid var(--c-border);background:var(--c-card);box-shadow:var(--c-shadow);animation:ptFloat 3.5s ease-in-out infinite}
 .pt-stat:nth-child(2){animation-delay:.6s}
@@ -38,61 +37,108 @@
 .pt-stat-val{font-size:1.1rem;font-weight:800;color:var(--c-blue)}
 .pt-stat-lbl{font-size:.7rem;color:var(--c-muted);line-height:1.3}
 
-/* ── COMPANY TAB GRID ── */
-.pt-tabs{max-width:900px;margin:0 auto;padding:0 1rem}
-.pt-tab-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem;margin-bottom:1.5rem}
-@media(max-width:768px){.pt-tab-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:480px){.pt-tab-grid{grid-template-columns:repeat(2,1fr)}}
+/* ── FILTER PILLS ── */
+.pt-filter-wrap{max-width:1100px;margin:0 auto;padding:0 1rem}
+.pt-filter-pills{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1.5rem}
+.pt-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.4rem 1rem;border-radius:999px;font-size:.75rem;font-weight:700;border:1.5px solid var(--c-border);background:var(--c-card);color:var(--c-muted);cursor:pointer;transition:all .25s;user-select:none}
+.pt-pill:hover{border-color:rgba(59,130,246,.3);color:#3b82f6;background:rgba(59,130,246,.04)}
+.pt-pill.active{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.4);color:#3b82f6}
 
-.pt-tab-card{
-  display:flex;flex-direction:column;align-items:center;gap:.6rem;
-  padding:1.2rem .8rem;border-radius:var(--c-radius);
-  border:2px solid var(--c-border);background:var(--c-card);
-  box-shadow:var(--c-shadow);cursor:pointer;text-decoration:none;
-  transition:all .25s ease;color:var(--c-text);
+/* ── IMAGE CARD GRID (Runway-inspired) ── */
+.pt-grid{max-width:1100px;margin:0 auto;padding:0 1rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:900px){.pt-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.pt-grid{grid-template-columns:1fr}}
+/* Witherite spans 2 cols on large screens */
+.pt-img-card--wide{grid-column:span 2}
+@media(max-width:900px){.pt-img-card--wide{grid-column:span 1}}
+
+.pt-img-card{
+  position:relative;overflow:hidden;border-radius:var(--c-radius);
+  cursor:pointer;aspect-ratio:16/10;
+  box-shadow:var(--c-shadow);
+  transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s ease;
 }
-.pt-tab-card:hover{
-  transform:translateY(-3px);box-shadow:var(--c-shadow-lg);
-  border-color:rgba(59,130,246,.2);color:var(--c-text);text-decoration:none;
+.pt-img-card:hover{
+  transform:translateY(-6px) scale(1.015);
+  box-shadow:0 24px 60px rgba(0,0,0,.18),0 0 0 1px rgba(59,130,246,.15);
 }
-.pt-tab-card.active{
-  border-color:var(--c-blue);
-  box-shadow:0 0 0 3px rgba(59,130,246,.12),var(--c-shadow-lg);
-  transform:translateY(-2px);
+.pt-img-card.active{
+  box-shadow:0 0 0 3px var(--c-blue),0 24px 60px rgba(59,130,246,.2);
+  transform:translateY(-4px) scale(1.01);
 }
-.pt-tab-logo{width:52px;height:52px;object-fit:contain;border-radius:12px;border:1px solid var(--c-border);background:#fff;padding:6px}
-[data-theme="dark"] .pt-tab-logo{background:rgba(255,255,255,.08)}
-.pt-tab-name{font-size:.78rem;font-weight:700;text-align:center;line-height:1.25}
-.pt-tab-role{font-size:.65rem;color:var(--c-muted);text-align:center;line-height:1.3}
+.pt-img-card__bg{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform .6s cubic-bezier(.22,1,.36,1),filter .4s;
+}
+.pt-img-card:hover .pt-img-card__bg{transform:scale(1.06);filter:brightness(1.05)}
+.pt-img-card__overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(0deg,rgba(0,0,0,.78) 0%,rgba(0,0,0,.35) 40%,rgba(0,0,0,.08) 100%);
+  transition:background .3s;
+}
+.pt-img-card:hover .pt-img-card__overlay{
+  background:linear-gradient(0deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.3) 45%,rgba(0,0,0,.05) 100%);
+}
+.pt-img-card__content{
+  position:absolute;bottom:0;left:0;right:0;padding:1.4rem 1.5rem;
+  display:flex;flex-direction:column;gap:.35rem;z-index:1;
+}
+.pt-img-card__domain{
+  display:inline-flex;align-items:center;gap:.3rem;width:fit-content;
+  padding:.2rem .7rem;border-radius:999px;font-size:.62rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;
+  background:rgba(255,255,255,.12);backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);color:rgba(255,255,255,.85);
+  border:1px solid rgba(255,255,255,.1);
+}
+.pt-img-card__name{font-size:1.2rem;font-weight:800;color:#fff;line-height:1.2;letter-spacing:-.01em;text-shadow:0 1px 8px rgba(0,0,0,.3)}
+.pt-img-card__role{font-size:.78rem;font-weight:500;color:rgba(255,255,255,.72);line-height:1.3}
+.pt-img-card__arrow{
+  position:absolute;top:1rem;right:1rem;width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:rgba(255,255,255,.1);backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);
+  color:#fff;font-size:.7rem;opacity:0;transform:translate(-4px,4px);
+  transition:opacity .3s,transform .3s;
+}
+.pt-img-card:hover .pt-img-card__arrow{opacity:1;transform:translate(0,0)}
+.pt-img-card.pt-hidden{display:none}
 
 /* ── DETAIL PANEL ── */
 .pt-detail{
-  max-width:900px;margin:0 auto 3rem;padding:0 1rem;
-  animation:fadeUp .35s ease both;
+  max-width:1100px;margin:1.5rem auto 3rem;padding:0 1rem;
 }
+.pt-detail-content{display:none;animation:fadeUp .4s ease both}
+.pt-detail-content.active{display:block}
 .pt-detail-card{
   border-radius:var(--c-radius);border:1px solid var(--c-border);
   background:var(--c-card);box-shadow:var(--c-shadow-lg);overflow:hidden;
 }
 .pt-detail-header{
-  display:flex;align-items:center;gap:1.2rem;
+  position:relative;display:flex;align-items:center;gap:1.2rem;
   padding:1.5rem 2rem;border-bottom:1px solid var(--c-border);
 }
 .pt-detail-logo{width:56px;height:56px;object-fit:contain;border-radius:14px;border:1px solid var(--c-border);background:#fff;padding:6px;flex-shrink:0}
 [data-theme="dark"] .pt-detail-logo{background:rgba(255,255,255,.08)}
 .pt-detail-info h2{font-size:1.2rem;font-weight:800;margin:0 0 .2rem;color:var(--c-text)}
 .pt-detail-info .pt-detail-role{font-size:.82rem;color:var(--c-muted);margin:0}
+.pt-detail-close{
+  margin-left:auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--c-border);
+  background:transparent;color:var(--c-muted);font-size:.8rem;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;
+}
+.pt-detail-close:hover{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2);color:#ef4444}
 .pt-detail-body{padding:1.5rem 2rem 2rem}
 @media(max-width:480px){.pt-detail-header{padding:1rem 1.2rem}.pt-detail-body{padding:1rem 1.2rem 1.5rem}}
 
-/* Badges */
+/* ── BADGES ── */
 .pt-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .8rem;border-radius:999px;font-size:.72rem;font-weight:700;margin-right:.4rem;margin-bottom:.7rem;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.1);color:var(--c-blue)}
 .pt-badge--amber{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.12);color:#b45309}
 .pt-badge--green{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.12);color:#059669}
 .pt-badge--violet{background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.12);color:#7c3aed}
 .pt-badge--rose{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.12);color:#dc2626}
 
-/* Accordion inside detail */
+/* ── ACCORDION ── */
 .pt-accordion{display:flex;flex-direction:column;gap:.7rem;margin-top:1rem}
 .pt-acc-item{border-radius:14px;border:1px solid var(--c-border);overflow:hidden;transition:box-shadow .2s}
 .pt-acc-item:hover{box-shadow:0 2px 12px rgba(0,0,0,.05)}
@@ -111,8 +157,6 @@
 .pt-lead-quote{font-size:.9rem;font-weight:500;line-height:1.7;padding:1.1rem 1.4rem;border-radius:14px;background:rgba(59,130,246,.03);border:1px solid rgba(59,130,246,.08);margin-bottom:1rem;color:#374151}
 [data-theme="dark"] .pt-lead-quote{color:#d1d5db}
 
-.pt-detail-content{display:none}
-.pt-detail-content.active{display:block}
 .pt-tech-logos{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem}
 .pt-tech-logo{height:48px;max-width:76px;object-fit:contain;padding:8px;border:1px solid var(--c-border);border-radius:12px;background:#fff;transition:transform .2s,box-shadow .2s}
 .pt-tech-logo:hover{transform:scale(1.06);box-shadow:0 4px 12px rgba(0,0,0,.08)}
@@ -120,13 +164,6 @@
 .pt-industry-label{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--c-blue);margin-bottom:.5rem}
 .pt-industry-list{font-size:.88rem;line-height:1.85;padding-left:1.4rem;margin:0 0 .75rem;color:#374151}
 [data-theme="dark"] .pt-industry-list{color:#d1d5db}
-
-/* ── Domain filter pills ── */
-.pt-filter-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
-.pt-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .85rem;border-radius:999px;font-size:.72rem;font-weight:700;border:1.5px solid var(--c-border);background:var(--c-card);color:var(--c-muted);cursor:pointer;transition:all .2s;user-select:none}
-.pt-pill:hover{border-color:rgba(59,130,246,.3);color:#3b82f6}
-.pt-pill.active{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.35);color:#3b82f6}
-.pt-tab-card.pt-hidden{display:none}
 </style>
 
 <!-- ════════════════════════════════════════════════════════
@@ -145,10 +182,9 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════
-     COMPANY TAB CARDS
+     DOMAIN FILTER PILLS
 ════════════════════════════════════════════════════════ -->
-<div class="pt-tabs">
-  <!-- Domain filter pills -->
+<div class="pt-filter-wrap">
   <div class="pt-filter-pills">
     <span class="pt-pill active" data-filter="all">All</span>
     <span class="pt-pill" data-filter="cloud"><i class="fas fa-cloud me-1"></i>Cloud</span>
@@ -158,31 +194,60 @@
     <span class="pt-pill" data-filter="legal"><i class="fas fa-gavel me-1"></i>Legal</span>
     <span class="pt-pill" data-filter="devops"><i class="fas fa-infinity me-1"></i>DevOps</span>
   </div>
-  <div class="pt-tab-grid">
-    <div class="pt-tab-card active" data-company="witherite" data-domain="cloud legal">
-      <img src="{% static 'css/img/witherite_logo.png' %}" alt="Witheritelaw" class="pt-tab-logo">
-      <div class="pt-tab-name">Witherite Law Group</div>
-      <div class="pt-tab-role">Enterprise Architect</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     IMAGE CARD GRID
+════════════════════════════════════════════════════════ -->
+<div class="pt-grid">
+  <div class="pt-img-card pt-img-card--wide active" data-company="witherite" data-domain="cloud legal">
+    <img src="{% static 'css/img/WitheriteLawGroup.jpg' %}" alt="Witherite Law Group" class="pt-img-card__bg" loading="lazy">
+    <div class="pt-img-card__overlay"></div>
+    <div class="pt-img-card__arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="pt-img-card__content">
+      <span class="pt-img-card__domain"><i class="fas fa-gavel"></i> Legal Tech &middot; Cloud</span>
+      <span class="pt-img-card__name">Witherite Law Group</span>
+      <span class="pt-img-card__role">Automation Engineer → Enterprise Architect</span>
     </div>
-    <div class="pt-tab-card" data-company="aa" data-domain="cloud data aviation">
-      <img src="{% static 'css/img/american_airlines_logo.png' %}" alt="American Airlines" class="pt-tab-logo">
-      <div class="pt-tab-name">American Airlines</div>
-      <div class="pt-tab-role">Engineer / PM</div>
+  </div>
+  <div class="pt-img-card" data-company="aa" data-domain="cloud data aviation">
+    <img src="{% static 'css/img/AmericanAirlines.jpg' %}" alt="American Airlines" class="pt-img-card__bg" loading="lazy">
+    <div class="pt-img-card__overlay"></div>
+    <div class="pt-img-card__arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="pt-img-card__content">
+      <span class="pt-img-card__domain"><i class="fas fa-plane"></i> Aviation</span>
+      <span class="pt-img-card__name">American Airlines</span>
+      <span class="pt-img-card__role">Engineer / Developer / PM</span>
     </div>
-    <div class="pt-tab-card" data-company="citi" data-domain="cloud data finance devops">
-      <img src="{% static 'css/img/citibank_logo.png' %}" alt="Citibank" class="pt-tab-logo">
-      <div class="pt-tab-name">Citibank</div>
-      <div class="pt-tab-role">DevOps / Data</div>
+  </div>
+  <div class="pt-img-card" data-company="citi" data-domain="cloud data finance devops">
+    <img src="{% static 'css/img/CitiGroup.jpg' %}" alt="Citibank" class="pt-img-card__bg" loading="lazy">
+    <div class="pt-img-card__overlay"></div>
+    <div class="pt-img-card__arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="pt-img-card__content">
+      <span class="pt-img-card__domain"><i class="fas fa-chart-line"></i> Finance &middot; DevOps</span>
+      <span class="pt-img-card__name">Citibank</span>
+      <span class="pt-img-card__role">DevOps / Data Engineer</span>
     </div>
-    <div class="pt-tab-card" data-company="barvin" data-domain="data">
-      <img src="{% static 'css/img/barvin_logo.png' %}" alt="Barvin" class="pt-tab-logo">
-      <div class="pt-tab-name">Barvin</div>
-      <div class="pt-tab-role">Property Manager</div>
+  </div>
+  <div class="pt-img-card" data-company="barvin" data-domain="data">
+    <img src="{% static 'css/img/Barvin.jpg' %}" alt="Barvin" class="pt-img-card__bg" loading="lazy">
+    <div class="pt-img-card__overlay"></div>
+    <div class="pt-img-card__arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="pt-img-card__content">
+      <span class="pt-img-card__domain"><i class="fas fa-building"></i> Property</span>
+      <span class="pt-img-card__name">Barvin</span>
+      <span class="pt-img-card__role">Property Manager</span>
     </div>
-    <div class="pt-tab-card" data-company="codeninjas" data-domain="cloud devops">
-      <img src="{% static 'css/img/code_ninjas_logo.png' %}" alt="Code Ninjas" class="pt-tab-logo">
-      <div class="pt-tab-name">Code Ninjas</div>
-      <div class="pt-tab-role">DevOps Director</div>
+  </div>
+  <div class="pt-img-card" data-company="codeninjas" data-domain="cloud devops">
+    <img src="{% static 'css/img/CodeNinjas.jpg' %}" alt="Code Ninjas" class="pt-img-card__bg" loading="lazy">
+    <div class="pt-img-card__overlay"></div>
+    <div class="pt-img-card__arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="pt-img-card__content">
+      <span class="pt-img-card__domain"><i class="fas fa-infinity"></i> DevOps</span>
+      <span class="pt-img-card__name">Code Ninjas</span>
+      <span class="pt-img-card__role">DevOps Director</span>
     </div>
   </div>
 </div>
@@ -201,6 +266,7 @@
           <h2>Witherite Law Group</h2>
           <p class="pt-detail-role">Automation Engineer → Enterprise Application Architect</p>
         </div>
+        <button class="pt-detail-close" title="Close"><i class="fas fa-times"></i></button>
       </div>
       <div class="pt-detail-body">
         <span class="pt-badge"><i class="fas fa-gavel me-1"></i> Legal Technology</span>
@@ -426,6 +492,7 @@
           <h2>American Airlines</h2>
           <p class="pt-detail-role">Engineer / Developer / Project Manager</p>
         </div>
+        <button class="pt-detail-close" title="Close"><i class="fas fa-times"></i></button>
       </div>
       <div class="pt-detail-body">
         <span class="pt-badge pt-badge--rose"><i class="fas fa-plane me-1"></i> Baggage Technology / Operations Applications</span>
@@ -626,6 +693,7 @@
           <h2>Citibank</h2>
           <p class="pt-detail-role">DevOps / Data Engineer</p>
         </div>
+        <button class="pt-detail-close" title="Close"><i class="fas fa-times"></i></button>
       </div>
       <div class="pt-detail-body">
         <span class="pt-badge"><i class="fas fa-university me-1"></i> Data Management</span>
@@ -756,6 +824,7 @@
           <h2>Barvin</h2>
           <p class="pt-detail-role">Property Manager</p>
         </div>
+        <button class="pt-detail-close" title="Close"><i class="fas fa-times"></i></button>
       </div>
       <div class="pt-detail-body">
         <span class="pt-badge pt-badge--green"><i class="fas fa-building me-1"></i> Property Management</span>
@@ -818,6 +887,7 @@
           <h2>Code Ninjas</h2>
           <p class="pt-detail-role">DevOps Director</p>
         </div>
+        <button class="pt-detail-close" title="Close"><i class="fas fa-times"></i></button>
       </div>
       <div class="pt-detail-body">
         <span class="pt-badge pt-badge--violet"><i class="fas fa-chart-line me-1"></i> Business Analytics / Business Development</span>
@@ -886,22 +956,21 @@
 (function () {
   /* Domain filter pills */
   var pills = document.querySelectorAll('.pt-pill');
-  var tabCards = document.querySelectorAll('.pt-tab-card');
+  var imgCards = document.querySelectorAll('.pt-img-card');
   pills.forEach(function(pill){
     pill.addEventListener('click', function(){
       pills.forEach(function(p){ p.classList.remove('active'); });
       this.classList.add('active');
       var f = this.dataset.filter;
-      tabCards.forEach(function(card){
+      imgCards.forEach(function(card){
         var domains = card.dataset.domain || '';
         if(f === 'all' || domains.indexOf(f) > -1){
           card.classList.remove('pt-hidden');
         } else {
           card.classList.add('pt-hidden');
-          /* if this hidden card was active, reset selection */
           if(card.classList.contains('active')){
             card.classList.remove('active');
-            var first = document.querySelector('.pt-tab-card:not(.pt-hidden)');
+            var first = document.querySelector('.pt-img-card:not(.pt-hidden)');
             if(first){ first.click(); }
           }
         }
@@ -909,29 +978,38 @@
     });
   });
 
-  var tabs = document.querySelectorAll('.pt-tab-card');
+  /* Image card → detail panel switching */
+  var cards = document.querySelectorAll('.pt-img-card');
   var panels = document.querySelectorAll('.pt-detail-content');
+  var detailWrap = document.querySelector('.pt-detail');
 
-  tabs.forEach(function (tab) {
-    tab.addEventListener('click', function () {
+  cards.forEach(function (card) {
+    card.addEventListener('click', function () {
       var company = this.dataset.company;
-
-      // Update active tab
-      tabs.forEach(function (t) { t.classList.remove('active'); });
+      cards.forEach(function (c) { c.classList.remove('active'); });
       this.classList.add('active');
-
-      // Show matching detail panel
       panels.forEach(function (p) { p.classList.remove('active'); });
       var target = document.getElementById('detail-' + company);
       if (target) {
         target.classList.add('active');
         target.style.animation = 'none';
         void target.offsetHeight;
-        target.style.animation = 'fadeUp .35s ease both';
-
-        // Scroll panel into view smoothly
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        target.style.animation = 'fadeUp .4s ease both';
+        setTimeout(function(){
+          detailWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
       }
+    });
+  });
+
+  /* Close buttons on detail panels */
+  document.querySelectorAll('.pt-detail-close').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var panel = this.closest('.pt-detail-content');
+      if(panel) panel.classList.remove('active');
+      cards.forEach(function(c){ c.classList.remove('active'); });
+      document.querySelector('.pt-grid').scrollIntoView({ behavior:'smooth', block:'center' });
     });
   });
 
@@ -947,11 +1025,21 @@
     });
   });
 
-  /* Fade-in-up on scroll */
+  /* Staggered fade-in on image cards */
   var obs = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: .08 });
-  document.querySelectorAll('.fade-in-up').forEach(function (el) { obs.observe(el); });
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.style.animation = 'fadeUp .5s ease both';
+        e.target.style.animationDelay = (e.target.dataset.delay || '0') + 's';
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: .1 });
+  imgCards.forEach(function (el, i) {
+    el.style.opacity = '0';
+    el.dataset.delay = String(i * .1);
+    obs.observe(el);
+  });
 }());
 </script>
 {% endblock %}
