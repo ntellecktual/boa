@@ -108,12 +108,6 @@
       <a href="{% url 'upload_document' %}" class="btn btn-success">
         <i class="fas fa-upload me-1"></i>Upload
       </a>
-      <form method="post" action="{% url 'generate_all_videos' %}" class="d-inline">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-info" {% if total_audio_count == 0 %}disabled{% endif %}>
-            <i class="fas fa-film me-1"></i>Generate All Videos
-          </button>
-      </form>
       <a href="{% url 'analytics' %}" class="btn btn-primary">
         <i class="fas fa-chart-line me-1"></i>Analytics
       </a>
@@ -144,19 +138,13 @@
         <div class="db-nb-header" onclick="this.parentElement.querySelector('.db-sections').classList.toggle('d-none');this.querySelector('.db-nb-toggle').classList.toggle('open')">
           <div class="db-nb-icon"><i class="fas fa-book"></i></div>
           <div class="db-nb-info">
-            <div class="db-nb-title">{{ item.document.uploaded_file.name|cut:"documents/" }}</div>
+            <div class="db-nb-title">{{ item.document.original_filename|default:"Untitled Notebook" }}</div>
             <div class="db-nb-meta">
               ID: {{ item.document.pk }} &middot; {{ item.document.uploaded_at|localtime|date:"M d, Y h:i A" }}
             </div>
           </div>
           <div class="db-nb-badges">
-            {% if not item.notebook_exists %}
-              <span class="badge bg-danger">File Missing</span>
-            {% endif %}
             <span class="badge bg-primary">{{ item.audio_files|length }} audio</span>
-            {% with item.audio_files as afiles %}
-              {% for fi in afiles %}{% if fi.video_exists %}{% with True as has_video %}{% endwith %}{% endif %}{% endfor %}
-            {% endwith %}
           </div>
           <i class="fas fa-chevron-down db-nb-toggle open"></i>
         </div>
@@ -191,44 +179,20 @@
               <div class="db-audio-file">{{ file_info.audio.name }}</div>
             </div>
 
-            {% if file_info.audio_exists and file_info.audio.file.url %}
+            {% if file_info.has_audio %}
             <div class="db-audio-player">
               <audio controls controlsList="nodownload" preload="metadata">
-                <source src="{{ file_info.audio.file.url }}" type="audio/mpeg">
+                <source src="{% url 'serve_audio' file_info.audio.pk %}" type="audio/mpeg">
               </audio>
             </div>
             {% endif %}
 
             <div class="db-audio-actions">
-              {% if file_info.audio_exists and file_info.audio.file.url %}
-                {% if file_info.video_exists and file_info.video_url %}
-                  <span class="badge bg-success" style="font-size:.6rem;padding:.25rem .4rem">
-                    <i class="fas fa-check me-1"></i>Video Ready
-                  </span>
-                  <a href="{{ file_info.video_url }}" target="_blank" class="btn btn-success" title="Play Video">
-                    <i class="fas fa-play me-1"></i>Play
-                  </a>
-                  <a href="{{ file_info.video_url }}" class="btn btn-secondary db-btn-ic" download="{{ file_info.video_filename }}" title="Download Video">
-                    <i class="fas fa-download"></i>
-                  </a>
-                  <form method="post" action="{% url 'generate_video' file_info.audio.pk %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-secondary db-btn-ic" title="Re-generate Video">
-                      <i class="fas fa-redo"></i>
-                    </button>
-                  </form>
-                {% else %}
-                  <span class="badge bg-secondary" style="font-size:.6rem;padding:.25rem .4rem">
-                    No Video
-                  </span>
-                  <form method="post" action="{% url 'generate_video' file_info.audio.pk %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary" title="Generate Video">
-                      <i class="fas fa-film me-1"></i>Generate
-                    </button>
-                  </form>
-                {% endif %}
-                <a href="{{ file_info.audio.file.url }}" class="btn btn-secondary db-btn-ic" download="{{ file_info.audio.name }}" title="Download Audio">
+              {% if file_info.has_audio %}
+                <a href="{% url 'download_video' file_info.audio.pk %}" class="btn btn-primary" title="Generate & Download Video">
+                  <i class="fas fa-film me-1"></i>Video
+                </a>
+                <a href="{% url 'serve_audio' file_info.audio.pk %}" class="btn btn-secondary db-btn-ic" download="{{ file_info.audio.name }}.mp3" title="Download Audio">
                   <i class="fas fa-headphones"></i>
                 </a>
               {% else %}

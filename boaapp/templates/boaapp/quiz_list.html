@@ -1,7 +1,7 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
 
-{% block title %}Quizzes - {{ document.uploaded_file.name }}{% endblock %}
+{% block title %}Quizzes - {{ document.original_filename|default:"Notebook" }}{% endblock %}
 
 {% block content %}
 <style>
@@ -16,7 +16,7 @@
 <div class="quiz-container">
   <div class="text-center mb-4">
     <h2 style="font-size:1.4rem;font-weight:800"><i class="fas fa-brain me-2"></i>AI-Generated Quizzes</h2>
-    <p style="font-size:.85rem;opacity:.6">Test your understanding of: {{ document.uploaded_file.name|cut:"documents/" }}</p>
+    <p style="font-size:.85rem;opacity:.6">Test your understanding of: {{ document.original_filename|default:"Notebook" }}</p>
   </div>
 
   <div class="text-center mb-3">

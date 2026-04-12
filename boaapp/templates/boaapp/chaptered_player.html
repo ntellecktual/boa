@@ -1,15 +1,18 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
 
-{% block title %}Chaptered Player - {{ document.uploaded_file.name }}{% endblock %}
+{% block title %}Chaptered Player - {{ document.original_filename|default:"Notebook" }}{% endblock %}
 
 {% block content %}
 <style>
 .player-wrap{max-width:1000px;margin:0 auto;padding:1rem}
 .player-grid{display:grid;grid-template-columns:1fr 280px;gap:1rem}
 @media(max-width:768px){.player-grid{grid-template-columns:1fr}}
-.video-pane{background:#000;border-radius:14px;overflow:hidden}
-.video-pane video{width:100%;display:block}
+.audio-pane{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;overflow:hidden;padding:1.5rem}
+.audio-pane audio{width:100%;border-radius:8px}
+.now-playing{text-align:center;margin-bottom:1rem}
+.now-playing h3{font-size:.95rem;font-weight:700;margin-bottom:.2rem}
+.now-playing p{font-size:.72rem;opacity:.5;margin:0}
 .chapters-pane{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;overflow:hidden;max-height:480px;overflow-y:auto}
 .chapters-header{padding:.6rem .8rem;font-size:.8rem;font-weight:700;border-bottom:1px solid var(--border,#e2e8f0);position:sticky;top:0;background:var(--card-bg,#fff);z-index:1}
 .chapter-item{display:flex;align-items:center;gap:.5rem;padding:.5rem .8rem;cursor:pointer;border-bottom:1px solid var(--border,#e2e8f0);transition:background .15s;font-size:.78rem}
@@ -19,44 +22,30 @@
 .chapter-item.active .chapter-num{background:#22c55e}
 .chapter-title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chapter-play{font-size:.65rem;opacity:.4}
-.audio-section{margin-top:1rem}
-.audio-section h4{font-size:.85rem;font-weight:700;margin-bottom:.5rem}
-.audio-item{display:flex;align-items:center;gap:.5rem;padding:.4rem .8rem;background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:10px;margin-bottom:.4rem;font-size:.78rem}
-.audio-item audio{height:30px;flex:1}
+.chapter-dl{font-size:.6rem;opacity:.4;text-decoration:none;color:inherit}
+.chapter-dl:hover{opacity:.8}
 </style>
 
 <div class="player-wrap">
   <div class="text-center mb-3">
-    <h2 style="font-size:1.2rem;font-weight:800"><i class="fas fa-film me-2"></i>Chaptered Player</h2>
-    <p style="font-size:.75rem;opacity:.5">{{ document.uploaded_file.name|cut:"documents/" }}</p>
+    <h2 style="font-size:1.2rem;font-weight:800"><i class="fas fa-headphones me-2"></i>Chaptered Player</h2>
+    <p style="font-size:.75rem;opacity:.5">{{ document.original_filename|default:"Notebook" }}</p>
   </div>
 
   <div class="player-grid">
-    <div>
-      <div class="video-pane">
-        {% if chapters and chapters.0.video_url %}
-        <video id="mainPlayer" controls>
-          <source src="{{ chapters.0.video_url }}" type="video/mp4">
-        </video>
-        {% else %}
-        <div style="padding:3rem;text-align:center;color:#fff;font-size:.85rem">
-          <i class="fas fa-video-slash d-block" style="font-size:2rem;margin-bottom:.5rem;opacity:.3"></i>
-          No videos generated yet. Run the pipeline first!
-        </div>
-        {% endif %}
-      </div>
-
+    <div class="audio-pane">
       {% if chapters %}
-      <div class="audio-section">
-        <h4><i class="fas fa-headphones me-2"></i>Audio Narration</h4>
-        {% for ch in chapters %}
-        {% if ch.audio_url %}
-        <div class="audio-item">
-          <span style="font-weight:600">{{ ch.title|truncatechars:30 }}</span>
-          <audio controls preload="none"><source src="{{ ch.audio_url }}" type="audio/mpeg"></audio>
-        </div>
-        {% endif %}
-        {% endfor %}
+      <div class="now-playing">
+        <h3 id="nowPlayingTitle">{{ chapters.0.title }}</h3>
+        <p>Chapter <span id="nowPlayingNum">1</span> of {{ chapters|length }}</p>
+      </div>
+      <audio id="mainPlayer" controls preload="metadata">
+        <source src="{% url 'serve_audio' chapters.0.audio_pk %}" type="audio/mpeg">
+      </audio>
+      {% else %}
+      <div style="padding:3rem;text-align:center;font-size:.85rem">
+        <i class="fas fa-headphones d-block" style="font-size:2rem;margin-bottom:.5rem;opacity:.3"></i>
+        No audio generated yet. Run the pipeline first!
       </div>
       {% endif %}
     </div>
@@ -64,9 +53,10 @@
     <div class="chapters-pane">
       <div class="chapters-header"><i class="fas fa-list me-1"></i>Chapters ({{ chapters|length }})</div>
       {% for ch in chapters %}
-      <div class="chapter-item {% if forloop.first %}active{% endif %}" data-video="{{ ch.video_url|default:'' }}" onclick="playChapter(this)">
+      <div class="chapter-item {% if forloop.first %}active{% endif %}" data-audio-url="{% url 'serve_audio' ch.audio_pk %}" data-title="{{ ch.title }}" data-num="{{ forloop.counter }}" onclick="playChapter(this)">
         <div class="chapter-num">{{ forloop.counter }}</div>
         <div class="chapter-title">{{ ch.title }}</div>
+        <a href="{% url 'serve_audio' ch.audio_pk %}" download class="chapter-dl" title="Download" onclick="event.stopPropagation()"><i class="fas fa-download"></i></a>
         <div class="chapter-play"><i class="fas fa-play"></i></div>
       </div>
       {% endfor %}
@@ -81,12 +71,31 @@
 function playChapter(el) {
   document.querySelectorAll('.chapter-item').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  const videoUrl = el.dataset.video;
+  const audioUrl = el.dataset.audioUrl;
+  const title = el.dataset.title;
+  const num = el.dataset.num;
   const player = document.getElementById('mainPlayer');
-  if (player && videoUrl) {
-    player.src = videoUrl;
+  if (player && audioUrl) {
+    player.src = audioUrl;
     player.play();
   }
+  const titleEl = document.getElementById('nowPlayingTitle');
+  const numEl = document.getElementById('nowPlayingNum');
+  if (titleEl) titleEl.textContent = title;
+  if (numEl) numEl.textContent = num;
 }
+// Auto-advance to next chapter when audio ends
+document.addEventListener('DOMContentLoaded', function() {
+  const player = document.getElementById('mainPlayer');
+  if (player) {
+    player.addEventListener('ended', function() {
+      const active = document.querySelector('.chapter-item.active');
+      const next = active ? active.nextElementSibling : null;
+      if (next && next.classList.contains('chapter-item')) {
+        playChapter(next);
+      }
+    });
+  }
+});
 </script>
 {% endblock %}

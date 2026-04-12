@@ -25,6 +25,8 @@ urlpatterns = [
     path('uploadit/', boaapp_views.uploadit, name='uploadit'),
     path('upload/', boaapp_views.upload_document, name='upload_document'),
     path('task_status/<str:task_id>/', boaapp_views.check_task_status, name='check_task_status'),
+    path('audio/<int:audio_file_pk>/stream/', boaapp_views.serve_audio, name='serve_audio'),
+    path('video/<int:audio_file_pk>/download/', boaapp_views.download_video, name='download_video'),
     path('generate_video/<int:audio_file_pk>/', boaapp_views.generate_video, name='generate_video'),
     path('generate_all_videos/', boaapp_views.generate_all_videos, name='generate_all_videos'),
 

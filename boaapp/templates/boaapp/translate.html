@@ -1,7 +1,7 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
 
-{% block title %}Translate - {{ document.uploaded_file.name }}{% endblock %}
+{% block title %}Translate - {{ document.original_filename|default:"Notebook" }}{% endblock %}
 
 {% block content %}
 <style>
@@ -19,7 +19,7 @@
 <div class="translate-wrap">
   <div class="text-center mb-4">
     <h2 style="font-size:1.3rem;font-weight:800"><i class="fas fa-globe me-2"></i>Auto-Translate</h2>
-    <p style="font-size:.75rem;opacity:.5">{{ document.uploaded_file.name|cut:"documents/" }}</p>
+    <p style="font-size:.75rem;opacity:.5">{{ document.original_filename|default:"Notebook" }}</p>
   </div>
 
   <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Select Language</h4>

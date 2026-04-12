@@ -16,20 +16,29 @@ class Profile(models.Model):
 
 class Document(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    uploaded_file = models.FileField(upload_to='documents/')
+    uploaded_file = models.FileField(upload_to='documents/', blank=True)
+    notebook_json = models.TextField(
+        blank=True, default='',
+        help_text='Raw .ipynb JSON stored in the database so it survives ephemeral deploys.'
+    )
+    original_filename = models.CharField(max_length=255, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Document {self.pk} by {self.user.username}"
+        return f"Document {self.pk} ({self.original_filename or 'untitled'}) by {self.user.username}"
 
 class AudioFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='audio_files')
     title = models.CharField(max_length=255)
-    file = models.FileField(upload_to='audio/') # Path relative to MEDIA_ROOT
+    file = models.FileField(upload_to='audio/', blank=True)
+    audio_data = models.BinaryField(
+        null=True, blank=True,
+        help_text='MP3 bytes stored in PostgreSQL for persistence across deploys.'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
-    metadata = models.JSONField(null=True, blank=True) # For section index, etc.
-    name = models.CharField(max_length=255, blank=True) # Store original filename or derived name
+    metadata = models.JSONField(null=True, blank=True)
+    name = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.title

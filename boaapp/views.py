@@ -1,8 +1,10 @@
 import logging
 import nbformat
-from nbconvert import HTMLExporter # Add this import
+from nbconvert import HTMLExporter
 import os
+import io
 import threading
+import tempfile
 
 from django.conf import settings
 from django.db import transaction
@@ -12,7 +14,7 @@ from celery.result import AsyncResult
 from celery import current_app
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
@@ -26,54 +28,24 @@ from .models import (
     PipelineRun, CodeReview,
 )
 from .tasks import create_audio_files_task, create_single_video_task, run_full_pipeline_task
-from .utils import _get_video_paths, _get_random_background
-from .process_notebook import handle_uploaded_file
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-def render_notebook_to_html(filepath):
-    """Converts a Jupyter Notebook file (.ipynb) to HTML."""
-    if not os.path.exists(filepath):
-        logger.error(f"Notebook file not found: {filepath}")
-        return f"<p>Error: Notebook file not found at {filepath}</p>"
-
+def render_notebook_to_html(notebook_json_str):
+    """Converts a Jupyter Notebook JSON string to HTML."""
+    if not notebook_json_str:
+        return "<p>No notebook content available.</p>"
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            nb = nbformat.read(f, as_version=4)
-        
-        # Configure the HTML exporter
+        nb = nbformat.read(io.StringIO(notebook_json_str), as_version=4)
         html_exporter = HTMLExporter()
-
-        # --- Template Selection ---
-        # 'basic' is very minimal.
-        # 'classic' or 'lab' provide richer styling but might have more external dependencies (like fonts).
-        html_exporter.template_name = 'basic' # Current setting
-        # html_exporter.template_name = 'classic' 
-        # html_exporter.template_name = 'lab'
-
-        # --- Content Exclusion ---
-        # Exclude the "In [1]:", "Out [1]:" prompts
+        html_exporter.template_name = 'basic'
         html_exporter.exclude_output_prompt = True
-        # Set to True if you want to hide the code input cells by default
-        html_exporter.exclude_input = False 
-
-        # --- Embedding Resources (More Advanced) ---
-        # html_exporter.embed_images = True # To embed images directly in HTML (can increase HTML size)
-
-        (body, resources) = html_exporter.from_notebook_node(nb) # Corrected method name
-        
-        # --- Advanced: Embedding CSS (if needed and available in resources) ---
-        # if resources.get('inlining', {}).get('css'):
-        #     css_to_embed = "\n".join(resources['inlining']['css'])
-        #     body = f"<style>{css_to_embed}</style>\n{body}"
+        html_exporter.exclude_input = False
+        (body, resources) = html_exporter.from_notebook_node(nb)
         return body
-
-    except nbformat.validator.NotebookValidationError as e_nb_invalid:
-        logger.error(f"Invalid notebook format for {filepath}: {e_nb_invalid}", exc_info=True)
-        return f"<p>Error: Invalid Jupyter Notebook format: {e_nb_invalid}</p>"
     except Exception as e:
-        logger.error(f"Error rendering notebook {filepath}: {e}", exc_info=True)
+        logger.error(f"Error rendering notebook: {e}", exc_info=True)
         return f"<p>Error rendering notebook: {e}</p>"
 
 
@@ -253,109 +225,80 @@ def upload_document(request):
             uploaded_file = request.FILES['uploaded_file']
             original_filename = uploaded_file.name
 
-            # --- Duplicate Check Logic ---
+            # --- Read and validate notebook ---
             try:
-                # Ensure nbformat is imported: import nbformat
-                # Ensure os is imported: import os
-                uploaded_file.seek(0) # Rewind file pointer before reading
-                uploaded_nb = nbformat.read(uploaded_file, as_version=4)
-                uploaded_title_original = None # Store original case for message
-                uploaded_title_lower = None
+                uploaded_file.seek(0)
+                notebook_json_str = uploaded_file.read().decode('utf-8')
+                uploaded_nb = nbformat.read(io.StringIO(notebook_json_str), as_version=4)
 
-                # Find the first H1 header in the uploaded notebook
+                # Extract title from first H1 header
+                uploaded_title_original = None
+                uploaded_title_lower = None
                 for cell in uploaded_nb.cells:
                     if cell.cell_type == 'markdown':
                         lines = [line.strip() for line in cell['source'].split('\n') if line.strip()]
                         if lines and lines[0].startswith('# '):
                             uploaded_title_original = lines[0][2:].strip()
                             uploaded_title_lower = uploaded_title_original.lower()
-                            break # Found first H1
+                            break
 
-                # Fallback to filename if no H1 found
                 if not uploaded_title_lower:
-                     uploaded_title_original = os.path.splitext(original_filename)[0]
-                     uploaded_title_lower = uploaded_title_original.lower()
+                    uploaded_title_original = os.path.splitext(original_filename)[0]
+                    uploaded_title_lower = uploaded_title_original.lower()
 
-                uploaded_file.seek(0) # Rewind again before potential save or further processing
-
-                # Check against titles derived from existing documents for this user
+                # --- Duplicate Check (compare against existing DB-stored notebooks) ---
                 existing_docs = Document.objects.filter(user=request.user)
                 for doc in existing_docs:
                     try:
-                        # Construct path to existing notebook
-                        existing_doc_path = os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file))
-                        if os.path.exists(existing_doc_path):
-                            with open(existing_doc_path, 'r', encoding='utf-8') as f_existing:
-                                existing_nb = nbformat.read(f_existing, as_version=4)
-                                existing_title_original = None
-                                existing_title_lower = None
+                        if not doc.notebook_json:
+                            continue
+                        existing_nb = nbformat.read(io.StringIO(doc.notebook_json), as_version=4)
+                        existing_title_lower = None
+                        for cell_existing in existing_nb.cells:
+                            if cell_existing.cell_type == 'markdown':
+                                lines_existing = [line.strip() for line in cell_existing['source'].split('\n') if line.strip()]
+                                if lines_existing and lines_existing[0].startswith('# '):
+                                    existing_title_lower = lines_existing[0][2:].strip().lower()
+                                    break
+                        if not existing_title_lower:
+                            existing_title_lower = os.path.splitext(doc.original_filename or "")[0].lower()
 
-                                # Find first H1 in existing notebook
-                                for cell_existing in existing_nb.cells:
-                                    if cell_existing.cell_type == 'markdown':
-                                        lines_existing = [line.strip() for line in cell_existing['source'].split('\n') if line.strip()]
-                                        if lines_existing and lines_existing[0].startswith('# '):
-                                            existing_title_original = lines_existing[0][2:].strip()
-                                            existing_title_lower = existing_title_original.lower()
-                                            break # Found first H1
-
-                                # Fallback for existing notebook title
-                                if not existing_title_lower:
-                                    existing_title_original = os.path.splitext(os.path.basename(str(doc.uploaded_file)))[0]
-                                    existing_title_lower = existing_title_original.lower()
-
-                                # Perform the duplicate check (case-insensitive, excluding "great job!")
-                                if uploaded_title_lower == existing_title_lower and uploaded_title_lower != "great job!":
-                                     logger.warning(f"Duplicate title detected for user {request.user.username}: '{uploaded_title_original}' matches existing document PK {doc.pk}")
-                                     messages.error(request, f"A notebook with the same title ('{uploaded_title_original}') already exists. Please rename the notebook's first H1 header or upload a different file.")
-                                     return redirect('upload_document') # Stop processing and redirect
-
-                                break # Move to the next existing document after checking the first H1
-
+                        if uploaded_title_lower == existing_title_lower and uploaded_title_lower != "great job!":
+                            logger.warning(f"Duplicate title detected for user {request.user.username}: '{uploaded_title_original}'")
+                            messages.error(request, f"A notebook with the same title ('{uploaded_title_original}') already exists.")
+                            return redirect('upload_document')
                     except Exception as e_read_existing:
-                        # Log error reading existing file but continue checking others
-                        logger.warning(f"Could not read or parse existing document {doc.uploaded_file} (PK: {doc.pk}) for title check: {e_read_existing}")
-                        continue # Skip this document check
+                        logger.warning(f"Could not parse existing document PK {doc.pk} for title check: {e_read_existing}")
+                        continue
 
-            except nbformat.validator.NotebookValidationError as e_nb_invalid:
-                 logger.error(f"Invalid notebook format uploaded by user {request.user.username}: {original_filename}. Error: {e_nb_invalid}", exc_info=True)
-                 messages.error(request, "The uploaded file is not a valid Jupyter Notebook. Please check the file format.")
-                 return redirect('upload_document')
-            except Exception as e_read_upload:
-                logger.error(f"Failed to read uploaded notebook content for title check: {original_filename}. Error: {e_read_upload}", exc_info=True)
+            except nbformat.validator.NotebookValidationError as e_nb:
+                logger.error(f"Invalid notebook format: {original_filename}. Error: {e_nb}", exc_info=True)
+                messages.error(request, "The uploaded file is not a valid Jupyter Notebook.")
+                return redirect('upload_document')
+            except Exception as e_read:
+                logger.error(f"Failed to read notebook: {original_filename}. Error: {e_read}", exc_info=True)
                 messages.error(request, "Failed to read notebook content. Please upload a valid .ipynb file.")
                 return redirect('upload_document')
-            # --- End Duplicate Check Logic ---
 
-
-            # Save Document model instance first
-            document = form.save(commit=False)
-            document.user = request.user
-            document.save() # Save to get a PK
-
-            # Handle file saving using the uploaded_file variable
-            saved_file_path = handle_uploaded_file(uploaded_file)
-            # Ensure the path saved is relative to MEDIA_ROOT
-            relative_path = os.path.relpath(saved_file_path, settings.MEDIA_ROOT)
-            # Replace backslashes with forward slashes for consistency if needed
-            document.uploaded_file.name = relative_path.replace('\\', '/')
-            document.save(update_fields=['uploaded_file'])
+            # --- Save Document with notebook JSON stored in DB ---
+            document = Document(
+                user=request.user,
+                original_filename=original_filename,
+                notebook_json=notebook_json_str,
+            )
+            document.save()
 
             # --- Trigger Audio Creation Task ---
-            logger.info(f"Triggering Celery task create_audio_files_task for document PK {document.pk}")
+            logger.info(f"Triggering audio creation for document PK {document.pk}")
             try:
                 if getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
-                    # Eager mode: run synchronously, no broker connection needed
                     logger.info("Running task in eager mode (synchronous)")
                     async_result = create_audio_files_task.apply_async(
                         args=[document.pk, request.user.pk]
                     )
                 else:
-                    # Production mode: use explicit connection to broker
                     broker_url = settings.CELERY_BROKER_URL
-                    logger.debug(f"Using broker URL for explicit connection: {broker_url}")
                     with Connection(broker_url) as conn:
-                        logger.debug(f"Explicit Kombu connection established: {conn}")
                         async_result = create_audio_files_task.apply_async(
                             args=[document.pk, request.user.pk],
                             connection=conn
@@ -364,21 +307,18 @@ def upload_document(request):
                 logger.info(f"Task sent successfully. Task ID: {task_id}")
                 redirect_url = f"{redirect('dashboard').url}?audio_task_id={task_id}"
 
-            except ConnectionRefusedError as e_conn_refused:
-                logger.error(f"Connection refused: {e_conn_refused}", exc_info=True)
-                messages.error(request, "Failed to connect to the background task queue (Connection Refused). Please ensure Redis is running and accessible.")
+            except ConnectionRefusedError as e_conn:
+                logger.error(f"Connection refused: {e_conn}", exc_info=True)
+                messages.error(request, "Failed to connect to the background task queue.")
                 return redirect('dashboard')
             except Exception as e_send:
-                 logger.error(f"Error sending task: {e_send}", exc_info=True)
-                 messages.error(request, f"Failed to queue background task: {e_send}")
-                 return redirect('dashboard')
-            # --- End Task Triggering ---
+                logger.error(f"Error sending task: {e_send}", exc_info=True)
+                messages.error(request, f"Failed to queue background task: {e_send}")
+                return redirect('dashboard')
 
-            messages.success(request, f"Notebook '{original_filename}' uploaded successfully. Audio generation started in the background.")
-            # Redirect to dashboard with task ID
+            messages.success(request, f"Notebook '{original_filename}' uploaded successfully. Audio generation started.")
             return redirect(redirect_url)
-        # else: If form is not valid, it will fall through to render the form again
-    else: # GET request
+    else:
         form = DocumentForm()
 
     return render(request, 'boaapp/upload.html', {
@@ -549,25 +489,16 @@ def dashboard(request):
     for doc in user_documents:
         doc_data = {
             'document': doc,
-            'notebook_exists': os.path.exists(os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file))),
             'audio_files': []
         }
-        audio_files_for_doc = AudioFile.objects.filter(document=doc).order_by('metadata__section_index', 'pk') # Order by index
+        audio_files_for_doc = AudioFile.objects.filter(document=doc).order_by('metadata__section_index', 'pk')
         total_audio_count += audio_files_for_doc.count()
 
         for audio in audio_files_for_doc:
-            audio_path_abs = os.path.join(settings.MEDIA_ROOT, str(audio.file))
-            video_output_dir, video_path_abs, sync_file = _get_video_paths(audio) # Use helper
-
-            video_exists = os.path.exists(video_path_abs) if video_path_abs else False
-            video_url = (settings.MEDIA_URL + os.path.relpath(video_path_abs, settings.MEDIA_ROOT).replace('\\', '/')) if video_exists else None
-
+            has_audio = bool(audio.audio_data)
             doc_data['audio_files'].append({
                 'audio': audio,
-                'audio_exists': os.path.exists(audio_path_abs),
-                'video_exists': video_exists,
-                'video_url': video_url, # Pass URL for playing/linking
-                'video_filename': os.path.basename(video_path_abs) if video_exists else None,
+                'has_audio': has_audio,
             })
         dashboard_items.append(doc_data)
 
@@ -575,11 +506,7 @@ def dashboard(request):
         'dashboard_items': dashboard_items,
         'document_count': user_documents.count(),
         'total_audio_count': total_audio_count,
-        # 'latest_doc': latest_doc, # Remove if using dashboard_items structure
-        # 'all_docs': documents, # Remove if using dashboard_items structure
-        # 'latest_only': latest_only, # Remove if logic changes
-        # 'displayed_count': displayed_count, # Remove if logic changes
-        'page_id': 'dashboard', # Set appropriate page ID
+        'page_id': 'dashboard',
     }
 
     return render(request, 'boaapp/dashboard.html', context)
@@ -587,174 +514,98 @@ def dashboard(request):
 @login_required
 @transaction.atomic
 def delete_orphaned_files(request):
-    # This logic might need adjustment based on the new directory structure
-    # (audio/notebook_name/file.mp3, video/notebook_name/file.mp4)
+    """Delete documents that have no associated audio files."""
     deleted_docs = 0
     deleted_audio = 0
-    deleted_videos = 0 # Add video deletion
     logger.info(f"Running delete_orphaned_files for user {request.user.username}")
 
-    # Iterate through documents potentially belonging to *any* user if checking orphans globally
-    # Or filter by request.user if only cleaning for the current user
-    for doc in Document.objects.filter(user=request.user): # Or Document.objects.all()
-        doc_exists = os.path.exists(os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file)))
+    for doc in Document.objects.filter(user=request.user):
         audio_files = AudioFile.objects.filter(document=doc)
-        related_files_exist = doc_exists # Start assuming doc exists
-
-        if not audio_files.exists() and not doc_exists:
-             # If no audio records AND no doc file, safe to delete the doc record
-             logger.info(f"Deleting orphaned document record PK {doc.pk} (no file, no audio records).")
-             doc.delete()
-             deleted_docs += 1
-             continue
-
-        # Check if *any* related files (audio or video) exist on disk
-        if audio_files.exists():
-            related_files_exist = False # Assume no files exist until one is found
-            for audio in audio_files:
-                audio_path = os.path.join(settings.MEDIA_ROOT, str(audio.file))
-                _, video_path, _ = _get_video_paths(audio)
-                if os.path.exists(audio_path) or (video_path and os.path.exists(video_path)):
-                    related_files_exist = True
-                    break # Found at least one related file
-
-        # If the notebook file is gone AND no related audio/video files exist on disk
-        if not doc_exists and not related_files_exist:
-            logger.info(f"Deleting document record PK {doc.pk} and associated DB audio records (notebook missing, no audio/video files found).")
-            for audio in audio_files:
-                # No need to delete files here as they don't exist
-                audio.delete() # Delete DB record
-                deleted_audio += 1 # Count deleted DB records
+        if not audio_files.exists():
+            logger.info(f"Deleting orphaned document record PK {doc.pk} (no audio records).")
             doc.delete()
             deleted_docs += 1
 
-    # Separate loop for orphaned audio/video files (where DB record exists but file doesn't)
-    for audio in AudioFile.objects.filter(user=request.user): # Or AudioFile.objects.all()
-         audio_path = os.path.join(settings.MEDIA_ROOT, str(audio.file))
-         _, video_path, _ = _get_video_paths(audio)
-         audio_exists = os.path.exists(audio_path)
-         video_exists = video_path and os.path.exists(video_path)
-
-         if not audio_exists and not video_exists:
-             # If neither audio nor video file exists, delete the DB record
-             logger.info(f"Deleting orphaned audio record PK {audio.pk} (no audio/video file found).")
-             audio.delete()
-             deleted_audio += 1
-
-    # Add cleanup for empty directories if desired (more complex)
+    # Delete audio records with no audio data
+    for audio in AudioFile.objects.filter(user=request.user):
+        if not audio.audio_data:
+            logger.info(f"Deleting orphaned audio record PK {audio.pk} (no audio data).")
+            audio.delete()
+            deleted_audio += 1
 
     return JsonResponse({'deleted_docs': deleted_docs, 'deleted_audio_records': deleted_audio})
 
 @login_required
 @transaction.atomic
 def delete_all_files(request):
-    # Careful with this!
-    if request.method == 'POST': # Ensure it's a POST request
+    """Delete all documents and audio records for the current user."""
+    if request.method == 'POST':
         logger.warning(f"User {request.user.username} initiated DELETE ALL FILES.")
-        deleted_docs_count = 0
-        deleted_audio_count = 0
-        deleted_video_count = 0
 
-        for doc in Document.objects.filter(user=request.user):
-            ipynb_path = os.path.join(settings.MEDIA_ROOT, str(doc.uploaded_file))
-            if os.path.exists(ipynb_path):
-                try:
-                    os.remove(ipynb_path)
-                    logger.info(f"Deleted notebook file: {ipynb_path}")
-                except OSError as e:
-                     logger.error(f"Error deleting notebook file {ipynb_path}: {e}")
-            doc.delete()
-            deleted_docs_count += 1
+        deleted_audio_count = AudioFile.objects.filter(user=request.user).count()
+        AudioFile.objects.filter(user=request.user).delete()
 
-        for audio in AudioFile.objects.filter(user=request.user):
-            audio_path = os.path.join(settings.MEDIA_ROOT, str(audio.file))
-            _, video_path, _ = _get_video_paths(audio)
+        deleted_docs_count = Document.objects.filter(user=request.user).count()
+        Document.objects.filter(user=request.user).delete()
 
-            if os.path.exists(audio_path):
-                 try:
-                    os.remove(audio_path)
-                    logger.info(f"Deleted audio file: {audio_path}")
-                 except OSError as e:
-                     logger.error(f"Error deleting audio file {audio_path}: {e}")
-
-            if video_path and os.path.exists(video_path):
-                 try:
-                    os.remove(video_path)
-                    logger.info(f"Deleted video file: {video_path}")
-                    deleted_video_count += 1
-                 except OSError as e:
-                     logger.error(f"Error deleting video file {video_path}: {e}")
-
-            # Clean up sync file too
-            sync_file = video_path.replace('.mp4', '_sync.json') if video_path else None
-            if sync_file and os.path.exists(sync_file):
-                try:
-                    os.remove(sync_file)
-                except OSError as e:
-                    logger.error(f"Error deleting sync file {sync_file}: {e}")
-
-
-            audio.delete()
-            deleted_audio_count += 1
-
-        # Optional: Clean up empty directories in media/audio and media/video
-        # ... (implementation for directory cleanup) ...
-
-        messages.success(request, f"All your documents ({deleted_docs_count}), audio files ({deleted_audio_count}), and videos ({deleted_video_count}) have been deleted.")
-        return JsonResponse({'status': 'All files deleted', 'docs': deleted_docs_count, 'audio': deleted_audio_count, 'videos': deleted_video_count})
+        messages.success(request, f"All your documents ({deleted_docs_count}) and audio files ({deleted_audio_count}) have been deleted.")
+        return JsonResponse({'status': 'All files deleted', 'docs': deleted_docs_count, 'audio': deleted_audio_count})
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @login_required
-def generate_video(request, audio_file_pk):
-    """Triggers video generation for a single audio file in a background thread."""
+def serve_audio(request, audio_file_pk):
+    """Serve audio bytes from DB as an audio/mpeg stream."""
     audio_file = get_object_or_404(AudioFile, pk=audio_file_pk, user=request.user)
-    logger.info(f"User {request.user.username} initiated video generation for AudioFile PK {audio_file_pk}")
+    if not audio_file.audio_data:
+        return HttpResponse("No audio data available.", status=404)
+    response = HttpResponse(bytes(audio_file.audio_data), content_type='audio/mpeg')
+    response['Content-Disposition'] = f'inline; filename="{audio_file.name}"'
+    return response
 
-    def _gen_video(pk):
-        try:
-            create_single_video_task.apply(args=[pk])
-        except Exception as e:
-            logger.error(f"Background video gen failed for AudioFile PK {pk}: {e}")
 
-    thread = threading.Thread(target=_gen_video, args=(audio_file_pk,), daemon=True)
-    thread.start()
+@login_required
+def download_video(request, audio_file_pk):
+    """Generate a video on-demand from DB-stored audio and stream as download."""
+    audio_file = get_object_or_404(AudioFile, pk=audio_file_pk, user=request.user)
+    if not audio_file.audio_data:
+        messages.error(request, "No audio data available to generate video.")
+        return redirect('dashboard')
 
-    messages.success(request, f"Video generation started for '{audio_file.title}'. It will appear on the dashboard when ready.")
-    return redirect('dashboard')
+    logger.info(f"User {request.user.username} initiated on-demand video download for AudioFile PK {audio_file_pk}")
+
+    try:
+        result = create_single_video_task.apply(args=[audio_file_pk])
+        task_result = result.get()
+
+        if task_result.get('status') == 'COMPLETE' and task_result.get('video_bytes'):
+            video_bytes = task_result['video_bytes']
+            # Ensure video_bytes is proper bytes
+            if isinstance(video_bytes, memoryview):
+                video_bytes = bytes(video_bytes)
+            video_filename = f"{audio_file.name.rsplit('.', 1)[0]}.mp4"
+            response = HttpResponse(video_bytes, content_type='video/mp4')
+            response['Content-Disposition'] = f'attachment; filename="{video_filename}"'
+            return response
+        else:
+            error_msg = task_result.get('error', 'Unknown error')
+            messages.error(request, f"Video generation failed: {error_msg}")
+            return redirect('dashboard')
+    except Exception as e:
+        logger.error(f"Video download failed for AudioFile PK {audio_file_pk}: {e}", exc_info=True)
+        messages.error(request, f"Video generation failed: {e}")
+        return redirect('dashboard')
+
+
+@login_required
+def generate_video(request, audio_file_pk):
+    """Triggers on-demand video download for a single audio file."""
+    return download_video(request, audio_file_pk)
 
 @login_required
 def generate_all_videos(request):
-    """Triggers video generation tasks for all audio files for the user in a background thread."""
-    user_audio_files = list(AudioFile.objects.filter(user=request.user))
-
-    # Collect audio PKs that need videos
-    audio_pks_to_generate = []
-    skipped_count = 0
-    for audio_file in user_audio_files:
-        _, video_path_abs, _ = _get_video_paths(audio_file)
-        if video_path_abs and os.path.exists(video_path_abs):
-            skipped_count += 1
-            continue
-        audio_pks_to_generate.append(audio_file.pk)
-
-    triggered_count = len(audio_pks_to_generate)
-    logger.info(f"generate_all_videos: {triggered_count} to generate, {skipped_count} skipped for user {request.user.username}")
-
-    # Run in background thread so the HTTP response returns immediately
-    def _generate_all(pks):
-        for pk in pks:
-            try:
-                create_single_video_task.apply(args=[pk])
-            except Exception as e:
-                logger.error(f"Background video gen failed for AudioFile PK {pk}: {e}")
-
-    if audio_pks_to_generate:
-        thread = threading.Thread(target=_generate_all, args=(audio_pks_to_generate,), daemon=True)
-        thread.start()
-
-    message = f"Generating {triggered_count} videos in the background. Skipped {skipped_count} (already exist)."
-    messages.info(request, message + " Refresh the dashboard to see progress.")
+    """Redirect to dashboard — batch video generation not supported in DB-storage mode."""
+    messages.info(request, "Videos are now generated on-demand. Click the download button next to any audio file.")
     return redirect('dashboard')
 
 
@@ -789,7 +640,7 @@ def run_full_pipeline(request, document_pk):
     )
     thread.start()
 
-    messages.success(request, f"Full pipeline started for '{document.uploaded_file.name}'. Refresh to track progress.")
+    messages.success(request, f"Full pipeline started for '{document.original_filename or 'Notebook'}'. Refresh to track progress.")
     return redirect('dashboard')
 
 
@@ -916,7 +767,7 @@ def chat_view(request, document_pk=None):
         ).order_by('-updated_at').first()
 
         if not conversation:
-            stem = os.path.splitext(os.path.basename(str(document.uploaded_file)))[0]
+            stem = os.path.splitext(document.original_filename or "Notebook")[0]
             conversation = ChatConversation.objects.create(
                 user=request.user,
                 document=document,
@@ -1076,17 +927,12 @@ def analytics_dashboard_view(request):
 
     # Total content consumed
     total_audio = AudioFile.objects.filter(user=user).count()
-    total_videos = sum(
-        1 for a in AudioFile.objects.filter(user=user)
-        if _get_video_paths(a)[1] and os.path.exists(_get_video_paths(a)[1])
-    )
 
     context = {
         'daily_activity': list(daily_activity),
         'event_breakdown': list(event_breakdown),
         'quiz_stats': quiz_stats,
         'total_audio': total_audio,
-        'total_videos': total_videos,
         'total_events': LearningEvent.objects.filter(user=user).count(),
         'page_id': 'analytics',
     }
@@ -1100,18 +946,15 @@ def analytics_dashboard_view(request):
 
 @login_required
 def chaptered_player_view(request, document_pk):
-    """Smart chaptered video player for all videos of a document."""
+    """Smart chaptered audio player for all audio of a document."""
     document = get_object_or_404(Document, pk=document_pk, user=request.user)
     audio_files = AudioFile.objects.filter(document=document).order_by('metadata__section_index', 'pk')
 
     chapters = []
     for audio in audio_files:
-        _, video_path_abs, sync_file = _get_video_paths(audio)
-        if video_path_abs and os.path.exists(video_path_abs):
-            video_url = settings.MEDIA_URL + os.path.relpath(video_path_abs, settings.MEDIA_ROOT).replace('\\', '/')
+        if audio.audio_data:
             chapters.append({
                 'title': audio.title,
-                'video_url': video_url,
                 'audio_pk': audio.pk,
                 'section_index': (audio.metadata or {}).get('section_index', 0),
             })

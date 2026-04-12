@@ -207,15 +207,24 @@ def _try_execute_notebook(nb, file_path):
         return nb
 
 
-def process_notebook(file_path):
+def process_notebook(file_path=None, notebook_json_str=None):
     """
     Processes notebook content into sections based on H1, H2, H3 headers.
-    Returns a list of sections, each with a 'title' and a list of 'cells'
-    (each cell being {'type': 'markdown'/'code', 'content': ...}).
+    Accepts either a file path (legacy) or a raw JSON string (DB-stored).
+    Returns a list of sections, each with a 'title' and a list of 'cells'.
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            nb_content = nbformat.read(f, as_version=4)
+        if notebook_json_str:
+            import io
+            nb_content = nbformat.read(io.StringIO(notebook_json_str), as_version=4)
+            notebook_basename = "Notebook"
+        elif file_path:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                nb_content = nbformat.read(f, as_version=4)
+            notebook_basename = os.path.splitext(os.path.basename(file_path))[0]
+        else:
+            logger.error("process_notebook called with no file_path or notebook_json_str")
+            return []
 
         # Check if any code cells have stored outputs; if not, try executing
         has_outputs = any(
@@ -228,9 +237,7 @@ def process_notebook(file_path):
 
         sections = []
         current_section_cells = []
-        # Default title for content before the first header
-        notebook_basename = os.path.splitext(os.path.basename(file_path))[0]
-        current_title = notebook_basename # Use notebook name as default initial title
+        current_title = notebook_basename
 
         for cell_index, cell in enumerate(nb_content.cells):
             is_header = False
@@ -319,71 +326,61 @@ def _run_tts(clean_text, output_file, voice):
     return False
 
 
-def generate_audio_for_block(text, output_file, voice=TTS_VOICE, pre_cleaned=False):
+def generate_audio_for_block(text, voice=TTS_VOICE, pre_cleaned=False):
     """
     Generates natural-sounding narration using Microsoft edge-tts neural voice.
-    Retries up to 3 times with exponential backoff on transient failures
-    (network drops, rate limits, 0-byte output).
-
-    Args:
-        pre_cleaned: If True, skip _tts_clean_for_speech (text is already TTS-ready,
-                     e.g. from LLM narration).
+    Returns audio bytes on success, or None on failure.
+    Retries up to 3 times with exponential backoff on transient failure.
     """
     import time as _time
+    import tempfile
 
     if not text or not text.strip():
-        logger.warning(f"Skipped empty content for {output_file}")
-        return False
+        logger.warning("Skipped empty content for audio generation")
+        return None
 
     if pre_cleaned:
         clean = _add_speech_pacing(text)
     else:
         clean = _add_speech_pacing(_tts_clean_for_speech(text))
     if not clean:
-        logger.warning(f"Empty text after cleaning for {output_file}")
-        return False
+        logger.warning("Empty text after cleaning for audio generation")
+        return None
 
     max_retries = 3
     for attempt in range(1, max_retries + 1):
-        logger.info(f"Generating neural TTS ({voice}) attempt {attempt}/{max_retries}: {os.path.basename(output_file)}")
+        logger.info(f"Generating neural TTS ({voice}) attempt {attempt}/{max_retries}")
+        tmp_path = None
         try:
-            if _run_tts(clean, output_file, voice):
-                logger.info(f"Audio written: {output_file} ({os.path.getsize(output_file)} bytes)")
-                return True
-            else:
-                logger.warning(f"TTS produced 0-byte file on attempt {attempt} for {output_file}")
-        except Exception as e:
-            logger.warning(f"TTS attempt {attempt} failed for {output_file}: {e}")
+            tmp_fd, tmp_path = tempfile.mkstemp(suffix='.mp3')
+            os.close(tmp_fd)
 
-        # Clean up 0-byte file before retry
-        if os.path.exists(output_file) and os.path.getsize(output_file) == 0:
-            try:
-                os.remove(output_file)
-            except OSError:
-                pass
+            if _run_tts(clean, tmp_path, voice):
+                with open(tmp_path, 'rb') as f:
+                    audio_bytes = f.read()
+                if audio_bytes:
+                    logger.info(f"Audio generated: {len(audio_bytes)} bytes")
+                    return audio_bytes
+                else:
+                    logger.warning(f"TTS produced 0-byte file on attempt {attempt}")
+            else:
+                logger.warning(f"TTS produced 0-byte file on attempt {attempt}")
+        except Exception as e:
+            logger.warning(f"TTS attempt {attempt} failed: {e}")
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    pass
 
         if attempt < max_retries:
             delay = 2 ** attempt  # 2s, 4s backoff
             logger.info(f"Retrying TTS in {delay}s...")
             _time.sleep(delay)
 
-    logger.error(f"Failed to generate TTS after {max_retries} attempts for {output_file}")
-    return False
-
-
-def handle_uploaded_file(f):
-    """Saves uploaded file to the 'documents' media directory."""
-    # Consider adding unique identifiers to filenames to prevent overwrites if needed
-    # e.g., using uuid: import uuid; unique_id = uuid.uuid4().hex[:8]; filename = f"{unique_id}_{f.name}"
-    upload_dir = os.path.join(settings.MEDIA_ROOT, 'documents') # Save directly to documents
-    if not os.path.exists(upload_dir):
-        os.makedirs(upload_dir)
-    file_path = os.path.join(upload_dir, f.name)
-    with open(file_path, 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
-    logger.info(f"Uploaded file saved to: {file_path}")
-    return file_path
+    logger.error(f"Failed to generate TTS after {max_retries} attempts")
+    return None
 
 def sanitize_title_for_filename(title):
     """Sanitizes a title string to be safe for filenames."""
@@ -394,50 +391,40 @@ def sanitize_title_for_filename(title):
     # Limit length if necessary (e.g., 100 chars)
     return sanitized.strip('_')[:100]
 
-def process_notebook_and_create_audio(file_path):
+def process_notebook_and_create_audio(file_path=None, notebook_json_str=None, notebook_title="Notebook"):
     """
-    Processes notebook into sections based on headers, generates one audio file per section,
-    and preprocesses the combined section text for TTS.
-    Returns a list of dictionaries containing info about generated audio files.
+    Processes notebook into sections based on headers, generates one audio per section.
+    Accepts either a file_path (legacy) or notebook_json_str (DB-stored content).
+    Returns a list of dicts containing audio bytes (not file paths).
     """
-    sections = process_notebook(file_path)
+    sections = process_notebook(file_path=file_path, notebook_json_str=notebook_json_str)
     audio_files_info = []
     total_sections = len(sections)
 
     if not sections:
-        logger.warning(f"No sections found in notebook: {file_path}")
+        logger.warning("No sections found in notebook")
         return []
 
     try:
-        base_audio_dir = os.path.join(settings.MEDIA_ROOT, 'audio')
-        os.makedirs(base_audio_dir, exist_ok=True)
-        notebook_filename = os.path.basename(file_path)
-        notebook_name_sanitized = sanitize_title_for_filename(os.path.splitext(notebook_filename)[0])
-        notebook_audio_dir = os.path.join(base_audio_dir, notebook_name_sanitized)
-        os.makedirs(notebook_audio_dir, exist_ok=True)
-        logger.info(f"Audio directory for notebook: {notebook_audio_dir}")
+        notebook_name_sanitized = sanitize_title_for_filename(notebook_title)
 
         for section_index, section_data in enumerate(sections):
             section_title = section_data['title']
             section_cells = section_data['cells']
             sanitized_section_title_for_file = sanitize_title_for_filename(section_title)
 
-            # --- Combine and Prepare Text for TTS for the entire section ---
-            tts_content_parts = []  # Fallback: basic cleaned text parts
-            original_content_parts = []  # Store original content for video (with code markers)
+            tts_content_parts = []
+            original_content_parts = []
 
             for cell in section_cells:
                 if cell['type'] == 'code':
-                    # Wrap code in fenced markers so video renderer can detect it
                     original_content_parts.append(f"```python\n{cell['content']}\n```")
-                    # Include output marker for video display if output exists
                     output = cell.get('output', '')
                     if output:
                         original_content_parts.append(f">>>output\n{output}\n<<<")
                 else:
                     original_content_parts.append(cell['content'])
 
-                # Build fallback TTS parts — only narrate markdown, skip code
                 if cell['type'] == 'markdown':
                     try:
                         html = markdown.markdown(cell['content'], extensions=['extra', 'sane_lists'])
@@ -449,11 +436,7 @@ def process_notebook_and_create_audio(file_path):
                         logger.error(f"Error processing markdown cell within section '{section_title}': {md_err}")
                         tts_content_parts.append("Error processing content.")
 
-            # --- Try LLM narration first, fall back to basic cleaning ---
-            notebook_display_title = os.path.splitext(
-                os.path.basename(file_path)
-            )[0].replace('_', ' ').replace('-', ' ')
-
+            notebook_display_title = notebook_title.replace('_', ' ').replace('-', ' ')
             narration = _rewrite_with_llm(section_title, section_cells, notebook_display_title)
 
             is_llm_narration = False
@@ -463,51 +446,38 @@ def process_notebook_and_create_audio(file_path):
             else:
                 tts_content = ' '.join(tts_content_parts)
 
-            # Add an engaging section intro (skipped for the final thank-you slide)
-            # Only for fallback — LLM narration already includes natural flow
             if not narration and section_index < total_sections - 1 and tts_content:
                 tts_content = f"{section_title}. {tts_content}"
 
-            # --- Last Section Override ---
-            is_final_great_job = False # Flag for filename change
-            # Apply override to the TTS content of the very last section
+            is_final_great_job = False
             if section_index == (total_sections - 1) and tts_content:
-                 logger.info(f"Overriding TTS content for last section '{section_title}'")
-                 # Check if the original title suggests it's the intended final slide
-                 is_final_great_job = "great job" in section_title.lower()
-                 tts_content = "Thank you for learning with thenumerix!"
+                logger.info(f"Overriding TTS content for last section '{section_title}'")
+                is_final_great_job = "great job" in section_title.lower()
+                tts_content = "Thank you for learning with thenumerix!"
 
-            # --- Determine Audio Filename using section index and SANITIZED section title ---
-            # Special case for the final "Thank You" audio file
-            if is_final_great_job: # Check the flag set during override check
-                audio_filename_base = "THANKYOU" # Use specific name
+            if is_final_great_job:
+                audio_filename_base = "THANKYOU"
             else:
-                audio_filename_base = f'{section_index:02d}_{sanitized_section_title_for_file}'[:150] # Limit length
+                audio_filename_base = f'{section_index:02d}_{sanitized_section_title_for_file}'[:150]
             audio_filename = f'{audio_filename_base}.mp3'
-            audio_file_path = os.path.join(notebook_audio_dir, audio_filename)
-            audio_file_relative_path = os.path.join('audio', notebook_name_sanitized, audio_filename).replace('\\', '/')
 
-            # --- Generate Audio for the section ---
             if tts_content and tts_content.strip():
-                # Call the updated function to generate audio (handles pause)
-                # Skip TTS cleaning for LLM narration — it's already TTS-ready
-                if generate_audio_for_block(tts_content, audio_file_path, pre_cleaned=is_llm_narration):
+                audio_bytes = generate_audio_for_block(tts_content, pre_cleaned=is_llm_narration)
+                if audio_bytes:
                     audio_files_info.append({
-                        'title': section_title, # The actual header text for display
-                        'name': audio_filename, # The generated filename
-                        'relative_path': audio_file_relative_path,
-                        'full_path': audio_file_path,
-                        'section_index': section_index, # Index of the section (0-based)
-                        # Store combined original content for video
-                        'original_content': "\n\n---\n\n".join(original_content_parts), # Combine original cell content
-                        'block_type': 'section' # Indicate this represents a whole section
+                        'title': section_title,
+                        'name': audio_filename,
+                        'audio_data': audio_bytes,
+                        'section_index': section_index,
+                        'original_content': "\n\n---\n\n".join(original_content_parts),
+                        'block_type': 'section'
                     })
                 else:
-                     logger.warning(f"Skipping audio info for section '{section_title}' due to TTS failure.")
+                    logger.warning(f"Skipping audio info for section '{section_title}' due to TTS failure.")
             else:
-                 logger.warning(f"Skipping audio generation for section '{section_title}' due to empty/whitespace TTS content after processing.")
+                logger.warning(f"Skipping audio generation for section '{section_title}' due to empty content.")
 
-        logger.info(f'✅ Audio generation complete for {len(audio_files_info)} sections from {file_path}.')
+        logger.info(f'✅ Audio generation complete for {len(audio_files_info)} sections.')
         return audio_files_info
 
     except Exception as e:
