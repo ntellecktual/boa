@@ -83,9 +83,6 @@ Pillow>=10.0
 # Analytics & Charts (server-side rendering fallback)
 numpy>=1.24
 
-# PDF Generation
-reportlab>=4.0
-
 # GitHub Webhooks
 cryptography>=41.0
 

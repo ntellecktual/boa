@@ -85,9 +85,6 @@ urlpatterns = [
     path('api_orchestration/', boaapp_views.api_orchestration, name='api_orchestration'),
     path('idp_demo/', boaapp_views.idp_demo, name='idp_demo'),
     path('api/portfolio-chat/', boaapp_views.portfolio_chat_api, name='portfolio_chat_api'),
-    # Status & PDF
-    path('status/', boaapp_views.status_page, name='status_page'),
-    path('portfolio/pdf/', boaapp_views.portfolio_pdf, name='portfolio_pdf'),
 ]
 
 if settings.DEBUG:

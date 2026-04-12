@@ -130,20 +130,108 @@
     <span class="dash-chip"><i class="fas fa-robot"></i> Gen AI</span>
   </div>
 
-  <!-- ── SKILLS RADAR CHART ── -->
+  <!-- ── SKILLS PROFICIENCY ── -->
   <div class="dash-section">
     <div class="dash-section-hd">
-      <span class="dash-section-lbl"><i class="fas fa-chart-radar"></i>&nbsp; Skills Proficiency</span>
+      <span class="dash-section-lbl"><i class="fas fa-chart-bar"></i>&nbsp; Skills Proficiency</span>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:center">
-      <div style="max-width:360px;margin:0 auto;width:100%">
-        <canvas id="skillsRadar" height="320"></canvas>
+
+    <style>
+    .sk-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start}
+    @media(max-width:768px){.sk-wrap{grid-template-columns:1fr}}
+    .sk-tabs{display:flex;gap:.35rem;margin-bottom:.8rem;flex-wrap:wrap}
+    .sk-tab{padding:.3rem .7rem;border-radius:8px;font-size:.68rem;font-weight:700;border:1px solid var(--dash-border);background:transparent;color:var(--dash-muted);cursor:pointer;transition:all .2s}
+    .sk-tab.active{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:transparent}
+    .sk-tab:hover:not(.active){border-color:rgba(59,130,246,.4);color:#3b82f6}
+    .sk-cat{display:none}.sk-cat.active{display:block}
+    .sk-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem}
+    .sk-name{width:110px;flex-shrink:0;font-size:.72rem;font-weight:600;color:var(--dash-text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sk-track{flex:1;height:20px;background:var(--dash-border);border-radius:10px;overflow:hidden;position:relative}
+    .sk-fill{height:100%;border-radius:10px;position:relative;width:0;transition:width 1s cubic-bezier(.22,1,.36,1)}
+    .sk-fill::after{content:attr(data-pct);position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.6rem;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+    .sk-fill--blue{background:linear-gradient(90deg,#3b82f6,#1d4ed8)}
+    .sk-fill--purple{background:linear-gradient(90deg,#8b5cf6,#6d28d9)}
+    .sk-fill--cyan{background:linear-gradient(90deg,#06b6d4,#0891b2)}
+    .sk-fill--amber{background:linear-gradient(90deg,#f59e0b,#d97706)}
+    .sk-fill--emerald{background:linear-gradient(90deg,#10b981,#059669)}
+    .sk-fill--rose{background:linear-gradient(90deg,#f43f5e,#e11d48)}
+    .sk-yrs{width:44px;flex-shrink:0;font-size:.6rem;color:var(--dash-muted);text-align:left;white-space:nowrap}
+    .sk-radar-wrap{max-width:380px;margin:0 auto;width:100%;aspect-ratio:1;position:relative}
+    .sk-summary{margin-top:.6rem;display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+    .sk-stat{text-align:center;padding:.55rem .3rem;border-radius:10px;border:1px solid var(--dash-border);background:var(--dash-surface)}
+    .sk-stat-num{font-size:1.15rem;font-weight:800;color:var(--dash-text)}
+    .sk-stat-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--dash-muted)}
+    </style>
+
+    <div class="sk-wrap">
+      <!-- Left: Tabbed bar chart -->
+      <div>
+        <div class="sk-tabs" id="skTabs">
+          <button class="sk-tab active" data-cat="cloud">Cloud & Infra</button>
+          <button class="sk-tab" data-cat="data">Data & ML</button>
+          <button class="sk-tab" data-cat="dev">Development</button>
+          <button class="sk-tab" data-cat="devops">DevOps & CI/CD</button>
+          <button class="sk-tab" data-cat="ai">AI & Gen AI</button>
+        </div>
+
+        <div id="skCats">
+          <div class="sk-cat active" data-cat="cloud">
+            <div class="sk-row"><span class="sk-name">Azure</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="96" data-pct="96%"></div></div><span class="sk-yrs">8+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Entra ID</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="93" data-pct="93%"></div></div><span class="sk-yrs">6+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Kubernetes</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="88" data-pct="88%"></div></div><span class="sk-yrs">5+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Terraform</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="85" data-pct="85%"></div></div><span class="sk-yrs">4+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Docker</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="92" data-pct="92%"></div></div><span class="sk-yrs">7+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Networking</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="82" data-pct="82%"></div></div><span class="sk-yrs">8+ yrs</span></div>
+          </div>
+
+          <div class="sk-cat" data-cat="data">
+            <div class="sk-row"><span class="sk-name">Databricks</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="94" data-pct="94%"></div></div><span class="sk-yrs">5+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Spark</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="90" data-pct="90%"></div></div><span class="sk-yrs">5+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Kafka</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="87" data-pct="87%"></div></div><span class="sk-yrs">4+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">PostgreSQL</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="91" data-pct="91%"></div></div><span class="sk-yrs">6+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Delta Lake</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="88" data-pct="88%"></div></div><span class="sk-yrs">4+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Redis</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="84" data-pct="84%"></div></div><span class="sk-yrs">5+ yrs</span></div>
+          </div>
+
+          <div class="sk-cat" data-cat="dev">
+            <div class="sk-row"><span class="sk-name">Python</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="95" data-pct="95%"></div></div><span class="sk-yrs">10+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Django</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="93" data-pct="93%"></div></div><span class="sk-yrs">6+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">REST APIs</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="94" data-pct="94%"></div></div><span class="sk-yrs">8+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">JavaScript</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="82" data-pct="82%"></div></div><span class="sk-yrs">7+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">HTMX</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="86" data-pct="86%"></div></div><span class="sk-yrs">2+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">SQL</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="92" data-pct="92%"></div></div><span class="sk-yrs">10+ yrs</span></div>
+          </div>
+
+          <div class="sk-cat" data-cat="devops">
+            <div class="sk-row"><span class="sk-name">Azure DevOps</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="96" data-pct="96%"></div></div><span class="sk-yrs">7+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">GitHub Actions</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="90" data-pct="90%"></div></div><span class="sk-yrs">4+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">CI/CD Pipelines</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="95" data-pct="95%"></div></div><span class="sk-yrs">8+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">IaC</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="88" data-pct="88%"></div></div><span class="sk-yrs">5+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Monitoring</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="87" data-pct="87%"></div></div><span class="sk-yrs">6+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Git</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="94" data-pct="94%"></div></div><span class="sk-yrs">10+ yrs</span></div>
+          </div>
+
+          <div class="sk-cat" data-cat="ai">
+            <div class="sk-row"><span class="sk-name">MLOps</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="92" data-pct="92%"></div></div><span class="sk-yrs">4+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">MLflow</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="89" data-pct="89%"></div></div><span class="sk-yrs">3+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">LLM / RAG</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="86" data-pct="86%"></div></div><span class="sk-yrs">2+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Embeddings</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="83" data-pct="83%"></div></div><span class="sk-yrs">2+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Azure ML</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="88" data-pct="88%"></div></div><span class="sk-yrs">4+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Model Deploy</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="85" data-pct="85%"></div></div><span class="sk-yrs">3+ yrs</span></div>
+          </div>
+        </div>
       </div>
-      <div class="skills-legend" style="display:flex;flex-direction:column;gap:.4rem;font-size:.78rem;color:var(--dash-muted)">
-        <div style="display:flex;align-items:center;gap:.5rem"><span style="width:12px;height:12px;border-radius:50%;background:rgba(59,130,246,.7);flex-shrink:0"></span><strong style="color:var(--dash-text)">Engineering</strong> — Platform, Data, Cloud Architecture</div>
-        <div style="display:flex;align-items:center;gap:.5rem"><span style="width:12px;height:12px;border-radius:50%;background:rgba(139,92,246,.7);flex-shrink:0"></span><strong style="color:var(--dash-text)">AI/ML</strong> — MLOps, Gen AI, Model Deployment</div>
-        <div style="margin-top:.5rem;font-size:.7rem;opacity:.6">Hover over chart points for details</div>
-        <a href="{% url 'portfolio_pdf' %}" class="btn btn-sm" style="margin-top:.6rem;display:inline-flex;align-items:center;gap:.35rem;padding:.4rem .9rem;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:.72rem;font-weight:700;text-decoration:none;width:fit-content;transition:opacity .2s" target="_blank"><i class="fas fa-file-pdf"></i> Download PDF Portfolio</a>
+
+      <!-- Right: Radar chart + summary stats -->
+      <div>
+        <div class="sk-radar-wrap">
+          <canvas id="skillsRadar"></canvas>
+        </div>
+        <div class="sk-summary">
+          <div class="sk-stat"><div class="sk-stat-num">30+</div><div class="sk-stat-lbl">Technologies</div></div>
+          <div class="sk-stat"><div class="sk-stat-num">10+</div><div class="sk-stat-lbl">Yrs Experience</div></div>
+          <div class="sk-stat"><div class="sk-stat-num">6</div><div class="sk-stat-lbl">Live Demos</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -244,62 +332,79 @@ new Typed('#homeTyped', {
 });
 </script>
 <script>
-/* ── Skills Radar Chart ── */
+/* ── Skills Tabbed Bars + Radar Chart ── */
 (function(){
+  /* Tab switching */
+  var tabs=document.querySelectorAll('#skTabs .sk-tab');
+  var cats=document.querySelectorAll('#skCats .sk-cat');
+  function animateBars(cat){
+    cat.querySelectorAll('.sk-fill').forEach(function(f){
+      f.style.width='0';
+      setTimeout(function(){f.style.width=f.getAttribute('data-val')+'%';},60);
+    });
+  }
+  tabs.forEach(function(tab){
+    tab.addEventListener('click',function(){
+      tabs.forEach(function(t){t.classList.remove('active');});
+      cats.forEach(function(c){c.classList.remove('active');});
+      tab.classList.add('active');
+      var target=tab.getAttribute('data-cat');
+      var cat=document.querySelector('.sk-cat[data-cat="'+target+'"]');
+      if(cat){cat.classList.add('active');animateBars(cat);}
+    });
+  });
+  /* Initial animation */
+  var first=document.querySelector('.sk-cat.active');
+  if(first){
+    var obs=new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting){animateBars(first);obs.disconnect();}
+    },{threshold:0.2});
+    obs.observe(first);
+  }
+
+  /* Radar chart */
   var ctx=document.getElementById('skillsRadar');
-  if(!ctx)return;
+  if(!ctx||typeof Chart==='undefined')return;
   var isDark=document.documentElement.getAttribute('data-theme')==='dark';
   var gridColor=isDark?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)';
   var labelColor=isDark?'#94a3b8':'#6b7280';
-
   new Chart(ctx,{
     type:'radar',
     data:{
-      labels:['Azure Cloud','Python/Django','Data Engineering','MLOps / AI','Platform Eng.','Streaming','API Design','CI/CD DevOps','Databases'],
+      labels:['Cloud & Infra','Python','Data Eng.','DevOps','Azure','AI / ML','APIs','Streaming','Databases'],
       datasets:[{
-        label:'Engineering',
-        data:[95,92,93,88,96,85,87,91,90],
-        backgroundColor:'rgba(59,130,246,.15)',
-        borderColor:'rgba(59,130,246,.8)',
+        label:'Proficiency',
+        data:[93,95,91,93,96,87,94,87,91],
+        backgroundColor:isDark?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)',
+        borderColor:'rgba(59,130,246,.7)',
         borderWidth:2,
         pointBackgroundColor:'rgba(59,130,246,.9)',
-        pointRadius:4,
-        pointHoverRadius:7
+        pointRadius:4,pointHoverRadius:7
       },{
-        label:'AI / ML',
-        data:[80,88,78,92,75,70,72,82,75],
-        backgroundColor:'rgba(139,92,246,.12)',
-        borderColor:'rgba(139,92,246,.7)',
-        borderWidth:2,
-        pointBackgroundColor:'rgba(139,92,246,.9)',
-        pointRadius:4,
-        pointHoverRadius:7
+        label:'Years Active',
+        data:[80,100,60,80,80,40,80,40,60],
+        backgroundColor:isDark?'rgba(139,92,246,.1)':'rgba(139,92,246,.06)',
+        borderColor:'rgba(139,92,246,.5)',
+        borderWidth:1.5,borderDash:[4,3],
+        pointBackgroundColor:'rgba(139,92,246,.7)',
+        pointRadius:3,pointHoverRadius:6
       }]
     },
     options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      scales:{
-        r:{
-          beginAtZero:true,
-          min:0,
-          max:100,
-          ticks:{stepSize:20,color:labelColor,backdropColor:'transparent',font:{size:9}},
-          grid:{color:gridColor},
-          angleLines:{color:gridColor},
-          pointLabels:{color:labelColor,font:{size:10,weight:'600'}}
-        }
-      },
+      responsive:true,maintainAspectRatio:true,
+      scales:{r:{beginAtZero:true,min:0,max:100,
+        ticks:{stepSize:25,color:labelColor,backdropColor:'transparent',font:{size:8}},
+        grid:{color:gridColor},angleLines:{color:gridColor},
+        pointLabels:{color:labelColor,font:{size:9,weight:'600'}}
+      }},
       plugins:{
-        legend:{display:false},
+        legend:{position:'bottom',labels:{boxWidth:10,padding:12,font:{size:10},color:labelColor}},
         tooltip:{
           backgroundColor:isDark?'#1e293b':'#fff',
           titleColor:isDark?'#e2e8f0':'#1a1a2e',
           bodyColor:isDark?'#94a3b8':'#6b7280',
           borderColor:isDark?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)',
-          borderWidth:1,
-          cornerRadius:8,
-          padding:10
+          borderWidth:1,cornerRadius:8,padding:10
         }
       },
       animation:{duration:1200,easing:'easeOutQuart'}

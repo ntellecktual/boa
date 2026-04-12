@@ -92,24 +92,3 @@ def test_api_me_requires_auth(client):
 def test_api_docs_accessible(client):
     response = client.get('/api/v1/docs')
     assert response.status_code == 200
-
-
-# ---------------------------------------------------------------------------
-# Status page
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.django_db
-def test_status_page_loads(client):
-    response = client.get('/status/')
-    assert response.status_code == 200
-    assert b'System Status' in response.content
-
-
-@pytest.mark.django_db
-def test_portfolio_pdf_returns_pdf(client):
-    response = client.get('/portfolio/pdf/')
-    # 200 if reportlab is installed, 501 if not
-    assert response.status_code in (200, 501)
-    if response.status_code == 200:
-        assert response['Content-Type'] == 'application/pdf'
