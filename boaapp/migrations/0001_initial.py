@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,20 +14,20 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Profile",
+            name='Profile',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("bio", models.TextField(blank=True)),
+                ('bio', models.TextField(blank=True)),
                 (
-                    "user",
+                    'user',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         to=settings.AUTH_USER_MODEL,

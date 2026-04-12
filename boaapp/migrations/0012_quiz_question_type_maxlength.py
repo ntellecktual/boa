@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('boaapp', '0011_chatconversation_chatmessage_codereview_and_more'),
     ]
@@ -13,6 +12,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='quizquestion',
             name='question_type',
-            field=models.CharField(choices=[('mcq', 'Multiple Choice'), ('code', 'Code Challenge'), ('short', 'Short Answer')], default='mcq', max_length=20),
+            field=models.CharField(
+                choices=[('mcq', 'Multiple Choice'), ('code', 'Code Challenge'), ('short', 'Short Answer')],
+                default='mcq',
+                max_length=20,
+            ),
         ),
     ]

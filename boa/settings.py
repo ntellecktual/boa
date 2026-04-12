@@ -31,9 +31,10 @@ ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS')
 
 # Trust Render's HTTPS reverse proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_TRUSTED_ORIGINS = [
-    f'https://{host}' for host in ALLOWED_HOSTS if host not in ('localhost', '127.0.0.1', '*')
-] + ['http://localhost', 'http://127.0.0.1']
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS if host not in ('localhost', '127.0.0.1', '*')] + [
+    'http://localhost',
+    'http://127.0.0.1',
+]
 
 
 # --------------------------------------------------------------------------
@@ -42,6 +43,7 @@ CSRF_TRUSTED_ORIGINS = [
 SENTRY_DSN = env('SENTRY_DSN', default='')
 if SENTRY_DSN:
     import sentry_sdk
+
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         traces_sample_rate=0.2,
@@ -85,21 +87,25 @@ INSTALLED_APPS = [
 if DEBUG:
     INSTALLED_APPS += ['debug_toolbar']
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-] + (['debug_toolbar.middleware.DebugToolbarMiddleware'] if DEBUG else []) + [
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
-    'django_structlog.middlewares.RequestMiddleware',
-]
+MIDDLEWARE = (
+    [
+        'django.middleware.security.SecurityMiddleware',
+        'whitenoise.middleware.WhiteNoiseMiddleware',
+        'corsheaders.middleware.CorsMiddleware',
+    ]
+    + (['debug_toolbar.middleware.DebugToolbarMiddleware'] if DEBUG else [])
+    + [
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'django_htmx.middleware.HtmxMiddleware',
+        'allauth.account.middleware.AccountMiddleware',
+        'django_structlog.middlewares.RequestMiddleware',
+    ]
+)
 
 # --------------------------------------------------------------------------
 # Structured Logging (structlog + django-structlog)

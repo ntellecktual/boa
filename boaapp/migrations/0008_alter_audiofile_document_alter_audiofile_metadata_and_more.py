@@ -6,139 +6,134 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("boaapp", "0007_audiofile_document_audiofile_user_document_user_and_more"),
+        ('boaapp', '0007_audiofile_document_audiofile_user_document_user_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="audiofile",
-            name="document",
+            model_name='audiofile',
+            name='document',
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="audio_files",
-                to="boaapp.document",
+                related_name='audio_files',
+                to='boaapp.document',
             ),
         ),
         migrations.AlterField(
-            model_name="audiofile",
-            name="metadata",
+            model_name='audiofile',
+            name='metadata',
             field=models.JSONField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name="audiofile",
-            name="name",
+            model_name='audiofile',
+            name='name',
             field=models.CharField(blank=True, max_length=255),
         ),
         migrations.AlterField(
-            model_name="audiofile",
-            name="title",
+            model_name='audiofile',
+            name='title',
             field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
-            model_name="audiofile",
-            name="user",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
-            ),
+            model_name='audiofile',
+            name='user',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
-            model_name="document",
-            name="user",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
-            ),
+            model_name='document',
+            name='user',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
         migrations.CreateModel(
-            name="Course",
+            name='Course',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("title", models.CharField(max_length=200)),
-                ("description", models.TextField()),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                ('title', models.CharField(max_length=200)),
+                ('description', models.TextField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
                 (
-                    "instructor",
+                    'instructor',
                     models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="taught_courses",
+                        related_name='taught_courses',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
         ),
         migrations.CreateModel(
-            name="VideoFile",
+            name='VideoFile',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("video_file_path", models.CharField(max_length=500)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("title", models.CharField(blank=True, max_length=255)),
+                ('video_file_path', models.CharField(max_length=500)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('title', models.CharField(blank=True, max_length=255)),
                 (
-                    "audio_file",
+                    'audio_file',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="video_file",
-                        to="boaapp.audiofile",
+                        related_name='video_file',
+                        to='boaapp.audiofile',
                     ),
                 ),
             ],
         ),
         migrations.CreateModel(
-            name="Enrollment",
+            name='Enrollment',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("enrolled_at", models.DateTimeField(auto_now_add=True)),
-                ("learn_step_completed", models.BooleanField(default=False)),
-                ("create_step_completed", models.BooleanField(default=False)),
-                ("teach_step_completed", models.BooleanField(default=False)),
+                ('enrolled_at', models.DateTimeField(auto_now_add=True)),
+                ('learn_step_completed', models.BooleanField(default=False)),
+                ('create_step_completed', models.BooleanField(default=False)),
+                ('teach_step_completed', models.BooleanField(default=False)),
                 (
-                    "course",
+                    'course',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="enrolled_users",
-                        to="boaapp.course",
+                        related_name='enrolled_users',
+                        to='boaapp.course',
                     ),
                 ),
                 (
-                    "user",
+                    'user',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="enrollments",
+                        related_name='enrollments',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
             options={
-                "unique_together": {("user", "course")},
+                'unique_together': {('user', 'course')},
             },
         ),
     ]

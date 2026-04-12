@@ -6,27 +6,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("boaapp", "0006_portfoliovideo_resumedocument_scrollingimage_and_more"),
+        ('boaapp', '0006_portfoliovideo_resumedocument_scrollingimage_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="audiofile",
-            name="document",
+            model_name='audiofile',
+            name='document',
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="audio_files",
-                to="boaapp.document",
+                related_name='audio_files',
+                to='boaapp.document',
             ),
         ),
         migrations.AddField(
-            model_name="audiofile",
-            name="user",
+            model_name='audiofile',
+            name='user',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
@@ -34,8 +33,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name="document",
-            name="user",
+            model_name='document',
+            name='user',
             field=models.ForeignKey(
                 default=1,
                 on_delete=django.db.models.deletion.CASCADE,
@@ -43,8 +42,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterField(
-            model_name="document",
-            name="uploaded_file",
-            field=models.FileField(upload_to="documents/"),
+            model_name='document',
+            name='uploaded_file',
+            field=models.FileField(upload_to='documents/'),
         ),
     ]

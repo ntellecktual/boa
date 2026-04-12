@@ -6,46 +6,45 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("boaapp", "0008_alter_audiofile_document_alter_audiofile_metadata_and_more"),
+        ('boaapp', '0008_alter_audiofile_document_alter_audiofile_metadata_and_more'),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name="enrollment",
-            name="create_step_completed",
+            model_name='enrollment',
+            name='create_step_completed',
         ),
         migrations.RemoveField(
-            model_name="enrollment",
-            name="learn_step_completed",
+            model_name='enrollment',
+            name='learn_step_completed',
         ),
         migrations.RemoveField(
-            model_name="enrollment",
-            name="teach_step_completed",
+            model_name='enrollment',
+            name='teach_step_completed',
         ),
         migrations.CreateModel(
-            name="CourseSection",
+            name='CourseSection',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("title", models.CharField(max_length=255)),
+                ('title', models.CharField(max_length=255)),
                 (
-                    "order",
+                    'order',
                     models.PositiveIntegerField(
                         default=0,
-                        help_text="Order in which the section appears in the course.",
+                        help_text='Order in which the section appears in the course.',
                     ),
                 ),
                 (
-                    "learn_content_file",
+                    'learn_content_file',
                     models.FileField(
                         blank=True,
                         help_text="e.g., .ipynb, .md, .pdf for the 'Learn' step.",
@@ -54,31 +53,29 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "description",
-                    models.TextField(
-                        blank=True, help_text="Brief overview of this section."
-                    ),
+                    'description',
+                    models.TextField(blank=True, help_text='Brief overview of this section.'),
                 ),
                 (
-                    "course",
+                    'course',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="sections",
-                        to="boaapp.course",
+                        related_name='sections',
+                        to='boaapp.course',
                     ),
                 ),
             ],
             options={
-                "ordering": ["order"],
+                'ordering': ['order'],
             },
         ),
         migrations.AddField(
-            model_name="enrollment",
-            name="completed_learn_sections",
+            model_name='enrollment',
+            name='completed_learn_sections',
             field=models.ManyToManyField(
                 blank=True,
-                related_name="completed_by_enrollments",
-                to="boaapp.coursesection",
+                related_name='completed_by_enrollments',
+                to='boaapp.coursesection',
             ),
         ),
     ]

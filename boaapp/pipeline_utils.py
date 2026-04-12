@@ -27,7 +27,7 @@ def send_pipeline_update(run_id, status, progress_pct, current_step='', message=
             run.completed_at = timezone.now()
         run.save()
     except PipelineRun.DoesNotExist:
-        logger.warning(f"PipelineRun {run_id} not found")
+        logger.warning(f'PipelineRun {run_id} not found')
         return
 
     # Send WebSocket message
@@ -56,8 +56,8 @@ def send_pipeline_update(run_id, status, progress_pct, current_step='', message=
                 'progress_pct': progress_pct,
                 'current_step': current_step,
                 'message': message,
-            }
+            },
         )
     except Exception as e:
         # WebSocket is optional — don't fail the pipeline if WS isn't available
-        logger.debug(f"Could not send WS update for pipeline {run_id}: {e}")
+        logger.debug(f'Could not send WS update for pipeline {run_id}: {e}')

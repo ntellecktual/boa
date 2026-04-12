@@ -4,147 +4,140 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("boaapp", "0005_audiofile_metadata_audiofile_title"),
+        ('boaapp', '0005_audiofile_metadata_audiofile_title'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="PortfolioVideo",
+            name='PortfolioVideo',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("title", models.CharField(blank=True, max_length=255)),
-                ("video_file", models.FileField(upload_to="portfolio/videos/")),
+                ('title', models.CharField(blank=True, max_length=255)),
+                ('video_file', models.FileField(upload_to='portfolio/videos/')),
             ],
         ),
         migrations.CreateModel(
-            name="ResumeDocument",
+            name='ResumeDocument',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("title", models.CharField(max_length=255)),
-                ("description", models.TextField()),
-                ("file", models.FileField(upload_to="resume/")),
+                ('title', models.CharField(max_length=255)),
+                ('description', models.TextField()),
+                ('file', models.FileField(upload_to='resume/')),
             ],
         ),
         migrations.CreateModel(
-            name="ScrollingImage",
+            name='ScrollingImage',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("image", models.ImageField(upload_to="scrolling_images/")),
-                ("caption", models.CharField(blank=True, max_length=255, null=True)),
+                ('image', models.ImageField(upload_to='scrolling_images/')),
+                ('caption', models.CharField(blank=True, max_length=255, null=True)),
             ],
         ),
         migrations.AlterField(
-            model_name="document",
-            name="uploaded_file",
-            field=models.FileField(upload_to="", verbose_name="Upload A File"),
+            model_name='document',
+            name='uploaded_file',
+            field=models.FileField(upload_to='', verbose_name='Upload A File'),
         ),
         migrations.CreateModel(
-            name="PortfolioItem",
+            name='PortfolioItem',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("title", models.CharField(max_length=255)),
-                ("description", models.TextField()),
-                ("project_url", models.URLField(blank=True, null=True)),
+                ('title', models.CharField(max_length=255)),
+                ('description', models.TextField()),
+                ('project_url', models.URLField(blank=True, null=True)),
                 (
-                    "companylogo",
-                    models.ImageField(blank=True, null=True, upload_to="portfolio/"),
+                    'companylogo',
+                    models.ImageField(blank=True, null=True, upload_to='portfolio/'),
                 ),
                 (
-                    "image",
-                    models.ImageField(blank=True, null=True, upload_to="portfolio/"),
+                    'image',
+                    models.ImageField(blank=True, null=True, upload_to='portfolio/'),
                 ),
                 (
-                    "ppt_file",
-                    models.FileField(
-                        blank=True, null=True, upload_to="portfolio_ppts/"
-                    ),
+                    'ppt_file',
+                    models.FileField(blank=True, null=True, upload_to='portfolio_ppts/'),
                 ),
                 (
-                    "videos",
+                    'videos',
                     models.ManyToManyField(
                         blank=True,
-                        related_name="portfolio_items",
-                        to="boaapp.portfoliovideo",
+                        related_name='portfolio_items',
+                        to='boaapp.portfoliovideo',
                     ),
                 ),
                 (
-                    "scrolling_images",
-                    models.ManyToManyField(blank=True, to="boaapp.scrollingimage"),
+                    'scrolling_images',
+                    models.ManyToManyField(blank=True, to='boaapp.scrollingimage'),
                 ),
             ],
         ),
         migrations.CreateModel(
-            name="DevopsItem",
+            name='DevopsItem',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("name", models.CharField(max_length=255)),
-                ("details", models.TextField()),
-                ("link", models.URLField(blank=True, null=True)),
+                ('name', models.CharField(max_length=255)),
+                ('details', models.TextField()),
+                ('link', models.URLField(blank=True, null=True)),
                 (
-                    "logo",
-                    models.ImageField(blank=True, null=True, upload_to="portfolio/"),
+                    'logo',
+                    models.ImageField(blank=True, null=True, upload_to='portfolio/'),
                 ),
                 (
-                    "img",
-                    models.ImageField(blank=True, null=True, upload_to="portfolio/"),
+                    'img',
+                    models.ImageField(blank=True, null=True, upload_to='portfolio/'),
                 ),
                 (
-                    "vid",
-                    models.FileField(
-                        blank=True, null=True, upload_to="portfolio/videos/"
-                    ),
+                    'vid',
+                    models.FileField(blank=True, null=True, upload_to='portfolio/videos/'),
                 ),
                 (
-                    "ppt",
-                    models.FileField(
-                        blank=True, null=True, upload_to="portfolio_ppts/"
-                    ),
+                    'ppt',
+                    models.FileField(blank=True, null=True, upload_to='portfolio_ppts/'),
                 ),
                 (
-                    "scrolling_images",
-                    models.ManyToManyField(blank=True, to="boaapp.scrollingimage"),
+                    'scrolling_images',
+                    models.ManyToManyField(blank=True, to='boaapp.scrollingimage'),
                 ),
             ],
         ),

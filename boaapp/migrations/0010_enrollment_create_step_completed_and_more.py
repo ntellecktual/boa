@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("boaapp", "0009_remove_enrollment_create_step_completed_and_more"),
+        ('boaapp', '0009_remove_enrollment_create_step_completed_and_more'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="enrollment",
-            name="create_step_completed",
+            model_name='enrollment',
+            name='create_step_completed',
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name="enrollment",
-            name="teach_step_completed",
+            model_name='enrollment',
+            name='teach_step_completed',
             field=models.BooleanField(default=False),
         ),
     ]

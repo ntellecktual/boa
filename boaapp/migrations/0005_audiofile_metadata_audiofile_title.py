@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("boaapp", "0004_alter_document_uploaded_file"),
+        ('boaapp', '0004_alter_document_uploaded_file'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="audiofile",
-            name="metadata",
+            model_name='audiofile',
+            name='metadata',
             field=models.JSONField(default=dict),
         ),
         migrations.AddField(
-            model_name="audiofile",
-            name="title",
-            field=models.CharField(default="Untitled", max_length=100),
+            model_name='audiofile',
+            name='title',
+            field=models.CharField(default='Untitled', max_length=100),
         ),
     ]

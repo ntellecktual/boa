@@ -32,34 +32,47 @@ class PipelineProgressConsumer(AsyncWebsocketConsumer):
 
     async def pipeline_progress(self, event):
         """Handle pipeline progress messages from the channel layer."""
-        await self.send(text_data=json.dumps({
-            'type': 'progress',
-            'status': event.get('status', ''),
-            'progress_pct': event.get('progress_pct', 0),
-            'current_step': event.get('current_step', ''),
-            'message': event.get('message', ''),
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    'type': 'progress',
+                    'status': event.get('status', ''),
+                    'progress_pct': event.get('progress_pct', 0),
+                    'current_step': event.get('current_step', ''),
+                    'message': event.get('message', ''),
+                }
+            )
+        )
 
     async def pipeline_complete(self, event):
         """Handle pipeline completion."""
-        await self.send(text_data=json.dumps({
-            'type': 'complete',
-            'status': 'complete',
-            'progress_pct': 100,
-            'message': event.get('message', 'Pipeline complete!'),
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    'type': 'complete',
+                    'status': 'complete',
+                    'progress_pct': 100,
+                    'message': event.get('message', 'Pipeline complete!'),
+                }
+            )
+        )
 
     async def pipeline_error(self, event):
         """Handle pipeline errors."""
-        await self.send(text_data=json.dumps({
-            'type': 'error',
-            'status': 'failed',
-            'message': event.get('message', 'Pipeline failed.'),
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    'type': 'error',
+                    'status': 'failed',
+                    'message': event.get('message', 'Pipeline failed.'),
+                }
+            )
+        )
 
     @database_sync_to_async
     def _get_pipeline_status(self):
         from .models import PipelineRun
+
         try:
             run = PipelineRun.objects.get(pk=self.run_id)
             return {
@@ -109,42 +122,60 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self._save_message(user.id, 'user', message)
 
         # Send typing indicator
-        await self.send(text_data=json.dumps({
-            'type': 'typing',
-            'is_typing': True,
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    'type': 'typing',
+                    'is_typing': True,
+                }
+            )
+        )
 
         # Generate AI response via RAG
         try:
             response, sources = await self._get_rag_response(user.id, message)
             await self._save_message(user.id, 'assistant', response, sources)
 
-            await self.send(text_data=json.dumps({
-                'type': 'message',
-                'role': 'assistant',
-                'content': response,
-                'sources': sources,
-            }))
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        'type': 'message',
+                        'role': 'assistant',
+                        'content': response,
+                        'sources': sources,
+                    }
+                )
+            )
         except Exception as e:
-            logger.error(f"Chat error: {e}", exc_info=True)
-            await self.send(text_data=json.dumps({
-                'type': 'error',
-                'message': 'Sorry, I encountered an error. Please try again.',
-            }))
+            logger.error(f'Chat error: {e}', exc_info=True)
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        'type': 'error',
+                        'message': 'Sorry, I encountered an error. Please try again.',
+                    }
+                )
+            )
         finally:
-            await self.send(text_data=json.dumps({
-                'type': 'typing',
-                'is_typing': False,
-            }))
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        'type': 'typing',
+                        'is_typing': False,
+                    }
+                )
+            )
 
     @database_sync_to_async
     def _verify_access(self, user_id):
         from .models import ChatConversation
+
         return ChatConversation.objects.filter(pk=self.conversation_id, user_id=user_id).exists()
 
     @database_sync_to_async
     def _save_message(self, user_id, role, content, sources=None):
         from .models import ChatMessage
+
         return ChatMessage.objects.create(
             conversation_id=self.conversation_id,
             role=role,
@@ -156,5 +187,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def _get_rag_response(self, user_id, query):
         from .models import ChatConversation
         from .rag_engine import get_rag_response
+
         conversation = ChatConversation.objects.get(pk=self.conversation_id)
         return get_rag_response(query, conversation.document_id)

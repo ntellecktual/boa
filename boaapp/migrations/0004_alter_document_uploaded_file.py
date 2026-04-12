@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("boaapp", "0003_document"),
+        ('boaapp', '0003_document'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="document",
-            name="uploaded_file",
-            field=models.FileField(upload_to=""),
+            model_name='document',
+            name='uploaded_file',
+            field=models.FileField(upload_to=''),
         ),
     ]

@@ -24,6 +24,7 @@ staticfiles/
 # IDE
 .vscode/
 .idea/
+.history/
 *.swp
 *.swo
 

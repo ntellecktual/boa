@@ -17,14 +17,14 @@ class Document(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     uploaded_file = models.FileField(upload_to='documents/', blank=True)
     notebook_json = models.TextField(
-        blank=True, default='',
-        help_text='Raw .ipynb JSON stored in the database so it survives ephemeral deploys.'
+        blank=True, default='', help_text='Raw .ipynb JSON stored in the database so it survives ephemeral deploys.'
     )
     original_filename = models.CharField(max_length=255, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Document {self.pk} ({self.original_filename or 'untitled'}) by {self.user.username}"
+        return f'Document {self.pk} ({self.original_filename or "untitled"}) by {self.user.username}'
+
 
 class AudioFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -32,8 +32,7 @@ class AudioFile(models.Model):
     title = models.CharField(max_length=255)
     file = models.FileField(upload_to='audio/', blank=True)
     audio_data = models.BinaryField(
-        null=True, blank=True,
-        help_text='MP3 bytes stored in PostgreSQL for persistence across deploys.'
+        null=True, blank=True, help_text='MP3 bytes stored in PostgreSQL for persistence across deploys.'
     )
     created_at = models.DateTimeField(auto_now_add=True)
     metadata = models.JSONField(null=True, blank=True)
@@ -45,21 +44,20 @@ class AudioFile(models.Model):
 
 class VideoFile(models.Model):
     audio_file = models.OneToOneField(AudioFile, on_delete=models.CASCADE, related_name='video_file')
-    video_file_path = models.CharField(max_length=500) # Store relative path to video
+    video_file_path = models.CharField(max_length=500)  # Store relative path to video
     created_at = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return f"Video for {self.audio_file.title}"
+        return f'Video for {self.audio_file.title}'
 
 
 class ScrollingImage(models.Model):
     image = models.ImageField(upload_to='scrolling_images/')
-    caption = models.CharField(
-        max_length=255, blank=True, null=True)  # Optional caption
+    caption = models.CharField(max_length=255, blank=True, null=True)  # Optional caption
 
     def __str__(self):
-        return self.caption if self.caption else "Scrolling Image"
+        return self.caption if self.caption else 'Scrolling Image'
 
 
 class PortfolioVideo(models.Model):
@@ -76,16 +74,13 @@ class PortfolioItem(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     project_url = models.URLField(blank=True, null=True)
-    companylogo = models.ImageField(
-        upload_to='portfolio/', blank=True, null=True)
+    companylogo = models.ImageField(upload_to='portfolio/', blank=True, null=True)
     image = models.ImageField(upload_to='portfolio/', blank=True, null=True)
-    ppt_file = models.FileField(
-        upload_to='portfolio_ppts/', blank=True, null=True)
+    ppt_file = models.FileField(upload_to='portfolio_ppts/', blank=True, null=True)
     scrolling_images = models.ManyToManyField(ScrollingImage, blank=True)
 
     # Add ManyToManyField for multiple videos
-    videos = models.ManyToManyField(
-        PortfolioVideo, blank=True, related_name='portfolio_items')
+    videos = models.ManyToManyField(PortfolioVideo, blank=True, related_name='portfolio_items')
 
     def __str__(self):
         return self.title
@@ -95,11 +90,9 @@ class DevopsItem(models.Model):
     name = models.CharField(max_length=255)
     details = models.TextField()
     link = models.URLField(blank=True, null=True)
-    logo = models.ImageField(
-        upload_to='portfolio/', blank=True, null=True)
+    logo = models.ImageField(upload_to='portfolio/', blank=True, null=True)
     img = models.ImageField(upload_to='portfolio/', blank=True, null=True)
-    vid = models.FileField(upload_to='portfolio/videos/',
-                           blank=True, null=True)
+    vid = models.FileField(upload_to='portfolio/videos/', blank=True, null=True)
     ppt = models.FileField(upload_to='portfolio_ppts/', blank=True, null=True)
     scrolling_images = models.ManyToManyField(ScrollingImage, blank=True)
 
@@ -115,10 +108,13 @@ class ResumeDocument(models.Model):  # Renamed to avoid conflict
     def __str__(self):
         return self.title
 
+
 class Course(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
-    instructor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='taught_courses')
+    instructor = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='taught_courses'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # Placeholders for future content structure for the 3-step process
@@ -132,37 +128,46 @@ class Course(models.Model):
 
 def course_section_learn_path(instance, filename):
     # Sanitize course title for directory name
-    course_title_sanitized = "".join(c if c.isalnum() or c in " _-" else "" for c in instance.course.title).rstrip()
+    course_title_sanitized = ''.join(c if c.isalnum() or c in ' _-' else '' for c in instance.course.title).rstrip()
     return f'courses/{course_title_sanitized}/learn_step/section_{instance.order}/{filename}'
+
 
 class CourseSection(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='sections')
     title = models.CharField(max_length=255)
-    order = models.PositiveIntegerField(default=0, help_text="Order in which the section appears in the course.")
-    learn_content_file = models.FileField(upload_to=course_section_learn_path, blank=True, null=True, help_text="e.g., .ipynb, .md, .pdf for the 'Learn' step.")
-    description = models.TextField(blank=True, help_text="Brief overview of this section.")
+    order = models.PositiveIntegerField(default=0, help_text='Order in which the section appears in the course.')
+    learn_content_file = models.FileField(
+        upload_to=course_section_learn_path,
+        blank=True,
+        null=True,
+        help_text="e.g., .ipynb, .md, .pdf for the 'Learn' step.",
+    )
+    description = models.TextField(blank=True, help_text='Brief overview of this section.')
 
     class Meta:
         ordering = ['order']
 
     def __str__(self):
-        return f"{self.course.title} - Section {self.order}: {self.title}"
+        return f'{self.course.title} - Section {self.order}: {self.title}'
+
 
 class Enrollment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrolled_users')
     enrolled_at = models.DateTimeField(auto_now_add=True)
     # Progress tracking for the "Learn" step
-    completed_learn_sections = models.ManyToManyField(CourseSection, blank=True, related_name='completed_by_enrollments')
+    completed_learn_sections = models.ManyToManyField(
+        CourseSection, blank=True, related_name='completed_by_enrollments'
+    )
     # Progress tracking for "Create" and "Teach" steps
     create_step_completed = models.BooleanField(default=False)
     teach_step_completed = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('user', 'course') # Ensures a user can enroll in a course only once
+        unique_together = ('user', 'course')  # Ensures a user can enroll in a course only once
 
     def __str__(self):
-        return f"{self.user.username} enrolled in {self.course.title}"
+        return f'{self.user.username} enrolled in {self.course.title}'
 
     def all_learn_sections_completed(self):
         """Checks if all 'learn' sections for the course are marked as completed."""
@@ -176,19 +181,26 @@ class Enrollment(models.Model):
 # Quiz / Assessment Models
 # ==========================================================================
 
+
 class Quiz(models.Model):
-    course_section = models.ForeignKey(CourseSection, on_delete=models.CASCADE, related_name='quizzes', null=True, blank=True)
+    course_section = models.ForeignKey(
+        CourseSection, on_delete=models.CASCADE, related_name='quizzes', null=True, blank=True
+    )
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='quizzes', null=True, blank=True)
     title = models.CharField(max_length=255)
     generated_by = models.CharField(max_length=50, default='ai', choices=[('ai', 'AI Generated'), ('manual', 'Manual')])
-    difficulty = models.CharField(max_length=20, default='intermediate', choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')])
+    difficulty = models.CharField(
+        max_length=20,
+        default='intermediate',
+        choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')],
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = 'quizzes'
 
     def __str__(self):
-        return f"Quiz: {self.title}"
+        return f'Quiz: {self.title}'
 
 
 class QuizQuestion(models.Model):
@@ -205,7 +217,7 @@ class QuizQuestion(models.Model):
         ordering = ['order']
 
     def __str__(self):
-        return f"Q{self.order}: {self.question_text[:60]}"
+        return f'Q{self.order}: {self.question_text[:60]}'
 
 
 class QuizAttempt(models.Model):
@@ -217,22 +229,25 @@ class QuizAttempt(models.Model):
     completed_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.quiz.title}: {self.score}/{self.total_questions}"
+        return f'{self.user.username} - {self.quiz.title}: {self.score}/{self.total_questions}'
 
 
 # ==========================================================================
 # RAG Chatbot Models
 # ==========================================================================
 
+
 class ChatConversation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_conversations')
-    document = models.ForeignKey(Document, on_delete=models.SET_NULL, null=True, blank=True, related_name='conversations')
+    document = models.ForeignKey(
+        Document, on_delete=models.SET_NULL, null=True, blank=True, related_name='conversations'
+    )
     title = models.CharField(max_length=255, default='New Chat')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username}: {self.title}"
+        return f'{self.user.username}: {self.title}'
 
 
 class ChatMessage(models.Model):
@@ -247,12 +262,13 @@ class ChatMessage(models.Model):
         ordering = ['created_at']
 
     def __str__(self):
-        return f"[{self.role}] {self.content[:60]}"
+        return f'[{self.role}] {self.content[:60]}'
 
 
 # ==========================================================================
 # Learning Analytics Models
 # ==========================================================================
+
 
 class LearningEvent(models.Model):
     EVENT_TYPES = [
@@ -277,12 +293,13 @@ class LearningEvent(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user.username}: {self.event_type} at {self.created_at}"
+        return f'{self.user.username}: {self.event_type} at {self.created_at}'
 
 
 # ==========================================================================
 # AI Thumbnail Model
 # ==========================================================================
+
 
 class CourseThumbnail(models.Model):
     document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name='thumbnail')
@@ -291,12 +308,13 @@ class CourseThumbnail(models.Model):
     generated_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Thumbnail for {self.document}"
+        return f'Thumbnail for {self.document}'
 
 
 # ==========================================================================
 # Translation Model
 # ==========================================================================
+
 
 class TranslatedContent(models.Model):
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='translations')
@@ -310,12 +328,13 @@ class TranslatedContent(models.Model):
         unique_together = ('document', 'language_code')
 
     def __str__(self):
-        return f"{self.document} - {self.language_name}"
+        return f'{self.document} - {self.language_name}'
 
 
 # ==========================================================================
 # GitHub Webhook Model
 # ==========================================================================
+
 
 class WebhookConfig(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='webhook_configs')
@@ -327,12 +346,13 @@ class WebhookConfig(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Webhook: {self.repo_full_name} ({self.branch})"
+        return f'Webhook: {self.repo_full_name} ({self.branch})'
 
 
 # ==========================================================================
 # Pipeline Run Tracking
 # ==========================================================================
+
 
 class PipelineRun(models.Model):
     STATUS_CHOICES = [
@@ -354,12 +374,13 @@ class PipelineRun(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"Pipeline: {self.document} - {self.status} ({self.progress_pct}%)"
+        return f'Pipeline: {self.document} - {self.status} ({self.progress_pct}%)'
 
 
 # ==========================================================================
 # Code Review Model
 # ==========================================================================
+
 
 class CodeReview(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='code_reviews')
@@ -369,4 +390,4 @@ class CodeReview(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Review by {self.user.username} at {self.created_at}"
+        return f'Review by {self.user.username} at {self.created_at}'

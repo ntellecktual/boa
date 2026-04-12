@@ -4,26 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("boaapp", "0002_audiofile"),
+        ('boaapp', '0002_audiofile'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Document",
+            name='Document',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("uploaded_file", models.FileField(upload_to="documents/")),
-                ("uploaded_at", models.DateTimeField(auto_now_add=True)),
+                ('uploaded_file', models.FileField(upload_to='documents/')),
+                ('uploaded_at', models.DateTimeField(auto_now_add=True)),
             ],
         ),
     ]

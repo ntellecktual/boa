@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('boaapp', '0010_enrollment_create_step_completed_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -20,19 +19,47 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(default='New Chat', max_length=255)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('document', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='conversations', to='boaapp.document')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='chat_conversations', to=settings.AUTH_USER_MODEL)),
+                (
+                    'document',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='conversations',
+                        to='boaapp.document',
+                    ),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='chat_conversations',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='ChatMessage',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(choices=[('user', 'User'), ('assistant', 'Assistant'), ('system', 'System')], max_length=10)),
+                (
+                    'role',
+                    models.CharField(
+                        choices=[('user', 'User'), ('assistant', 'Assistant'), ('system', 'System')], max_length=10
+                    ),
+                ),
                 ('content', models.TextField()),
                 ('sources', models.JSONField(blank=True, help_text='RAG source references', null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('conversation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='boaapp.chatconversation')),
+                (
+                    'conversation',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='messages',
+                        to='boaapp.chatconversation',
+                    ),
+                ),
             ],
             options={
                 'ordering': ['created_at'],
@@ -46,7 +73,14 @@ class Migration(migrations.Migration):
                 ('language', models.CharField(default='python', max_length=30)),
                 ('review_result', models.JSONField(default=dict, help_text='AI review findings')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='code_reviews', to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='code_reviews',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -56,21 +90,53 @@ class Migration(migrations.Migration):
                 ('image', models.ImageField(upload_to='thumbnails/')),
                 ('prompt_used', models.TextField(blank=True)),
                 ('generated_at', models.DateTimeField(auto_now_add=True)),
-                ('document', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='thumbnail', to='boaapp.document')),
+                (
+                    'document',
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE, related_name='thumbnail', to='boaapp.document'
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='PipelineRun',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('pending', 'Pending'), ('audio', 'Generating Audio'), ('video', 'Generating Videos'), ('quiz', 'Generating Quizzes'), ('thumbnail', 'Generating Thumbnail'), ('complete', 'Complete'), ('failed', 'Failed')], default='pending', max_length=20)),
+                (
+                    'status',
+                    models.CharField(
+                        choices=[
+                            ('pending', 'Pending'),
+                            ('audio', 'Generating Audio'),
+                            ('video', 'Generating Videos'),
+                            ('quiz', 'Generating Quizzes'),
+                            ('thumbnail', 'Generating Thumbnail'),
+                            ('complete', 'Complete'),
+                            ('failed', 'Failed'),
+                        ],
+                        default='pending',
+                        max_length=20,
+                    ),
+                ),
                 ('progress_pct', models.PositiveIntegerField(default=0)),
                 ('current_step', models.CharField(blank=True, max_length=255)),
                 ('error_message', models.TextField(blank=True)),
                 ('started_at', models.DateTimeField(auto_now_add=True)),
                 ('completed_at', models.DateTimeField(blank=True, null=True)),
-                ('document', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pipeline_runs', to='boaapp.document')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pipeline_runs', to=settings.AUTH_USER_MODEL)),
+                (
+                    'document',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name='pipeline_runs', to='boaapp.document'
+                    ),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='pipeline_runs',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -78,11 +144,41 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=255)),
-                ('generated_by', models.CharField(choices=[('ai', 'AI Generated'), ('manual', 'Manual')], default='ai', max_length=50)),
-                ('difficulty', models.CharField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], default='intermediate', max_length=20)),
+                (
+                    'generated_by',
+                    models.CharField(
+                        choices=[('ai', 'AI Generated'), ('manual', 'Manual')], default='ai', max_length=50
+                    ),
+                ),
+                (
+                    'difficulty',
+                    models.CharField(
+                        choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')],
+                        default='intermediate',
+                        max_length=20,
+                    ),
+                ),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('course_section', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='quizzes', to='boaapp.coursesection')),
-                ('document', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='quizzes', to='boaapp.document')),
+                (
+                    'course_section',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='quizzes',
+                        to='boaapp.coursesection',
+                    ),
+                ),
+                (
+                    'document',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='quizzes',
+                        to='boaapp.document',
+                    ),
+                ),
             ],
             options={
                 'verbose_name_plural': 'quizzes',
@@ -96,8 +192,20 @@ class Migration(migrations.Migration):
                 ('total_questions', models.PositiveIntegerField(default=0)),
                 ('answers', models.JSONField(default=dict, help_text='Map of question_id -> user_answer')),
                 ('completed_at', models.DateTimeField(auto_now_add=True)),
-                ('quiz', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attempts', to='boaapp.quiz')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='quiz_attempts', to=settings.AUTH_USER_MODEL)),
+                (
+                    'quiz',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name='attempts', to='boaapp.quiz'
+                    ),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='quiz_attempts',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -105,12 +213,24 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('question_text', models.TextField()),
-                ('question_type', models.CharField(choices=[('mcq', 'Multiple Choice'), ('code', 'Code Challenge'), ('short', 'Short Answer')], default='mcq', max_length=10)),
+                (
+                    'question_type',
+                    models.CharField(
+                        choices=[('mcq', 'Multiple Choice'), ('code', 'Code Challenge'), ('short', 'Short Answer')],
+                        default='mcq',
+                        max_length=10,
+                    ),
+                ),
                 ('options', models.JSONField(blank=True, help_text='List of options for MCQ', null=True)),
                 ('correct_answer', models.TextField()),
                 ('explanation', models.TextField(blank=True)),
                 ('order', models.PositiveIntegerField(default=0)),
-                ('quiz', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='questions', to='boaapp.quiz')),
+                (
+                    'quiz',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name='questions', to='boaapp.quiz'
+                    ),
+                ),
             ],
             options={
                 'ordering': ['order'],
@@ -126,21 +246,52 @@ class Migration(migrations.Migration):
                 ('auto_pipeline', models.BooleanField(default=True, help_text='Auto-run full pipeline on push')),
                 ('is_active', models.BooleanField(default=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='webhook_configs', to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='webhook_configs',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='LearningEvent',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('event_type', models.CharField(choices=[('page_view', 'Page View'), ('quiz_attempt', 'Quiz Attempt'), ('video_watch', 'Video Watch'), ('audio_listen', 'Audio Listen'), ('code_run', 'Code Run'), ('chat_message', 'Chat Message'), ('section_complete', 'Section Complete'), ('course_enroll', 'Course Enroll')], max_length=30)),
+                (
+                    'event_type',
+                    models.CharField(
+                        choices=[
+                            ('page_view', 'Page View'),
+                            ('quiz_attempt', 'Quiz Attempt'),
+                            ('video_watch', 'Video Watch'),
+                            ('audio_listen', 'Audio Listen'),
+                            ('code_run', 'Code Run'),
+                            ('chat_message', 'Chat Message'),
+                            ('section_complete', 'Section Complete'),
+                            ('course_enroll', 'Course Enroll'),
+                        ],
+                        max_length=30,
+                    ),
+                ),
                 ('metadata', models.JSONField(default=dict)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='learning_events', to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='learning_events',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'ordering': ['-created_at'],
-                'indexes': [models.Index(fields=['user', 'event_type', '-created_at'], name='boaapp_lear_user_id_7c9488_idx')],
+                'indexes': [
+                    models.Index(fields=['user', 'event_type', '-created_at'], name='boaapp_lear_user_id_7c9488_idx')
+                ],
             },
         ),
         migrations.CreateModel(
@@ -152,7 +303,12 @@ class Migration(migrations.Migration):
                 ('translated_sections', models.JSONField(default=list, help_text='List of translated section dicts')),
                 ('audio_files_generated', models.BooleanField(default=False)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('document', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='boaapp.document')),
+                (
+                    'document',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='boaapp.document'
+                    ),
+                ),
             ],
             options={
                 'unique_together': {('document', 'language_code')},

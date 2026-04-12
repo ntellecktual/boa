@@ -41,10 +41,11 @@ from .tasks import create_audio_files_task, create_single_video_task, run_full_p
 # Set up logging
 logger = logging.getLogger(__name__)
 
+
 def render_notebook_to_html(notebook_json_str):
     """Converts a Jupyter Notebook JSON string to HTML."""
     if not notebook_json_str:
-        return "<p>No notebook content available.</p>"
+        return '<p>No notebook content available.</p>'
     try:
         nb = nbformat.read(io.StringIO(notebook_json_str), as_version=4)
         html_exporter = HTMLExporter()
@@ -54,28 +55,30 @@ def render_notebook_to_html(notebook_json_str):
         (body, resources) = html_exporter.from_notebook_node(nb)
         return body
     except Exception as e:
-        logger.error(f"Error rendering notebook: {e}", exc_info=True)
-        return f"<p>Error rendering notebook: {e}</p>"
+        logger.error(f'Error rendering notebook: {e}', exc_info=True)
+        return f'<p>Error rendering notebook: {e}</p>'
 
 
 def course_list_view(request):
-    courses = Course.objects.all().order_by('updated_at') # Changed to order by updated_at ascending
+    courses = Course.objects.all().order_by('updated_at')  # Changed to order by updated_at ascending
     user_enrollments_ids = []
     if request.user.is_authenticated:
         user_enrollments_ids = Enrollment.objects.filter(user=request.user).values_list('course_id', flat=True)
 
-    return render(request, 'boaapp/course_list.html', {'courses': courses, 'user_enrollments_ids': user_enrollments_ids})
+    return render(
+        request, 'boaapp/course_list.html', {'courses': courses, 'user_enrollments_ids': user_enrollments_ids}
+    )
+
 
 @login_required
 def course_detail_view(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
-    sections = course.sections.all().order_by('order') # CourseSection.Meta.ordering handles this too
+    sections = course.sections.all().order_by('order')  # CourseSection.Meta.ordering handles this too
 
     is_enrolled = False
     completed_learn_sections_ids = []
-    current_step_number = 0
-    current_step_name = "Not Enrolled"
-    current_step_description = "Enroll in the course to begin your journey."
+    current_step_name = 'Not Enrolled'
+    current_step_description = 'Enroll in the course to begin your journey.'
     enrollment = None
 
     try:
@@ -85,20 +88,19 @@ def course_detail_view(request, course_id):
 
         # Determine current step
         if not enrollment.all_learn_sections_completed():
-            current_step_number = 1
-            current_step_name = "Step 1: Learning"
-            current_step_description = "Focus on understanding the core concepts and materials provided in the sections below."
+            current_step_name = 'Step 1: Learning'
+            current_step_description = (
+                'Focus on understanding the core concepts and materials provided in the sections below.'
+            )
         elif not enrollment.create_step_completed:
-            current_step_number = 2
-            current_step_name = "Step 2: Creating"
+            current_step_name = 'Step 2: Creating'
             current_step_description = "Apply what you've learned! It's time to build/create the project."
         elif not enrollment.teach_step_completed:
-            current_step_number = 3
-            current_step_name = "Step 3: Teaching"
-            current_step_description = "Solidify your understanding by preparing to teach this topic to others."
+            current_step_name = 'Step 3: Teaching'
+            current_step_description = 'Solidify your understanding by preparing to teach this topic to others.'
         else:
-            current_step_name = "Course Completed!"
-            current_step_description = "Congratulations on completing all steps of this course!"
+            current_step_name = 'Course Completed!'
+            current_step_description = 'Congratulations on completing all steps of this course!'
 
     except Enrollment.DoesNotExist:
         is_enrolled = False
@@ -109,25 +111,25 @@ def course_detail_view(request, course_id):
         section_info = {
             'section': section,
             'is_completed': section.id in completed_learn_sections_ids,
-            'learn_content_html': None # Placeholder for rendered HTML
+            'learn_content_html': None,  # Placeholder for rendered HTML
         }
         if section.learn_content_file and section.learn_content_file.name.lower().endswith('.ipynb'):
-             # Construct absolute path to the file
-             file_path = os.path.join(settings.MEDIA_ROOT, section.learn_content_file.name)
-             section_info['learn_content_html'] = render_notebook_to_html(file_path)
+            # Construct absolute path to the file
+            file_path = os.path.join(settings.MEDIA_ROOT, section.learn_content_file.name)
+            section_info['learn_content_html'] = render_notebook_to_html(file_path)
         sections_data.append(section_info)
-
 
     context = {
         'course': course,
-        'sections_data': sections_data, # Pass the processed sections data
+        'sections_data': sections_data,  # Pass the processed sections data
         'is_enrolled': is_enrolled,
         'completed_learn_sections_ids': completed_learn_sections_ids,
         'current_step_name': current_step_name,
         'current_step_description': current_step_description,
-        'page_id': 'course-detail'
+        'page_id': 'course-detail',
     }
     return render(request, 'boaapp/course_detail.html', context)
+
 
 @login_required
 def enroll_course_view(request, course_id):
@@ -139,7 +141,8 @@ def enroll_course_view(request, course_id):
         else:
             messages.info(request, f"You are already enrolled in '{course.title}'.")
         return redirect('course_detail', course_id=course.id)
-    return redirect('course_list') # Should not be reached via GET directly typically
+    return redirect('course_list')  # Should not be reached via GET directly typically
+
 
 @login_required
 def mark_section_learned_view(request, section_id):
@@ -152,47 +155,71 @@ def mark_section_learned_view(request, section_id):
 
 def uploadit(request):
     uploaded_files = []
-    if request.user.is_authenticated: # Check login status
+    if request.user.is_authenticated:  # Check login status
         uploaded_files = AudioFile.objects.filter(user=request.user)
     context = {
         'uploaded_files': uploaded_files,
-        'welcome_title': "Welcome to Thenumerix",
-        'description': "Upload Jupyter Notebooks. Convert them to audio. Watch them come to life as videos. All in one place."
+        'welcome_title': 'Welcome to Thenumerix',
+        'description': 'Upload Jupyter Notebooks. Convert them to audio. Watch them come to life as videos. All in one place.',
     }
     items = [
-    ("🧾 User Upload", "You upload a Jupyter notebook file (.ipynb) using our secure Django-powered form."),
-    ("💾 File Storage", "The uploaded file is saved on the server, checked for duplicates, and assigned to your user account."),
-    ("📖 Notebook Parsing", "We extract markdown headers, text, and code blocks from your notebook using nbformat."),
-    ("🔊 Audio Generation", "Each section is converted into an MP3 using Google Text-to-Speech (gTTS) and saved in a structured folder."),
-    ("🎞️ Video Rendering", "Each MP3 is combined with a looped background video, synchronized text overlays, and a logo using MoviePy."),
-    ("📝 Synchronized Text", "Text is chunked into natural sentences and aligned to the audio duration for clear, readable display."),
-    ("📈 Progress Tracking", "While the upload and processing runs, logs and progress percentages are tracked and updated in real-time."),
-    ("📂 Dashboard + Download", "After completion, your files appear in your personal dashboard where you can play, download, or delete them.")
-  ]
+        ('🧾 User Upload', 'You upload a Jupyter notebook file (.ipynb) using our secure Django-powered form.'),
+        (
+            '💾 File Storage',
+            'The uploaded file is saved on the server, checked for duplicates, and assigned to your user account.',
+        ),
+        (
+            '📖 Notebook Parsing',
+            'We extract markdown headers, text, and code blocks from your notebook using nbformat.',
+        ),
+        (
+            '🔊 Audio Generation',
+            'Each section is converted into an MP3 using Google Text-to-Speech (gTTS) and saved in a structured folder.',
+        ),
+        (
+            '🎞️ Video Rendering',
+            'Each MP3 is combined with a looped background video, synchronized text overlays, and a logo using MoviePy.',
+        ),
+        (
+            '📝 Synchronized Text',
+            'Text is chunked into natural sentences and aligned to the audio duration for clear, readable display.',
+        ),
+        (
+            '📈 Progress Tracking',
+            'While the upload and processing runs, logs and progress percentages are tracked and updated in real-time.',
+        ),
+        (
+            '📂 Dashboard + Download',
+            'After completion, your files appear in your personal dashboard where you can play, download, or delete them.',
+        ),
+    ]
     return render(request, 'boaapp/uploadit.html', {'items': items, 'page_id': 'uploadit', **context})
 
 
 def boashedskin_view(request):
-    return HttpResponse("Health check successful!")
+    return HttpResponse('Health check successful!')
+
 
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save() # Save the user and get the user object
+            user = form.save()  # Save the user and get the user object
             username = form.cleaned_data.get('username')
-            login(request, user) # Log the new user in automatically
+            login(request, user)  # Log the new user in automatically
             messages.success(request, f'Account created for {username}! Welcome to the courses.')
-            return redirect('home') # Redirect to home dashboard
+            return redirect('home')  # Redirect to home dashboard
     else:
         form = CustomUserCreationForm()
     return render(request, 'boaapp/register.html', {'form': form})
+
 
 def home_view(request):
     """Authenticated home dashboard, or redirect to login."""
     if request.user.is_authenticated:
         return render(request, 'boaapp/home.html')
     return redirect('login')
+
 
 def login_view(request):
     """Handle user login using Django's AuthenticationForm."""
@@ -206,19 +233,20 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.info(request, f"Welcome back, {username}.")
+                messages.info(request, f'Welcome back, {username}.')
                 next_url = request.POST.get('next')
                 if next_url:
                     return redirect(next_url)
                 return redirect('home')
             else:
-                messages.error(request, "Authentication failed unexpectedly.")
+                messages.error(request, 'Authentication failed unexpectedly.')
         else:
-            messages.error(request, "Invalid username or password.")
+            messages.error(request, 'Invalid username or password.')
     else:
         form = AuthenticationForm()
 
     return render(request, 'boaapp/login.html', {'form': form})
+
 
 def logout_view(request):
     """Handle user logout."""
@@ -265,28 +293,36 @@ def upload_document(request):
                         existing_title_lower = None
                         for cell_existing in existing_nb.cells:
                             if cell_existing.cell_type == 'markdown':
-                                lines_existing = [line.strip() for line in cell_existing['source'].split('\n') if line.strip()]
+                                lines_existing = [
+                                    line.strip() for line in cell_existing['source'].split('\n') if line.strip()
+                                ]
                                 if lines_existing and lines_existing[0].startswith('# '):
                                     existing_title_lower = lines_existing[0][2:].strip().lower()
                                     break
                         if not existing_title_lower:
-                            existing_title_lower = os.path.splitext(doc.original_filename or "")[0].lower()
+                            existing_title_lower = os.path.splitext(doc.original_filename or '')[0].lower()
 
-                        if uploaded_title_lower == existing_title_lower and uploaded_title_lower != "great job!":
-                            logger.warning(f"Duplicate title detected for user {request.user.username}: '{uploaded_title_original}'")
-                            messages.error(request, f"A notebook with the same title ('{uploaded_title_original}') already exists.")
+                        if uploaded_title_lower == existing_title_lower and uploaded_title_lower != 'great job!':
+                            logger.warning(
+                                f"Duplicate title detected for user {request.user.username}: '{uploaded_title_original}'"
+                            )
+                            messages.error(
+                                request, f"A notebook with the same title ('{uploaded_title_original}') already exists."
+                            )
                             return redirect('upload_document')
                     except Exception as e_read_existing:
-                        logger.warning(f"Could not parse existing document PK {doc.pk} for title check: {e_read_existing}")
+                        logger.warning(
+                            f'Could not parse existing document PK {doc.pk} for title check: {e_read_existing}'
+                        )
                         continue
 
             except nbformat.validator.NotebookValidationError as e_nb:
-                logger.error(f"Invalid notebook format: {original_filename}. Error: {e_nb}", exc_info=True)
-                messages.error(request, "The uploaded file is not a valid Jupyter Notebook.")
+                logger.error(f'Invalid notebook format: {original_filename}. Error: {e_nb}', exc_info=True)
+                messages.error(request, 'The uploaded file is not a valid Jupyter Notebook.')
                 return redirect('upload_document')
             except Exception as e_read:
-                logger.error(f"Failed to read notebook: {original_filename}. Error: {e_read}", exc_info=True)
-                messages.error(request, "Failed to read notebook content. Please upload a valid .ipynb file.")
+                logger.error(f'Failed to read notebook: {original_filename}. Error: {e_read}', exc_info=True)
+                messages.error(request, 'Failed to read notebook content. Please upload a valid .ipynb file.')
                 return redirect('upload_document')
 
             # --- Save Document with notebook JSON stored in DB ---
@@ -300,16 +336,17 @@ def upload_document(request):
             # --- Trigger Audio Creation in Background Thread ---
             # In EAGER mode, apply_async runs synchronously and blocks the request.
             # Use a background thread so the user gets an immediate redirect.
-            logger.info(f"Triggering audio creation for document PK {document.pk}")
+            logger.info(f'Triggering audio creation for document PK {document.pk}')
 
             def _run_audio_generation(doc_pk, user_pk):
                 """Run audio generation in a background thread."""
                 from django.db import connection
+
                 try:
                     create_audio_files_task(doc_pk, user_pk)
-                    logger.info(f"Background audio generation completed for document PK {doc_pk}")
+                    logger.info(f'Background audio generation completed for document PK {doc_pk}')
                 except Exception as e:
-                    logger.error(f"Background audio generation failed for document PK {doc_pk}: {e}", exc_info=True)
+                    logger.error(f'Background audio generation failed for document PK {doc_pk}: {e}', exc_info=True)
                 finally:
                     connection.close()
 
@@ -320,15 +357,15 @@ def upload_document(request):
             )
             thread.start()
 
-            messages.success(request, f"Notebook '{original_filename}' uploaded successfully. Audio generation started — refresh the dashboard in a moment.")
+            messages.success(
+                request,
+                f"Notebook '{original_filename}' uploaded successfully. Audio generation started — refresh the dashboard in a moment.",
+            )
             return redirect('dashboard')
     else:
         form = DocumentForm()
 
-    return render(request, 'boaapp/upload.html', {
-        'form': form,
-        'page_id': 'uploadit'
-    })
+    return render(request, 'boaapp/upload.html', {'form': form, 'page_id': 'uploadit'})
 
 
 def check_task_status(request, task_id):
@@ -339,66 +376,79 @@ def check_task_status(request, task_id):
     result = None
 
     if task_result.failed():
-        status = 'FAILURE' # Standardize failure status
+        status = 'FAILURE'  # Standardize failure status
         try:
             # Try to get the exception message if available
             result = str(task_result.info) if task_result.info else 'Task failed without specific error info.'
         except Exception:
             result = 'Could not retrieve failure reason.'
-        logger.warning(f"Task {task_id} failed. Info: {result}")
+        logger.warning(f'Task {task_id} failed. Info: {result}')
     elif status == 'SUCCESS':
         try:
             # Get the actual result returned by the task
-            result = task_result.get(timeout=1.0) # Short timeout
+            result = task_result.get(timeout=1.0)  # Short timeout
         except Exception as e:
-            logger.warning(f"Could not retrieve result for successful task {task_id}: {e}")
+            logger.warning(f'Could not retrieve result for successful task {task_id}: {e}')
             result = 'Success, but result retrieval failed.'
 
     response_data = {
         'task_id': task_id,
         'status': status,
-        'result': result, # Include result/error info
+        'result': result,  # Include result/error info
     }
     return JsonResponse(response_data)
+
 
 def process_flows(request):
     """Render AI Process Flows demo page."""
     return render(request, 'boaapp/process_flows.html')
 
+
 def portfolio_showcase(request):
-    portfolio_items = PortfolioItem.objects.prefetch_related(
-        'scrolling_images').all()
-    devops_items = DevopsItem.objects.prefetch_related(
-        'scrolling_images').all()
-    return render(request, 'boaapp/portfolio_showcase.html', {
-        'portfolio_items': portfolio_items,
-        'devops_items': devops_items,
-    })
+    portfolio_items = PortfolioItem.objects.prefetch_related('scrolling_images').all()
+    devops_items = DevopsItem.objects.prefetch_related('scrolling_images').all()
+    return render(
+        request,
+        'boaapp/portfolio_showcase.html',
+        {
+            'portfolio_items': portfolio_items,
+            'devops_items': devops_items,
+        },
+    )
+
 
 def education_details_view(request):
     # You can pass context here if needed, but for static content, it's simple
     return render(request, 'boaapp/education.html')
 
+
 def data_start(request):
     return render(request, 'boaapp/data_start.html')
+
 
 def data_project(request):
     return render(request, 'boaapp/data_project.html')
 
+
 def live_demos(request):
     return render(request, 'boaapp/live_demos.html')
+
 
 def platform_engineering(request):
     return render(request, 'boaapp/platform_engineering.html')
 
+
 def mlops_lifecycle(request):
     return render(request, 'boaapp/mlops_lifecycle.html')
+
 
 def streaming_architecture(request):
     return render(request, 'boaapp/streaming_architecture.html')
 
+
 def api_orchestration(request):
     return render(request, 'boaapp/api_orchestration.html')
+
 
 def idp_demo(request):
     return render(request, 'boaapp/idp_demo.html')
@@ -410,6 +460,7 @@ def portfolio_chat_api(request):
         return JsonResponse({'error': 'POST required'}, status=405)
     try:
         import json as _json
+
         data = _json.loads(request.body)
         message = (data.get('message') or '').strip()[:500]
     except (ValueError, AttributeError):
@@ -422,66 +473,101 @@ def portfolio_chat_api(request):
 
     # ── Skill / tech questions ──
     if any(k in msg for k in ['azure', 'cloud', 'microsoft']):
-        reply = ("Azure is the backbone of most of the portfolio. The Platform Engineering demo "
-                 "shows Azure DevOps pipelines, Entra ID integration, and Databricks-based ETL. "
-                 "The MLOps demo uses Azure ML for model training and deployment.")
+        reply = (
+            'Azure is the backbone of most of the portfolio. The Platform Engineering demo '
+            'shows Azure DevOps pipelines, Entra ID integration, and Databricks-based ETL. '
+            'The MLOps demo uses Azure ML for model training and deployment.'
+        )
     elif any(k in msg for k in ['mlops', 'ml', 'machine learning', 'model']):
-        reply = ("The MLOps Lifecycle demo walks through model training, feature stores, experiment "
-                 "tracking with MLflow, and blue-green deployment on AKS. "
-                 "Check it out at the Live Demos page!")
+        reply = (
+            'The MLOps Lifecycle demo walks through model training, feature stores, experiment '
+            'tracking with MLflow, and blue-green deployment on AKS. '
+            'Check it out at the Live Demos page!'
+        )
     elif any(k in msg for k in ['data', 'pipeline', 'etl', 'databricks', 'spark']):
-        reply = ("Data engineering is a core focus — the Platform Engineering demo covers "
-                 "Databricks Spark pipelines, Delta Lake, and CI/CD integration. "
-                 "The Streaming Architecture demo shows Kafka + Flink real-time event processing.")
+        reply = (
+            'Data engineering is a core focus — the Platform Engineering demo covers '
+            'Databricks Spark pipelines, Delta Lake, and CI/CD integration. '
+            'The Streaming Architecture demo shows Kafka + Flink real-time event processing.'
+        )
     elif any(k in msg for k in ['kafka', 'stream', 'real-time', 'event']):
-        reply = ("The Streaming Architecture demo covers Apache Kafka event brokering, "
-                 "Flink stream processing, schema registries, and CDC patterns used at Netflix-scale.")
+        reply = (
+            'The Streaming Architecture demo covers Apache Kafka event brokering, '
+            'Flink stream processing, schema registries, and CDC patterns used at Netflix-scale.'
+        )
     elif any(k in msg for k in ['devops', 'cicd', 'ci/cd', 'pipeline', 'deploy']):
-        reply = ("The Platform Engineering demo shows three full CI/CD pipelines: "
-                 "Azure DevOps, Databricks Jobs, and Entra ID automation — all for a casino platform use case.")
+        reply = (
+            'The Platform Engineering demo shows three full CI/CD pipelines: '
+            'Azure DevOps, Databricks Jobs, and Entra ID automation — all for a casino platform use case.'
+        )
     elif any(k in msg for k in ['api', 'gateway', 'orchestrat', 'microservice']):
-        reply = ("The API Orchestration demo covers API gateway patterns, saga choreography, "
-                 "circuit breakers, and service mesh fundamentals.")
+        reply = (
+            'The API Orchestration demo covers API gateway patterns, saga choreography, '
+            'circuit breakers, and service mesh fundamentals.'
+        )
     elif any(k in msg for k in ['document', 'ocr', 'extract', 'idp']):
-        reply = ("The Document Processing (IDP) demo shows AI-powered OCR, structured data "
-                 "extraction, and validation pipelines — great for financial document automation.")
+        reply = (
+            'The Document Processing (IDP) demo shows AI-powered OCR, structured data '
+            'extraction, and validation pipelines — great for financial document automation.'
+        )
     elif any(k in msg for k in ['oracle', 'finance', 'accounting', 'process flow']):
-        reply = ("The AI Process Flows demo shows Oracle Finance & Accounting automation "
-                 "workflows powered by AI — procure-to-pay, order-to-cash, and more.")
+        reply = (
+            'The AI Process Flows demo shows Oracle Finance & Accounting automation '
+            'workflows powered by AI — procure-to-pay, order-to-cash, and more.'
+        )
     elif any(k in msg for k in ['nfl', 'mlb', 'netflix', 'sport', 'partner']):
-        reply = ("The portfolio demos are built around real enterprise partner use cases: "
-                 "Oracle (finance automation), NFL (Azure DevOps pipelines), "
-                 "MLB (MLOps at scale), and Netflix (streaming architecture).")
+        reply = (
+            'The portfolio demos are built around real enterprise partner use cases: '
+            'Oracle (finance automation), NFL (Azure DevOps pipelines), '
+            'MLB (MLOps at scale), and Netflix (streaming architecture).'
+        )
     elif any(k in msg for k in ['education', 'degree', 'school', 'university', 'certif']):
-        reply = ("The Education section covers degrees and certifications. "
-                 "Navigate to Education in the sidebar (or Profile on the home dashboard) for the full details.")
+        reply = (
+            'The Education section covers degrees and certifications. '
+            'Navigate to Education in the sidebar (or Profile on the home dashboard) for the full details.'
+        )
     elif any(k in msg for k in ['contact', 'email', 'hire', 'available', 'reach']):
-        reply = ("The best way to connect is via GitHub (@ntellecktual) or LinkedIn. "
-                 "Feel free to explore the portfolio demos — they're all fully interactive!")
+        reply = (
+            'The best way to connect is via GitHub (@ntellecktual) or LinkedIn. '
+            "Feel free to explore the portfolio demos — they're all fully interactive!"
+        )
     elif any(k in msg for k in ['project', 'portfolio', 'work', 'experience']):
-        reply = ("The Portfolio section showcases enterprise projects across cloud, data, and AI. "
-                 "There are 7 live interactive demos spanning MLOps, streaming, CI/CD, API patterns, "
-                 "document processing, and AI process automation.")
+        reply = (
+            'The Portfolio section showcases enterprise projects across cloud, data, and AI. '
+            'There are 7 live interactive demos spanning MLOps, streaming, CI/CD, API patterns, '
+            'document processing, and AI process automation.'
+        )
     elif any(k in msg for k in ['python', 'django', 'stack', 'tech']):
-        reply = ("The site itself is built with Django 5.1, PostgreSQL, Celery + Redis, "
-                 "and deployed on Render. The demos use Bootstrap 5, vanilla JS, and Font Awesome. "
-                 "Python is the primary language across all backend work.")
+        reply = (
+            'The site itself is built with Django 5.1, PostgreSQL, Celery + Redis, '
+            'and deployed on Render. The demos use Bootstrap 5, vanilla JS, and Font Awesome. '
+            'Python is the primary language across all backend work.'
+        )
     elif any(k in msg for k in ['upload', 'notebook', 'jupyter', 'audio', 'video']):
-        reply = ("UploadIt! lets you upload Jupyter notebooks and auto-generates audio lectures, "
-                 "video content with synced text, quizzes, and a RAG-powered chatbot — "
-                 "all in one pipeline. Try it from the sidebar!")
+        reply = (
+            'UploadIt! lets you upload Jupyter notebooks and auto-generates audio lectures, '
+            'video content with synced text, quizzes, and a RAG-powered chatbot — '
+            'all in one pipeline. Try it from the sidebar!'
+        )
     elif any(k in msg for k in ['hello', 'hi', 'hey', 'greet']):
-        reply = ("Hey! I'm the thenumerix assistant. Ask me about the portfolio demos, "
-                 "skills, tech stack, or anything else you see on the site!")
+        reply = (
+            "Hey! I'm the thenumerix assistant. Ask me about the portfolio demos, "
+            'skills, tech stack, or anything else you see on the site!'
+        )
     elif any(k in msg for k in ['demo', 'live', 'interact']):
-        reply = ("There are 7 live interactive demos: AI Process Flows, UploadIt!, Platform Engineering, "
-                 "MLOps Lifecycle, Streaming Architecture, API Orchestration, and Document Processing. "
-                 "Hit 'Discover' in the sidebar to explore them all!")
+        reply = (
+            'There are 7 live interactive demos: AI Process Flows, UploadIt!, Platform Engineering, '
+            'MLOps Lifecycle, Streaming Architecture, API Orchestration, and Document Processing. '
+            "Hit 'Discover' in the sidebar to explore them all!"
+        )
     else:
-        reply = ("I can answer questions about the portfolio demos, tech stack, skills, and experience. "
-                 "Try asking about Azure, MLOps, data pipelines, or any of the live demos!")
+        reply = (
+            'I can answer questions about the portfolio demos, tech stack, skills, and experience. '
+            'Try asking about Azure, MLOps, data pipelines, or any of the live demos!'
+        )
 
     return JsonResponse({'reply': reply})
+
 
 @login_required
 def dashboard(request):
@@ -491,19 +577,18 @@ def dashboard(request):
     total_audio_count = 0
 
     for doc in user_documents:
-        doc_data = {
-            'document': doc,
-            'audio_files': []
-        }
+        doc_data = {'document': doc, 'audio_files': []}
         audio_files_for_doc = AudioFile.objects.filter(document=doc).order_by('metadata__section_index', 'pk')
         total_audio_count += audio_files_for_doc.count()
 
         for audio in audio_files_for_doc:
             has_audio = bool(audio.audio_data)
-            doc_data['audio_files'].append({
-                'audio': audio,
-                'has_audio': has_audio,
-            })
+            doc_data['audio_files'].append(
+                {
+                    'audio': audio,
+                    'has_audio': has_audio,
+                }
+            )
         dashboard_items.append(doc_data)
 
     context = {
@@ -515,36 +600,38 @@ def dashboard(request):
 
     return render(request, 'boaapp/dashboard.html', context)
 
+
 @login_required
 @transaction.atomic
 def delete_orphaned_files(request):
     """Delete documents that have no associated audio files."""
     deleted_docs = 0
     deleted_audio = 0
-    logger.info(f"Running delete_orphaned_files for user {request.user.username}")
+    logger.info(f'Running delete_orphaned_files for user {request.user.username}')
 
     for doc in Document.objects.filter(user=request.user):
         audio_files = AudioFile.objects.filter(document=doc)
         if not audio_files.exists():
-            logger.info(f"Deleting orphaned document record PK {doc.pk} (no audio records).")
+            logger.info(f'Deleting orphaned document record PK {doc.pk} (no audio records).')
             doc.delete()
             deleted_docs += 1
 
     # Delete audio records with no audio data
     for audio in AudioFile.objects.filter(user=request.user):
         if not audio.audio_data:
-            logger.info(f"Deleting orphaned audio record PK {audio.pk} (no audio data).")
+            logger.info(f'Deleting orphaned audio record PK {audio.pk} (no audio data).')
             audio.delete()
             deleted_audio += 1
 
     return JsonResponse({'deleted_docs': deleted_docs, 'deleted_audio_records': deleted_audio})
+
 
 @login_required
 @transaction.atomic
 def delete_all_files(request):
     """Delete all documents and audio records for the current user."""
     if request.method == 'POST':
-        logger.warning(f"User {request.user.username} initiated DELETE ALL FILES.")
+        logger.warning(f'User {request.user.username} initiated DELETE ALL FILES.')
 
         deleted_audio_count = AudioFile.objects.filter(user=request.user).count()
         AudioFile.objects.filter(user=request.user).delete()
@@ -552,17 +639,21 @@ def delete_all_files(request):
         deleted_docs_count = Document.objects.filter(user=request.user).count()
         Document.objects.filter(user=request.user).delete()
 
-        messages.success(request, f"All your documents ({deleted_docs_count}) and audio files ({deleted_audio_count}) have been deleted.")
+        messages.success(
+            request,
+            f'All your documents ({deleted_docs_count}) and audio files ({deleted_audio_count}) have been deleted.',
+        )
         return JsonResponse({'status': 'All files deleted', 'docs': deleted_docs_count, 'audio': deleted_audio_count})
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 
 @login_required
 def serve_audio(request, audio_file_pk):
     """Serve audio bytes from DB as an audio/mpeg stream."""
     audio_file = get_object_or_404(AudioFile, pk=audio_file_pk, user=request.user)
     if not audio_file.audio_data:
-        return HttpResponse("No audio data available.", status=404)
+        return HttpResponse('No audio data available.', status=404)
     response = HttpResponse(bytes(audio_file.audio_data), content_type='audio/mpeg')
     response['Content-Disposition'] = f'inline; filename="{audio_file.name}"'
     return response
@@ -573,10 +664,10 @@ def download_video(request, audio_file_pk):
     """Generate a video on-demand from DB-stored audio and stream as download."""
     audio_file = get_object_or_404(AudioFile, pk=audio_file_pk, user=request.user)
     if not audio_file.audio_data:
-        messages.error(request, "No audio data available to generate video.")
+        messages.error(request, 'No audio data available to generate video.')
         return redirect('dashboard')
 
-    logger.info(f"User {request.user.username} initiated on-demand video download for AudioFile PK {audio_file_pk}")
+    logger.info(f'User {request.user.username} initiated on-demand video download for AudioFile PK {audio_file_pk}')
 
     try:
         result = create_single_video_task.apply(args=[audio_file_pk])
@@ -587,17 +678,17 @@ def download_video(request, audio_file_pk):
             # Ensure video_bytes is proper bytes
             if isinstance(video_bytes, memoryview):
                 video_bytes = bytes(video_bytes)
-            video_filename = f"{audio_file.name.rsplit('.', 1)[0]}.mp4"
+            video_filename = f'{audio_file.name.rsplit(".", 1)[0]}.mp4'
             response = HttpResponse(video_bytes, content_type='video/mp4')
             response['Content-Disposition'] = f'attachment; filename="{video_filename}"'
             return response
         else:
             error_msg = task_result.get('error', 'Unknown error')
-            messages.error(request, f"Video generation failed: {error_msg}")
+            messages.error(request, f'Video generation failed: {error_msg}')
             return redirect('dashboard')
     except Exception as e:
-        logger.error(f"Video download failed for AudioFile PK {audio_file_pk}: {e}", exc_info=True)
-        messages.error(request, f"Video generation failed: {e}")
+        logger.error(f'Video download failed for AudioFile PK {audio_file_pk}: {e}', exc_info=True)
+        messages.error(request, f'Video generation failed: {e}')
         return redirect('dashboard')
 
 
@@ -606,16 +697,18 @@ def generate_video(request, audio_file_pk):
     """Triggers on-demand video download for a single audio file."""
     return download_video(request, audio_file_pk)
 
+
 @login_required
 def generate_all_videos(request):
     """Redirect to dashboard — batch video generation not supported in DB-storage mode."""
-    messages.info(request, "Videos are now generated on-demand. Click the download button next to any audio file.")
+    messages.info(request, 'Videos are now generated on-demand. Click the download button next to any audio file.')
     return redirect('dashboard')
 
 
 # ==========================================================================
 # ONE-CLICK FULL PIPELINE
 # ==========================================================================
+
 
 @login_required
 def run_full_pipeline(request, document_pk):
@@ -633,10 +726,11 @@ def run_full_pipeline(request, document_pk):
     # Run in background thread so the response returns immediately
     def _run_pipeline(doc_pk, user_pk, run_pk):
         from django.db import connection
+
         try:
             run_full_pipeline_task.apply(args=[doc_pk, user_pk, run_pk])
         except Exception as e:
-            logger.error(f"Background pipeline failed for doc {doc_pk}: {e}")
+            logger.error(f'Background pipeline failed for doc {doc_pk}: {e}')
         finally:
             connection.close()
 
@@ -647,7 +741,9 @@ def run_full_pipeline(request, document_pk):
     )
     thread.start()
 
-    messages.success(request, f"Full pipeline started for '{document.original_filename or 'Notebook'}'. Refresh to track progress.")
+    messages.success(
+        request, f"Full pipeline started for '{document.original_filename or 'Notebook'}'. Refresh to track progress."
+    )
     return redirect('dashboard')
 
 
@@ -655,31 +751,38 @@ def run_full_pipeline(request, document_pk):
 def pipeline_status_api(request, run_id):
     """API endpoint for pipeline run status."""
     run = get_object_or_404(PipelineRun, pk=run_id, user=request.user)
-    return JsonResponse({
-        'id': run.pk,
-        'status': run.status,
-        'progress_pct': run.progress_pct,
-        'current_step': run.current_step,
-        'error_message': run.error_message,
-        'started_at': run.started_at.isoformat() if run.started_at else None,
-        'completed_at': run.completed_at.isoformat() if run.completed_at else None,
-    })
+    return JsonResponse(
+        {
+            'id': run.pk,
+            'status': run.status,
+            'progress_pct': run.progress_pct,
+            'current_step': run.current_step,
+            'error_message': run.error_message,
+            'started_at': run.started_at.isoformat() if run.started_at else None,
+            'completed_at': run.completed_at.isoformat() if run.completed_at else None,
+        }
+    )
 
 
 # ==========================================================================
 # QUIZ VIEWS
 # ==========================================================================
 
+
 @login_required
 def quiz_list_view(request, document_pk):
     """List all quizzes for a document."""
     document = get_object_or_404(Document, pk=document_pk, user=request.user)
     quizzes = Quiz.objects.filter(document=document).order_by('-created_at')
-    return render(request, 'boaapp/quiz_list.html', {
-        'document': document,
-        'quizzes': quizzes,
-        'page_id': 'quiz',
-    })
+    return render(
+        request,
+        'boaapp/quiz_list.html',
+        {
+            'document': document,
+            'quizzes': quizzes,
+            'page_id': 'quiz',
+        },
+    )
 
 
 @login_required
@@ -702,16 +805,18 @@ def quiz_take_view(request, quiz_pk):
             is_correct, feedback = grade_answer(q.question_type, user_answer, q.correct_answer)
             if is_correct:
                 score += 1
-            results.append({
-                'question': q.question_text,
-                'user_answer': user_answer,
-                'correct_answer': q.correct_answer,
-                'is_correct': is_correct,
-                'feedback': feedback,
-                'explanation': q.explanation,
-            })
+            results.append(
+                {
+                    'question': q.question_text,
+                    'user_answer': user_answer,
+                    'correct_answer': q.correct_answer,
+                    'is_correct': is_correct,
+                    'feedback': feedback,
+                    'explanation': q.explanation,
+                }
+            )
 
-        attempt = QuizAttempt.objects.create(
+        QuizAttempt.objects.create(
             user=request.user,
             quiz=quiz,
             score=score,
@@ -726,20 +831,28 @@ def quiz_take_view(request, quiz_pk):
             metadata={'quiz_id': quiz.pk, 'score': score, 'total': total},
         )
 
-        return render(request, 'boaapp/quiz_results.html', {
-            'quiz': quiz,
-            'results': results,
-            'score': score,
-            'total': total,
-            'percentage': round(score / total * 100) if total else 0,
-            'page_id': 'quiz',
-        })
+        return render(
+            request,
+            'boaapp/quiz_results.html',
+            {
+                'quiz': quiz,
+                'results': results,
+                'score': score,
+                'total': total,
+                'percentage': round(score / total * 100) if total else 0,
+                'page_id': 'quiz',
+            },
+        )
 
-    return render(request, 'boaapp/quiz_take.html', {
-        'quiz': quiz,
-        'questions': questions,
-        'page_id': 'quiz',
-    })
+    return render(
+        request,
+        'boaapp/quiz_take.html',
+        {
+            'quiz': quiz,
+            'questions': questions,
+            'page_id': 'quiz',
+        },
+    )
 
 
 @login_required
@@ -751,13 +864,14 @@ def generate_quiz_view(request, document_pk):
 
     generate_quiz_from_document_task.delay(document.pk)
 
-    messages.success(request, "Quiz generation started from notebook content.")
+    messages.success(request, 'Quiz generation started from notebook content.')
     return redirect('quiz_list', document_pk=document_pk)
 
 
 # ==========================================================================
 # RAG CHATBOT VIEWS
 # ==========================================================================
+
 
 @login_required
 def chat_view(request, document_pk=None):
@@ -769,28 +883,32 @@ def chat_view(request, document_pk=None):
     # Get or create conversation
     conversation = None
     if document:
-        conversation = ChatConversation.objects.filter(
-            user=request.user, document=document
-        ).order_by('-updated_at').first()
+        conversation = (
+            ChatConversation.objects.filter(user=request.user, document=document).order_by('-updated_at').first()
+        )
 
         if not conversation:
-            stem = os.path.splitext(document.original_filename or "Notebook")[0]
+            stem = os.path.splitext(document.original_filename or 'Notebook')[0]
             conversation = ChatConversation.objects.create(
                 user=request.user,
                 document=document,
-                title=f"Chat: {stem}",
+                title=f'Chat: {stem}',
             )
 
     chat_messages = []
     if conversation:
         chat_messages = list(conversation.messages.values('role', 'content', 'created_at'))
 
-    return render(request, 'boaapp/chat.html', {
-        'document': document,
-        'conversation': conversation,
-        'messages_list': chat_messages,
-        'page_id': 'chat',
-    })
+    return render(
+        request,
+        'boaapp/chat.html',
+        {
+            'document': document,
+            'conversation': conversation,
+            'messages_list': chat_messages,
+            'page_id': 'chat',
+        },
+    )
 
 
 @login_required
@@ -819,12 +937,11 @@ def chat_api(request):
 
     # Get RAG response
     from .rag_engine import get_rag_response
+
     response_text, sources = get_rag_response(message, conversation.document_id)
 
     # Save assistant message
-    ChatMessage.objects.create(
-        conversation=conversation, role='assistant', content=response_text, sources=sources
-    )
+    ChatMessage.objects.create(conversation=conversation, role='assistant', content=response_text, sources=sources)
 
     # Track event
     LearningEvent.objects.create(
@@ -833,15 +950,18 @@ def chat_api(request):
         metadata={'conversation_id': conversation_id},
     )
 
-    return JsonResponse({
-        'response': response_text,
-        'sources': sources,
-    })
+    return JsonResponse(
+        {
+            'response': response_text,
+            'sources': sources,
+        }
+    )
 
 
 # ==========================================================================
 # CODE PLAYGROUND
 # ==========================================================================
+
 
 @login_required
 def code_playground_view(request):
@@ -869,6 +989,7 @@ def code_review_api(request):
         return JsonResponse({'error': 'No code provided'}, status=400)
 
     from .tasks import ai_code_review_task
+
     try:
         result = ai_code_review_task.apply(args=[code, language])
         review_data = result.get()
@@ -896,6 +1017,7 @@ def code_review_api(request):
 # LEARNING ANALYTICS
 # ==========================================================================
 
+
 @login_required
 def analytics_dashboard_view(request):
     """Learning analytics dashboard."""
@@ -906,11 +1028,11 @@ def analytics_dashboard_view(request):
 
     # Activity over time (last 30 days)
     from datetime import timedelta
+
     thirty_days_ago = timezone.now() - timedelta(days=30)
 
     daily_activity = (
-        LearningEvent.objects
-        .filter(user=user, created_at__gte=thirty_days_ago)
+        LearningEvent.objects.filter(user=user, created_at__gte=thirty_days_ago)
         .annotate(date=TruncDate('created_at'))
         .values('date')
         .annotate(count=Count('id'))
@@ -919,11 +1041,7 @@ def analytics_dashboard_view(request):
 
     # Event type breakdown
     event_breakdown = (
-        LearningEvent.objects
-        .filter(user=user)
-        .values('event_type')
-        .annotate(count=Count('id'))
-        .order_by('-count')
+        LearningEvent.objects.filter(user=user).values('event_type').annotate(count=Count('id')).order_by('-count')
     )
 
     # Quiz performance
@@ -951,6 +1069,7 @@ def analytics_dashboard_view(request):
 # SMART CHAPTERED VIDEO PLAYER
 # ==========================================================================
 
+
 @login_required
 def chaptered_player_view(request, document_pk):
     """Smart chaptered audio player for all audio of a document."""
@@ -960,11 +1079,13 @@ def chaptered_player_view(request, document_pk):
     chapters = []
     for audio in audio_files:
         if audio.audio_data:
-            chapters.append({
-                'title': audio.title,
-                'audio_pk': audio.pk,
-                'section_index': (audio.metadata or {}).get('section_index', 0),
-            })
+            chapters.append(
+                {
+                    'title': audio.title,
+                    'audio_pk': audio.pk,
+                    'section_index': (audio.metadata or {}).get('section_index', 0),
+                }
+            )
 
     # Track event
     LearningEvent.objects.create(
@@ -973,11 +1094,15 @@ def chaptered_player_view(request, document_pk):
         metadata={'document_id': document_pk},
     )
 
-    return render(request, 'boaapp/chaptered_player.html', {
-        'document': document,
-        'chapters': chapters,
-        'page_id': 'player',
-    })
+    return render(
+        request,
+        'boaapp/chaptered_player.html',
+        {
+            'document': document,
+            'chapters': chapters,
+            'page_id': 'player',
+        },
+    )
 
 
 # ==========================================================================
@@ -1005,9 +1130,7 @@ def github_webhook(request):
         if not signature:
             return JsonResponse({'error': 'Missing signature'}, status=403)
 
-        expected = 'sha256=' + hmac.new(
-            secret.encode(), request.body, hashlib.sha256
-        ).hexdigest()
+        expected = 'sha256=' + hmac.new(secret.encode(), request.body, hashlib.sha256).hexdigest()
         if not hmac.compare_digest(signature, expected):
             return JsonResponse({'error': 'Invalid signature'}, status=403)
 
@@ -1043,7 +1166,7 @@ def github_webhook(request):
 
             ipynb_files = [f for f in changed_files if f.endswith('.ipynb')]
             if ipynb_files:
-                logger.info(f"GitHub webhook: {len(ipynb_files)} notebooks changed in {repo_name}/{branch}")
+                logger.info(f'GitHub webhook: {len(ipynb_files)} notebooks changed in {repo_name}/{branch}')
                 triggered += 1
 
     return JsonResponse({'status': 'ok', 'triggered': triggered})
@@ -1066,14 +1189,18 @@ def webhook_config_view(request):
                 branch=branch,
                 notebook_path=notebook_path,
             )
-            messages.success(request, f"Webhook configured for {repo}/{branch}")
+            messages.success(request, f'Webhook configured for {repo}/{branch}')
 
         return redirect('webhook_config')
 
-    return render(request, 'boaapp/webhook_config.html', {
-        'configs': configs,
-        'page_id': 'webhooks',
-    })
+    return render(
+        request,
+        'boaapp/webhook_config.html',
+        {
+            'configs': configs,
+            'page_id': 'webhooks',
+        },
+    )
 
 
 # ==========================================================================
@@ -1081,10 +1208,17 @@ def webhook_config_view(request):
 # ==========================================================================
 
 SUPPORTED_LANGUAGES = [
-    ('es', 'Spanish'), ('fr', 'French'), ('de', 'German'),
-    ('ja', 'Japanese'), ('ko', 'Korean'), ('zh', 'Chinese'),
-    ('pt', 'Portuguese'), ('it', 'Italian'), ('ru', 'Russian'),
-    ('ar', 'Arabic'), ('hi', 'Hindi'),
+    ('es', 'Spanish'),
+    ('fr', 'French'),
+    ('de', 'German'),
+    ('ja', 'Japanese'),
+    ('ko', 'Korean'),
+    ('zh', 'Chinese'),
+    ('pt', 'Portuguese'),
+    ('it', 'Italian'),
+    ('ru', 'Russian'),
+    ('ar', 'Arabic'),
+    ('hi', 'Hindi'),
 ]
 
 
@@ -1101,39 +1235,49 @@ def translate_document_view(request, document_pk):
 
         if lang_code and lang_name:
             translate_document_task.delay(document_pk, lang_code, lang_name)
-            messages.success(request, f"Translation to {lang_name} started.")
+            messages.success(request, f'Translation to {lang_name} started.')
         else:
-            messages.error(request, "Invalid language selected.")
+            messages.error(request, 'Invalid language selected.')
 
         return redirect('translate_document', document_pk=document_pk)
 
     existing = TranslatedContent.objects.filter(document=document)
 
-    return render(request, 'boaapp/translate.html', {
-        'document': document,
-        'languages': SUPPORTED_LANGUAGES,
-        'existing_translations': existing,
-        'page_id': 'translate',
-    })
+    return render(
+        request,
+        'boaapp/translate.html',
+        {
+            'document': document,
+            'languages': SUPPORTED_LANGUAGES,
+            'existing_translations': existing,
+            'page_id': 'translate',
+        },
+    )
 
 
 # ==========================================================================
 # VOICE CLONING VIEW
 # ==========================================================================
 
+
 @login_required
 def voice_settings_view(request):
     """Voice settings page for TTS provider selection."""
     elevenlabs_available = bool(getattr(settings, 'ELEVENLABS_API_KEY', ''))
-    return render(request, 'boaapp/voice_settings.html', {
-        'elevenlabs_available': elevenlabs_available,
-        'page_id': 'voice_settings',
-    })
+    return render(
+        request,
+        'boaapp/voice_settings.html',
+        {
+            'elevenlabs_available': elevenlabs_available,
+            'page_id': 'voice_settings',
+        },
+    )
 
 
 # ==========================================================================
 # ADAPTIVE LEARNING
 # ==========================================================================
+
 
 @login_required
 def learning_path_view(request):
@@ -1141,9 +1285,7 @@ def learning_path_view(request):
     user = request.user
 
     # Get user's completed content
-    completed_sections = CourseSection.objects.filter(
-        completed_by_enrollments__user=user
-    ).values_list('id', flat=True)
+    completed_sections = CourseSection.objects.filter(completed_by_enrollments__user=user).values_list('id', flat=True)
 
     # Get quiz performance
     quiz_attempts = QuizAttempt.objects.filter(user=user).select_related('quiz')

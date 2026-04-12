@@ -36,8 +36,8 @@ def generate_quiz_for_section(section_content, section_title, difficulty='interm
             },
         ]
     system_prompt = (
-        "You are an expert educator creating quiz questions for a data science/programming course. "
-        "Generate high-quality assessment questions that test understanding, not just memorization."
+        'You are an expert educator creating quiz questions for a data science/programming course. '
+        'Generate high-quality assessment questions that test understanding, not just memorization.'
     )
 
     user_prompt = f"""Generate {num_questions} quiz questions for the following section.
@@ -74,35 +74,37 @@ Mix of question types: ~60% MCQ, ~20% code challenges, ~20% short answer.
     if api_key:
         try:
             import anthropic
+
             client = anthropic.Anthropic(api_key=api_key)
             response = client.messages.create(
-                model="claude-3-5-haiku-20241022",
+                model='claude-3-5-haiku-20241022',
                 max_tokens=2048,
                 system=system_prompt,
-                messages=[{"role": "user", "content": user_prompt}],
+                messages=[{'role': 'user', 'content': user_prompt}],
             )
             return _parse_quiz_response(response.content[0].text)
         except Exception as e:
-            logger.error(f"Anthropic quiz generation failed: {e}", exc_info=True)
+            logger.error(f'Anthropic quiz generation failed: {e}', exc_info=True)
 
     openai_key = getattr(settings, 'OPENAI_API_KEY', '')
     if openai_key:
         try:
             import openai
+
             client = openai.OpenAI(api_key=openai_key)
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model='gpt-4o-mini',
                 max_tokens=2048,
                 messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
+                    {'role': 'system', 'content': system_prompt},
+                    {'role': 'user', 'content': user_prompt},
                 ],
             )
             return _parse_quiz_response(response.choices[0].message.content)
         except Exception as e:
-            logger.error(f"OpenAI quiz generation failed: {e}", exc_info=True)
+            logger.error(f'OpenAI quiz generation failed: {e}', exc_info=True)
 
-    logger.warning("No LLM available for quiz generation")
+    logger.warning('No LLM available for quiz generation')
     return []
 
 
@@ -124,16 +126,18 @@ def _parse_quiz_response(raw_text):
         valid = []
         for q in questions:
             if 'question' in q and 'correct_answer' in q:
-                valid.append({
-                    'type': q.get('type', 'mcq'),
-                    'question': q['question'],
-                    'options': q.get('options'),
-                    'correct_answer': q['correct_answer'],
-                    'explanation': q.get('explanation', ''),
-                })
+                valid.append(
+                    {
+                        'type': q.get('type', 'mcq'),
+                        'question': q['question'],
+                        'options': q.get('options'),
+                        'correct_answer': q['correct_answer'],
+                        'explanation': q.get('explanation', ''),
+                    }
+                )
         return valid
     except (json.JSONDecodeError, KeyError) as e:
-        logger.error(f"Failed to parse quiz response: {e}")
+        logger.error(f'Failed to parse quiz response: {e}')
         return []
 
 
@@ -142,7 +146,7 @@ def grade_answer(question_type, user_answer, correct_answer):
     if question_type == 'mcq':
         # Simple exact match for MCQ
         is_correct = user_answer.strip().lower() == correct_answer.strip().lower()
-        return is_correct, "Correct!" if is_correct else f"Incorrect. The correct answer is: {correct_answer}"
+        return is_correct, 'Correct!' if is_correct else f'Incorrect. The correct answer is: {correct_answer}'
 
     elif question_type == 'code':
         # For code challenges, use LLM to evaluate
@@ -158,7 +162,7 @@ def _grade_code_answer(user_code, correct_code):
     api_key = getattr(settings, 'ANTHROPIC_API_KEY', '') or getattr(settings, 'OPENAI_API_KEY', '')
     if not api_key:
         # Fallback to simple comparison
-        return user_code.strip() == correct_code.strip(), "Manual review needed."
+        return user_code.strip() == correct_code.strip(), 'Manual review needed.'
 
     prompt = f"""Compare these two code solutions. Is the student's code functionally equivalent or correct?
 
@@ -176,17 +180,18 @@ Reply with ONLY JSON: {{"correct": true/false, "feedback": "brief explanation"}}
 
     try:
         import anthropic
+
         client = anthropic.Anthropic(api_key=getattr(settings, 'ANTHROPIC_API_KEY', ''))
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model='claude-sonnet-4-20250514',
             max_tokens=256,
-            messages=[{"role": "user", "content": prompt}],
+            messages=[{'role': 'user', 'content': prompt}],
         )
         result = json.loads(response.content[0].text.strip().strip('`').strip())
         return result.get('correct', False), result.get('feedback', '')
     except Exception as e:
-        logger.warning(f"Code grading failed: {e}")
-        return False, "Could not auto-grade. Please review manually."
+        logger.warning(f'Code grading failed: {e}')
+        return False, 'Could not auto-grade. Please review manually.'
 
 
 def _grade_short_answer(user_answer, correct_answer):
@@ -196,7 +201,7 @@ def _grade_short_answer(user_answer, correct_answer):
     correct_lower = correct_answer.strip().lower()
 
     if user_lower == correct_lower:
-        return True, "Correct!"
+        return True, 'Correct!'
     if correct_lower in user_lower or user_lower in correct_lower:
-        return True, "Correct! (partial match)"
-    return False, f"Incorrect. Expected: {correct_answer}"
+        return True, 'Correct! (partial match)'
+    return False, f'Incorrect. Expected: {correct_answer}'

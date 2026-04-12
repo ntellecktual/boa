@@ -22,6 +22,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # within your Django apps (like 'boaapp').
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
+
 # Optional: Example task for testing
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):

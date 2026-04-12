@@ -3,6 +3,14 @@
 
 target-version = "py312"
 line-length = 120
+exclude = [
+    ".history",
+    "staticfiles",
+    "media",
+    "venv",
+    "node_modules",
+    "chromadb_data",
+]
 
 [lint]
 select = [
@@ -20,11 +28,19 @@ select = [
 ]
 ignore = [
     "E501",   # line too long (handled by formatter)
+    "E701",   # multiple statements on one line (idiomatic one-liners)
     "S101",   # assert used (fine in tests)
     "S105",   # hardcoded password (false positives on variable names)
     "S106",   # hardcoded password argument
+    "S110",   # try-except-pass (intentional in some places)
+    "S112",   # try-except-continue (intentional in some places)
+    "S311",   # pseudo-random (not used for crypto, just thumbnails/colors)
+    "S324",   # insecure hash (md5 used for content fingerprinting, not security)
     "T201",   # print found (we use logging, but some scripts need print)
     "B905",   # zip strict (not always needed)
+    "SIM103", # needless bool (readability preference)
+    "SIM105", # suppressible-exception (contextlib.suppress preference)
+    "SIM108", # ternary operator (readability preference)
 ]
 
 [lint.per-file-ignores]
@@ -32,6 +48,8 @@ ignore = [
 "**/tests.py" = ["S101"]
 "**/test_*.py" = ["S101"]
 "manage.py" = ["T201"]
+"boaapp/views.py" = ["E402"]  # late imports for conditional dependencies
+"boaapp/create_video.py" = ["E402"]  # IMAGEMAGICK_BINARY must be set before moviepy import
 
 [lint.isort]
 known-first-party = ["boa", "boaapp"]

@@ -19,6 +19,7 @@ api = NinjaAPI(
 # Schemas
 # --------------------------------------------------------------------------
 
+
 class UserOut(Schema):
     id: int
     username: str
@@ -56,6 +57,7 @@ class HealthOut(Schema):
 # Endpoints
 # --------------------------------------------------------------------------
 
+
 @api.get('/health', response=HealthOut, auth=None, tags=['System'])
 def api_health(request):
     """Public health check for uptime monitors."""
@@ -72,6 +74,7 @@ def me(request):
 def list_documents(request):
     """List all documents for the authenticated user."""
     from boaapp.models import Document
+
     docs = Document.objects.filter(user=request.user).order_by('-uploaded_at')
     return [
         {
@@ -88,6 +91,7 @@ def list_documents(request):
 def list_audio(request, document_id: int):
     """List audio files for a document owned by the authenticated user."""
     from boaapp.models import Document
+
     doc = get_object_or_404(Document, pk=document_id, user=request.user)
     return [
         {
@@ -104,6 +108,7 @@ def list_audio(request, document_id: int):
 def list_courses(request):
     """List all available courses."""
     from boaapp.models import Course
+
     courses = Course.objects.all().order_by('-created_at')
     return [
         {

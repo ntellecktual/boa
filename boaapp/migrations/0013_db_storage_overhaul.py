@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('boaapp', '0012_quiz_question_type_maxlength'),
     ]
@@ -13,12 +12,18 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='audiofile',
             name='audio_data',
-            field=models.BinaryField(blank=True, help_text='MP3 bytes stored in PostgreSQL for persistence across deploys.', null=True),
+            field=models.BinaryField(
+                blank=True, help_text='MP3 bytes stored in PostgreSQL for persistence across deploys.', null=True
+            ),
         ),
         migrations.AddField(
             model_name='document',
             name='notebook_json',
-            field=models.TextField(blank=True, default='', help_text='Raw .ipynb JSON stored in the database so it survives ephemeral deploys.'),
+            field=models.TextField(
+                blank=True,
+                default='',
+                help_text='Raw .ipynb JSON stored in the database so it survives ephemeral deploys.',
+            ),
         ),
         migrations.AddField(
             model_name='document',
