@@ -38,6 +38,43 @@ from .models import (
 )
 from .tasks import create_audio_files_task, create_single_video_task, run_full_pipeline_task
 
+logger = logging.getLogger(__name__)
+
+
+# --------------------------------------------------------------------------
+# Event dedup — prevent the same event from being logged more than once
+# per user per hour (same event_type + metadata).
+# --------------------------------------------------------------------------
+_EVENT_DEDUP_SECONDS = 3600  # 1 hour
+
+
+def _log_learning_event(user, event_type, metadata=None):
+    """Create a LearningEvent only if an identical one doesn't already exist
+    within the dedup window. Returns the event or None if deduplicated."""
+    from datetime import timedelta
+
+    cutoff = timezone.now() - timedelta(seconds=_EVENT_DEDUP_SECONDS)
+    recent = LearningEvent.objects.filter(
+        user=user,
+        event_type=event_type,
+        created_at__gte=cutoff,
+    )
+    # For metadata-keyed dedup, check the specific resource id
+    if metadata:
+        for key in ('document_id', 'quiz_id', 'conversation_id', 'language'):
+            if key in metadata:
+                recent = recent.filter(**{f'metadata__{key}': metadata[key]})
+                break
+
+    if recent.exists():
+        return None
+
+    return LearningEvent.objects.create(
+        user=user,
+        event_type=event_type,
+        metadata=metadata or {},
+    )
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -896,12 +933,8 @@ def quiz_take_view(request, quiz_pk):
             answers=answers,
         )
 
-        # Track learning event
-        LearningEvent.objects.create(
-            user=request.user,
-            event_type='quiz_attempt',
-            metadata={'quiz_id': quiz.pk, 'score': score, 'total': total},
-        )
+        # Track learning event (deduplicated)
+        _log_learning_event(request.user, 'quiz_attempt', {'quiz_id': quiz.pk, 'score': score, 'total': total})
 
         return render(
             request,
@@ -1015,12 +1048,8 @@ def chat_api(request):
     # Save assistant message
     ChatMessage.objects.create(conversation=conversation, role='assistant', content=response_text, sources=sources)
 
-    # Track event
-    LearningEvent.objects.create(
-        user=request.user,
-        event_type='chat_message',
-        metadata={'conversation_id': conversation_id},
-    )
+    # Track event (deduplicated)
+    _log_learning_event(request.user, 'chat_message', {'conversation_id': conversation_id})
 
     return JsonResponse(
         {
@@ -1076,11 +1105,7 @@ def code_review_api(request):
         review_result=review_data,
     )
 
-    LearningEvent.objects.create(
-        user=request.user,
-        event_type='code_run',
-        metadata={'language': language},
-    )
+    _log_learning_event(request.user, 'code_run', {'language': language})
 
     return JsonResponse({'review': review_data})
 
@@ -1214,12 +1239,8 @@ def chaptered_player_view(request, document_pk):
                 }
             )
 
-    # Track event
-    LearningEvent.objects.create(
-        user=request.user,
-        event_type='video_watch',
-        metadata={'document_id': document_pk},
-    )
+    # Track event (deduplicated — one per document per hour)
+    _log_learning_event(request.user, 'video_watch', {'document_id': document_pk})
 
     return render(
         request,

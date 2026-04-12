@@ -3,142 +3,1371 @@
 
 {% block title %}Code Playground{% endblock %}
 
+{% block container_class %}pg-container{% endblock %}
+
 {% block content %}
 <style>
-.playground{max-width:1100px;margin:0 auto;padding:1rem}
-.playground-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-@media(max-width:768px){.playground-grid{grid-template-columns:1fr}}
-.editor-pane,.output-pane{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;overflow:hidden}
-.pane-header{padding:.5rem .8rem;font-size:.75rem;font-weight:700;border-bottom:1px solid var(--border,#e2e8f0);display:flex;justify-content:space-between;align-items:center}
-.code-editor{width:100%;min-height:350px;font-family:'Courier New',monospace;font-size:.8rem;background:#1e1e2e;color:#cdd6f4;border:none;padding:.8rem;resize:vertical;outline:none}
-.output-area{width:100%;min-height:350px;font-family:'Courier New',monospace;font-size:.78rem;background:#0f0f23;color:#a6e3a1;padding:.8rem;white-space:pre-wrap;overflow-y:auto}
-.btn-run{background:#22c55e;color:#fff;border:none;padding:.3rem .8rem;border-radius:8px;font-size:.7rem;font-weight:600;cursor:pointer}
-.btn-review{background:#8b5cf6;color:#fff;border:none;padding:.3rem .8rem;border-radius:8px;font-size:.7rem;font-weight:600;cursor:pointer}
-.review-panel{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1rem;margin-top:1rem}
-.review-panel h4{font-size:.85rem;font-weight:700;margin-bottom:.5rem}
-.review-score{font-size:1.5rem;font-weight:800}
-.review-issue{font-size:.78rem;padding:.4rem .6rem;border-radius:8px;margin-bottom:.4rem}
-.review-issue.error{background:rgba(239,68,68,.08);border-left:3px solid #ef4444}
-.review-issue.warning{background:rgba(245,158,11,.08);border-left:3px solid #f59e0b}
-.review-issue.info{background:rgba(59,130,246,.08);border-left:3px solid #3b82f6}
-.loading-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;border-radius:14px;z-index:10}
+/* ═══════════════════════════════════════════════════════════
+   CODE PLAYGROUND — Full Web IDE
+   Monaco Editor · Pyodide · Multi-file · AI Review
+   ═══════════════════════════════════════════════════════════ */
+.pg-container{display:block;width:100%;max-width:100%;padding:0;overflow:hidden}
+
+:root{
+  --pg-bg:#f0f1f5;--pg-surface:#fff;--pg-surface2:#f8f9fb;--pg-border:#e2e5eb;
+  --pg-text:#1a1a2e;--pg-muted:#6b7280;--pg-accent:#3b82f6;--pg-accent2:#8b5cf6;
+  --pg-danger:#ef4444;--pg-success:#22c55e;--pg-warning:#f59e0b;
+  --pg-tree-bg:#f5f6fa;--pg-tab-bg:#e8eaef;--pg-tab-active:#fff;
+  --pg-terminal-bg:#0d1117;--pg-terminal-text:#c9d1d9;
+  --pg-sidebar-w:220px;--pg-statusbar-h:24px;--pg-toolbar-h:40px;--pg-tabbar-h:34px
+}
+[data-theme="dark"]{
+  --pg-bg:#0d1117;--pg-surface:#161b22;--pg-surface2:#1c2129;--pg-border:#30363d;
+  --pg-text:#c9d1d9;--pg-muted:#8b949e;--pg-accent:#58a6ff;--pg-accent2:#bc8cff;
+  --pg-tree-bg:#0d1117;--pg-tab-bg:#1c2129;--pg-tab-active:#161b22;
+  --pg-terminal-bg:#010409;--pg-terminal-text:#c9d1d9
+}
+
+/* ── Shell ── */
+.pg-shell{display:flex;flex-direction:column;height:calc(100vh - 60px);background:var(--pg-bg);color:var(--pg-text);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+
+/* ── Toolbar ── */
+.pg-toolbar{display:flex;align-items:center;gap:4px;height:var(--pg-toolbar-h);padding:0 8px;background:var(--pg-surface);border-bottom:1px solid var(--pg-border);flex-shrink:0;overflow-x:auto}
+.pg-toolbar::-webkit-scrollbar{height:0}
+.pg-tb-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid var(--pg-border);border-radius:6px;background:var(--pg-surface2);color:var(--pg-text);font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+.pg-tb-btn:hover{border-color:var(--pg-accent);color:var(--pg-accent)}
+.pg-tb-btn--run{background:var(--pg-success);color:#fff;border-color:var(--pg-success)}
+.pg-tb-btn--run:hover{background:#16a34a;border-color:#16a34a;color:#fff}
+.pg-tb-btn--review{background:var(--pg-accent2);color:#fff;border-color:var(--pg-accent2)}
+.pg-tb-btn--review:hover{background:#7c3aed;border-color:#7c3aed;color:#fff}
+.pg-tb-sep{width:1px;height:20px;background:var(--pg-border);margin:0 4px;flex-shrink:0}
+.pg-tb-title{font-size:.8rem;font-weight:800;margin-right:8px;
+  background:linear-gradient(135deg,var(--pg-accent),var(--pg-accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pg-tb-select{padding:3px 6px;border:1px solid var(--pg-border);border-radius:5px;background:var(--pg-surface2);color:var(--pg-text);font-size:.68rem;font-weight:600;cursor:pointer;outline:none}
+
+/* ── Body: sidebar + editor + output ── */
+.pg-body{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* ── File Explorer Sidebar ── */
+.pg-sidebar{width:var(--pg-sidebar-w);min-width:160px;max-width:340px;background:var(--pg-tree-bg);border-right:1px solid var(--pg-border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.pg-sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--pg-muted);border-bottom:1px solid var(--pg-border)}
+.pg-sidebar-head button{background:none;border:none;color:var(--pg-muted);cursor:pointer;font-size:.72rem;padding:2px 5px;border-radius:4px;transition:color .15s}
+.pg-sidebar-head button:hover{color:var(--pg-accent)}
+.pg-tree{flex:1;overflow-y:auto;padding:4px 0;font-size:.72rem}
+.pg-tree::-webkit-scrollbar{width:4px}.pg-tree::-webkit-scrollbar-thumb{background:var(--pg-border);border-radius:4px}
+.pg-tree-item{display:flex;align-items:center;gap:5px;padding:3px 8px 3px calc(8px + var(--depth,0) * 14px);cursor:pointer;white-space:nowrap;transition:background .1s;user-select:none}
+.pg-tree-item:hover{background:var(--pg-border)}
+.pg-tree-item.active{background:var(--pg-accent);color:#fff}
+.pg-tree-item.active .pg-tree-icon{color:#fff}
+.pg-tree-icon{width:16px;text-align:center;font-size:.68rem;flex-shrink:0;color:var(--pg-muted)}
+.pg-tree-label{overflow:hidden;text-overflow:ellipsis;flex:1}
+.pg-tree-action{opacity:0;font-size:.62rem;padding:1px 4px;border-radius:3px;color:var(--pg-muted);cursor:pointer}
+.pg-tree-item:hover .pg-tree-action{opacity:.7}
+.pg-tree-action:hover{opacity:1!important;color:var(--pg-danger)}
+.pg-tree-folder>.pg-tree-icon{color:var(--pg-warning)}
+
+/* ── Resize handle ── */
+.pg-resize{width:4px;cursor:col-resize;background:transparent;flex-shrink:0;transition:background .15s}
+.pg-resize:hover,.pg-resize.dragging{background:var(--pg-accent)}
+
+/* ── Editor Area ── */
+.pg-editor-area{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden}
+
+/* ── Tab Bar ── */
+.pg-tabbar{display:flex;align-items:stretch;height:var(--pg-tabbar-h);background:var(--pg-tab-bg);border-bottom:1px solid var(--pg-border);overflow-x:auto;flex-shrink:0}
+.pg-tabbar::-webkit-scrollbar{height:0}
+.pg-tab{display:inline-flex;align-items:center;gap:5px;padding:0 12px;font-size:.7rem;font-weight:500;cursor:pointer;border-right:1px solid var(--pg-border);white-space:nowrap;color:var(--pg-muted);background:var(--pg-tab-bg);transition:background .1s,color .1s;position:relative;max-width:160px}
+.pg-tab.active{background:var(--pg-tab-active);color:var(--pg-text);font-weight:600}
+.pg-tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--pg-accent)}
+.pg-tab .dot{width:6px;height:6px;border-radius:50%;background:var(--pg-warning);flex-shrink:0;display:none}
+.pg-tab.modified .dot{display:inline-block}
+.pg-tab .close{font-size:.6rem;padding:2px 3px;border-radius:3px;color:var(--pg-muted);cursor:pointer;margin-left:2px}
+.pg-tab .close:hover{background:var(--pg-danger);color:#fff}
+.pg-tab-icon{font-size:.65rem;flex-shrink:0}
+
+/* ── Monaco wrapper ── */
+.pg-monaco{flex:1;min-height:0;position:relative}
+.pg-monaco-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--pg-surface);color:var(--pg-muted);font-size:.85rem;z-index:5}
+.pg-welcome{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:var(--pg-muted);font-size:.85rem;z-index:2;background:var(--pg-surface)}
+.pg-welcome kbd{display:inline-block;padding:2px 6px;border:1px solid var(--pg-border);border-radius:4px;font-size:.7rem;background:var(--pg-surface2);font-family:inherit}
+
+/* ── Output Panel ── */
+.pg-output{display:flex;flex-direction:column;width:40%;min-width:200px;max-width:65%;border-left:1px solid var(--pg-border);flex-shrink:0;overflow:hidden}
+.pg-output-tabs{display:flex;align-items:center;height:var(--pg-tabbar-h);background:var(--pg-tab-bg);border-bottom:1px solid var(--pg-border);flex-shrink:0;padding:0 4px}
+.pg-otab{padding:5px 10px;font-size:.68rem;font-weight:600;cursor:pointer;color:var(--pg-muted);border-radius:5px 5px 0 0;transition:color .1s}
+.pg-otab.active{color:var(--pg-text);background:var(--pg-surface)}
+.pg-otab-actions{margin-left:auto;display:flex;gap:4px}
+.pg-otab-btn{background:none;border:none;color:var(--pg-muted);cursor:pointer;font-size:.68rem;padding:3px 6px;border-radius:4px}
+.pg-otab-btn:hover{color:var(--pg-text);background:var(--pg-border)}
+.pg-output-body{flex:1;min-height:0;position:relative}
+.pg-opanel{position:absolute;inset:0;overflow-y:auto;display:none}
+.pg-opanel.active{display:block}
+
+/* Console */
+.pg-console{font-family:'Cascadia Code','Fira Code','JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;padding:8px 12px;background:var(--pg-terminal-bg);color:var(--pg-terminal-text);white-space:pre-wrap;word-break:break-all;min-height:100%}
+.pg-console .err{color:#f97583}.pg-console .warn{color:#e3b341}.pg-console .info{color:#79c0ff}
+.pg-console .ts{color:#484f58;font-size:.65rem;margin-right:6px}
+
+/* Preview */
+.pg-preview-frame{width:100%;height:100%;border:none;background:#fff}
+
+/* AI Review */
+.pg-review{padding:12px 16px;font-size:.8rem;overflow-y:auto;min-height:100%}
+.pg-review-score{font-size:2rem;font-weight:900;line-height:1}
+.pg-review-bar{height:6px;border-radius:3px;background:var(--pg-border);margin:8px 0 12px;overflow:hidden}
+.pg-review-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.pg-review-issue{padding:8px 10px;border-radius:8px;margin-bottom:6px;font-size:.75rem;line-height:1.5}
+.pg-review-issue.error{background:rgba(239,68,68,.08);border-left:3px solid var(--pg-danger)}
+.pg-review-issue.warning{background:rgba(245,158,11,.08);border-left:3px solid var(--pg-warning)}
+.pg-review-issue.info{background:rgba(59,130,246,.08);border-left:3px solid var(--pg-accent)}
+
+/* ── Status Bar ── */
+.pg-statusbar{display:flex;align-items:center;height:var(--pg-statusbar-h);padding:0 10px;background:var(--pg-accent);color:#fff;font-size:.65rem;font-weight:500;flex-shrink:0;gap:12px;overflow:hidden}
+.pg-statusbar .seg{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.pg-statusbar .seg i{font-size:.6rem;opacity:.8}
+.pg-statusbar .right{margin-left:auto;display:flex;gap:14px}
+
+/* ── Modals ── */
+.pg-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9000;display:none;align-items:center;justify-content:center}
+.pg-backdrop.open{display:flex}
+.pg-modal{background:var(--pg-surface);border:1px solid var(--pg-border);border-radius:14px;padding:20px 24px;width:90%;max-width:460px;max-height:80vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.2)}
+.pg-modal h3{font-size:1rem;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.pg-modal label{font-size:.75rem;font-weight:600;display:block;margin-bottom:3px;color:var(--pg-muted)}
+.pg-modal input,.pg-modal select{width:100%;padding:7px 10px;border:1px solid var(--pg-border);border-radius:7px;font-size:.8rem;background:var(--pg-surface2);color:var(--pg-text);outline:none;margin-bottom:10px;box-sizing:border-box}
+.pg-modal input:focus{border-color:var(--pg-accent)}
+.pg-modal-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:8px}
+.pg-modal-btn{padding:6px 16px;border-radius:7px;font-size:.75rem;font-weight:700;cursor:pointer;border:1px solid var(--pg-border);background:var(--pg-surface2);color:var(--pg-text);transition:all .15s}
+.pg-modal-btn:hover{border-color:var(--pg-accent)}
+.pg-modal-btn--primary{background:var(--pg-accent);color:#fff;border-color:var(--pg-accent)}
+.pg-modal-btn--primary:hover{background:#2563eb}
+.pg-modal-btn--danger{background:var(--pg-danger);color:#fff;border-color:var(--pg-danger)}
+
+/* ── Template cards ── */
+.pg-tmpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.pg-tmpl{padding:10px;border:1px solid var(--pg-border);border-radius:8px;cursor:pointer;transition:all .15s;text-align:center}
+.pg-tmpl:hover{border-color:var(--pg-accent);background:var(--pg-surface2)}
+.pg-tmpl i{font-size:1.3rem;display:block;margin-bottom:4px}
+.pg-tmpl-name{font-size:.72rem;font-weight:700}
+.pg-tmpl-desc{font-size:.6rem;color:var(--pg-muted);margin-top:2px}
+
+/* ── Packages ── */
+.pg-pkg-list{max-height:200px;overflow-y:auto;margin:8px 0;font-size:.75rem}
+.pg-pkg-item{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;border-bottom:1px solid var(--pg-border)}
+.pg-pkg-item .name{font-weight:600}.pg-pkg-item .status{font-size:.65rem;color:var(--pg-success)}
+
+/* ── Keyboard shortcuts ── */
+.pg-kbd-grid{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:.75rem;margin:6px 0}
+.pg-kbd-grid kbd{padding:2px 7px;border:1px solid var(--pg-border);border-radius:4px;font-size:.68rem;background:var(--pg-surface2);font-family:inherit;white-space:nowrap}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .pg-sidebar{display:none}
+  .pg-output{width:100%;max-width:100%;border-left:none;border-top:1px solid var(--pg-border)}
+  .pg-body{flex-direction:column}
+}
+
+/* ── Context menu ── */
+.pg-ctx{position:fixed;z-index:9500;background:var(--pg-surface);border:1px solid var(--pg-border);border-radius:8px;padding:4px 0;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,.18);font-size:.72rem;display:none}
+.pg-ctx.open{display:block}
+.pg-ctx-item{padding:5px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s}
+.pg-ctx-item:hover{background:var(--pg-accent);color:#fff}
+.pg-ctx-sep{height:1px;background:var(--pg-border);margin:3px 0}
+
+/* ── Drag-over ── */
+.pg-sidebar.dragover{outline:2px dashed var(--pg-accent);outline-offset:-4px}
+
+/* ── Inline rename ── */
+.pg-tree-rename{background:var(--pg-surface);border:1px solid var(--pg-accent);border-radius:3px;font-size:.72rem;padding:1px 4px;width:100%;outline:none;color:var(--pg-text);font-family:inherit}
 </style>
 
-<div class="playground">
-  <div class="text-center mb-3">
-    <h2 style="font-size:1.3rem;font-weight:800"><i class="fas fa-code me-2"></i>AI Code Playground</h2>
-    <p style="font-size:.75rem;opacity:.5">Write Python in your browser &middot; Powered by Pyodide (WebAssembly)</p>
+<!-- ═══════════════════════════════════════════════════════════
+     IDE SHELL
+     ═══════════════════════════════════════════════════════════ -->
+<div class="pg-shell" id="pgShell">
+
+  <!-- ── Toolbar ── -->
+  <div class="pg-toolbar">
+    <span class="pg-tb-title"><i class="fas fa-code me-1"></i>Code Playground</span>
+    <button class="pg-tb-btn pg-tb-btn--run" id="btnRun" title="Run (Ctrl+Enter)"><i class="fas fa-play"></i> Run</button>
+    <button class="pg-tb-btn pg-tb-btn--review" id="btnReview" title="AI Review (Ctrl+Shift+R)"><i class="fas fa-robot"></i> AI Review</button>
+    <div class="pg-tb-sep"></div>
+    <button class="pg-tb-btn" id="btnNewFile" title="New File (Ctrl+N)"><i class="fas fa-plus"></i> File</button>
+    <button class="pg-tb-btn" id="btnNewFolder" title="New Folder"><i class="fas fa-folder-plus"></i> Folder</button>
+    <button class="pg-tb-btn" id="btnTemplates" title="Project Templates"><i class="fas fa-layer-group"></i> Templates</button>
+    <div class="pg-tb-sep"></div>
+    <button class="pg-tb-btn" id="btnPackages" title="Python Packages"><i class="fas fa-cube"></i> Packages</button>
+    <button class="pg-tb-btn" id="btnImport" title="Import Files"><i class="fas fa-file-import"></i> Import</button>
+    <button class="pg-tb-btn" id="btnExport" title="Export Project (.zip)"><i class="fas fa-file-export"></i> Export</button>
+    <div class="pg-tb-sep"></div>
+    <button class="pg-tb-btn" id="btnShortcuts" title="Keyboard Shortcuts"><i class="fas fa-keyboard"></i></button>
+    <input type="file" id="importInput" multiple style="display:none">
   </div>
 
-  <div class="playground-grid">
-    <div class="editor-pane">
-      <div class="pane-header">
-        <span><i class="fas fa-file-code me-1"></i>Editor</span>
+  <!-- ── Main Body ── -->
+  <div class="pg-body">
+
+    <!-- File Explorer -->
+    <div class="pg-sidebar" id="pgSidebar">
+      <div class="pg-sidebar-head">
+        <span>Explorer</span>
         <div>
-          <button class="btn-run" onclick="runCode()"><i class="fas fa-play me-1"></i>Run</button>
-          <button class="btn-review ms-1" onclick="reviewCode()"><i class="fas fa-robot me-1"></i>AI Review</button>
+          <button title="New File" id="treeNewFile"><i class="fas fa-plus"></i></button>
+          <button title="Collapse All" id="treeCollapse"><i class="fas fa-angle-double-up"></i></button>
         </div>
       </div>
-      <textarea class="code-editor" id="codeEditor" spellcheck="false">import numpy as np
+      <div class="pg-tree" id="pgTree"></div>
+    </div>
 
-# Write your Python code here
-data = np.array([1, 2, 3, 4, 5])
-print(f"Mean: {data.mean()}")
-print(f"Std: {data.std():.2f}")
-print(f"Sum: {data.sum()}")
-</textarea>
-    </div>
-    <div class="output-pane" style="position:relative">
-      <div class="pane-header">
-        <span><i class="fas fa-terminal me-1"></i>Output</span>
-        <span id="runStatus" style="font-size:.65rem;opacity:.5">Ready</span>
-      </div>
-      <div class="output-area" id="outputArea">Click "Run" to execute your code...</div>
-      <div class="loading-overlay" id="pyodideLoading" style="display:none">
-        <span><i class="fas fa-circle-notch fa-spin me-2"></i>Loading Python runtime...</span>
+    <!-- Resize handle: sidebar ↔ editor -->
+    <div class="pg-resize" id="resizeSidebar"></div>
+
+    <!-- Editor Area -->
+    <div class="pg-editor-area">
+      <div class="pg-tabbar" id="pgTabbar"></div>
+      <div class="pg-monaco" id="pgMonaco">
+        <div class="pg-monaco-loading" id="monacoLoading"><i class="fas fa-circle-notch fa-spin me-2"></i>Loading editor&hellip;</div>
+        <div class="pg-welcome" id="pgWelcome" style="display:none">
+          <i class="fas fa-code" style="font-size:2rem;opacity:.2"></i>
+          <span>Select a file to start editing</span>
+          <span style="font-size:.72rem"><kbd>Ctrl</kbd>+<kbd>N</kbd> New File &nbsp; <kbd>Ctrl</kbd>+<kbd>P</kbd> Quick Open</span>
+        </div>
       </div>
     </div>
+
+    <!-- Resize handle: editor ↔ output -->
+    <div class="pg-resize" id="resizeOutput"></div>
+
+    <!-- Output Panel -->
+    <div class="pg-output" id="pgOutput">
+      <div class="pg-output-tabs">
+        <span class="pg-otab active" data-panel="console"><i class="fas fa-terminal me-1"></i>Console</span>
+        <span class="pg-otab" data-panel="preview"><i class="fas fa-eye me-1"></i>Preview</span>
+        <span class="pg-otab" data-panel="review"><i class="fas fa-robot me-1"></i>AI Review</span>
+        <div class="pg-otab-actions">
+          <button class="pg-otab-btn" id="btnClearConsole" title="Clear Console"><i class="fas fa-trash-alt"></i></button>
+          <button class="pg-otab-btn" id="btnWrapToggle" title="Toggle Word Wrap"><i class="fas fa-text-width"></i></button>
+        </div>
+      </div>
+      <div class="pg-output-body">
+        <div class="pg-opanel active" data-panel="console"><div class="pg-console" id="pgConsole">Welcome to the Code Playground.\nRun code with <span class="info">Ctrl+Enter</span> or click the <span class="info">Run</span> button.\n\n</div></div>
+        <div class="pg-opanel" data-panel="preview"><iframe class="pg-preview-frame" id="pgPreview" sandbox="allow-scripts allow-modals"></iframe></div>
+        <div class="pg-opanel" data-panel="review"><div class="pg-review" id="pgReview"><p style="color:var(--pg-muted)">Click <strong>AI Review</strong> to analyze your code.</p></div></div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="review-panel" id="reviewPanel" style="display:none">
-    <h4><i class="fas fa-robot me-2"></i>AI Code Review</h4>
-    <div id="reviewContent"></div>
+  <!-- ── Status Bar ── -->
+  <div class="pg-statusbar">
+    <span class="seg" id="sbBranch"><i class="fas fa-code-branch"></i> playground</span>
+    <span class="seg" id="sbLang"><i class="fas fa-file-code"></i> <span id="sbLangText">Python</span></span>
+    <span class="seg" id="sbCursor">Ln 1, Col 1</span>
+    <span class="seg" id="sbFiles"><i class="fas fa-copy"></i> <span id="sbFileCount">0</span> files</span>
+    <div class="right">
+      <span class="seg" id="sbPyodide"><i class="fas fa-circle" style="color:var(--pg-warning)"></i> Pyodide: loading</span>
+      <span class="seg">UTF-8</span>
+      <span class="seg">Spaces: 4</span>
+    </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-<script>
-let pyodide = null;
-const csrfToken = "{{ csrf_token }}";
+<!-- ── Context Menu ── -->
+<div class="pg-ctx" id="pgCtx">
+  <div class="pg-ctx-item" data-action="rename"><i class="fas fa-pen"></i> Rename</div>
+  <div class="pg-ctx-item" data-action="duplicate"><i class="fas fa-clone"></i> Duplicate</div>
+  <div class="pg-ctx-item" data-action="download"><i class="fas fa-download"></i> Download</div>
+  <div class="pg-ctx-sep"></div>
+  <div class="pg-ctx-item" data-action="delete" style="color:var(--pg-danger)"><i class="fas fa-trash-alt"></i> Delete</div>
+</div>
 
-async function initPyodide() {
-  if (pyodide) return pyodide;
-  document.getElementById('pyodideLoading').style.display = 'flex';
-  document.getElementById('runStatus').textContent = 'Loading Pyodide...';
+<!-- ── New File Modal ── -->
+<div class="pg-backdrop" id="modalNewFile">
+  <div class="pg-modal">
+    <h3><i class="fas fa-file-circle-plus"></i> New File</h3>
+    <label for="nfName">File name (include path for folders, e.g. <code>src/utils.py</code>)</label>
+    <input id="nfName" placeholder="main.py" autocomplete="off">
+    <label for="nfLang">Language</label>
+    <select id="nfLang">
+      <option value="auto">Auto-detect from extension</option>
+      <option value="python">Python</option>
+      <option value="javascript">JavaScript</option>
+      <option value="html">HTML</option>
+      <option value="css">CSS</option>
+      <option value="json">JSON</option>
+      <option value="markdown">Markdown</option>
+      <option value="sql">SQL</option>
+      <option value="yaml">YAML</option>
+    </select>
+    <div class="pg-modal-actions">
+      <button class="pg-modal-btn" onclick="PG.closeModal('modalNewFile')">Cancel</button>
+      <button class="pg-modal-btn pg-modal-btn--primary" id="nfCreate">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── New Folder Modal ── -->
+<div class="pg-backdrop" id="modalNewFolder">
+  <div class="pg-modal">
+    <h3><i class="fas fa-folder-plus"></i> New Folder</h3>
+    <label for="nfolderName">Folder path</label>
+    <input id="nfolderName" placeholder="src/components" autocomplete="off">
+    <div class="pg-modal-actions">
+      <button class="pg-modal-btn" onclick="PG.closeModal('modalNewFolder')">Cancel</button>
+      <button class="pg-modal-btn pg-modal-btn--primary" id="nfolderCreate">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Templates Modal ── -->
+<div class="pg-backdrop" id="modalTemplates">
+  <div class="pg-modal">
+    <h3><i class="fas fa-layer-group"></i> Project Templates</h3>
+    <p style="font-size:.75rem;color:var(--pg-muted);margin:0 0 6px">Choose a starter project. This will add files to your workspace.</p>
+    <div class="pg-tmpl-grid" id="tmplGrid"></div>
+    <div class="pg-modal-actions">
+      <button class="pg-modal-btn" onclick="PG.closeModal('modalTemplates')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Packages Modal ── -->
+<div class="pg-backdrop" id="modalPackages">
+  <div class="pg-modal">
+    <h3><i class="fas fa-cube"></i> Python Package Manager</h3>
+    <p style="font-size:.72rem;color:var(--pg-muted);margin:0 0 6px">Install packages from PyPI via micropip. Pre-installed: <strong>numpy</strong></p>
+    <div style="display:flex;gap:6px">
+      <input id="pkgName" placeholder="e.g. pandas, scipy, requests" style="margin:0;flex:1" autocomplete="off">
+      <button class="pg-modal-btn pg-modal-btn--primary" id="pkgInstall">Install</button>
+    </div>
+    <div class="pg-pkg-list" id="pkgList"></div>
+    <div class="pg-modal-actions">
+      <button class="pg-modal-btn" onclick="PG.closeModal('modalPackages')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Shortcuts Modal ── -->
+<div class="pg-backdrop" id="modalShortcuts">
+  <div class="pg-modal">
+    <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
+    <div class="pg-kbd-grid">
+      <kbd>Ctrl+Enter</kbd><span>Run current file</span>
+      <kbd>Ctrl+Shift+R</kbd><span>AI Code Review</span>
+      <kbd>Ctrl+N</kbd><span>New file</span>
+      <kbd>Ctrl+P</kbd><span>Quick open file</span>
+      <kbd>Ctrl+S</kbd><span>Save file</span>
+      <kbd>Ctrl+W</kbd><span>Close active tab</span>
+      <kbd>Ctrl+B</kbd><span>Toggle file explorer</span>
+      <kbd>Ctrl+`</kbd><span>Focus console</span>
+      <kbd>Ctrl+Shift+E</kbd><span>Export project</span>
+      <kbd>F1</kbd><span>Monaco command palette</span>
+      <kbd>Ctrl+Shift+F</kbd><span>Search in files</span>
+    </div>
+    <div class="pg-modal-actions">
+      <button class="pg-modal-btn" onclick="PG.closeModal('modalShortcuts')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Quick Open Modal ── -->
+<div class="pg-backdrop" id="modalQuickOpen">
+  <div class="pg-modal" style="padding:10px 12px">
+    <input id="qoSearch" placeholder="Type to search files..." style="margin:0;font-size:.85rem;border-radius:8px" autocomplete="off">
+    <div id="qoResults" style="max-height:260px;overflow-y:auto;margin-top:6px"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CODE PLAYGROUND — Main Application
+   ═══════════════════════════════════════════════════════════ */
+var PG = (function(){
+'use strict';
+
+var STORAGE_KEY = 'pg_project_v2';
+var MONACO_CDN  = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs';
+var PYODIDE_CDN = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
+var CSRF = '{{ csrf_token }}';
+
+/* ─── State ─── */
+var files      = {};         /* path → content */
+var folders    = {};         /* path → true (for empty folders) */
+var openTabs   = [];         /* [path, …] */
+var activeFile = null;
+var modified   = {};         /* path → true */
+var editor     = null;       /* Monaco editor instance */
+var models     = {};         /* path → Monaco model */
+var viewStates = {};         /* path → Monaco view state */
+var pyodide    = null;
+var pyodideReady = false;
+var installedPkgs = ['numpy'];
+var collapsedFolders = {};
+var ctxTarget  = null;       /* right-click target path */
+var wrapOutput = true;
+
+/* ─── Templates ─── */
+var TEMPLATES = {
+  python: {
+    name:'Python Starter', icon:'fab fa-python', color:'#3776ab',
+    desc:'NumPy, functions, and data processing',
+    files:{
+      'main.py': 'import numpy as np\nfrom utils import greet, stats_summary\n\n\ndef fibonacci(n):\n    \"\"\"Generate first n Fibonacci numbers.\"\"\"\n    fib = [0, 1]\n    for i in range(2, n):\n        fib.append(fib[-1] + fib[-2])\n    return fib[:n]\n\n\nif __name__ == \"__main__\":\n    greet(\"Code Playground\")\n\n    # Generate random data\n    data = np.random.randn(1000)\n    stats_summary(data)\n\n    # Fibonacci\n    print(f\"\\nFibonacci(12): {fibonacci(12)}\")\n',
+      'utils.py': 'import numpy as np\n\n\ndef greet(name):\n    \"\"\"Print a styled greeting.\"\"\"\n    print(f\"=\" * 40)\n    print(f\"  Welcome to {name}!\")\n    print(f\"=\" * 40)\n\n\ndef stats_summary(data):\n    \"\"\"Print statistical summary of a numpy array.\"\"\"\n    print(f\"\\n--- Statistics ---\")\n    print(f\"  Samples : {len(data)}\")\n    print(f\"  Mean    : {np.mean(data):.4f}\")\n    print(f\"  Std Dev : {np.std(data):.4f}\")\n    print(f\"  Min     : {np.min(data):.4f}\")\n    print(f\"  Max     : {np.max(data):.4f}\")\n    print(f\"  Median  : {np.median(data):.4f}\")\n',
+    }
+  },
+  web: {
+    name:'Web App', icon:'fas fa-globe', color:'#e44d26',
+    desc:'HTML + CSS + JavaScript interactive page',
+    files:{
+      'index.html': '<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>My Web App</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <div class=\"app\">\n    <h1 id=\"title\">Hello World</h1>\n    <p>A simple interactive web app.</p>\n    <div class=\"counter\">\n      <button onclick=\"decrement()\">-</button>\n      <span id=\"count\">0</span>\n      <button onclick=\"increment()\">+</button>\n    </div>\n    <div class=\"colors\">\n      <button onclick=\"changeColor(\'#3b82f6\')\">Blue</button>\n      <button onclick=\"changeColor(\'#22c55e\')\">Green</button>\n      <button onclick=\"changeColor(\'#8b5cf6\')\">Purple</button>\n      <button onclick=\"changeColor(\'#ef4444\')\">Red</button>\n    </div>\n  </div>\n  <script src=\"app.js\"><\\/script>\n</body>\n</html>',
+      'style.css': '* { margin: 0; padding: 0; box-sizing: border-box; }\n\nbody {\n  font-family: system-ui, sans-serif;\n  min-height: 100vh;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n  color: #fff;\n}\n\n.app {\n  text-align: center;\n  padding: 2rem;\n  background: rgba(255,255,255,.1);\n  backdrop-filter: blur(10px);\n  border-radius: 20px;\n  border: 1px solid rgba(255,255,255,.2);\n}\n\nh1 { font-size: 2.5rem; margin-bottom: .5rem; transition: color .3s; }\np { opacity: .8; margin-bottom: 1.5rem; }\n\n.counter {\n  display: flex; align-items: center; justify-content: center; gap: 1rem;\n  margin-bottom: 1.5rem;\n}\n.counter button {\n  width: 44px; height: 44px; border-radius: 50%; border: 2px solid #fff;\n  background: transparent; color: #fff; font-size: 1.3rem; cursor: pointer;\n  transition: all .2s;\n}\n.counter button:hover { background: #fff; color: #333; }\n.counter span { font-size: 2rem; font-weight: 900; min-width: 60px; }\n\n.colors { display: flex; gap: .5rem; justify-content: center; }\n.colors button {\n  padding: .4rem 1rem; border-radius: 8px; border: none;\n  color: #fff; font-weight: 600; cursor: pointer; font-size: .8rem;\n  transition: transform .15s;\n}\n.colors button:hover { transform: scale(1.1); }\n.colors button:nth-child(1) { background: #3b82f6; }\n.colors button:nth-child(2) { background: #22c55e; }\n.colors button:nth-child(3) { background: #8b5cf6; }\n.colors button:nth-child(4) { background: #ef4444; }\n',
+      'app.js': 'let count = 0;\nconst countEl = document.getElementById(\"count\");\nconst titleEl = document.getElementById(\"title\");\n\nfunction increment() {\n  count++;\n  countEl.textContent = count;\n  countEl.style.transform = \"scale(1.3)\";\n  setTimeout(() => countEl.style.transform = \"scale(1)\", 150);\n}\n\nfunction decrement() {\n  count--;\n  countEl.textContent = count;\n  countEl.style.transform = \"scale(1.3)\";\n  setTimeout(() => countEl.style.transform = \"scale(1)\", 150);\n}\n\nfunction changeColor(color) {\n  titleEl.style.color = color;\n}\n',
+    }
+  },
+  datascience: {
+    name:'Data Science', icon:'fas fa-chart-bar', color:'#f59e0b',
+    desc:'Statistical analysis with NumPy',
+    files:{
+      'analysis.py': 'import numpy as np\n\n# ── Configuration ──\nnp.random.seed(42)\nN = 500\n\n# ── Generate synthetic dataset ──\nages = np.clip(np.random.normal(35, 10, N), 18, 70).astype(int)\nsalaries = ages * 1500 + np.random.normal(0, 8000, N)\nsalaries = np.clip(salaries, 20000, 200000)\nsatisfaction = np.clip(5 + (salaries - 50000) / 30000 + np.random.normal(0, 1, N), 1, 10)\n\nprint(\"=\" * 50)\nprint(\"  WORKFORCE ANALYTICS REPORT\")\nprint(\"=\" * 50)\n\nprint(f\"\\nDataset: {N} employees\")\n\nprint(f\"\\n── Age Distribution ──\")\nprint(f\"  Mean:   {ages.mean():.1f} years\")\nprint(f\"  Median: {np.median(ages):.1f} years\")\nprint(f\"  Std:    {ages.std():.1f}\")\nprint(f\"  Range:  {ages.min()} - {ages.max()}\")\n\nprint(f\"\\n── Salary Distribution ──\")\nprint(f\"  Mean:   ${salaries.mean():,.0f}\")\nprint(f\"  Median: ${np.median(salaries):,.0f}\")\nprint(f\"  Std:    ${salaries.std():,.0f}\")\nprint(f\"  P25:    ${np.percentile(salaries, 25):,.0f}\")\nprint(f\"  P75:    ${np.percentile(salaries, 75):,.0f}\")\n\nprint(f\"\\n── Satisfaction Scores ──\")\nprint(f\"  Mean: {satisfaction.mean():.2f} / 10\")\nprint(f\"  High (>7): {(satisfaction > 7).sum()} ({(satisfaction > 7).mean()*100:.1f}%)\")\nprint(f\"  Low  (<4): {(satisfaction < 4).sum()} ({(satisfaction < 4).mean()*100:.1f}%)\")\n\nprint(f\"\\n── Correlations ──\")\nprint(f\"  Age ↔ Salary:       {np.corrcoef(ages, salaries)[0,1]:.3f}\")\nprint(f\"  Salary ↔ Satisfaction: {np.corrcoef(salaries, satisfaction)[0,1]:.3f}\")\nprint(f\"  Age ↔ Satisfaction: {np.corrcoef(ages, satisfaction)[0,1]:.3f}\")\n\n# ── Segmentation ──\nprint(f\"\\n── Age Segments ──\")\nfor label, lo, hi in [(\"Junior (18-29)\",18,29),(\"Mid (30-44)\",30,44),(\"Senior (45+)\",45,100)]:\n    mask = (ages >= lo) & (ages <= hi)\n    print(f\"  {label}: n={mask.sum()}, avg salary=${salaries[mask].mean():,.0f}, avg satisfaction={satisfaction[mask].mean():.1f}\")\n',
+    }
+  },
+  django: {
+    name:'Django Models', icon:'fas fa-fire', color:'#092e20',
+    desc:'Django models, views and URL patterns',
+    files:{
+      'models.py': 'from django.db import models\nfrom django.contrib.auth.models import User\n\n\nclass Category(models.Model):\n    name = models.CharField(max_length=100, unique=True)\n    slug = models.SlugField(unique=True)\n    description = models.TextField(blank=True)\n    created_at = models.DateTimeField(auto_now_add=True)\n\n    class Meta:\n        verbose_name_plural = \"categories\"\n        ordering = [\"name\"]\n\n    def __str__(self):\n        return self.name\n\n\nclass Article(models.Model):\n    STATUS_CHOICES = [\n        (\"draft\", \"Draft\"),\n        (\"published\", \"Published\"),\n        (\"archived\", \"Archived\"),\n    ]\n\n    title = models.CharField(max_length=200)\n    slug = models.SlugField(unique=True)\n    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name=\"articles\")\n    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)\n    content = models.TextField()\n    excerpt = models.TextField(max_length=500, blank=True)\n    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=\"draft\")\n    featured_image = models.ImageField(upload_to=\"articles/\", blank=True)\n    tags = models.JSONField(default=list)\n    views_count = models.PositiveIntegerField(default=0)\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    published_at = models.DateTimeField(null=True, blank=True)\n\n    class Meta:\n        ordering = [\"-created_at\"]\n        indexes = [\n            models.Index(fields=[\"status\", \"-published_at\"]),\n            models.Index(fields=[\"author\", \"-created_at\"]),\n        ]\n\n    def __str__(self):\n        return self.title\n\n    @property\n    def is_published(self):\n        return self.status == \"published\"\n',
+      'views.py': 'from django.shortcuts import render, get_object_or_404, redirect\nfrom django.contrib.auth.decorators import login_required\nfrom django.db.models import Q, Count\nfrom django.http import JsonResponse\n\nfrom .models import Article, Category\n\n\ndef article_list(request):\n    \"\"\"List published articles with optional search and category filter.\"\"\"\n    articles = Article.objects.filter(status=\"published\").select_related(\"author\", \"category\")\n\n    query = request.GET.get(\"q\", \"\").strip()\n    if query:\n        articles = articles.filter(\n            Q(title__icontains=query) | Q(content__icontains=query)\n        )\n\n    category_slug = request.GET.get(\"category\")\n    if category_slug:\n        articles = articles.filter(category__slug=category_slug)\n\n    categories = Category.objects.annotate(\n        article_count=Count(\"article\", filter=Q(article__status=\"published\"))\n    ).order_by(\"name\")\n\n    return render(request, \"blog/article_list.html\", {\n        \"articles\": articles,\n        \"categories\": categories,\n        \"query\": query,\n    })\n\n\ndef article_detail(request, slug):\n    \"\"\"Display a single article and increment view count.\"\"\"\n    article = get_object_or_404(Article, slug=slug, status=\"published\")\n    Article.objects.filter(pk=article.pk).update(views_count=models.F(\"views_count\") + 1)\n    return render(request, \"blog/article_detail.html\", {\"article\": article})\n\n\n@login_required\ndef article_create(request):\n    \"\"\"Create a new article (requires login).\"\"\"\n    if request.method == \"POST\":\n        # Handle form submission\n        pass\n    return render(request, \"blog/article_form.html\")\n',
+      'urls.py': 'from django.urls import path\nfrom . import views\n\nurlpatterns = [\n    path(\"\", views.article_list, name=\"article_list\"),\n    path(\"article/<slug:slug>/\", views.article_detail, name=\"article_detail\"),\n    path(\"create/\", views.article_create, name=\"article_create\"),\n]\n',
+    }
+  },
+  api: {
+    name:'REST API', icon:'fas fa-plug', color:'#8b5cf6',
+    desc:'API schemas, endpoints and testing',
+    files:{
+      'api.py': '\"\"\"Simple REST API module demonstrating common patterns.\"\"\"\nimport json\nfrom dataclasses import dataclass, asdict\nfrom typing import Optional\n\n\n@dataclass\nclass Item:\n    id: int\n    name: str\n    price: float\n    category: str\n    in_stock: bool = True\n\n\n# ── In-memory store ──\nDB: dict[int, Item] = {}\n_next_id = 1\n\n\ndef create_item(name: str, price: float, category: str) -> Item:\n    global _next_id\n    item = Item(id=_next_id, name=name, price=price, category=category)\n    DB[item.id] = item\n    _next_id += 1\n    return item\n\n\ndef get_item(item_id: int) -> Optional[Item]:\n    return DB.get(item_id)\n\n\ndef list_items(category: Optional[str] = None) -> list[Item]:\n    items = list(DB.values())\n    if category:\n        items = [i for i in items if i.category == category]\n    return items\n\n\ndef update_item(item_id: int, **kwargs) -> Optional[Item]:\n    item = DB.get(item_id)\n    if not item:\n        return None\n    for key, value in kwargs.items():\n        if hasattr(item, key):\n            setattr(item, key, value)\n    return item\n\n\ndef delete_item(item_id: int) -> bool:\n    return DB.pop(item_id, None) is not None\n\n\n# ── Demo ──\nif __name__ == \"__main__\":\n    print(\"=== REST API Demo ===\")\n\n    # Create items\n    items = [\n        create_item(\"Laptop\", 999.99, \"electronics\"),\n        create_item(\"Coffee Mug\", 12.99, \"kitchen\"),\n        create_item(\"Python Book\", 49.99, \"books\"),\n        create_item(\"Mechanical Keyboard\", 149.99, \"electronics\"),\n        create_item(\"Standing Desk\", 599.99, \"furniture\"),\n    ]\n    print(f\"\\nCreated {len(items)} items\")\n\n    # List all\n    print(f\"\\nAll items:\")\n    for item in list_items():\n        print(f\"  [{item.id}] {item.name} - ${item.price:.2f} ({item.category})\")\n\n    # Filter\n    print(f\"\\nElectronics:\")\n    for item in list_items(\"electronics\"):\n        print(f\"  [{item.id}] {item.name} - ${item.price:.2f}\")\n\n    # Update\n    updated = update_item(1, price=899.99, name=\"Laptop Pro\")\n    print(f\"\\nUpdated: {updated.name} -> ${updated.price:.2f}\")\n\n    # Delete\n    delete_item(2)\n    print(f\"\\nAfter delete: {len(list_items())} items remaining\")\n\n    # JSON serialization\n    print(f\"\\nJSON output:\")\n    print(json.dumps([asdict(i) for i in list_items()], indent=2))\n',
+    }
+  },
+  algorithms: {
+    name:'Algorithms', icon:'fas fa-brain', color:'#22c55e',
+    desc:'Sorting, searching, and data structures',
+    files:{
+      'algorithms.py': 'import time\nimport numpy as np\n\n\n# ── Sorting Algorithms ──\n\ndef bubble_sort(arr):\n    a = arr.copy()\n    n = len(a)\n    for i in range(n):\n        for j in range(0, n - i - 1):\n            if a[j] > a[j + 1]:\n                a[j], a[j + 1] = a[j + 1], a[j]\n    return a\n\n\ndef merge_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    mid = len(arr) // 2\n    left = merge_sort(arr[:mid])\n    right = merge_sort(arr[mid:])\n    return merge(left, right)\n\n\ndef merge(left, right):\n    result = []\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i]); i += 1\n        else:\n            result.append(right[j]); j += 1\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result\n\n\ndef quick_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quick_sort(left) + middle + quick_sort(right)\n\n\n# ── Search Algorithms ──\n\ndef binary_search(arr, target):\n    lo, hi = 0, len(arr) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n\n\n# ── Benchmarking ──\n\ndef benchmark(func, data, name):\n    start = time.time()\n    result = func(data)\n    elapsed = time.time() - start\n    print(f\"  {name:<20} {elapsed*1000:>8.2f} ms\")\n    return result\n\n\nif __name__ == \"__main__\":\n    sizes = [100, 500, 1000, 2000]\n\n    for n in sizes:\n        data = list(np.random.randint(0, 10000, n))\n        print(f\"\\n── Array size: {n} ──\")\n        benchmark(bubble_sort, data, \"Bubble Sort\")\n        benchmark(merge_sort, data, \"Merge Sort\")\n        benchmark(quick_sort, data, \"Quick Sort\")\n        benchmark(sorted, data, \"Python built-in\")\n\n    # Binary search demo\n    print(f\"\\n── Binary Search ──\")\n    sorted_arr = list(range(0, 10000, 2))  # Even numbers\n    for target in [42, 7777, 9999, 5000]:\n        idx = binary_search(sorted_arr, target)\n        status = f\"found at index {idx}\" if idx >= 0 else \"not found\"\n        print(f\"  Search {target}: {status}\")\n',
+    }
+  }
+};
+
+/* ─── File type config ─── */
+var LANG_MAP = {
+  py:'python', js:'javascript', ts:'typescript', html:'html', htm:'html',
+  css:'css', json:'json', md:'markdown', yml:'yaml', yaml:'yaml',
+  sql:'sql', sh:'shell', bash:'shell', xml:'xml', txt:'plaintext',
+  jsx:'javascript', tsx:'typescript', csv:'plaintext', ini:'ini',
+  toml:'plaintext', cfg:'plaintext', gitignore:'plaintext'
+};
+var ICON_MAP = {
+  python:'fab fa-python', javascript:'fab fa-js', typescript:'fab fa-js',
+  html:'fab fa-html5', css:'fab fa-css3-alt', json:'fas fa-brackets-curly',
+  markdown:'fas fa-file-alt', yaml:'fas fa-file-code', sql:'fas fa-database',
+  shell:'fas fa-terminal', xml:'fas fa-code', plaintext:'fas fa-file'
+};
+var COLOR_MAP = {
+  python:'#3776ab', javascript:'#f7df1e', typescript:'#3178c6',
+  html:'#e44d26', css:'#264de4', json:'#6b7280', markdown:'#6b7280'
+};
+
+function extOf(p){ var i=p.lastIndexOf('.'); return i>-1?p.slice(i+1).toLowerCase():''; }
+function langOf(p){ return LANG_MAP[extOf(p)] || 'plaintext'; }
+function iconOf(p){ return ICON_MAP[langOf(p)] || 'fas fa-file'; }
+function basename(p){ return p.split('/').pop(); }
+function dirname(p){ var i=p.lastIndexOf('/'); return i>-1?p.slice(0,i):''; }
+
+/* ═══════════════════════════════════════════════════════════
+   FILE SYSTEM (LocalStorage)
+   ═══════════════════════════════════════════════════════════ */
+function fsLoad(){
+  try{
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      var data = JSON.parse(raw);
+      files = data.files || {};
+      folders = data.folders || {};
+      openTabs = data.openTabs || [];
+      activeFile = data.activeFile || null;
+      collapsedFolders = data.collapsed || {};
+      installedPkgs = data.packages || ['numpy'];
+      /* Clean stale tabs */
+      openTabs = openTabs.filter(function(t){ return files[t] !== undefined; });
+      if(activeFile && !files[activeFile]) activeFile = openTabs[0] || null;
+    }
+  }catch(e){ console.warn('FS load error', e); }
+  if(Object.keys(files).length === 0) loadTemplate('python');
+}
+
+function fsSave(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      files:files, folders:folders, openTabs:openTabs,
+      activeFile:activeFile, collapsed:collapsedFolders,
+      packages:installedPkgs
+    }));
+  }catch(e){ consolePrint('Storage error: ' + e.message, 'err'); }
+}
+
+function fsCreate(path, content){
+  if(!path) return;
+  path = path.replace(/\\/g,'/').replace(/^\/+/,'');
+  if(files[path] !== undefined){ consolePrint('File already exists: ' + path, 'warn'); return; }
+  files[path] = content || '';
+  fsSave(); renderTree(); openTab(path);
+}
+
+function fsRename(oldPath, newPath){
+  if(!oldPath || !newPath || oldPath === newPath) return;
+  newPath = newPath.replace(/\\/g,'/').replace(/^\/+/,'');
+  if(files[newPath] !== undefined){ consolePrint('A file with that name already exists.', 'warn'); return; }
+  /* Rename file */
+  files[newPath] = files[oldPath];
+  delete files[oldPath];
+  /* Update models */
+  if(models[oldPath]){
+    models[oldPath].dispose();
+    delete models[oldPath];
+  }
+  viewStates[newPath] = viewStates[oldPath];
+  delete viewStates[oldPath];
+  /* Update tabs */
+  var idx = openTabs.indexOf(oldPath);
+  if(idx > -1) openTabs[idx] = newPath;
+  if(activeFile === oldPath) activeFile = newPath;
+  if(modified[oldPath]){ modified[newPath] = true; delete modified[oldPath]; }
+  fsSave(); renderTree(); renderTabs();
+  if(activeFile === newPath) switchTab(newPath);
+}
+
+function fsDelete(path){
+  if(!files[path] && !folders[path]) return;
+  /* If folder, delete all children */
+  var prefix = path + '/';
+  var toDelete = [path];
+  Object.keys(files).forEach(function(f){ if(f.indexOf(prefix) === 0) toDelete.push(f); });
+  toDelete.forEach(function(f){
+    delete files[f]; delete folders[f];
+    if(models[f]){ models[f].dispose(); delete models[f]; }
+    delete viewStates[f]; delete modified[f];
+    var ti = openTabs.indexOf(f);
+    if(ti > -1) openTabs.splice(ti, 1);
+  });
+  if(toDelete.indexOf(activeFile) > -1) activeFile = openTabs[0] || null;
+  fsSave(); renderTree(); renderTabs();
+  if(activeFile) switchTab(activeFile); else showWelcome();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FILE TREE
+   ═══════════════════════════════════════════════════════════ */
+function buildTree(){
+  var tree = {};
+  /* Explicit folders */
+  Object.keys(folders).forEach(function(f){
+    var parts = f.split('/'); var node = tree;
+    parts.forEach(function(p){ if(!node[p]) node[p] = {}; node = node[p]; });
+  });
+  /* Files */
+  Object.keys(files).sort().forEach(function(path){
+    var parts = path.split('/'); var node = tree;
+    for(var i=0;i<parts.length-1;i++){
+      if(!node[parts[i]]) node[parts[i]] = {};
+      node = node[parts[i]];
+    }
+    node[parts[parts.length-1]] = null; /* null = file leaf */
+  });
+  return tree;
+}
+
+function renderTree(){
+  var el = document.getElementById('pgTree');
+  var tree = buildTree();
+  el.innerHTML = '';
+  renderTreeNode(el, tree, '', 0);
+  document.getElementById('sbFileCount').textContent = Object.keys(files).length;
+}
+
+function renderTreeNode(parent, node, prefix, depth){
+  /* Sort: folders first, then files */
+  var keys = Object.keys(node).sort(function(a,b){
+    var aIsDir = node[a] !== null, bIsDir = node[b] !== null;
+    if(aIsDir && !bIsDir) return -1;
+    if(!aIsDir && bIsDir) return 1;
+    return a.localeCompare(b);
+  });
+  keys.forEach(function(name){
+    var path = prefix ? prefix + '/' + name : name;
+    var isDir = node[name] !== null;
+    var div = document.createElement('div');
+    div.className = 'pg-tree-item' + (isDir ? ' pg-tree-folder' : '') + (path === activeFile ? ' active' : '');
+    div.style.setProperty('--depth', depth);
+    div.setAttribute('data-path', path);
+    if(isDir){
+      var collapsed = collapsedFolders[path];
+      div.innerHTML = '<i class="pg-tree-icon fas fa-chevron-' + (collapsed ? 'right' : 'down') + '" style="font-size:.55rem"></i>' +
+        '<i class="pg-tree-icon fas fa-folder' + (collapsed ? '' : '-open') + '"></i>' +
+        '<span class="pg-tree-label">' + esc(name) + '</span>';
+      div.addEventListener('click', function(e){ e.stopPropagation(); toggleFolder(path); });
+      div.addEventListener('contextmenu', function(e){ e.preventDefault(); showCtx(e, path); });
+      parent.appendChild(div);
+      if(!collapsed){
+        renderTreeNode(parent, node[name], path, depth + 1);
+      }
+    } else {
+      div.innerHTML = '<i class="pg-tree-icon ' + iconOf(path) + '"></i>' +
+        '<span class="pg-tree-label">' + esc(name) + (modified[path] ? ' <span style="color:var(--pg-warning)">●</span>' : '') + '</span>' +
+        '<span class="pg-tree-action" data-del="' + esc(path) + '" title="Delete">&times;</span>';
+      div.addEventListener('click', function(e){
+        if(e.target.dataset.del){ fsDelete(e.target.dataset.del); return; }
+        openTab(path);
+      });
+      div.addEventListener('contextmenu', function(e){ e.preventDefault(); showCtx(e, path); });
+      parent.appendChild(div);
+    }
+  });
+}
+
+function toggleFolder(path){
+  collapsedFolders[path] = !collapsedFolders[path];
+  fsSave(); renderTree();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TABS
+   ═══════════════════════════════════════════════════════════ */
+function openTab(path){
+  if(openTabs.indexOf(path) === -1) openTabs.push(path);
+  activeFile = path;
+  fsSave(); renderTabs(); switchTab(path); renderTree();
+}
+
+function closeTab(path){
+  var idx = openTabs.indexOf(path);
+  if(idx === -1) return;
+  openTabs.splice(idx, 1);
+  delete modified[path];
+  if(activeFile === path){
+    activeFile = openTabs[Math.min(idx, openTabs.length - 1)] || null;
+  }
+  fsSave(); renderTabs(); renderTree();
+  if(activeFile) switchTab(activeFile); else showWelcome();
+}
+
+function renderTabs(){
+  var bar = document.getElementById('pgTabbar');
+  bar.innerHTML = '';
+  openTabs.forEach(function(path){
+    var tab = document.createElement('div');
+    tab.className = 'pg-tab' + (path === activeFile ? ' active' : '') + (modified[path] ? ' modified' : '');
+    var lang = langOf(path);
+    var color = COLOR_MAP[lang] || 'var(--pg-muted)';
+    tab.innerHTML = '<i class="pg-tab-icon ' + iconOf(path) + '" style="color:'+color+'"></i>' +
+      '<span class="dot"></span>' +
+      '<span style="overflow:hidden;text-overflow:ellipsis">' + esc(basename(path)) + '</span>' +
+      '<span class="close" data-close="' + esc(path) + '">&times;</span>';
+    tab.addEventListener('click', function(e){
+      if(e.target.dataset.close){ e.stopPropagation(); closeTab(e.target.dataset.close); return; }
+      activeFile = path; fsSave(); renderTabs(); switchTab(path); renderTree();
+    });
+    /* Middle-click to close */
+    tab.addEventListener('mousedown', function(e){ if(e.button === 1){ e.preventDefault(); closeTab(path); } });
+    bar.appendChild(tab);
+  });
+}
+
+function switchTab(path){
+  if(!editor || !files.hasOwnProperty(path)) return;
+  /* Save current view state */
+  if(activeFile && models[activeFile]) viewStates[activeFile] = editor.saveViewState();
+  activeFile = path;
+  hideWelcome();
+  /* Get or create model */
+  if(!models[path]){
+    var lang = langOf(path);
+    var uri = monaco.Uri.parse('file:///' + path);
+    models[path] = monaco.editor.createModel(files[path], lang, uri);
+    models[path].onDidChangeContent(function(){
+      files[path] = models[path].getValue();
+      modified[path] = true;
+      fsSave(); renderTabs(); renderTree(); updateStatusBar();
+    });
+  }
+  editor.setModel(models[path]);
+  if(viewStates[path]) editor.restoreViewState(viewStates[path]);
+  editor.focus();
+  updateStatusBar();
+}
+
+function showWelcome(){ document.getElementById('pgWelcome').style.display = 'flex'; }
+function hideWelcome(){ document.getElementById('pgWelcome').style.display = 'none'; }
+
+/* ═══════════════════════════════════════════════════════════
+   STATUS BAR
+   ═══════════════════════════════════════════════════════════ */
+function updateStatusBar(){
+  if(!editor || !activeFile) return;
+  var pos = editor.getPosition();
+  document.getElementById('sbCursor').textContent = 'Ln ' + pos.lineNumber + ', Col ' + pos.column;
+  var lang = langOf(activeFile);
+  document.getElementById('sbLangText').textContent = lang.charAt(0).toUpperCase() + lang.slice(1);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONSOLE OUTPUT
+   ═══════════════════════════════════════════════════════════ */
+function consolePrint(text, cls){
+  var el = document.getElementById('pgConsole');
+  var ts = new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  var span = document.createElement('span');
+  span.innerHTML = '<span class="ts">[' + ts + ']</span>' + '<span class="' + (cls||'') + '">' + esc(String(text)) + '</span>\n';
+  el.appendChild(span);
+  el.scrollTop = el.scrollHeight;
+}
+
+function consolePrintRaw(html){
+  var el = document.getElementById('pgConsole');
+  var span = document.createElement('span');
+  span.innerHTML = html + '\n';
+  el.appendChild(span);
+  el.scrollTop = el.scrollHeight;
+}
+
+function consoleClear(){
+  document.getElementById('pgConsole').innerHTML = '';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXECUTION ENGINES
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Python (Pyodide) ── */
+function loadPyodideScript(){
+  return new Promise(function(resolve, reject){
+    if(window.loadPyodide) return resolve();
+    var s = document.createElement('script');
+    s.src = PYODIDE_CDN;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function initPyodide(){
+  if(pyodide) return pyodide;
+  document.getElementById('sbPyodide').innerHTML = '<i class="fas fa-circle-notch fa-spin" style="color:var(--pg-warning)"></i> Pyodide: loading';
+  consolePrint('Loading Python runtime (Pyodide)...', 'info');
+  await loadPyodideScript();
   pyodide = await loadPyodide();
-  await pyodide.loadPackage(['numpy', 'micropip']);
-  document.getElementById('pyodideLoading').style.display = 'none';
-  document.getElementById('runStatus').textContent = 'Ready';
+  await pyodide.loadPackage(['numpy','micropip']);
+  pyodideReady = true;
+  document.getElementById('sbPyodide').innerHTML = '<i class="fas fa-circle" style="color:var(--pg-success)"></i> Pyodide: ready';
+  consolePrint('Python runtime ready. numpy pre-loaded.', 'info');
   return pyodide;
 }
 
-async function runCode() {
-  const code = document.getElementById('codeEditor').value;
-  const outputEl = document.getElementById('outputArea');
-  const statusEl = document.getElementById('runStatus');
-  try {
-    statusEl.textContent = 'Running...';
-    const py = await initPyodide();
-    py.runPython(`import sys; from io import StringIO; sys.stdout = StringIO(); sys.stderr = StringIO()`);
-    try {
-      py.runPython(code);
-    } catch(e) {
-      const stderr = py.runPython('sys.stderr.getvalue()');
-      outputEl.textContent = stderr || e.message;
-      statusEl.textContent = 'Error';
-      return;
+async function runPython(code){
+  var py = await initPyodide();
+  /* Sync ALL .py files to Pyodide FS so imports work */
+  Object.keys(files).forEach(function(path){
+    if(extOf(path) === 'py'){
+      var parts = path.split('/');
+      /* Create directories */
+      for(var i=0;i<parts.length-1;i++){
+        var dir = '/' + parts.slice(0,i+1).join('/');
+        try{ py.FS.mkdir(dir); }catch(e){}
+      }
+      py.FS.writeFile('/' + path, files[path]);
     }
-    const stdout = py.runPython('sys.stdout.getvalue()');
-    outputEl.textContent = stdout || '(no output)';
-    statusEl.textContent = 'Done';
-  } catch(e) {
-    outputEl.textContent = 'Error: ' + e.message;
-    statusEl.textContent = 'Error';
+  });
+  /* Capture stdout/stderr */
+  py.runPython('import sys; from io import StringIO; sys.stdout = StringIO(); sys.stderr = StringIO()');
+  /* Add current file's directory to sys.path */
+  var fileDir = dirname(activeFile);
+  py.runPython('import sys; _d = "/' + (fileDir || '') + '"; _d and _d not in sys.path and sys.path.insert(0, _d)');
+  py.runPython('if "/" not in sys.path: sys.path.insert(0, "/")');
+  try{
+    py.runPython(code);
+    var stdout = py.runPython('sys.stdout.getvalue()');
+    var stderr = py.runPython('sys.stderr.getvalue()');
+    if(stdout) consolePrint(stdout);
+    if(stderr) consolePrint(stderr, 'warn');
+    if(!stdout && !stderr) consolePrint('(no output)');
+  }catch(e){
+    var stderr2 = ''; try{ stderr2 = py.runPython('sys.stderr.getvalue()'); }catch(x){}
+    consolePrint(stderr2 || e.message, 'err');
   }
 }
 
-async function reviewCode() {
-  const code = document.getElementById('codeEditor').value;
-  const panel = document.getElementById('reviewPanel');
-  const content = document.getElementById('reviewContent');
-  panel.style.display = 'block';
-  content.innerHTML = '<p style="font-size:.8rem;opacity:.5"><i class="fas fa-circle-notch fa-spin me-1"></i>Analyzing your code...</p>';
-  try {
-    const resp = await fetch('/api/code-review/', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
-      body: JSON.stringify({code, language: 'python'})
+/* ── JavaScript ── */
+function runJavaScript(code){
+  var logs = [];
+  var fakeConsole = {
+    log: function(){ logs.push(Array.from(arguments).map(String).join(' ')); },
+    error: function(){ logs.push('ERROR: ' + Array.from(arguments).map(String).join(' ')); },
+    warn: function(){ logs.push('WARN: ' + Array.from(arguments).map(String).join(' ')); },
+    info: function(){ logs.push('INFO: ' + Array.from(arguments).map(String).join(' ')); },
+    table: function(data){ logs.push(JSON.stringify(data, null, 2)); },
+    clear: function(){ logs = []; }
+  };
+  try{
+    var fn = new Function('console', code);
+    fn(fakeConsole);
+    if(logs.length) consolePrint(logs.join('\n'));
+    else consolePrint('(no output)');
+  }catch(e){
+    consolePrint(e.toString(), 'err');
+  }
+}
+
+/* ── HTML Preview ── */
+function runHtmlPreview(){
+  /* Gather all HTML/CSS/JS files */
+  var html = files[activeFile] || '';
+  /* Inject CSS and JS from other files if this is index.html */
+  var allCss = '', allJs = '';
+  Object.keys(files).forEach(function(p){
+    if(p === activeFile) return;
+    if(extOf(p) === 'css') allCss += files[p] + '\n';
+    if(extOf(p) === 'js') allJs += files[p] + '\n';
+  });
+  /* Replace linked resources with inline content */
+  Object.keys(files).forEach(function(p){
+    if(extOf(p) === 'css'){
+      var linkPattern = new RegExp('<link[^>]*href=["\']' + basename(p).replace('.','\\\.') + '["\'][^>]*>', 'gi');
+      html = html.replace(linkPattern, '<style>' + files[p] + '</style>');
+    }
+    if(extOf(p) === 'js'){
+      var scriptPattern = new RegExp('<script[^>]*src=["\']' + basename(p).replace('.','\\\.') + '["\'][^>]*><\\/script>', 'gi');
+      html = html.replace(scriptPattern, '<script>' + files[p] + '<\/script>');
+    }
+  });
+  var frame = document.getElementById('pgPreview');
+  frame.srcdoc = html;
+  /* Switch to preview tab */
+  switchOutputTab('preview');
+  consolePrint('HTML preview rendered.', 'info');
+}
+
+/* ── Run dispatcher ── */
+async function runCurrentFile(){
+  if(!activeFile){consolePrint('No file open.','warn');return;}
+  var lang = langOf(activeFile);
+  consolePrint('── Running ' + activeFile + ' ──', 'info');
+  if(lang === 'python') return runPython(files[activeFile]);
+  if(lang === 'javascript') return runJavaScript(files[activeFile]);
+  if(lang === 'html') return runHtmlPreview();
+  if(lang === 'css'){
+    consolePrint('Open an HTML file and run it to see CSS changes in Preview.', 'warn');
+    /* Try to find and run an HTML file */
+    var htmlFile = Object.keys(files).find(function(f){return extOf(f)==='html';});
+    if(htmlFile){ activeFile = htmlFile; return runHtmlPreview(); }
+    return;
+  }
+  consolePrint('Unsupported language for direct execution: ' + lang, 'warn');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AI CODE REVIEW
+   ═══════════════════════════════════════════════════════════ */
+async function aiReview(){
+  if(!activeFile || !files[activeFile]){consolePrint('No file open.','warn');return;}
+  switchOutputTab('review');
+  var panel = document.getElementById('pgReview');
+  panel.innerHTML = '<p style="color:var(--pg-muted)"><i class="fas fa-circle-notch fa-spin me-1"></i> Analyzing ' + esc(activeFile) + '...</p>';
+  try{
+    var resp = await fetch('{% url "code_review" %}', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+      body:JSON.stringify({code:files[activeFile], language:langOf(activeFile)})
     });
-    const data = await resp.json();
-    if (data.review) {
-      const r = data.review;
-      let html = `<div class="review-score" style="color:${r.score >= 8 ? '#22c55e' : r.score >= 5 ? '#f59e0b' : '#ef4444'}">${r.score}/10</div>`;
-      html += `<p style="font-size:.8rem;margin:.5rem 0">${r.summary || ''}</p>`;
-      if (r.issues && r.issues.length) {
-        r.issues.forEach(i => {
-          html += `<div class="review-issue ${i.severity || 'info'}"><strong>${i.severity || 'info'}:</strong> ${i.message || i}</div>`;
+    var data = await resp.json();
+    if(data.review){
+      var r = data.review;
+      var scoreColor = r.score >= 8 ? 'var(--pg-success)' : r.score >= 5 ? 'var(--pg-warning)' : 'var(--pg-danger)';
+      var pct = (r.score / 10 * 100);
+      var html = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">' +
+        '<div class="pg-review-score" style="color:'+scoreColor+'">' + r.score + '<span style="font-size:.9rem;opacity:.5">/10</span></div>' +
+        '<div style="flex:1"><div class="pg-review-bar"><div class="pg-review-bar-fill" style="width:'+pct+'%;background:'+scoreColor+'"></div></div></div></div>';
+      if(r.summary) html += '<p style="font-size:.8rem;margin:0 0 10px;line-height:1.5">' + esc(r.summary) + '</p>';
+      if(r.issues && r.issues.length){
+        html += '<h4 style="font-size:.78rem;font-weight:700;margin:8px 0 6px"><i class="fas fa-list-check me-1"></i>Issues (' + r.issues.length + ')</h4>';
+        r.issues.forEach(function(iss){
+          var sev = iss.severity || 'info';
+          html += '<div class="pg-review-issue ' + sev + '"><strong>' + sev.toUpperCase() + ':</strong> ' + esc(iss.message || String(iss)) + '</div>';
         });
       }
-      content.innerHTML = html;
+      panel.innerHTML = html;
+      consolePrint('AI Review complete — Score: ' + r.score + '/10', r.score >= 7 ? 'info' : 'warn');
     } else {
-      content.innerHTML = '<p style="font-size:.8rem;color:#ef4444">Review unavailable. Check API key config.</p>';
+      panel.innerHTML = '<p style="color:var(--pg-danger)"><i class="fas fa-exclamation-circle me-1"></i>Review unavailable. Is the API key configured?</p>';
     }
-  } catch(e) {
-    content.innerHTML = '<p style="font-size:.8rem;color:#ef4444">Error: ' + e.message + '</p>';
+  }catch(e){
+    panel.innerHTML = '<p style="color:var(--pg-danger)">Error: ' + esc(e.message) + '</p>';
   }
 }
 
-// Pre-load Pyodide
-initPyodide();
+/* ═══════════════════════════════════════════════════════════
+   PACKAGE MANAGER
+   ═══════════════════════════════════════════════════════════ */
+async function installPackage(name){
+  if(!name) return;
+  consolePrint('Installing package: ' + name + '...', 'info');
+  try{
+    var py = await initPyodide();
+    var micropip = py.pyimport('micropip');
+    await micropip.install(name);
+    if(installedPkgs.indexOf(name) === -1) installedPkgs.push(name);
+    fsSave();
+    consolePrint('Package installed: ' + name, 'info');
+    renderPackageList();
+  }catch(e){
+    consolePrint('Failed to install ' + name + ': ' + e.message, 'err');
+  }
+}
+
+function renderPackageList(){
+  var el = document.getElementById('pkgList');
+  el.innerHTML = '';
+  installedPkgs.forEach(function(pkg){
+    el.innerHTML += '<div class="pg-pkg-item"><span class="name">' + esc(pkg) + '</span><span class="status"><i class="fas fa-check-circle me-1"></i>installed</span></div>';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TEMPLATES
+   ═══════════════════════════════════════════════════════════ */
+function loadTemplate(name){
+  var tmpl = TEMPLATES[name];
+  if(!tmpl) return;
+  Object.keys(tmpl.files).forEach(function(path){
+    files[path] = tmpl.files[path];
+  });
+  /* Open the first file */
+  var first = Object.keys(tmpl.files)[0];
+  openTabs = [first];
+  activeFile = first;
+  fsSave(); renderTree(); renderTabs();
+  if(editor) switchTab(first);
+  consolePrint('Template loaded: ' + tmpl.name, 'info');
+}
+
+function renderTemplateGrid(){
+  var grid = document.getElementById('tmplGrid');
+  grid.innerHTML = '';
+  Object.keys(TEMPLATES).forEach(function(key){
+    var t = TEMPLATES[key];
+    var card = document.createElement('div');
+    card.className = 'pg-tmpl';
+    card.innerHTML = '<i class="'+t.icon+'" style="color:'+t.color+'"></i><div class="pg-tmpl-name">'+esc(t.name)+'</div><div class="pg-tmpl-desc">'+esc(t.desc)+'</div>';
+    card.addEventListener('click', function(){ loadTemplate(key); closeModal('modalTemplates'); });
+    grid.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   IMPORT / EXPORT
+   ═══════════════════════════════════════════════════════════ */
+function importFiles(fileList){
+  Array.from(fileList).forEach(function(f){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var path = f.webkitRelativePath || f.name;
+      path = path.replace(/\\/g,'/');
+      files[path] = e.target.result;
+      fsSave(); renderTree();
+      consolePrint('Imported: ' + path, 'info');
+    };
+    reader.readAsText(f);
+  });
+}
+
+async function exportProject(){
+  if(typeof JSZip === 'undefined'){ consolePrint('JSZip not loaded.','err'); return; }
+  var zip = new JSZip();
+  Object.keys(files).forEach(function(path){ zip.file(path, files[path]); });
+  var blob = await zip.generateAsync({type:'blob'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'playground-project.zip';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  consolePrint('Project exported as playground-project.zip', 'info');
+}
+
+function downloadFile(path){
+  if(!files[path]) return;
+  var blob = new Blob([files[path]], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = basename(path);
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONTEXT MENU
+   ═══════════════════════════════════════════════════════════ */
+function showCtx(e, path){
+  ctxTarget = path;
+  var ctx = document.getElementById('pgCtx');
+  ctx.style.left = e.clientX + 'px';
+  ctx.style.top = e.clientY + 'px';
+  ctx.classList.add('open');
+}
+
+function hideCtx(){ document.getElementById('pgCtx').classList.remove('open'); ctxTarget = null; }
+
+function handleCtx(action){
+  if(!ctxTarget) return;
+  var path = ctxTarget;
+  hideCtx();
+  if(action === 'delete'){
+    if(confirm('Delete "' + path + '"?')) fsDelete(path);
+  } else if(action === 'rename'){
+    startInlineRename(path);
+  } else if(action === 'duplicate'){
+    var newName = path.replace(/(\.[^.]+)$/, '_copy$1');
+    if(!newName.match(/_copy/)) newName = path + '_copy';
+    files[newName] = files[path] || '';
+    fsSave(); renderTree(); openTab(newName);
+  } else if(action === 'download'){
+    downloadFile(path);
+  }
+}
+
+function startInlineRename(path){
+  var item = document.querySelector('.pg-tree-item[data-path="' + CSS.escape(path) + '"]');
+  if(!item) return;
+  var labelSpan = item.querySelector('.pg-tree-label');
+  if(!labelSpan) return;
+  var input = document.createElement('input');
+  input.className = 'pg-tree-rename';
+  input.value = basename(path);
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      var newName = input.value.trim();
+      if(newName && newName !== basename(path)){
+        var dir = dirname(path);
+        var newPath = dir ? dir + '/' + newName : newName;
+        fsRename(path, newPath);
+      } else { renderTree(); }
+    }
+    if(e.key === 'Escape') renderTree();
+  });
+  input.addEventListener('blur', function(){ renderTree(); });
+  labelSpan.innerHTML = '';
+  labelSpan.appendChild(input);
+  input.focus();
+  input.select();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OUTPUT TABS
+   ═══════════════════════════════════════════════════════════ */
+function switchOutputTab(name){
+  document.querySelectorAll('.pg-otab').forEach(function(t){ t.classList.toggle('active', t.dataset.panel === name); });
+  document.querySelectorAll('.pg-opanel').forEach(function(p){ p.classList.toggle('active', p.dataset.panel === name); });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODALS
+   ═══════════════════════════════════════════════════════════ */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+/* ═══════════════════════════════════════════════════════════
+   QUICK OPEN (Ctrl+P)
+   ═══════════════════════════════════════════════════════════ */
+function openQuickOpen(){
+  openModal('modalQuickOpen');
+  var input = document.getElementById('qoSearch');
+  input.value = '';
+  input.focus();
+  renderQuickResults('');
+}
+function renderQuickResults(query){
+  var el = document.getElementById('qoResults');
+  var q = query.toLowerCase();
+  var matches = Object.keys(files).filter(function(p){ return !q || p.toLowerCase().indexOf(q) > -1; }).slice(0, 15);
+  el.innerHTML = '';
+  matches.forEach(function(path){
+    var div = document.createElement('div');
+    div.style.cssText = 'padding:6px 10px;cursor:pointer;border-radius:6px;font-size:.78rem;display:flex;align-items:center;gap:8px';
+    div.innerHTML = '<i class="' + iconOf(path) + '" style="width:16px;text-align:center;color:' + (COLOR_MAP[langOf(path)]||'var(--pg-muted)') + '"></i>' +
+      '<span>' + esc(path) + '</span>';
+    div.addEventListener('click', function(){ closeModal('modalQuickOpen'); openTab(path); });
+    div.addEventListener('mouseenter', function(){ this.style.background = 'var(--pg-border)'; });
+    div.addEventListener('mouseleave', function(){ this.style.background = ''; });
+    el.appendChild(div);
+  });
+  if(!matches.length) el.innerHTML = '<p style="font-size:.75rem;opacity:.5;padding:12px;text-align:center">No matching files</p>';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESIZE HANDLES
+   ═══════════════════════════════════════════════════════════ */
+function initResize(handleId, target, prop, min, max, dir){
+  var handle = document.getElementById(handleId);
+  var el = typeof target === 'string' ? document.getElementById(target) : target;
+  var dragging = false;
+  handle.addEventListener('mousedown', function(e){
+    e.preventDefault(); dragging = true; handle.classList.add('dragging');
+    var startX = e.clientX;
+    var startW = el.getBoundingClientRect().width;
+    function onMove(e2){
+      if(!dragging) return;
+      var delta = dir === 'left' ? e2.clientX - startX : startX - e2.clientX;
+      var w = Math.max(min, Math.min(max, startW + delta));
+      el.style[prop] = w + 'px';
+    }
+    function onUp(){ dragging = false; handle.classList.remove('dragging'); document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DRAG & DROP FILE IMPORT
+   ═══════════════════════════════════════════════════════════ */
+function initDragDrop(){
+  var sidebar = document.getElementById('pgSidebar');
+  sidebar.addEventListener('dragover', function(e){ e.preventDefault(); sidebar.classList.add('dragover'); });
+  sidebar.addEventListener('dragleave', function(){ sidebar.classList.remove('dragover'); });
+  sidebar.addEventListener('drop', function(e){
+    e.preventDefault(); sidebar.classList.remove('dragover');
+    if(e.dataTransfer.files.length) importFiles(e.dataTransfer.files);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+   ═══════════════════════════════════════════════════════════ */
+function initShortcuts(){
+  document.addEventListener('keydown', function(e){
+    var ctrl = e.ctrlKey || e.metaKey;
+    /* Ctrl+Enter: Run */
+    if(ctrl && e.key === 'Enter'){ e.preventDefault(); runCurrentFile(); return; }
+    /* Ctrl+Shift+R: AI Review */
+    if(ctrl && e.shiftKey && e.key === 'R'){ e.preventDefault(); aiReview(); return; }
+    /* Ctrl+N: New file */
+    if(ctrl && e.key === 'n' && !e.shiftKey){ e.preventDefault(); openModal('modalNewFile'); document.getElementById('nfName').focus(); return; }
+    /* Ctrl+P: Quick open */
+    if(ctrl && e.key === 'p'){ e.preventDefault(); openQuickOpen(); return; }
+    /* Ctrl+S: Save (just mark clean) */
+    if(ctrl && e.key === 's'){ e.preventDefault(); if(activeFile){ delete modified[activeFile]; fsSave(); renderTabs(); renderTree(); consolePrint('Saved: ' + activeFile, 'info'); } return; }
+    /* Ctrl+W: Close tab */
+    if(ctrl && e.key === 'w'){ e.preventDefault(); if(activeFile) closeTab(activeFile); return; }
+    /* Ctrl+B: Toggle sidebar */
+    if(ctrl && e.key === 'b'){ e.preventDefault(); toggleSidebar(); return; }
+    /* Ctrl+Shift+E: Export */
+    if(ctrl && e.shiftKey && e.key === 'E'){ e.preventDefault(); exportProject(); return; }
+    /* Escape: Close modals */
+    if(e.key === 'Escape'){
+      document.querySelectorAll('.pg-backdrop.open').forEach(function(m){ m.classList.remove('open'); });
+      hideCtx();
+    }
+  });
+}
+
+function toggleSidebar(){
+  var sb = document.getElementById('pgSidebar');
+  var rz = document.getElementById('resizeSidebar');
+  if(sb.style.display === 'none'){ sb.style.display = ''; rz.style.display = ''; }
+  else{ sb.style.display = 'none'; rz.style.display = 'none'; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════════════════ */
+function esc(s){ var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+/* ═══════════════════════════════════════════════════════════
+   INIT MONACO
+   ═══════════════════════════════════════════════════════════ */
+function initMonaco(){
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  window.MonacoEnvironment = {
+    getWorkerUrl: function(){
+      return 'data:text/javascript;charset=utf-8,' + encodeURIComponent(
+        "self.MonacoEnvironment={baseUrl:'" + MONACO_CDN.replace('/vs','') + "/'};importScripts('" + MONACO_CDN + "/base/worker/workerMain.js');"
+      );
+    }
+  };
+
+  require.config({ paths: { vs: MONACO_CDN } });
+  require(['vs/editor/editor.main'], function(){
+    document.getElementById('monacoLoading').style.display = 'none';
+
+    editor = monaco.editor.create(document.getElementById('pgMonaco'), {
+      theme: isDark ? 'vs-dark' : 'vs',
+      fontSize: 14,
+      fontFamily: "'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace",
+      fontLigatures: true,
+      minimap: { enabled: true, maxColumn: 80 },
+      scrollBeyondLastLine: false,
+      padding: { top: 8 },
+      renderWhitespace: 'selection',
+      bracketPairColorization: { enabled: true },
+      autoIndent: 'full',
+      formatOnPaste: true,
+      smoothScrolling: true,
+      cursorBlinking: 'smooth',
+      cursorSmoothCaretAnimation: 'on',
+      wordWrap: 'on',
+      tabSize: 4,
+      insertSpaces: true,
+      automaticLayout: true,
+      suggest: { showKeywords: true, showSnippets: true }
+    });
+
+    /* Track cursor */
+    editor.onDidChangeCursorPosition(function(){ updateStatusBar(); });
+
+    /* Ctrl+Enter inside Monaco */
+    editor.addAction({
+      id: 'run-code', label: 'Run Code', keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      run: function(){ runCurrentFile(); }
+    });
+    /* Ctrl+Shift+R inside Monaco */
+    editor.addAction({
+      id: 'ai-review', label: 'AI Review', keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyR],
+      run: function(){ aiReview(); }
+    });
+
+    /* Open the active file */
+    if(activeFile) switchTab(activeFile);
+    else showWelcome();
+
+    /* Listen for theme changes */
+    var observer = new MutationObserver(function(){
+      var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      monaco.editor.setTheme(dark ? 'vs-dark' : 'vs');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WIRE UP UI
+   ═══════════════════════════════════════════════════════════ */
+function initUI(){
+  /* Toolbar buttons */
+  document.getElementById('btnRun').addEventListener('click', runCurrentFile);
+  document.getElementById('btnReview').addEventListener('click', aiReview);
+  document.getElementById('btnNewFile').addEventListener('click', function(){ openModal('modalNewFile'); document.getElementById('nfName').value=''; document.getElementById('nfName').focus(); });
+  document.getElementById('btnNewFolder').addEventListener('click', function(){ openModal('modalNewFolder'); document.getElementById('nfolderName').value=''; document.getElementById('nfolderName').focus(); });
+  document.getElementById('btnTemplates').addEventListener('click', function(){ renderTemplateGrid(); openModal('modalTemplates'); });
+  document.getElementById('btnPackages').addEventListener('click', function(){ renderPackageList(); openModal('modalPackages'); });
+  document.getElementById('btnImport').addEventListener('click', function(){ document.getElementById('importInput').click(); });
+  document.getElementById('btnExport').addEventListener('click', exportProject);
+  document.getElementById('btnShortcuts').addEventListener('click', function(){ openModal('modalShortcuts'); });
+
+  /* Tree sidebar buttons */
+  document.getElementById('treeNewFile').addEventListener('click', function(){ openModal('modalNewFile'); document.getElementById('nfName').value=''; document.getElementById('nfName').focus(); });
+  document.getElementById('treeCollapse').addEventListener('click', function(){
+    Object.keys(files).forEach(function(p){ var d=dirname(p); if(d) collapsedFolders[d]=true; });
+    fsSave(); renderTree();
+  });
+
+  /* Import input */
+  document.getElementById('importInput').addEventListener('change', function(e){ if(e.target.files.length) importFiles(e.target.files); e.target.value=''; });
+
+  /* New File modal */
+  document.getElementById('nfCreate').addEventListener('click', function(){
+    var name = document.getElementById('nfName').value.trim();
+    if(name){ fsCreate(name, ''); closeModal('modalNewFile'); }
+  });
+  document.getElementById('nfName').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ document.getElementById('nfCreate').click(); }
+  });
+
+  /* New Folder modal */
+  document.getElementById('nfolderCreate').addEventListener('click', function(){
+    var name = document.getElementById('nfolderName').value.trim().replace(/\\/g,'/').replace(/^\/+/,'').replace(/\/+$/,'');
+    if(name){ folders[name] = true; fsSave(); renderTree(); closeModal('modalNewFolder'); consolePrint('Folder created: ' + name, 'info'); }
+  });
+  document.getElementById('nfolderName').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('nfolderCreate').click();
+  });
+
+  /* Package install */
+  document.getElementById('pkgInstall').addEventListener('click', function(){
+    var name = document.getElementById('pkgName').value.trim();
+    if(name){ installPackage(name); document.getElementById('pkgName').value=''; }
+  });
+  document.getElementById('pkgName').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('pkgInstall').click();
+  });
+
+  /* Output tabs */
+  document.querySelectorAll('.pg-otab').forEach(function(tab){
+    tab.addEventListener('click', function(){ switchOutputTab(tab.dataset.panel); });
+  });
+
+  /* Console buttons */
+  document.getElementById('btnClearConsole').addEventListener('click', consoleClear);
+  document.getElementById('btnWrapToggle').addEventListener('click', function(){
+    wrapOutput = !wrapOutput;
+    document.getElementById('pgConsole').style.whiteSpace = wrapOutput ? 'pre-wrap' : 'pre';
+  });
+
+  /* Context menu */
+  document.querySelectorAll('.pg-ctx-item').forEach(function(item){
+    item.addEventListener('click', function(){ handleCtx(item.dataset.action); });
+  });
+  document.addEventListener('click', hideCtx);
+
+  /* Quick open live search */
+  document.getElementById('qoSearch').addEventListener('input', function(e){ renderQuickResults(e.target.value); });
+  document.getElementById('qoSearch').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      var first = document.querySelector('#qoResults > div');
+      if(first) first.click();
+    }
+  });
+
+  /* Close modals on backdrop click */
+  document.querySelectorAll('.pg-backdrop').forEach(function(bd){
+    bd.addEventListener('click', function(e){ if(e.target === bd) bd.classList.remove('open'); });
+  });
+
+  /* Resize handles */
+  initResize('resizeSidebar', 'pgSidebar', 'width', 120, 400, 'left');
+  initResize('resizeOutput', 'pgOutput', 'width', 160, window.innerWidth * 0.65, 'right');
+
+  /* Drag & drop */
+  initDragDrop();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BOOT
+   ═══════════════════════════════════════════════════════════ */
+function boot(){
+  fsLoad();
+  renderTree();
+  renderTabs();
+  initUI();
+  initShortcuts();
+  initMonaco();
+  /* Lazy-load Pyodide in background */
+  setTimeout(function(){ initPyodide().catch(function(e){ consolePrint('Pyodide load failed: '+e.message,'err'); }); }, 1000);
+}
+
+boot();
+
+/* ── Public API ── */
+return { closeModal:closeModal, openModal:openModal };
+}());
 </script>
 {% endblock %}
