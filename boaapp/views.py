@@ -9,7 +9,6 @@ import tempfile
 from django.conf import settings
 from django.db import transaction
 from django.contrib import messages
-from kombu import Connection
 from celery.result import AsyncResult
 from celery import current_app
 from django.contrib.auth import authenticate, login, logout
@@ -288,36 +287,32 @@ def upload_document(request):
             )
             document.save()
 
-            # --- Trigger Audio Creation Task ---
+            # --- Trigger Audio Creation in Background Thread ---
+            # In EAGER mode, apply_async runs synchronously and blocks the request.
+            # Use a background thread so the user gets an immediate redirect.
             logger.info(f"Triggering audio creation for document PK {document.pk}")
-            try:
-                if getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
-                    logger.info("Running task in eager mode (synchronous)")
-                    async_result = create_audio_files_task.apply_async(
-                        args=[document.pk, request.user.pk]
-                    )
-                else:
-                    broker_url = settings.CELERY_BROKER_URL
-                    with Connection(broker_url) as conn:
-                        async_result = create_audio_files_task.apply_async(
-                            args=[document.pk, request.user.pk],
-                            connection=conn
-                        )
-                task_id = async_result.id
-                logger.info(f"Task sent successfully. Task ID: {task_id}")
-                redirect_url = f"{redirect('dashboard').url}?audio_task_id={task_id}"
 
-            except ConnectionRefusedError as e_conn:
-                logger.error(f"Connection refused: {e_conn}", exc_info=True)
-                messages.error(request, "Failed to connect to the background task queue.")
-                return redirect('dashboard')
-            except Exception as e_send:
-                logger.error(f"Error sending task: {e_send}", exc_info=True)
-                messages.error(request, f"Failed to queue background task: {e_send}")
-                return redirect('dashboard')
+            def _run_audio_generation(doc_pk, user_pk):
+                """Run audio generation in a background thread."""
+                import django
+                from django.db import connection
+                try:
+                    create_audio_files_task(doc_pk, user_pk)
+                    logger.info(f"Background audio generation completed for document PK {doc_pk}")
+                except Exception as e:
+                    logger.error(f"Background audio generation failed for document PK {doc_pk}: {e}", exc_info=True)
+                finally:
+                    connection.close()
 
-            messages.success(request, f"Notebook '{original_filename}' uploaded successfully. Audio generation started.")
-            return redirect(redirect_url)
+            thread = threading.Thread(
+                target=_run_audio_generation,
+                args=[document.pk, request.user.pk],
+                daemon=True,
+            )
+            thread.start()
+
+            messages.success(request, f"Notebook '{original_filename}' uploaded successfully. Audio generation started — refresh the dashboard in a moment.")
+            return redirect('dashboard')
     else:
         form = DocumentForm()
 
@@ -628,10 +623,13 @@ def run_full_pipeline(request, document_pk):
 
     # Run in background thread so the response returns immediately
     def _run_pipeline(doc_pk, user_pk, run_pk):
+        from django.db import connection
         try:
             run_full_pipeline_task.apply(args=[doc_pk, user_pk, run_pk])
         except Exception as e:
             logger.error(f"Background pipeline failed for doc {doc_pk}: {e}")
+        finally:
+            connection.close()
 
     thread = threading.Thread(
         target=_run_pipeline,
