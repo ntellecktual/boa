@@ -194,12 +194,12 @@
           </div>
 
           <div class="sk-cat" data-cat="dev">
-            <div class="sk-row"><span class="sk-name">Python</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="95" data-pct="95%"></div></div><span class="sk-yrs">10+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Django</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="93" data-pct="93%"></div></div><span class="sk-yrs">6+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">REST APIs</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="94" data-pct="94%"></div></div><span class="sk-yrs">8+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Python</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="95" data-pct="95%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
+            <div class="sk-row"><span class="sk-name">Django</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="93" data-pct="93%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
+            <div class="sk-row"><span class="sk-name">REST APIs</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="94" data-pct="94%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
             <div class="sk-row"><span class="sk-name">JavaScript</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="82" data-pct="82%"></div></div><span class="sk-yrs">7+ yrs</span></div>
             <div class="sk-row"><span class="sk-name">HTMX</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="86" data-pct="86%"></div></div><span class="sk-yrs">2+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">SQL</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="92" data-pct="92%"></div></div><span class="sk-yrs">10+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">SQL</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="92" data-pct="92%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
           </div>
 
           <div class="sk-cat" data-cat="devops">
@@ -208,7 +208,7 @@
             <div class="sk-row"><span class="sk-name">CI/CD Pipelines</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="95" data-pct="95%"></div></div><span class="sk-yrs">8+ yrs</span></div>
             <div class="sk-row"><span class="sk-name">IaC</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="88" data-pct="88%"></div></div><span class="sk-yrs">5+ yrs</span></div>
             <div class="sk-row"><span class="sk-name">Monitoring</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="87" data-pct="87%"></div></div><span class="sk-yrs">6+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Git</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="94" data-pct="94%"></div></div><span class="sk-yrs">10+ yrs</span></div>
+            <div class="sk-row"><span class="sk-name">Git</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="94" data-pct="94%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
           </div>
 
           <div class="sk-cat" data-cat="ai">
@@ -353,6 +353,15 @@ new Typed('#homeTyped', {
       if(cat){cat.classList.add('active');animateBars(cat);}
     });
   });
+  /* Dynamic years from start date (auto-increments each year) */
+  (function(){
+    var now=new Date().getFullYear();
+    document.querySelectorAll('.sk-yrs[data-start]').forEach(function(el){
+      var yrs=now-parseInt(el.getAttribute('data-start'),10);
+      el.textContent=yrs+'+ yrs';
+    });
+  }());
+
   /* Initial animation */
   var first=document.querySelector('.sk-cat.active');
   if(first){
