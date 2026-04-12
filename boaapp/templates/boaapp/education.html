@@ -3,39 +3,78 @@
 
 {% block title %}thenumerix | Education{% endblock %}
 
+{% block container_class %}education-container{% endblock %}
+
 {% block content %}
 <style>
-:root{--c-blue:#3b82f6;--c-violet:#8b5cf6;--c-card:#ffffff;--c-border:rgba(0,0,0,.05);--c-muted:#64748b;--c-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);--c-shadow-lg:0 20px 50px rgba(0,0,0,.1);--c-radius:24px}
-[data-theme="dark"]{--c-card:rgba(22,27,45,.95);--c-border:rgba(255,255,255,.07);--c-muted:#94a3b8;--c-shadow:0 2px 8px rgba(0,0,0,.25);--c-shadow-lg:0 20px 50px rgba(0,0,0,.4)}
+:root{--c-blue:#3b82f6;--c-violet:#8b5cf6;--c-card:#ffffff;--c-border:rgba(0,0,0,.05);--c-muted:#64748b;--c-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);--c-shadow-lg:0 20px 50px rgba(0,0,0,.1);--c-radius:24px;--c-text:#0f172a}
+[data-theme="dark"]{--c-card:rgba(22,27,45,.95);--c-border:rgba(255,255,255,.07);--c-muted:#94a3b8;--c-shadow:0 2px 8px rgba(0,0,0,.25);--c-shadow-lg:0 20px 50px rgba(0,0,0,.4);--c-text:#f1f5f9}
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-.pt-hero{text-align:center;padding:3.5rem 1rem 2.5rem;animation:fadeUp .6s ease both}
+
+/* ── EDUCATION CONTAINER (overrides global .container flex) ── */
+.education-container{
+  position:relative;display:block;width:100%;max-width:100%;
+  min-height:100vh;padding:0;color:var(--c-text);
+}
+
+/* ── HERO ── */
+.pt-hero{text-align:center;padding:3.5rem 1rem 2.5rem;width:100%;animation:fadeUp .6s ease both}
 .pt-tag{display:inline-block;padding:.35rem 1.1rem;border-radius:999px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.1);color:var(--c-blue)}
-.pt-hero h1{font-size:clamp(2rem,4.5vw,2.8rem);font-weight:800;margin-bottom:.7rem;color:#0f172a;letter-spacing:-.02em}
-[data-theme="dark"] .pt-hero h1{color:#f1f5f9}
+.pt-hero h1{font-size:clamp(2rem,4.5vw,2.8rem);font-weight:800;margin-bottom:.7rem;color:var(--c-text);letter-spacing:-.02em}
 .pt-hero .lead{font-size:1rem;color:var(--c-muted);max-width:580px;margin:0 auto;line-height:1.7}
-/* Credential chip */
+
+/* ── CREDENTIAL CHIPS ── */
 .pt-cred{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .9rem;border-radius:999px;font-size:.72rem;font-weight:700;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.1);color:var(--c-blue);margin-bottom:.7rem}
 .pt-cred--green{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.12);color:#059669}
 .pt-cred--violet{background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.12);color:#7c3aed}
 .pt-cred--amber{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.12);color:#b45309}
-.pt-stack{max-width:760px;margin:0 auto 4rem;display:flex;flex-direction:column;gap:2rem;padding:0 .5rem}
-.pt-card{border-radius:var(--c-radius);border:1px solid var(--c-border);background:var(--c-card);box-shadow:var(--c-shadow);overflow:hidden;transition:box-shadow .3s,transform .3s}
-.pt-card:hover{box-shadow:var(--c-shadow-lg);transform:translateY(-3px)}
+
+/* ── CARD STACK ── */
+.pt-stack{max-width:760px;margin:0 auto 4rem;display:flex;flex-direction:column;gap:2rem;padding:0 1rem;width:100%}
+
+/* ── CARDS (Runway-inspired) ── */
+.pt-card{
+  border-radius:var(--c-radius);border:1px solid var(--c-border);
+  background:var(--c-card);box-shadow:var(--c-shadow);overflow:hidden;
+  transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s ease;
+  opacity:0;animation:fadeUp .5s ease both;
+}
+.pt-card:nth-child(1){animation-delay:.05s}
+.pt-card:nth-child(2){animation-delay:.15s}
+.pt-card:nth-child(3){animation-delay:.25s}
+.pt-card:nth-child(4){animation-delay:.35s}
+.pt-card:hover{
+  box-shadow:0 28px 70px rgba(0,0,0,.12),0 0 0 1px rgba(59,130,246,.1);
+  transform:translateY(-6px) scale(1.01);
+}
+[data-theme="dark"] .pt-card:hover{
+  box-shadow:0 28px 70px rgba(0,0,0,.35),0 0 0 1px rgba(59,130,246,.2);
+}
+
 .pt-card-head{display:flex;align-items:center;gap:1.8rem;padding:2.5rem 2.5rem 0}
-.pt-logo{width:80px !important;height:80px !important;max-width:80px !important;object-fit:contain;border-radius:18px;border:1px solid var(--c-border);background:#fff;padding:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.pt-logo{width:80px;height:80px;max-width:80px;object-fit:contain;border-radius:18px;border:1px solid var(--c-border);background:#fff;padding:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:transform .3s ease,box-shadow .3s ease}
+.pt-card:hover .pt-logo{transform:scale(1.06);box-shadow:0 6px 20px rgba(0,0,0,.1)}
 [data-theme="dark"] .pt-logo{background:rgba(255,255,255,.08);box-shadow:none}
+[data-theme="dark"] .pt-card:hover .pt-logo{box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .pt-org{flex:1;min-width:0}
-.pt-org-name{font-size:1.25rem;font-weight:800;margin:0 0 .35rem;line-height:1.3;color:#0f172a;letter-spacing:-.01em}
-[data-theme="dark"] .pt-org-name{color:#f1f5f9}
+.pt-org-name{font-size:1.3rem;font-weight:800;margin:0 0 .35rem;line-height:1.3;color:var(--c-text);letter-spacing:-.015em}
 .pt-org-degree{font-size:.88rem;font-weight:500;color:var(--c-muted);margin:0;line-height:1.5}
+
 .pt-content{padding:2rem 2.5rem 2.5rem}
 .pt-content h5{font-size:1.05rem;font-weight:700;margin-bottom:1rem;color:var(--c-blue)}
 .pt-content ul{font-size:.9rem;line-height:1.9;padding-left:1.4rem;margin-bottom:1rem;color:#374151}
 [data-theme="dark"] .pt-content ul{color:#d1d5db}
 .pt-content li{margin-bottom:.7rem}
 .pt-content p{font-size:.85rem;color:var(--c-muted);margin:0}
-.pt-content a{color:var(--c-blue);text-decoration:none}
-.pt-content a:hover{text-decoration:underline}
+.pt-content a{color:var(--c-blue);text-decoration:none;transition:color .2s}
+.pt-content a:hover{text-decoration:underline;color:#2563eb}
+
+@media(max-width:560px){
+  .pt-card-head{padding:1.5rem 1.2rem 0;gap:1.2rem}
+  .pt-logo{width:56px;height:56px;max-width:56px;border-radius:14px;padding:6px}
+  .pt-org-name{font-size:1.1rem}
+  .pt-content{padding:1.2rem 1.2rem 1.5rem}
+}
 </style>
 
 <div class="pt-hero">
@@ -49,7 +88,7 @@
   <!-- UT Austin -->
   <div class="pt-card">
     <div class="pt-card-head">
-      <img src="{% static 'css/img/uta_logo.png' %}" alt="UT Austin" class="pt-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain" loading="lazy">
+      <img src="{% static 'css/img/uta_logo.png' %}" alt="UT Austin" class="pt-logo" loading="lazy">
       <div class="pt-org">
         <p class="pt-org-name">University of Texas at Austin</p>
         <p class="pt-org-degree">Post Graduate Doctoral Degree &middot; Cloud Computing</p>
@@ -71,7 +110,7 @@
   <!-- Python Institute -->
   <div class="pt-card">
     <div class="pt-card-head">
-      <img src="{% static 'css/img/python_institute_logo.png' %}" alt="Python Institute" class="pt-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain" loading="lazy">
+      <img src="{% static 'css/img/python_institute_logo.png' %}" alt="Python Institute" class="pt-logo" loading="lazy">
       <div class="pt-org">
         <p class="pt-org-name">Python Institute</p>
         <p class="pt-org-degree">PCAP &ndash; Certified Associate in Python Programming</p>
@@ -90,7 +129,7 @@
   <!-- SMU -->
   <div class="pt-card">
     <div class="pt-card-head">
-      <img src="{% static 'css/img/smu_logo.png' %}" alt="SMU" class="pt-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain" loading="lazy">
+      <img src="{% static 'css/img/smu_logo.png' %}" alt="SMU" class="pt-logo" loading="lazy">
       <div class="pt-org">
         <p class="pt-org-name">SMU (in conjunction with Coding Dojo)</p>
         <p class="pt-org-degree">Master of Science &middot; Big Data &amp; DevOps</p>
@@ -111,7 +150,7 @@
   <!-- UC Riverside -->
   <div class="pt-card">
     <div class="pt-card-head">
-      <img src="{% static 'css/img/ucr_logo.png' %}" alt="UC Riverside" class="pt-logo" style="width:80px;height:80px;max-width:80px;object-fit:contain" loading="lazy">
+      <img src="{% static 'css/img/ucr_logo.png' %}" alt="UC Riverside" class="pt-logo" loading="lazy">
       <div class="pt-org">
         <p class="pt-org-name">University of California, Riverside</p>
         <p class="pt-org-degree">Bachelor of Science &middot; Management / Finance</p>
