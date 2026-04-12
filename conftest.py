@@ -12,3 +12,10 @@ def pytest_configure(config):
     # Disable cachalot in tests to avoid cache interference
     if 'cachalot' in settings.INSTALLED_APPS:
         settings.INSTALLED_APPS = [a for a in settings.INSTALLED_APPS if a != 'cachalot']
+    # Use simple static files storage so tests don't need collectstatic / manifest
+    settings.STORAGES = {
+        **getattr(settings, 'STORAGES', {}),
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
