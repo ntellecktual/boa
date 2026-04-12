@@ -6,6 +6,7 @@ from django.urls import reverse
 # Auth
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.django_db
 def test_home_redirects_anonymous(client):
     """Unauthenticated users are redirected away from the home dashboard."""
@@ -37,6 +38,7 @@ def test_authenticated_user_reaches_home(client):
 # Public pages
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.django_db
 def test_portfolio_showcase_loads(client):
     response = client.get(reverse('portfolio_showcase'))
@@ -59,6 +61,7 @@ def test_live_demos_page_loads(client):
 # Health check
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.django_db
 def test_health_endpoint_responds(client):
     response = client.get('/health/')
@@ -69,6 +72,7 @@ def test_health_endpoint_responds(client):
 # ---------------------------------------------------------------------------
 # API
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.django_db
 def test_api_health_endpoint(client):
@@ -94,6 +98,7 @@ def test_api_docs_accessible(client):
 # Status page
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.django_db
 def test_status_page_loads(client):
     response = client.get('/status/')
@@ -108,4 +113,3 @@ def test_portfolio_pdf_returns_pdf(client):
     assert response.status_code in (200, 501)
     if response.status_code == 200:
         assert response['Content-Type'] == 'application/pdf'
-
