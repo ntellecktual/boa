@@ -1,551 +1,467 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
-{% block title %}thenumerix | Fantasy Football Draft Simulator{% endblock %}
+{% block title %}thenumerix | Fantasy Football Draft Room{% endblock %}
 
 {% block content %}
 <style>
 /* ══════════════════════════════════════════════════════════════════
-   2026 FANTASY FOOTBALL DRAFT SIMULATOR — Premium Design Tokens
+   2026 FANTASY FOOTBALL DRAFT ROOM — Full Draft Experience
    ══════════════════════════════════════════════════════════════════ */
 :root{
   --dr-blue:#3b82f6;--dr-violet:#8b5cf6;--dr-emerald:#10b981;--dr-amber:#f59e0b;--dr-rose:#ef4444;
   --dr-navy:#013369;--dr-red:#d50a0a;--dr-gold:#c9b037;
-  --dr-grad-b:linear-gradient(135deg,#3b82f6,#8b5cf6);
-  --dr-grad-g:linear-gradient(135deg,#10b981,#059669);
-  --dr-grad-v:linear-gradient(135deg,#8b5cf6,#6d28d9);
-  --dr-grad-a:linear-gradient(135deg,#f59e0b,#d97706);
-  --dr-grad-nfl:linear-gradient(135deg,#013369,#d50a0a);
-  --dr-grad-gold:linear-gradient(135deg,#c9b037,#daa520);
-  --dr-surface:rgba(255,255,255,.78);--dr-border:rgba(0,0,0,.08);
+  --dr-surface:rgba(255,255,255,.92);--dr-border:rgba(0,0,0,.08);
   --dr-shadow:0 4px 24px rgba(0,0,0,.07);--dr-shadow-lg:0 12px 48px rgba(0,0,0,.13);
+  --dfr-bg:#f0f2f5;--dfr-card:#fff;--dfr-text:#0f172a;--dfr-muted:#64748b;
+  --dfr-header:#013369;--dfr-header-text:#fff;--dfr-accent:#3b82f6;
+  --dfr-row-hover:rgba(59,130,246,.04);--dfr-user-bg:rgba(1,51,105,.06);
+  --dfr-user-border:#013369;--dfr-timer-warn:#ef4444;
 }
 [data-theme="dark"]{
-  --dr-surface:rgba(22,28,45,.82);--dr-border:rgba(255,255,255,.08);
+  --dr-surface:rgba(22,28,45,.92);--dr-border:rgba(255,255,255,.08);
   --dr-shadow:0 4px 24px rgba(0,0,0,.42);--dr-shadow-lg:0 12px 48px rgba(0,0,0,.58);
+  --dfr-bg:#0f1219;--dfr-card:#1a1f2e;--dfr-text:#e2e8f0;--dfr-muted:#94a3b8;
+  --dfr-header:#1e293b;--dfr-header-text:#e2e8f0;--dfr-accent:#60a5fa;
+  --dfr-row-hover:rgba(59,130,246,.08);--dfr-user-bg:rgba(59,130,246,.1);
+  --dfr-user-border:#60a5fa;
 }
-@keyframes drFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@keyframes drFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@keyframes drPulse{0%,100%{box-shadow:0 0 0 0 rgba(1,51,105,.3)}70%{box-shadow:0 0 0 8px rgba(1,51,105,0)}}
-@keyframes drSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
-@keyframes drShine{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes dfrFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dfrSlideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes dfrPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes dfrFlash{0%{background:rgba(59,130,246,.15)}100%{background:transparent}}
+@keyframes dfrTimerWarn{0%,100%{color:var(--dfr-timer-warn)}50%{color:transparent}}
+@keyframes dfrGlow{0%,100%{box-shadow:0 0 20px rgba(59,130,246,.3)}50%{box-shadow:0 0 40px rgba(59,130,246,.6)}}
 
-/* ── Hero ── */
-.dr-hero{text-align:center;padding:3.5rem 0 2.5rem;position:relative;overflow:hidden}
-.dr-hero::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(1,51,105,.12) 0%,transparent 70%),
-             radial-gradient(ellipse 45% 35% at 85% 110%,rgba(213,10,10,.08) 0%,transparent 60%);pointer-events:none}
-.dr-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .9rem;border-radius:999px;
-  background:rgba(1,51,105,.1);border:1px solid rgba(1,51,105,.22);font-size:.72rem;font-weight:700;
-  color:#013369;margin-bottom:.9rem;text-transform:uppercase;letter-spacing:.06em}
-[data-theme="dark"] .dr-badge{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.22);color:#60a5fa}
-.dr-hero h1{font-size:clamp(1.9rem,4.5vw,3.1rem);font-weight:800;line-height:1.1;margin-bottom:.8rem;
+/* ── Lobby ── */
+.dfr-lobby{max-width:800px;margin:0 auto;padding:2rem 1rem;text-align:center}
+.dfr-lobby-hero{margin-bottom:2rem}
+.dfr-lobby-icon{font-size:3rem;margin-bottom:.5rem}
+.dfr-lobby-hero h1{font-size:2.2rem;font-weight:900;margin:0;
   background:linear-gradient(135deg,#013369 0%,#d50a0a 50%,#013369 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-[data-theme="dark"] .dr-hero h1{background:linear-gradient(135deg,#e2e8f0 0%,#d50a0a 50%,#60a5fa 100%);
+[data-theme="dark"] .dfr-lobby-hero h1{background:linear-gradient(135deg,#e2e8f0,#d50a0a,#60a5fa);
   -webkit-background-clip:text;background-clip:text}
-.dr-hero .lead{font-size:1rem;opacity:.7;max-width:680px;margin:0 auto 2rem;line-height:1.65}
-.dr-kpi-strip{display:flex;justify-content:center;flex-wrap:wrap;gap:.85rem;margin-top:1rem}
-.dr-kpi{display:flex;align-items:center;gap:.5rem;padding:.55rem 1rem;border-radius:14px;
-  background:var(--dr-surface);border:1px solid var(--dr-border);backdrop-filter:blur(8px);
-  box-shadow:var(--dr-shadow);animation:drFloat 3s ease-in-out infinite}
-.dr-kpi:nth-child(2){animation-delay:.4s}.dr-kpi:nth-child(3){animation-delay:.8s}.dr-kpi:nth-child(4){animation-delay:1.2s}
-.dr-kpi:nth-child(5){animation-delay:1.6s}.dr-kpi:nth-child(6){animation-delay:2s}
-.dr-kpi-val{font-size:1.1rem;font-weight:800;background:var(--dr-grad-nfl);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.dr-kpi-lbl{font-size:.68rem;opacity:.6;line-height:1.25}
+.dfr-lobby-hero p{font-size:.95rem;color:var(--dfr-muted);margin:.5rem 0 0}
+.dfr-lobby-stats{display:flex;justify-content:center;gap:1.5rem;margin:1.2rem 0;flex-wrap:wrap}
+.dfr-lobby-stat{text-align:center}
+.dfr-lobby-stat .val{font-size:1.4rem;font-weight:800;color:var(--dfr-accent)}
+.dfr-lobby-stat .lbl{font-size:.65rem;color:var(--dfr-muted);text-transform:uppercase;letter-spacing:.05em}
 
-/* ── Sections ── */
-.dr-sec{padding:1.8rem 0;animation:drFadeUp .6s ease both}
-.dr-sec-head{text-align:center;margin-bottom:1.4rem}
-.dr-sec-head h2{font-size:1.55rem;font-weight:800;margin-bottom:.25rem}
-.dr-sec-head p{font-size:.88rem;opacity:.65;max-width:580px;margin:0 auto}
-.dr-tag{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.63rem;
-  font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
-.dr-tag--b{background:rgba(59,130,246,.11);color:#2563eb}
-.dr-tag--g{background:rgba(16,185,129,.11);color:#059669}
-.dr-tag--v{background:rgba(139,92,246,.11);color:#7c3aed}
-.dr-tag--a{background:rgba(245,158,11,.11);color:#b45309}
-.dr-tag--r{background:rgba(239,68,68,.11);color:#dc2626}
-.dr-tag--nfl{background:rgba(1,51,105,.11);color:#013369}
-.dr-tag--gold{background:rgba(201,176,55,.12);color:#8b6914}
-[data-theme="dark"] .dr-tag--nfl{background:rgba(59,130,246,.11);color:#60a5fa}
-[data-theme="dark"] .dr-tag--gold{background:rgba(201,176,55,.12);color:#daa520}
+.dfr-settings{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;max-width:650px;margin:0 auto 1.5rem;text-align:left}
+@media(max-width:600px){.dfr-settings{grid-template-columns:1fr}}
+.dfr-setting{background:var(--dfr-card);border:1px solid var(--dr-border);border-radius:14px;padding:1rem}
+.dfr-setting label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--dfr-muted);display:block;margin-bottom:.5rem}
+.dfr-setting select{width:100%;border:1px solid var(--dr-border);border-radius:8px;padding:.45rem .5rem;
+  font-size:.82rem;font-weight:600;background:var(--dfr-bg);font-family:inherit;color:var(--dfr-text)}
+.dfr-fmt-btns{display:flex;border-radius:10px;border:1px solid var(--dr-border);overflow:hidden}
+.dfr-fmt-btns button{flex:1;border:none;background:transparent;padding:.45rem;font-size:.75rem;
+  font-weight:700;cursor:pointer;font-family:inherit;color:var(--dfr-text);opacity:.45;transition:all .2s}
+.dfr-fmt-btns button.active{background:var(--dr-navy);color:#fff;opacity:1}
+[data-theme="dark"] .dfr-fmt-btns button.active{background:#3b82f6}
 
-/* ── Pipeline Ring ── */
-.dr-ring{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap;gap:0;max-width:1020px;margin:0 auto 1.5rem}
-.dr-ring-node{display:flex;flex-direction:column;align-items:center;padding:.9rem .65rem;
-  border-radius:17px;border:1px solid var(--dr-border);background:var(--dr-surface);
-  backdrop-filter:blur(10px);box-shadow:var(--dr-shadow);min-width:95px;text-align:center;
-  transition:transform .25s,box-shadow .25s}
-.dr-ring-node:hover{transform:translateY(-4px);box-shadow:var(--dr-shadow-lg)}
-.dr-ring-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;
-  justify-content:center;font-size:1rem;color:#fff;margin-bottom:.38rem}
-.dr-ring-lbl{font-size:.68rem;font-weight:700;line-height:1.2}
-.dr-ring-sub{font-size:.56rem;opacity:.48;margin-top:.1rem}
-.dr-ring-arr{display:flex;align-items:center;padding:0 .2rem;opacity:.3;font-size:.78rem;align-self:center}
+.dfr-enter-btn{display:inline-flex;align-items:center;gap:.6rem;padding:.9rem 2.5rem;border:none;
+  border-radius:14px;background:linear-gradient(135deg,#013369,#d50a0a);color:#fff;font-size:1.1rem;
+  font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:.03em;
+  box-shadow:0 8px 32px rgba(1,51,105,.3);transition:all .3s;margin-bottom:2rem}
+.dfr-enter-btn:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(1,51,105,.4)}
 
-/* ── Phase Cards ── */
-.dr-phases{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;max-width:980px;margin:0 auto}
-@media(max-width:700px){.dr-phases{grid-template-columns:1fr}}
-.dr-phase{border-radius:20px;padding:1.4rem;border:1px solid var(--dr-border);
-  background:var(--dr-surface);backdrop-filter:blur(12px);box-shadow:var(--dr-shadow);
-  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
-.dr-phase:hover{transform:translateY(-4px);box-shadow:var(--dr-shadow-lg)}
-.dr-phase::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.dr-phase--api::before{background:var(--dr-grad-b)}
-.dr-phase--score::before{background:var(--dr-grad-v)}
-.dr-phase--tier::before{background:var(--dr-grad-gold)}
-.dr-phase--draft::before{background:var(--dr-grad-nfl)}
-.dr-phase--ai::before{background:var(--dr-grad-g)}
-.dr-phase--eval::before{background:var(--dr-grad-a)}
-.dr-phase--roster::before{background:linear-gradient(135deg,#ef4444,#dc2626)}
-.dr-phase--arch::before{background:linear-gradient(135deg,#06b6d4,#0891b2)}
-.dr-phase-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
-  justify-content:center;font-size:1.1rem;color:#fff;margin-bottom:.8rem}
-.dr-phase h3{font-size:1rem;font-weight:800;margin-bottom:.15rem}
-.dr-phase .sub{font-size:.73rem;opacity:.55;margin-bottom:.8rem}
-.dr-ck{display:flex;align-items:flex-start;gap:.35rem;font-size:.74rem;margin-bottom:.35rem;line-height:1.4}
-.dr-ck i{font-size:.65rem;margin-top:.15rem;flex-shrink:0}
-.dr-ck .done{color:var(--dr-emerald)}.dr-ck .info{color:var(--dr-blue)}
-.dr-code{font-family:'Menlo',monospace;font-size:.6rem;background:#0f172a;color:#94a3b8;border-radius:8px;padding:.5rem .7rem;line-height:1.6;margin-top:.5rem;overflow-x:auto}
-[data-theme="dark"] .dr-code{background:rgba(0,0,0,.35)}
-.dr-code .kw{color:#c4b5fd}.dr-code .fn{color:#6ee7b7}.dr-code .cm{color:#475569}.dr-code .num{color:#fcd34d}.dr-code .str{color:#fca5a5}
+.dfr-team-preview{margin-top:1rem}
+.dfr-team-preview h3{font-size:.85rem;font-weight:700;color:var(--dfr-muted);margin-bottom:.8rem}
+.dfr-team-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:.5rem;text-align:left}
+.dfr-team-card{border-radius:10px;border:1px solid var(--dr-border);padding:.55rem .65rem;
+  background:var(--dfr-card);display:flex;align-items:center;gap:.4rem;font-size:.72rem}
+.dfr-team-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dfr-team-card .name{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dfr-team-card .strat{font-size:.58rem;color:var(--dfr-muted)}
 
-/* ── Settings Panel ── */
-.dr-settings{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:0 auto 1.2rem;max-width:740px}
-.dr-setting{display:flex;flex-direction:column;gap:.3rem;align-items:center}
-.dr-setting-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;opacity:.45}
-.dr-radio-grp{display:flex;border-radius:10px;border:1px solid var(--dr-border);overflow:hidden}
-.dr-radio-grp button{border:none;background:transparent;padding:.4rem .7rem;font-size:.7rem;font-weight:700;
-  cursor:pointer;font-family:inherit;transition:all .2s;color:inherit;opacity:.55}
-.dr-radio-grp button.active{background:var(--dr-navy);color:#fff;opacity:1}
-[data-theme="dark"] .dr-radio-grp button.active{background:#3b82f6}
-.dr-sel{border:1px solid var(--dr-border);border-radius:10px;padding:.35rem .55rem;font-size:.72rem;
-  font-weight:700;background:var(--dr-surface);font-family:inherit;cursor:pointer;min-width:60px}
+/* ── Draft Room ── */
+.dfr-room{display:flex;flex-direction:column;min-height:calc(100vh - 110px);background:var(--dfr-bg);
+  margin:-1rem -0.75rem;border-radius:0}
 
-/* ── Dashboard Shell ── */
-.dr-dash{border-radius:22px;border:1px solid var(--dr-border);background:var(--dr-surface);
-  backdrop-filter:blur(14px);box-shadow:var(--dr-shadow-lg);overflow:hidden;max-width:1020px;margin:0 auto}
-.dr-dash-bar{padding:.8rem 1.3rem;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--dr-border);background:rgba(1,51,105,.035);gap:.7rem;flex-wrap:wrap}
-.dr-dash-bar h4{font-size:.88rem;font-weight:800;margin:0;flex:1}
-.dr-dots{display:flex;gap:.35rem}
-.dr-dot{width:10px;height:10px;border-radius:50%}
-.dr-dot--r{background:#ef4444}.dr-dot--y{background:#f59e0b}.dr-dot--g{background:#10b981}
+/* Top Bar */
+.dfr-topbar{display:flex;align-items:center;gap:.5rem;padding:.5rem .8rem;
+  background:var(--dfr-header);color:var(--dfr-header-text);flex-shrink:0;flex-wrap:wrap}
+.dfr-topbar-brand{font-weight:800;font-size:.8rem;display:flex;align-items:center;gap:.4rem;margin-right:.5rem}
+.dfr-topbar-brand i{color:#d50a0a}
+.dfr-round-badge{background:rgba(255,255,255,.12);border-radius:8px;padding:.25rem .6rem;font-size:.72rem;font-weight:700}
+.dfr-pick-badge{background:rgba(255,255,255,.08);border-radius:8px;padding:.25rem .6rem;font-size:.68rem}
+.dfr-otc{display:flex;align-items:center;gap:.5rem;flex:1;justify-content:center;min-width:200px}
+.dfr-otc-label{font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6}
+.dfr-otc-team{font-size:1rem;font-weight:900;display:flex;align-items:center;gap:.4rem}
+.dfr-otc-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.3)}
+.dfr-timer{display:flex;align-items:center;gap:.3rem;padding:.2rem .7rem;border-radius:10px;
+  background:rgba(255,255,255,.1);font-variant-numeric:tabular-nums}
+.dfr-timer-val{font-size:1.5rem;font-weight:900;line-height:1}
+.dfr-timer.warning .dfr-timer-val{color:#ef4444;animation:dfrPulse .5s ease infinite}
+.dfr-topbar-controls{display:flex;align-items:center;gap:.4rem}
+.dfr-top-btn{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);border-radius:8px;
+  padding:.3rem .6rem;font-size:.68rem;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;
+  transition:all .2s;display:flex;align-items:center;gap:.3rem}
+.dfr-top-btn:hover{background:rgba(255,255,255,.15)}
+.dfr-top-btn.active-toggle{background:rgba(59,130,246,.4);border-color:rgba(59,130,246,.6)}
 
-/* ── Pipeline Pips ── */
-.dr-pip-bar{display:flex;align-items:center;justify-content:center;gap:0;padding:.7rem 1rem;border-bottom:1px solid var(--dr-border);flex-wrap:wrap}
-.dr-pip{display:flex;flex-direction:column;align-items:center;gap:.2rem;cursor:default;position:relative;padding:0 .7rem}
-.dr-pip::after{content:'';position:absolute;top:14px;left:calc(50% + 16px);width:calc(100% - 10px);height:2px;background:var(--dr-border)}
-.dr-pip:last-child::after{display:none}
-.dr-pip-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;background:var(--dr-surface);border:2px solid var(--dr-border);color:#94a3b8;transition:all .35s;position:relative;z-index:1}
-.dr-pip-lbl{font-size:.55rem;font-weight:700;opacity:.5;white-space:nowrap}
-.dr-pip.active .dr-pip-dot{border-color:var(--dr-navy);background:rgba(1,51,105,.12);color:var(--dr-navy);box-shadow:0 0 0 4px rgba(1,51,105,.12);animation:drPulse 1.2s ease-in-out infinite}
-[data-theme="dark"] .dr-pip.active .dr-pip-dot{border-color:#60a5fa;background:rgba(59,130,246,.12);color:#60a5fa}
-.dr-pip.done .dr-pip-dot{border-color:var(--dr-emerald);background:var(--dr-emerald);color:#fff}
-.dr-pip.done .dr-pip-lbl,.dr-pip.active .dr-pip-lbl{opacity:1}
+/* Ticker */
+.dfr-ticker{display:flex;align-items:center;gap:0;padding:.3rem .5rem;background:var(--dfr-card);
+  border-bottom:1px solid var(--dr-border);overflow-x:auto;flex-shrink:0;min-height:44px}
+.dfr-ticker::-webkit-scrollbar{height:3px}
+.dfr-ticker::-webkit-scrollbar-thumb{background:var(--dr-border);border-radius:2px}
+.dfr-tick{display:flex;flex-direction:column;align-items:center;padding:.2rem .35rem;
+  border-radius:8px;min-width:58px;font-size:.58rem;text-align:center;flex-shrink:0;transition:all .2s}
+.dfr-tick.current{background:var(--dfr-user-bg);border:1px solid var(--dfr-user-border);font-weight:700}
+.dfr-tick.user-tick{border-bottom:2px solid var(--dr-navy)}
+[data-theme="dark"] .dfr-tick.user-tick{border-bottom-color:#60a5fa}
+.dfr-tick.done{opacity:.4}
+.dfr-tick .tick-pick{font-size:.5rem;color:var(--dfr-muted)}
+.dfr-tick .tick-team{font-weight:700;font-size:.62rem;white-space:nowrap}
+.dfr-tick .tick-player{font-size:.52rem;color:var(--dfr-muted);white-space:nowrap;
+  max-width:60px;overflow:hidden;text-overflow:ellipsis}
+.dfr-tick-dot{width:8px;height:8px;border-radius:50%;margin-bottom:.1rem}
+.dfr-tick-arr{color:var(--dfr-muted);font-size:.55rem;flex-shrink:0;padding:0 .1rem}
 
-/* ── Body: log + stage ── */
-.dr-i-body{display:grid;grid-template-columns:230px 1fr;gap:0;min-height:280px}
-@media(max-width:700px){.dr-i-body{grid-template-columns:1fr}}
-.dr-prev-pane{border-right:1px solid var(--dr-border);padding:.7rem;font-size:.72rem;overflow-y:auto;max-height:520px}
-.dr-pane-lbl{font-size:.56rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;opacity:.42;margin-bottom:.3rem}
-.dr-stage{padding:.8rem;overflow-y:auto;max-height:520px}
-.dr-step-card{border-radius:14px;border:1px solid var(--dr-border);background:rgba(255,255,255,.55);padding:.85rem 1rem;margin-bottom:.65rem;animation:drFadeUp .35s ease both}
-[data-theme="dark"] .dr-step-card{background:rgba(255,255,255,.04)}
-.dr-step-card--ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
-.dr-step-card h6{font-size:.8rem;font-weight:800;margin-bottom:.4rem}
-.dr-log3{font-family:monospace;font-size:.64rem;line-height:1.55;max-height:200px;overflow-y:auto;padding:.4rem;background:rgba(0,0,0,.03);border-radius:8px;margin-top:.25rem}
-[data-theme="dark"] .dr-log3{background:rgba(255,255,255,.03)}
-.dr-json{font-family:monospace;font-size:.68rem;background:#0f172a;color:#94a3b8;border-radius:10px;padding:.6rem .8rem;line-height:1.6;margin-top:.4rem;white-space:pre-wrap}
-[data-theme="dark"] .dr-json{background:rgba(0,0,0,.35)}
-.dr-json .key{color:#c4b5fd}.dr-json .str{color:#6ee7b7}.dr-json .num{color:#fcd34d}
+/* Main Grid */
+.dfr-main{display:grid;grid-template-columns:210px 1fr 230px;flex:1;overflow:hidden}
+@media(max-width:900px){.dfr-main{grid-template-columns:180px 1fr 200px}}
+@media(max-width:700px){.dfr-main{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}}
 
-/* ── Draft Board ── */
-.dr-board{max-width:1020px;margin:1rem auto 0;border-radius:18px;border:1px solid var(--dr-border);
-  background:var(--dr-surface);backdrop-filter:blur(12px);box-shadow:var(--dr-shadow);overflow:hidden;display:none}
-.dr-board-hd{padding:.8rem 1.2rem;border-bottom:1px solid var(--dr-border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
-.dr-board-hd h4{font-size:.85rem;font-weight:800;margin:0}
-.dr-round-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.45;text-align:center;padding:.35rem;border-bottom:1px solid var(--dr-border);background:rgba(1,51,105,.02)}
-[data-theme="dark"] .dr-round-label{background:rgba(255,255,255,.015)}
-.dr-board-scroll{max-height:500px;overflow-y:auto}
-.dr-pick-row{display:flex;align-items:center;gap:.5rem;padding:.4rem .8rem;border-bottom:1px solid rgba(0,0,0,.03);font-size:.73rem;transition:background .2s;animation:drSlide .25s ease both}
-[data-theme="dark"] .dr-pick-row{border-bottom-color:rgba(255,255,255,.03)}
-.dr-pick-row:hover{background:rgba(59,130,246,.03)}
-.dr-pick-row.user-pick{background:rgba(1,51,105,.06);border-left:3px solid #013369}
-[data-theme="dark"] .dr-pick-row.user-pick{background:rgba(59,130,246,.08);border-left-color:#60a5fa}
-.dr-pick-num{width:26px;flex-shrink:0;font-weight:800;font-size:.65rem;opacity:.35;text-align:center}
-.dr-pick-team{width:75px;flex-shrink:0;display:flex;align-items:center;gap:.3rem;font-weight:700;font-size:.67rem}
-.dr-tm-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.dr-pick-player{flex:1;display:flex;align-items:center;gap:.4rem;min-width:0}
-.dr-pick-player img{width:26px;height:26px;border-radius:50%;object-fit:cover;background:#e2e8f0;flex-shrink:0}
-.dr-pick-info{min-width:0}
-.dr-pick-name{font-weight:700;font-size:.73rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dr-pick-meta{font-size:.58rem;opacity:.45}
-.dr-pick-pos{padding:.1rem .35rem;border-radius:6px;font-size:.58rem;font-weight:700;flex-shrink:0}
+/* Roster Panel */
+.dfr-panel{display:flex;flex-direction:column;border-right:1px solid var(--dr-border);overflow:hidden}
+.dfr-panel:last-child{border-right:none;border-left:1px solid var(--dr-border)}
+.dfr-panel-hd{padding:.5rem .6rem;font-size:.68rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.06em;background:var(--dfr-card);border-bottom:1px solid var(--dr-border);
+  display:flex;align-items:center;justify-content:space-between}
+.dfr-panel-hd i{margin-right:.3rem;opacity:.5}
+.dfr-panel-hd .count{font-size:.6rem;opacity:.5;font-weight:600}
+.dfr-roster{flex:1;overflow-y:auto;padding:.3rem;background:var(--dfr-card)}
+.dfr-slot{display:flex;align-items:center;gap:.3rem;padding:.3rem .4rem;border-radius:8px;
+  border:1px dashed var(--dr-border);margin-bottom:.2rem;min-height:34px;font-size:.66rem;transition:all .2s}
+.dfr-slot.filled{border-style:solid;background:var(--dfr-row-hover)}
+.dfr-slot.filled.just-drafted{animation:dfrFlash .6s ease}
+.dfr-slot-pos{width:28px;font-weight:800;font-size:.6rem;text-align:center;flex-shrink:0}
+.dfr-slot-pos.pos-qb{color:#dc2626}.dfr-slot-pos.pos-rb{color:#2563eb}
+.dfr-slot-pos.pos-wr{color:#7c3aed}.dfr-slot-pos.pos-te{color:#059669}
+.dfr-slot-pos.pos-k{color:#ca8a04}.dfr-slot-pos.pos-dst{color:#e11d48}
+.dfr-slot-img{width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.dfr-slot-info{flex:1;min-width:0}
+.dfr-slot-name{font-weight:700;font-size:.64rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dfr-slot-meta{font-size:.52rem;color:var(--dfr-muted)}
+.dfr-slot-pts{font-weight:700;font-size:.6rem;flex-shrink:0}
+.dfr-roster-footer{padding:.4rem .6rem;font-size:.65rem;font-weight:700;border-top:1px solid var(--dr-border);
+  background:var(--dfr-card);display:flex;justify-content:space-between}
+
+/* Player Table Panel */
+.dfr-players{display:flex;flex-direction:column;overflow:hidden;background:var(--dfr-bg)}
+.dfr-toolbar{display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;background:var(--dfr-card);
+  border-bottom:1px solid var(--dr-border);flex-wrap:wrap}
+.dfr-search{border:1px solid var(--dr-border);border-radius:8px;padding:.35rem .55rem;font-size:.75rem;
+  font-family:inherit;flex:1;min-width:120px;max-width:220px;background:var(--dfr-bg);color:var(--dfr-text)}
+.dfr-search::placeholder{color:var(--dfr-muted)}
+.dfr-pos-btns{display:flex;gap:.2rem}
+.dfr-pos-btns button{border:1px solid var(--dr-border);background:transparent;border-radius:7px;
+  padding:.2rem .45rem;font-size:.62rem;font-weight:700;cursor:pointer;font-family:inherit;
+  color:var(--dfr-text);opacity:.45;transition:all .15s}
+.dfr-pos-btns button.active{opacity:1;border-color:var(--dfr-accent);background:rgba(59,130,246,.08)}
+.dfr-sort-lbl{font-size:.58rem;color:var(--dfr-muted);margin-left:auto}
+.dfr-tbl-wrap{flex:1;overflow-y:auto;overflow-x:auto}
+.dfr-tbl{width:100%;border-collapse:collapse;font-size:.7rem}
+.dfr-tbl thead{position:sticky;top:0;z-index:2}
+.dfr-tbl th{padding:.35rem .4rem;text-align:left;font-size:.58rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--dfr-muted);background:var(--dfr-card);border-bottom:2px solid var(--dr-border);
+  white-space:nowrap;cursor:pointer;user-select:none}
+.dfr-tbl th:hover{color:var(--dfr-text)}
+.dfr-tbl th.sort-active{color:var(--dfr-accent)}
+.dfr-tbl td{padding:.3rem .4rem;border-bottom:1px solid var(--dr-border);white-space:nowrap;vertical-align:middle}
+.dfr-tbl tr{transition:background .15s}
+.dfr-tbl tbody tr:hover{background:var(--dfr-row-hover)}
+.dfr-tbl tbody tr.drafted{opacity:.25;text-decoration:line-through}
+.dfr-tbl-name{display:flex;align-items:center;gap:.35rem}
+.dfr-tbl-img{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#e2e8f0}
+.dfr-tbl-player{font-weight:700}.dfr-tbl-team{font-size:.58rem;color:var(--dfr-muted)}
+.dfr-tbl-stats{font-size:.55rem;color:var(--dfr-muted);max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.dr-pick-pos{padding:.1rem .35rem;border-radius:6px;font-size:.58rem;font-weight:700;display:inline-block}
 .dr-pick-pos--qb{background:rgba(239,68,68,.12);color:#dc2626}
 .dr-pick-pos--rb{background:rgba(59,130,246,.12);color:#2563eb}
 .dr-pick-pos--wr{background:rgba(139,92,246,.12);color:#7c3aed}
 .dr-pick-pos--te{background:rgba(16,185,129,.12);color:#059669}
 .dr-pick-pos--k{background:rgba(234,179,8,.12);color:#ca8a04}
 .dr-pick-pos--dst{background:rgba(244,63,94,.12);color:#e11d48}
-.dr-pick-pts{width:50px;flex-shrink:0;text-align:right;font-weight:600;font-size:.66rem}
-.dr-pick-adp{width:38px;flex-shrink:0;text-align:right;font-size:.6rem;opacity:.4}
-.dr-pick-val{width:38px;flex-shrink:0;text-align:right;font-size:.6rem;font-weight:700}
-.dr-pick-val.val-good{color:#059669}.dr-pick-val.val-bad{color:#dc2626}
+.dfr-draft-btn{border:1px solid var(--dfr-accent);background:rgba(59,130,246,.08);border-radius:7px;
+  padding:.2rem .5rem;font-size:.62rem;font-weight:700;cursor:pointer;font-family:inherit;
+  color:var(--dfr-accent);transition:all .15s}
+.dfr-draft-btn:hover{background:var(--dfr-accent);color:#fff}
+.dfr-draft-btn:disabled{opacity:.2;cursor:default;background:transparent;color:var(--dfr-muted);border-color:var(--dr-border)}
 
-/* ── Analytics Dashboard ── */
-.dr-analytics{border-radius:20px;border:1px solid var(--dr-border);background:var(--dr-surface);
-  backdrop-filter:blur(14px);box-shadow:var(--dr-shadow-lg);padding:1.2rem 1.4rem;max-width:1020px;margin:1rem auto 0;display:none}
-.dr-a-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.9rem}
-@media(max-width:650px){.dr-a-kpis{grid-template-columns:repeat(2,1fr)}}
-.dr-akpi{text-align:center;padding:.55rem;border-radius:12px;border:1px solid var(--dr-border)}
-.dr-akpi-val{font-size:1.05rem;font-weight:800;background:var(--dr-grad-nfl);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.dr-akpi-lbl{font-size:.56rem;opacity:.5;margin-top:.06rem}
-.dr-a-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.9rem}
-@media(max-width:700px){.dr-a-grid{grid-template-columns:1fr}}
-.dr-a-panel{border-radius:14px;border:1px solid var(--dr-border);padding:.8rem;background:rgba(255,255,255,.3)}
-[data-theme="dark"] .dr-a-panel{background:rgba(255,255,255,.02)}
-.dr-a-panel h5{font-size:.78rem;font-weight:800;margin-bottom:.5rem}
-.dr-pos-bar{display:flex;align-items:center;gap:.35rem;margin-bottom:.35rem;font-size:.66rem}
-.dr-pos-bar-label{width:24px;font-weight:700;flex-shrink:0}
-.dr-pos-bar-fill{height:16px;border-radius:4px;transition:width .4s ease}
-.dr-pos-bar-val{font-weight:600;font-size:.6rem;opacity:.5;margin-left:.2rem}
-.dr-bye-row{display:flex;gap:.15rem;flex-wrap:wrap;margin-bottom:.25rem}
-.dr-bye-dot{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:700;border:1px solid var(--dr-border)}
-.dr-bye-dot.conflict{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:#dc2626}
-.dr-bye-dot.clear{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2);color:#059669}
+/* Controls Bar */
+.dfr-ctrl-bar{display:flex;align-items:center;gap:.5rem;padding:.35rem .6rem;border-top:1px solid var(--dr-border);
+  background:var(--dfr-card);flex-wrap:wrap}
+.dfr-ctrl-btn{border:1px solid var(--dr-border);background:var(--dfr-bg);border-radius:8px;
+  padding:.25rem .55rem;font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit;
+  color:var(--dfr-text);transition:all .15s;display:flex;align-items:center;gap:.25rem}
+.dfr-ctrl-btn:hover{border-color:var(--dfr-accent);background:rgba(59,130,246,.05)}
+.dfr-ctrl-btn.active{background:var(--dfr-accent);color:#fff;border-color:var(--dfr-accent)}
+.dfr-ctrl-btn:disabled{opacity:.3;cursor:default}
+.dfr-speed-grp{display:flex;align-items:center;gap:.15rem;margin-left:.3rem}
+.dfr-speed-grp span{font-size:.6rem;color:var(--dfr-muted);font-weight:600}
+.dfr-speed-btn{border:1px solid var(--dr-border);background:transparent;border-radius:6px;
+  padding:.15rem .3rem;font-size:.65rem;cursor:pointer;transition:all .15s}
+.dfr-speed-btn.active{background:var(--dfr-accent);color:#fff;border-color:var(--dfr-accent)}
+.dfr-progress{flex:1;display:flex;align-items:center;gap:.3rem;justify-content:flex-end}
+.dfr-progress-bar{width:120px;height:5px;background:var(--dr-border);border-radius:3px;overflow:hidden}
+.dfr-progress-fill{height:100%;background:var(--dfr-accent);border-radius:3px;transition:width .3s}
+.dfr-progress-text{font-size:.58rem;color:var(--dfr-muted);font-weight:600}
 
-/* ── User Pick Selection ── */
-.dr-user-pick-panel{border-radius:14px;border:2px solid var(--dr-navy);background:rgba(1,51,105,.04);padding:.85rem;margin-bottom:.65rem}
-[data-theme="dark"] .dr-user-pick-panel{border-color:#60a5fa;background:rgba(59,130,246,.06)}
-.dr-user-pick-panel h6{font-size:.8rem;font-weight:800;margin-bottom:.4rem;color:var(--dr-navy)}
-[data-theme="dark"] .dr-user-pick-panel h6{color:#60a5fa}
-.dr-pos-filters{display:flex;gap:.25rem;margin-bottom:.5rem}
-.dr-pos-filters button{border:1px solid var(--dr-border);background:transparent;padding:.2rem .5rem;border-radius:7px;
-  font-size:.62rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;color:inherit;opacity:.5}
-.dr-pos-filters button.active{opacity:1;border-color:var(--dr-navy);background:rgba(1,51,105,.08)}
-[data-theme="dark"] .dr-pos-filters button.active{border-color:#60a5fa;background:rgba(59,130,246,.1)}
-.dr-avail-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.3rem;max-height:260px;overflow-y:auto}
-.dr-avail-btn{display:flex;align-items:center;gap:.4rem;padding:.35rem .5rem;border-radius:10px;border:1px solid var(--dr-border);
-  background:var(--dr-surface);cursor:pointer;font-size:.68rem;transition:all .2s;font-family:inherit;text-align:left}
-.dr-avail-btn:hover{border-color:var(--dr-navy);background:rgba(1,51,105,.06);transform:translateY(-1px)}
-[data-theme="dark"] .dr-avail-btn:hover{border-color:#60a5fa;background:rgba(59,130,246,.08)}
-.dr-avail-btn img{width:24px;height:24px;border-radius:50%;object-fit:cover;background:#e2e8f0;flex-shrink:0}
-.dr-avail-name{font-weight:700;font-size:.68rem}
-.dr-avail-detail{font-size:.55rem;opacity:.5}
-.dr-avail-pts{font-weight:800;font-size:.68rem;margin-left:auto;white-space:nowrap;flex-shrink:0}
+/* Feed Panel */
+.dfr-feed{flex:1;overflow-y:auto;padding:.3rem;background:var(--dfr-card)}
+.dfr-feed-item{display:flex;align-items:center;gap:.3rem;padding:.25rem .35rem;border-radius:7px;
+  font-size:.62rem;margin-bottom:.15rem;animation:dfrSlideIn .25s ease both;transition:background .2s}
+.dfr-feed-item:hover{background:var(--dfr-row-hover)}
+.dfr-feed-item.user-feed{background:var(--dfr-user-bg);font-weight:700}
+.dfr-feed-item.round-hd{font-weight:800;font-size:.58rem;color:var(--dfr-muted);text-transform:uppercase;
+  letter-spacing:.06em;padding:.4rem .35rem .15rem;border-bottom:1px solid var(--dr-border);margin-bottom:.2rem}
+.dfr-feed-num{width:20px;font-weight:800;font-size:.55rem;opacity:.3;flex-shrink:0;text-align:center}
+.dfr-feed-img{width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.dfr-feed-info{flex:1;min-width:0}
+.dfr-feed-name{font-weight:700;font-size:.62rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dfr-feed-meta{font-size:.5rem;color:var(--dfr-muted)}
 
-/* ── Pills & Callout ── */
-.dr-stack{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;max-width:820px;margin:1rem auto 0}
-.dr-pill{padding:.22rem .65rem;border-radius:999px;font-size:.7rem;font-weight:700}
-.dr-pill--b{background:rgba(59,130,246,.12);color:#2563eb}
-.dr-pill--g{background:rgba(16,185,129,.12);color:#059669}
-.dr-pill--v{background:rgba(139,92,246,.12);color:#7c3aed}
-.dr-pill--a{background:rgba(245,158,11,.12);color:#b45309}
-.dr-pill--r{background:rgba(239,68,68,.12);color:#dc2626}
-.dr-pill--gold{background:rgba(201,176,55,.12);color:#8b6914}
-.dr-callout{border-radius:16px;padding:1rem 1.3rem;border:1px solid var(--dr-border);
-  background:var(--dr-surface);backdrop-filter:blur(10px);max-width:800px;margin:1.2rem auto 0}
-.dr-callout--v{border-color:rgba(1,51,105,.22);background:rgba(1,51,105,.04)}
-[data-theme="dark"] .dr-callout--v{border-color:rgba(59,130,246,.22);background:rgba(59,130,246,.04)}
-.dr-callout h5{font-size:.85rem;font-weight:800;margin-bottom:.3rem}
-.dr-callout p,.dr-callout li{font-size:.78rem;opacity:.75;margin:0;line-height:1.6}
-.dr-callout ul{padding-left:1rem;margin:.35rem 0 0}
+/* Draft Board Overlay */
+.dfr-board-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;padding:1rem}
+.dfr-board-modal{background:var(--dfr-card);border-radius:16px;max-width:95vw;max-height:90vh;
+  overflow:auto;box-shadow:var(--dr-shadow-lg);width:100%}
+.dfr-board-hd{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;
+  border-bottom:1px solid var(--dr-border);position:sticky;top:0;background:var(--dfr-card);z-index:1}
+.dfr-board-hd h4{font-size:.85rem;font-weight:800;margin:0}
+.dfr-board-close{border:none;background:transparent;font-size:1.2rem;cursor:pointer;opacity:.5;color:var(--dfr-text)}
+.dfr-board-close:hover{opacity:1}
+.dfr-board-grid{display:grid;font-size:.58rem;padding:.5rem}
+.dfr-board-cell{padding:.2rem .3rem;border:1px solid var(--dr-border);border-radius:4px;
+  min-width:75px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.dfr-board-cell.header{font-weight:800;background:var(--dfr-header);color:#fff;position:sticky;top:0}
+.dfr-board-cell.round-hd{font-weight:700;background:var(--dfr-bg);position:sticky;left:0}
+.dfr-board-cell.user-col{background:var(--dfr-user-bg)}
+.dfr-board-cell.picked{font-weight:600}
 
-/* ── Strategy Cards ── */
-.dr-strat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;max-width:980px;margin:0 auto}
-@media(max-width:700px){.dr-strat-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:450px){.dr-strat-grid{grid-template-columns:1fr}}
-.dr-strat{border-radius:14px;padding:.75rem;border:1px solid var(--dr-border);background:var(--dr-surface);
-  backdrop-filter:blur(10px);transition:transform .2s,box-shadow .2s}
-.dr-strat:hover{transform:translateY(-2px);box-shadow:var(--dr-shadow)}
-.dr-strat-name{font-size:.76rem;font-weight:800;margin-bottom:.1rem}
-.dr-strat-desc{font-size:.62rem;opacity:.5;margin-bottom:.35rem;line-height:1.35}
-.dr-strat-bar{display:flex;gap:.2rem}
-.dr-strat-seg{height:6px;border-radius:3px;flex:1}
+/* Post-Draft */
+.dfr-post{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
+.dfr-post-header{text-align:center;margin-bottom:1.5rem}
+.dfr-post-header h2{font-size:1.5rem;font-weight:900;margin:0}
+.dfr-post-header p{color:var(--dfr-muted);margin:.3rem 0 0}
+.dfr-post-grade{display:inline-flex;align-items:center;justify-content:center;width:80px;height:80px;
+  border-radius:50%;font-size:2rem;font-weight:900;margin:.8rem 0;
+  background:linear-gradient(135deg,#013369,#d50a0a);color:#fff;box-shadow:0 8px 32px rgba(1,51,105,.3)}
+.dfr-post-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1.2rem}
+@media(max-width:600px){.dfr-post-kpis{grid-template-columns:repeat(2,1fr)}}
+.dfr-post-kpi{text-align:center;padding:.6rem;border-radius:12px;border:1px solid var(--dr-border);background:var(--dfr-card)}
+.dfr-post-kpi .val{font-size:1.1rem;font-weight:800;color:var(--dfr-accent)}
+.dfr-post-kpi .lbl{font-size:.58rem;color:var(--dfr-muted);margin-top:.1rem}
+.dfr-post-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:600px){.dfr-post-grid{grid-template-columns:1fr}}
+.dfr-post-panel{border-radius:14px;border:1px solid var(--dr-border);padding:.8rem;background:var(--dfr-card)}
+.dfr-post-panel h5{font-size:.78rem;font-weight:800;margin:0 0 .5rem}
+.dfr-pos-bar{display:flex;align-items:center;gap:.35rem;margin-bottom:.3rem;font-size:.65rem}
+.dfr-pos-bar-label{width:26px;font-weight:700;flex-shrink:0}
+.dfr-pos-bar-track{flex:1;background:var(--dr-border);border-radius:4px;overflow:hidden;height:14px}
+.dfr-pos-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+.dfr-pos-bar-val{font-weight:600;font-size:.6rem;color:var(--dfr-muted);width:32px;text-align:right}
+.dfr-bye-grid{display:flex;gap:.2rem;flex-wrap:wrap}
+.dfr-bye-cell{width:28px;height:28px;border-radius:6px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;border:1px solid var(--dr-border);font-size:.55rem;font-weight:700}
+.dfr-bye-cell .wk{font-size:.42rem;color:var(--dfr-muted);font-weight:400}
+.dfr-bye-cell.conflict{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#dc2626}
+.dfr-post-roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.3rem;margin-bottom:1rem}
+.dfr-post-player{display:flex;align-items:center;gap:.3rem;padding:.3rem .4rem;border-radius:8px;
+  border:1px solid var(--dr-border);background:var(--dfr-card);font-size:.66rem}
+.dfr-post-player .rnd{font-size:.55rem;opacity:.3;width:16px;font-weight:700}
+.dfr-post-player img{width:24px;height:24px;border-radius:50%;object-fit:cover}
+.dfr-post-player .nm{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dfr-post-player .pt{font-weight:600;font-size:.6rem;color:var(--dfr-muted)}
+.dfr-post-table{width:100%;border-collapse:collapse;font-size:.7rem;margin-top:.5rem}
+.dfr-post-table th{font-size:.58rem;font-weight:700;text-transform:uppercase;color:var(--dfr-muted);
+  padding:.35rem .4rem;text-align:left;border-bottom:2px solid var(--dr-border)}
+.dfr-post-table td{padding:.3rem .4rem;border-bottom:1px solid var(--dr-border)}
+.dfr-post-table tr.user-row{background:var(--dfr-user-bg);font-weight:700}
 
-@media(max-width:640px){
-  .dr-kpi-strip{gap:.45rem}.dr-kpi{padding:.35rem .55rem;font-size:.9em}
-  .dr-ring{gap:.15rem}.dr-ring-node{min-width:72px;padding:.6rem .35rem}
-  .dr-phases{gap:.7rem}
-}
+.dfr-post-actions{display:flex;gap:.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap}
+.dfr-action-btn{border:1px solid var(--dr-border);background:var(--dfr-card);border-radius:10px;
+  padding:.45rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;
+  color:var(--dfr-text);transition:all .2s;display:flex;align-items:center;gap:.3rem}
+.dfr-action-btn:hover{border-color:var(--dfr-accent);background:rgba(59,130,246,.05)}
+.dfr-action-btn.primary{background:var(--dr-navy);color:#fff;border-color:var(--dr-navy)}
+.dfr-action-btn.primary:hover{background:#014a99}
 </style>
 
-<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
-<section class="dr-hero">
-  <div class="dr-badge"><i class="fas fa-football-ball"></i>&nbsp; Fantasy Football / Data Engineering / ML</div>
-  <h1>2026 Fantasy Football<br>Draft Simulator</h1>
-  <p class="lead">Production-grade fantasy draft engine: 220+ player pool across 6 positions (QB/RB/WR/TE/K/DST) with 2026 projected stats powered by SportsData.io, dynamic PPR/Half-PPR/Standard scoring, Value Over Replacement tiering, 9 distinct AI drafter archetypes, and full post-draft analytics with 19-round snake draft.</p>
-  <div class="dr-kpi-strip">
-    <div class="dr-kpi"><div><div class="dr-kpi-val">220+</div><div class="dr-kpi-lbl">Player Pool</div></div></div>
-    <div class="dr-kpi"><div><div class="dr-kpi-val">12</div><div class="dr-kpi-lbl">Team League</div></div></div>
-    <div class="dr-kpi"><div><div class="dr-kpi-val">PPR</div><div class="dr-kpi-lbl">Dynamic Scoring</div></div></div>
-    <div class="dr-kpi"><div><div class="dr-kpi-val">9</div><div class="dr-kpi-lbl">AI Strategies</div></div></div>
-    <div class="dr-kpi"><div><div class="dr-kpi-val">VOR</div><div class="dr-kpi-lbl">Draft Engine</div></div></div>
-    <div class="dr-kpi"><div><div class="dr-kpi-val">2026</div><div class="dr-kpi-lbl">Projections</div></div></div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════ ARCHITECTURE RING ═══════════════════════════ -->
-<section class="dr-sec">
-  <div class="dr-sec-head">
-    <span class="dr-tag dr-tag--nfl">System Architecture</span>
-    <h2>Fantasy Draft Engine Pipeline</h2>
-    <p>Eight-stage data pipeline: from raw NFL stats to optimized fantasy rosters, engineered for real-time interactive drafting.</p>
-  </div>
-  <div class="dr-ring">
-    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:var(--dr-grad-b)"><i class="fas fa-database"></i></div><div class="dr-ring-lbl">Ingest</div><div class="dr-ring-sub">SportsData API</div></div>
-    <div class="dr-ring-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:var(--dr-grad-v)"><i class="fas fa-chart-line"></i></div><div class="dr-ring-lbl">Project</div><div class="dr-ring-sub">2026 Stats</div></div>
-    <div class="dr-ring-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:var(--dr-grad-gold)"><i class="fas fa-calculator"></i></div><div class="dr-ring-lbl">Score</div><div class="dr-ring-sub">PPR Engine</div></div>
-    <div class="dr-ring-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:var(--dr-grad-g)"><i class="fas fa-layer-group"></i></div><div class="dr-ring-lbl">Tier</div><div class="dr-ring-sub">VOR Ranks</div></div>
-    <div class="dr-ring-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:var(--dr-grad-nfl)"><i class="fas fa-football-ball"></i></div><div class="dr-ring-lbl">Draft</div><div class="dr-ring-sub">Snake Sim</div></div>
-    <div class="dr-ring-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:var(--dr-grad-a)"><i class="fas fa-brain"></i></div><div class="dr-ring-lbl">AI Pick</div><div class="dr-ring-sub">9 Archetypes</div></div>
-    <div class="dr-ring-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-chart-bar"></i></div><div class="dr-ring-lbl">Analyze</div><div class="dr-ring-sub">Grade &amp; VOR</div></div>
-    <div class="dr-ring-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="dr-ring-node"><div class="dr-ring-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-trophy"></i></div><div class="dr-ring-lbl">Optimize</div><div class="dr-ring-sub">Roster Fit</div></div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════ TECHNICAL DEEP DIVE ═══════════════════════════ -->
-<section class="dr-sec">
-  <div class="dr-sec-head">
-    <span class="dr-tag dr-tag--b">Algorithm Deep Dive</span>
-    <h2>Engineering Every Decision</h2>
-    <p>Production-quality fantasy analytics powering each pick — the same algorithms used by premium draft tools.</p>
-  </div>
-  <div class="dr-phases">
-
-    <div class="dr-phase dr-phase--score">
-      <div class="dr-phase-icon" style="background:var(--dr-grad-v)"><i class="fas fa-calculator"></i></div>
-      <h3>Multi-Format Scoring Engine</h3>
-      <p class="sub">Dynamic PPR / Half-PPR / Standard with position-specific stat weighting</p>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>QB:</b> passYds × 0.04 + passTD × 4 + INT × (−2) + rushYds × 0.1 + rushTD × 6</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>RB:</b> rushYds × 0.1 + rushTD × 6 + recYds × 0.1 + recTD × 6 + receptions × <em>format</em></div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>WR/TE:</b> recYds × 0.1 + recTD × 6 + receptions × <em>format</em> + rushYds × 0.1</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>K:</b> FG_made × 3 + XP_made × 1</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>DST:</b> sacks × 1 + INT × 2 + FR × 2 + TD × 6 + PA bracket</div>
-      <div class="dr-ck"><i class="fas fa-info-circle info"></i> Format multiplier: PPR = 1.0 | Half = 0.5 | Standard = 0.0 per reception</div>
-      <div class="dr-code"><span class="kw">function</span> <span class="fn">fantasyPts</span>(player, fmt) {
-  <span class="kw">const</span> rBonus = fmt==='ppr' ? <span class="num">1</span> : fmt==='half' ? <span class="num">0.5</span> : <span class="num">0</span>;
-  <span class="kw">if</span> (player.pos === <span class="str">'QB'</span>)
-    <span class="kw">return</span> passYd*<span class="num">.04</span> + passTD*<span class="num">4</span> + INT*<span class="num">-2</span> + rushYd*<span class="num">.1</span> + rushTD*<span class="num">6</span>;
-  <span class="kw">return</span> rec*rBonus + recYd*<span class="num">.1</span> + recTD*<span class="num">6</span> + rushYd*<span class="num">.1</span> + rushTD*<span class="num">6</span>;
-}</div>
-    </div>
-
-    <div class="dr-phase dr-phase--tier">
-      <div class="dr-phase-icon" style="background:var(--dr-grad-gold)"><i class="fas fa-layer-group"></i></div>
-      <h3>VOR Tiering &amp; Replacement Value</h3>
-      <p class="sub">Value Over Replacement Player (VORP) — the core of premium draft strategy</p>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>VOR</b> = Player's projected points − replacement-level baseline at position</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Replacement thresholds: QB<sub>13</sub>, RB<sub>25</sub>, WR<sub>31</sub>, TE<sub>13</sub>, K<sub>10</sub>, DST<sub>10</sub> (12-team calibrated)</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> VOR normalizes cross-position value: a TE1 vs. RB15 vs. WR20</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Tier breaks at natural cluster gaps in VOR distribution</div>
-      <div class="dr-ck"><i class="fas fa-info-circle info"></i> Rankings dynamically shift when scoring format changes (high-rec RBs rise in PPR)</div>
-      <div class="dr-code"><span class="cm">// Replacement level = pts of Nth-ranked player at position</span>
-<span class="kw">const</span> repLvl = { QB: <span class="num">13</span>, RB: <span class="num">25</span>, WR: <span class="num">31</span>, TE: <span class="num">13</span>, K: <span class="num">10</span>, DST: <span class="num">10</span> };
-player.vor = player.pts - replacementPts[player.pos];
-<span class="cm">// Positive VOR = above replacement = draftable</span></div>
-    </div>
-
-    <div class="dr-phase dr-phase--ai">
-      <div class="dr-phase-icon" style="background:var(--dr-grad-g)"><i class="fas fa-brain"></i></div>
-      <h3>9 AI Drafter Archetypes</h3>
-      <p class="sub">Each bot runs a distinct fantasy strategy with unique positional weights</p>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>Robust RB</b> — Loads 2-3 RBs in first 4 rounds, secures elite backfield</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>Zero RB</b> — Fades RB early, stacks WR/TE, targets RB value in mid rounds</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>Hero RB</b> — 1 elite RB round 1, then WR-heavy approach</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>TE Premium</b> — Secures Bowers/LaPorta early, exploits positional scarcity</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>Late QB / Stars &amp; Scrubs / Contrarian / Balanced / Anchor</b></div>
-      <div class="dr-ck"><i class="fas fa-info-circle info"></i> Each archetype applies unique multipliers to VOR: strategy_weight × vor × need_factor × scarcity</div>
-    </div>
-
-    <div class="dr-phase dr-phase--draft">
-      <div class="dr-phase-icon" style="background:var(--dr-grad-nfl)"><i class="fas fa-football-ball"></i></div>
-      <h3>Snake Draft Engine</h3>
-      <p class="sub">12-team, 19-round snake draft — configurable position and scoring</p>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Snake order: 1→12, 12→1, 1→12 (even rounds reverse)</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> User selects draft position (1st through 12th overall)</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Roster slots: 3 QB, 5 RB, 5 WR, 2 TE, 2 K, 2 DST = 19 rounds</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Real-time ADP comparison: value picks (green) vs. reaches (red)</div>
-      <div class="dr-ck"><i class="fas fa-info-circle info"></i> AI applies ±8% randomness to prevent identical drafts across runs</div>
-    </div>
-
-    <div class="dr-phase dr-phase--eval">
-      <div class="dr-phase-icon" style="background:var(--dr-grad-a)"><i class="fas fa-chart-bar"></i></div>
-      <h3>Post-Draft Analytics</h3>
-      <p class="sub">ESPN Fantasy-grade evaluation across 8 dimensions</p>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>Draft Grade</b>: A+ through F based on total VOR vs. optimal</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>Projected Total Points</b>: Sum of starter projections in chosen format</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>Value Score</b>: Σ(ADP − actual pick) for all selections</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>Positional Strength</b>: Visual bars per position group</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> <b>Bye Week Conflicts</b>: Calendar heatmap showing roster gaps</div>
-      <div class="dr-ck"><i class="fas fa-info-circle info"></i> Full leaderboard: all 12 teams ranked with grade + VOR + top pick</div>
-    </div>
-
-    <div class="dr-phase dr-phase--arch">
-      <div class="dr-phase-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-sitemap"></i></div>
-      <h3>System Architecture</h3>
-      <p class="sub">Client-side engineering — zero backend, full browser execution</p>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> SportsData.io API for live player data, headshots &amp; projections</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> In-memory player store with O(n log n) sort on scoring model change</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> Async draft loop with Promise chains for turn-based simulation</div>
-      <div class="dr-ck"><i class="fas fa-check-circle done"></i> DOM recycling with insertAdjacentHTML for 228 pick animations</div>
-      <div class="dr-ck"><i class="fas fa-info-circle info"></i> Full dark mode parity — every component tested against both themes</div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ═══════════════════════════ AI STRATEGY SHOWCASE ═══════════════════════════ -->
-<section class="dr-sec">
-  <div class="dr-sec-head">
-    <span class="dr-tag dr-tag--g">AI Archetypes</span>
-    <h2>9 Draft Strategy Profiles</h2>
-    <p>Each AI bot is assigned a real-world fantasy draft archetype with distinct positional bias vectors.</p>
-  </div>
-  <div class="dr-strat-grid" id="drStratGrid"></div>
-</section>
-
-<!-- ═══════════════════════════ LIVE SIMULATOR ═══════════════════════════ -->
-<section class="dr-sec">
-  <div class="dr-sec-head">
-    <span class="dr-tag dr-tag--a">Live Draft</span>
-    <h2>Fantasy Draft Simulator</h2>
-    <p>Configure your league, choose your format, and draft against 11 AI bots running real fantasy strategies.</p>
-  </div>
-
-  <div class="dr-settings">
-    <div class="dr-setting">
-      <div class="dr-setting-lbl">Scoring Format</div>
-      <div class="dr-radio-grp" id="drFmtGrp">
-        <button data-v="ppr" class="active">PPR</button>
-        <button data-v="half">Half PPR</button>
-        <button data-v="std">Standard</button>
+<!-- ═══════════════════════════ PRE-DRAFT LOBBY ═══════════════════════════ -->
+<div id="drLobby">
+  <div class="dfr-lobby">
+    <div class="dfr-lobby-hero">
+      <div class="dfr-lobby-icon">🏈</div>
+      <h1>2026 Fantasy Draft Room</h1>
+      <p>12-team snake draft simulator with 9 AI archetypes, VOR-based rankings, and real-time analytics.</p>
+      <div class="dfr-lobby-stats">
+        <div class="dfr-lobby-stat"><div class="val">220+</div><div class="lbl">Players</div></div>
+        <div class="dfr-lobby-stat"><div class="val">6</div><div class="lbl">Positions</div></div>
+        <div class="dfr-lobby-stat"><div class="val">19</div><div class="lbl">Rounds</div></div>
+        <div class="dfr-lobby-stat"><div class="val">9</div><div class="lbl">AI Strategies</div></div>
+        <div class="dfr-lobby-stat"><div class="val">228</div><div class="lbl">Total Picks</div></div>
       </div>
     </div>
-    <div class="dr-setting">
-      <div class="dr-setting-lbl">Your Pick</div>
-      <select class="dr-sel" id="drPickPos">
-        <option value="0">1st</option><option value="1">2nd</option><option value="2">3rd</option>
-        <option value="3">4th</option><option value="4">5th</option><option value="5">6th</option>
-        <option value="6">7th</option><option value="7">8th</option><option value="8">9th</option>
-        <option value="9">10th</option><option value="10">11th</option><option value="11">12th</option>
-      </select>
-    </div>
-  </div>
 
-  <div class="dr-dash">
-    <div class="dr-dash-bar">
-      <div class="dr-dots"><div class="dr-dot dr-dot--r"></div><div class="dr-dot dr-dot--y"></div><div class="dr-dot dr-dot--g"></div></div>
-      <h4><i class="fas fa-football-ball me-2" style="color:#013369"></i>Fantasy Draft Engine v3.0 — 2026 Season</h4>
-      <div style="display:flex;gap:.45rem;flex-shrink:0">
-        <button class="btn btn-primary btn-sm" id="drBtnRun" style="border-radius:8px;font-size:.76rem;background:#013369;border-color:#013369"><i class="fas fa-play me-1"></i> Start Draft</button>
-        <button class="btn btn-outline-secondary btn-sm" id="drBtnReset" style="border-radius:8px;font-size:.76rem;display:none"><i class="fas fa-redo me-1"></i> New Draft</button>
+    <div class="dfr-settings">
+      <div class="dfr-setting">
+        <label>Scoring Format</label>
+        <div class="dfr-fmt-btns" id="dfrFmtBtns">
+          <button data-v="ppr" class="active">PPR</button>
+          <button data-v="half">Half</button>
+          <button data-v="std">Std</button>
+        </div>
+      </div>
+      <div class="dfr-setting">
+        <label>Your Draft Position</label>
+        <select id="dfrPickPos">
+          <option value="0">1st Overall</option><option value="1">2nd Overall</option>
+          <option value="2">3rd Overall</option><option value="3">4th Overall</option>
+          <option value="4">5th Overall</option><option value="5">6th Overall</option>
+          <option value="6">7th Overall</option><option value="7">8th Overall</option>
+          <option value="8">9th Overall</option><option value="9">10th Overall</option>
+          <option value="10">11th Overall</option><option value="11">12th Overall</option>
+        </select>
+      </div>
+      <div class="dfr-setting">
+        <label>Pick Timer</label>
+        <select id="dfrTimerSel">
+          <option value="0">No Timer</option>
+          <option value="15">15 Seconds</option>
+          <option value="30" selected>30 Seconds</option>
+          <option value="60">60 Seconds</option>
+          <option value="120">2 Minutes</option>
+        </select>
       </div>
     </div>
-    <div class="dr-pip-bar">
-      <div class="dr-pip" id="drPip0"><div class="dr-pip-dot"><i class="fas fa-database"></i></div><div class="dr-pip-lbl">Load</div></div>
-      <div class="dr-pip" id="drPip1"><div class="dr-pip-dot"><i class="fas fa-calculator"></i></div><div class="dr-pip-lbl">Score</div></div>
-      <div class="dr-pip" id="drPip2"><div class="dr-pip-dot"><i class="fas fa-layer-group"></i></div><div class="dr-pip-lbl">Rank</div></div>
-      <div class="dr-pip" id="drPip3"><div class="dr-pip-dot"><i class="fas fa-football-ball"></i></div><div class="dr-pip-lbl">Draft</div></div>
-      <div class="dr-pip" id="drPip4"><div class="dr-pip-dot"><i class="fas fa-chart-bar"></i></div><div class="dr-pip-lbl">Analyze</div></div>
-      <div class="dr-pip" id="drPip5"><div class="dr-pip-dot"><i class="fas fa-trophy"></i></div><div class="dr-pip-lbl">Results</div></div>
+
+    <button class="dfr-enter-btn" id="dfrEnter">
+      <i class="fas fa-play"></i> ENTER DRAFT ROOM
+    </button>
+
+    <div class="dfr-team-preview">
+      <h3>YOUR OPPONENTS</h3>
+      <div class="dfr-team-cards" id="dfrTeamCards"></div>
     </div>
-    <div class="dr-i-body">
-      <div class="dr-prev-pane">
-        <div class="dr-pane-lbl">League Settings</div>
-        <div id="drConfig" style="font-size:.66rem;opacity:.55;padding:.25rem">Configure &amp; click "Start Draft"</div>
-        <div class="dr-pane-lbl" style="margin-top:.5rem">Your Roster</div>
-        <div id="drMyRoster" style="font-size:.64rem;padding:.2rem;opacity:.55">—</div>
-        <div class="dr-pane-lbl" style="margin-top:.5rem">Pipeline Log</div>
-        <div class="dr-log3" id="drLogArea"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ DRAFT ROOM ═══════════════════════════ -->
+<div id="drRoom" style="display:none">
+  <div class="dfr-room">
+    <!-- Top Bar -->
+    <div class="dfr-topbar">
+      <div class="dfr-topbar-brand"><i class="fas fa-football-ball"></i> DRAFT ROOM</div>
+      <div class="dfr-round-badge" id="dfrRoundBadge">RND 1 / 19</div>
+      <div class="dfr-pick-badge" id="dfrPickBadge">Pick 0 / 228</div>
+      <div class="dfr-otc" id="dfrOTC">
+        <div>
+          <div class="dfr-otc-label">ON THE CLOCK</div>
+          <div class="dfr-otc-team"><span class="dfr-otc-dot" id="dfrOTCDot"></span><span id="dfrOTCName">—</span></div>
+        </div>
       </div>
-      <div class="dr-stage" id="drStage"></div>
-    </div>
-  </div>
-
-  <div class="dr-board" id="drBoard">
-    <div class="dr-board-hd">
-      <h4><i class="fas fa-clipboard-list me-2" style="color:#013369"></i>Draft Board</h4>
-      <div style="display:flex;align-items:center;gap:.6rem">
-        <div id="drBoardMeta" style="font-size:.65rem;opacity:.45"></div>
+      <div class="dfr-timer" id="dfrTimer">
+        <i class="fas fa-clock" style="font-size:.7rem;opacity:.5"></i>
+        <div class="dfr-timer-val" id="dfrTimerVal">0:30</div>
+      </div>
+      <div class="dfr-topbar-controls">
+        <button class="dfr-top-btn" id="dfrAutoBtn" title="Auto-pick for you"><i class="fas fa-robot"></i> Auto</button>
+        <button class="dfr-top-btn" id="dfrSimMyBtn" title="Sim to your next pick"><i class="fas fa-forward"></i></button>
+        <button class="dfr-top-btn" id="dfrSimAllBtn" title="Simulate remaining draft"><i class="fas fa-fast-forward"></i></button>
+        <button class="dfr-top-btn" id="dfrPauseBtn"><i class="fas fa-pause"></i></button>
+        <button class="dfr-top-btn" id="dfrBoardBtn" title="View draft board"><i class="fas fa-th"></i></button>
+        <button class="dfr-top-btn" id="dfrExitBtn" title="Exit draft"><i class="fas fa-sign-out-alt"></i></button>
       </div>
     </div>
-    <div class="dr-board-scroll" id="drBoardBody"></div>
-  </div>
 
-  <div class="dr-analytics" id="drAnalytics">
-    <div style="font-size:.82rem;font-weight:800;margin-bottom:.6rem"><i class="fas fa-trophy me-2" style="color:#d50a0a"></i>Post-Draft Analytics</div>
-    <div class="dr-a-kpis">
-      <div class="dr-akpi"><div class="dr-akpi-val" id="kaGrade">—</div><div class="dr-akpi-lbl">Draft Grade</div></div>
-      <div class="dr-akpi"><div class="dr-akpi-val" id="kaPts">—</div><div class="dr-akpi-lbl">Proj. Starter Pts</div></div>
-      <div class="dr-akpi"><div class="dr-akpi-val" id="kaVor">—</div><div class="dr-akpi-lbl">Total VOR</div></div>
-      <div class="dr-akpi"><div class="dr-akpi-val" id="kaRank">—</div><div class="dr-akpi-lbl">League Rank</div></div>
-      <div class="dr-akpi"><div class="dr-akpi-val" id="kaVal">—</div><div class="dr-akpi-lbl">Value Score</div></div>
-      <div class="dr-akpi"><div class="dr-akpi-val" id="kaBye">—</div><div class="dr-akpi-lbl">Bye Conflicts</div></div>
-      <div class="dr-akpi"><div class="dr-akpi-val" id="kaStarters">—</div><div class="dr-akpi-lbl">Starters Filled</div></div>
-      <div class="dr-akpi"><div class="dr-akpi-val" id="kaFormat">—</div><div class="dr-akpi-lbl">Scoring Format</div></div>
-    </div>
-    <div class="dr-a-grid">
-      <div class="dr-a-panel"><h5><i class="fas fa-chart-bar me-1" style="color:#013369"></i>Positional Strength</h5><div id="kaPosStr"></div></div>
-      <div class="dr-a-panel"><h5><i class="fas fa-calendar-alt me-1" style="color:#d50a0a"></i>Bye Week Map (Wk 5-14)</h5><div id="kaByeMap"></div></div>
-    </div>
-    <div style="margin-top:.9rem;overflow-x:auto">
-      <table class="table table-sm" style="font-size:.73rem;margin:0">
-        <thead><tr style="opacity:.55"><th>#</th><th>Team</th><th>Strategy</th><th>Proj Pts</th><th>VOR</th><th>Top Pick</th><th>Grade</th></tr></thead>
-        <tbody id="kaTable"></tbody>
-      </table>
-    </div>
-  </div>
-</section>
+    <!-- Ticker -->
+    <div class="dfr-ticker" id="dfrTicker"></div>
 
-<!-- ═══════════════════════════ TECH STACK ═══════════════════════════ -->
-<section class="dr-sec">
-  <div class="dr-sec-head">
-    <span class="dr-tag dr-tag--v">Technology</span>
-    <h2>Technical Stack</h2>
+    <!-- Main 3-Column Grid -->
+    <div class="dfr-main">
+      <!-- Left: Roster -->
+      <div class="dfr-panel">
+        <div class="dfr-panel-hd"><span><i class="fas fa-clipboard-list"></i> MY ROSTER</span><span class="count" id="dfrRosterCt">0/19</span></div>
+        <div class="dfr-roster" id="dfrRoster"></div>
+        <div class="dfr-roster-footer"><span>Projected Total</span><span id="dfrRosterPts">0 pts</span></div>
+      </div>
+
+      <!-- Center: Player List -->
+      <div class="dfr-players">
+        <div class="dfr-toolbar">
+          <input type="text" class="dfr-search" id="dfrSearch" placeholder="&#xf002;  Search players..." style="font-family:'Font Awesome 6 Free',Inter,sans-serif">
+          <div class="dfr-pos-btns" id="dfrPosFilter">
+            <button class="active" data-f="ALL">ALL</button>
+            <button data-f="QB">QB</button>
+            <button data-f="RB">RB</button>
+            <button data-f="WR">WR</button>
+            <button data-f="TE">TE</button>
+            <button data-f="K">K</button>
+            <button data-f="DST">DST</button>
+          </div>
+          <div class="dfr-sort-lbl">Sorted by <b id="dfrSortLabel">VOR</b></div>
+        </div>
+        <div class="dfr-tbl-wrap" id="dfrTblWrap">
+          <table class="dfr-tbl">
+            <thead>
+              <tr>
+                <th data-col="rank" style="width:30px">#</th>
+                <th data-col="name">PLAYER</th>
+                <th data-col="pos" style="width:42px">POS</th>
+                <th data-col="team" style="width:40px">TM</th>
+                <th data-col="bye" style="width:32px">BYE</th>
+                <th data-col="pts" style="width:48px">PTS</th>
+                <th data-col="vor" class="sort-active" style="width:44px">VOR ▼</th>
+                <th data-col="adp" style="width:38px">ADP</th>
+                <th style="width:55px"></th>
+              </tr>
+            </thead>
+            <tbody id="dfrPlayerBody"></tbody>
+          </table>
+        </div>
+        <div class="dfr-ctrl-bar">
+          <div class="dfr-speed-grp">
+            <span>Speed:</span>
+            <button class="dfr-speed-btn" data-sp="1200">🐢</button>
+            <button class="dfr-speed-btn active" data-sp="400">🏃</button>
+            <button class="dfr-speed-btn" data-sp="100">🚀</button>
+            <button class="dfr-speed-btn" data-sp="0">⚡</button>
+          </div>
+          <div class="dfr-progress">
+            <div class="dfr-progress-bar"><div class="dfr-progress-fill" id="dfrProgressFill"></div></div>
+            <div class="dfr-progress-text" id="dfrProgressText">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Feed -->
+      <div class="dfr-panel" style="border-right:none;border-left:1px solid var(--dr-border)">
+        <div class="dfr-panel-hd"><span><i class="fas fa-stream"></i> DRAFT FEED</span></div>
+        <div class="dfr-feed" id="dfrFeed"></div>
+      </div>
+    </div>
   </div>
-  <div class="dr-stack">
-    <span class="dr-pill dr-pill--b">SportsData.io API</span>
-    <span class="dr-pill dr-pill--v">JavaScript ES6+</span>
-    <span class="dr-pill dr-pill--g">PPR / Half / Standard Scoring</span>
-    <span class="dr-pill dr-pill--a">VOR Algorithm</span>
-    <span class="dr-pill dr-pill--r">Positional Scarcity Model</span>
-    <span class="dr-pill dr-pill--b">Snake Draft Engine</span>
-    <span class="dr-pill dr-pill--gold">9 AI Strategy Archetypes</span>
-    <span class="dr-pill dr-pill--v">BPA × Need Hybrid</span>
-    <span class="dr-pill dr-pill--g">Min-Max Normalization</span>
-    <span class="dr-pill dr-pill--a">Async/Await Pipeline</span>
-    <span class="dr-pill dr-pill--b">SportsData.io Headshots</span>
-    <span class="dr-pill dr-pill--r">ADP Value Analysis</span>
-    <span class="dr-pill dr-pill--v">Bye Week Optimization</span>
-    <span class="dr-pill dr-pill--g">Dark Mode Parity</span>
-    <span class="dr-pill dr-pill--gold">Post-Draft Grading</span>
-    <span class="dr-pill dr-pill--r">K/DST Scoring</span>
-    <span class="dr-pill dr-pill--b">19-Round Draft</span>
+</div>
+
+<!-- ═══════════════════════════ DRAFT BOARD OVERLAY ═══════════════════════════ -->
+<div id="dfrBoardOverlay" class="dfr-board-overlay" style="display:none">
+  <div class="dfr-board-modal">
+    <div class="dfr-board-hd">
+      <h4><i class="fas fa-th me-2"></i>Draft Board</h4>
+      <button class="dfr-board-close" id="dfrBoardClose">&times;</button>
+    </div>
+    <div class="dfr-board-grid" id="dfrBoardGrid"></div>
   </div>
-  <div class="dr-callout dr-callout--v" style="margin-top:1.3rem">
-    <h5><i class="fas fa-lightbulb" style="color:#013369"></i> Technical Interview Talking Point</h5>
-    <p>"I built a production-grade fantasy football draft simulator that demonstrates full-stack data engineering: it ingests 220+ players across 6 positions (QB, RB, WR, TE, K, DST) with projected 2026 stats via SportsData.io API integration, runs a multi-format scoring engine (PPR, Half-PPR, Standard) with dynamic VOR tiering, then executes a 12-team, 19-round snake draft where 11 AI bots each run a distinct strategy archetype — Zero RB, Hero RB, TE Premium, Robust RB, Contrarian, Stars &amp; Scrubs, Late QB, Anchor, and Balanced BPA. The AI pick function computes <code>strategy_weight × VOR × need_factor × scarcity_bonus ± noise</code> per candidate. Post-draft analytics include projected points, ADP value score, bye-week conflict analysis, positional strength bars, and A+→F grading across all teams. Roster construction mirrors real fantasy leagues: 3 QB, 5 RB, 5 WR, 2 TE, 2 K, 2 DST."</p>
-  </div>
-  <div class="dr-callout dr-callout--v" style="margin-top:.8rem">
-    <h5><i class="fas fa-code" style="color:#013369"></i> Key Engineering Decisions</h5>
-    <ul>
-      <li><b>Dynamic VOR recalculation</b> — Switching scoring format triggers a full re-sort of the 220-player pool, because WR/RB rankings shift meaningfully between PPR and Standard. High-reception RBs like Achane and Gibbs gain ~40 fantasy points in PPR vs. Standard.</li>
-      <li><b>Strategy diversity via weight vectors</b> — Rather than hardcoding pick behavior, each AI archetype applies a 6-element weight vector [QB, RB, WR, TE, K, DST] that multiplies each available player's VOR score, creating naturally divergent rosters.</li>
-      <li><b>Positional scarcity as a 2nd-order signal</b> — The AI counts how many players at each position remain in the top-N available. When a position falls below a threshold, a scarcity multiplier kicks in (1.25×-1.5×) creating realistic "position run" behavior.</li>
-      <li><b>ADP-aware value detection</b> — Each pick is compared to ADP. Picks made significantly above ADP are flagged as value picks; picks made below ADP are flagged as reaches. This mirrors ESPN's draft tracker.</li>
-    </ul>
-  </div>
-</section>
+</div>
+
+<!-- ═══════════════════════════ POST-DRAFT ═══════════════════════════ -->
+<div id="drPost" style="display:none">
+  <div class="dfr-post" id="dfrPostContent"></div>
+</div>
 
 {% endblock content %}
 
@@ -554,78 +470,52 @@ player.vor = player.pts - replacementPts[player.pos];
 (function(){'use strict';
 
 /* ══════════════════════════════════════════════════════════════
-   CONFIGURATION & DOM
+   CONFIGURATION & STATE
    ══════════════════════════════════════════════════════════════ */
-var ROUNDS=19, NUM_TEAMS=12;
+var ROUNDS=19, NUM_TEAMS=12, TOTAL_PICKS=ROUNDS*NUM_TEAMS;
 var scoringFmt='ppr', userSlot=0;
-var running=false;
+var draftSpeed=400, pickTimerMax=30;
+var autopick=false, paused=false;
+var draftState='lobby'; /* lobby | loading | drafting | userPick | paused | complete */
 
-var btnRun=document.getElementById('drBtnRun'),
-    btnReset=document.getElementById('drBtnReset'),
-    stage=document.getElementById('drStage'),
-    board=document.getElementById('drBoard'),
-    boardBody=document.getElementById('drBoardBody'),
-    analytics=document.getElementById('drAnalytics');
-
-function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
-function app(h){stage.insertAdjacentHTML('beforeend',h);stage.scrollTop=stage.scrollHeight}
-function log(m){var la=document.getElementById('drLogArea');if(!la)return;
-  var ts=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  la.insertAdjacentHTML('beforeend','<div style="animation:drSlide .2s ease">'+ts+' '+m+'</div>');la.scrollTop=la.scrollHeight}
-function pip(i,s){for(var j=0;j<6;j++){var e=document.getElementById('drPip'+j);if(!e)continue;e.classList.remove('active','done');
-  if(j<i)e.classList.add('done');else if(j===i)e.classList.add(s==='active'?'active':'done')}}
-
-/* ── Settings UI ── */
-document.getElementById('drFmtGrp').addEventListener('click',function(e){
-  var b=e.target.closest('button');if(!b)return;
-  this.querySelectorAll('button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active');scoringFmt=b.getAttribute('data-v')});
-document.getElementById('drPickPos').addEventListener('change',function(){userSlot=parseInt(this.value)});
+/* Draft tracking */
+var allPlayers=[], available=[], teamRosters=[], allPicks=[];
+var draftQueue=[], draftCursor=0;
+var pickTimer=null, pickTimeLeft=0;
+var draftTimeout=null;
+var currentFilter='ALL', currentSearch='', currentSort='vor';
 
 /* ══════════════════════════════════════════════════════════════
    TEAMS & AI STRATEGIES
    ══════════════════════════════════════════════════════════════ */
 var STRATS=[
-  {name:'Robust RB',desc:'Loads 2-3 elite RBs in the first 4 rounds to lock down the backfield.',w:{QB:.5,RB:1.55,WR:.85,TE:.6,K:.3,DST:.3},clr:['#2563eb','#2563eb','#2563eb','#60a5fa']},
-  {name:'Zero RB',desc:'Fades RB early, stacks WR/TE, then targets RB value in mid rounds.',w:{QB:.7,RB:.45,WR:1.5,TE:1.15,K:.3,DST:.3},clr:['#8b5cf6','#8b5cf6','#8b5cf6','#a78bfa']},
-  {name:'Hero RB',desc:'Grabs 1 elite RB round 1, then goes WR-heavy for 3-4 rounds.',w:{QB:.6,RB:1.1,WR:1.35,TE:.75,K:.3,DST:.3},clr:['#059669','#059669','#10b981','#6ee7b7']},
-  {name:'TE Premium',desc:'Secures Bowers or LaPorta early, then exploits RB/WR depth.',w:{QB:.65,RB:1.0,WR:1.0,TE:1.7,K:.3,DST:.3},clr:['#d97706','#d97706','#f59e0b','#fcd34d']},
-  {name:'Late QB',desc:'Waits on QB until round 8+, maximizes skill position capital.',w:{QB:.25,RB:1.25,WR:1.25,TE:.9,K:.3,DST:.3},clr:['#dc2626','#dc2626','#ef4444','#fca5a5']},
-  {name:'Stars & Scrubs',desc:'Goes all-in on elite talent early, accepts weaker depth on the bench.',w:{QB:.75,RB:1.2,WR:1.25,TE:.85,K:.25,DST:.25},clr:['#0891b2','#0891b2','#06b6d4','#67e8f9']},
-  {name:'Balanced BPA',desc:'Pure best-player-available every round, minimal positional bias.',w:{QB:1.0,RB:1.0,WR:1.0,TE:1.0,K:.5,DST:.5},clr:['#6366f1','#6366f1','#818cf8','#a5b4fc']},
-  {name:'Contrarian',desc:'Targets position runs — when others fade a position, this bot buys it.',w:{QB:1.15,RB:.85,WR:.85,TE:1.25,K:.4,DST:.4},clr:['#db2777','#db2777','#ec4899','#f9a8d4']},
-  {name:'Anchor RB',desc:'1 top RB in round 1, then strictly BPA with need tiebreakers.',w:{QB:.8,RB:1.15,WR:1.05,TE:.85,K:.3,DST:.3},clr:['#7c3aed','#7c3aed','#8b5cf6','#c4b5fd']}
+  {name:'Robust RB',desc:'Loads 2-3 elite RBs in the first 4 rounds.',w:{QB:.5,RB:1.55,WR:.85,TE:.6,K:.3,DST:.3},clr:'#2563eb'},
+  {name:'Zero RB',desc:'Fades RB early, stacks WR/TE.',w:{QB:.7,RB:.45,WR:1.5,TE:1.15,K:.3,DST:.3},clr:'#8b5cf6'},
+  {name:'Hero RB',desc:'1 elite RB round 1, then WR-heavy.',w:{QB:.6,RB:1.1,WR:1.35,TE:.75,K:.3,DST:.3},clr:'#059669'},
+  {name:'TE Premium',desc:'Secures elite TE early.',w:{QB:.65,RB:1.0,WR:1.0,TE:1.7,K:.3,DST:.3},clr:'#d97706'},
+  {name:'Late QB',desc:'Waits on QB until round 8+.',w:{QB:.25,RB:1.25,WR:1.25,TE:.9,K:.3,DST:.3},clr:'#dc2626'},
+  {name:'Stars & Scrubs',desc:'All-in on elite talent early.',w:{QB:.75,RB:1.2,WR:1.25,TE:.85,K:.25,DST:.25},clr:'#0891b2'},
+  {name:'Balanced BPA',desc:'Pure best-player-available.',w:{QB:1.0,RB:1.0,WR:1.0,TE:1.0,K:.5,DST:.5},clr:'#6366f1'},
+  {name:'Contrarian',desc:'Targets position runs others fade.',w:{QB:1.15,RB:.85,WR:.85,TE:1.25,K:.4,DST:.4},clr:'#db2777'},
+  {name:'Anchor RB',desc:'1 top RB round 1, then BPA.',w:{QB:.8,RB:1.15,WR:1.05,TE:.85,K:.3,DST:.3},clr:'#7c3aed'}
 ];
-/* 12 teams: user + 11 bots. Bots 1-9 get unique strategies, bots 10-11 get random picks from pool */
+
 var TEAMS=[];
+var botNames=['Alpha','Bravo','Charlie','Delta','Echo','Foxtrot','Golf','Hotel','India','Juliet','Kilo'];
+var botColors=['#d50a0a','#003594','#0B162A','#004C54','#101820','#A71930','#125740','#0076B6','#773141','#C83803','#4F2683'];
+
 function buildTeams(){
   TEAMS=[{name:'Your Team',abbr:'YOU',color:'#013369',strat:null}];
-  var shuffled=STRATS.slice();for(var i=shuffled.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=shuffled[i];shuffled[i]=shuffled[j];shuffled[j]=t}
-  var botNames=['Alpha','Bravo','Charlie','Delta','Echo','Foxtrot','Golf','Hotel','India','Juliet','Kilo'];
-  var botColors=['#d50a0a','#003594','#0B162A','#004C54','#101820','#A71930','#125740','#0076B6','#773141','#C83803','#4F2683'];
+  var sh=STRATS.slice();
+  for(var i=sh.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=sh[i];sh[i]=sh[j];sh[j]=t}
   for(var b=0;b<11;b++){
-    TEAMS.push({name:'Bot '+botNames[b],abbr:botNames[b].substring(0,3).toUpperCase(),color:botColors[b],
-      strat:shuffled[b%shuffled.length]})}}
+    TEAMS.push({name:'Team '+botNames[b],abbr:botNames[b].substring(0,3).toUpperCase(),
+      color:botColors[b],strat:sh[b%sh.length]})}
+}
 buildTeams();
-
-/* Render strategy cards */
-(function(){
-  var g=document.getElementById('drStratGrid');if(!g)return;
-  STRATS.forEach(function(s){
-    g.insertAdjacentHTML('beforeend',
-      '<div class="dr-strat"><div class="dr-strat-name">'+s.name+'</div>'+
-      '<div class="dr-strat-desc">'+s.desc+'</div>'+
-      '<div style="display:flex;gap:.3rem;font-size:.55rem;opacity:.5;margin-bottom:.3rem"><span>QB</span><span style="margin-left:auto">RB</span><span style="margin-left:auto">WR</span><span style="margin-left:auto">TE</span></div>'+
-      '<div class="dr-strat-bar">'+
-      '<div class="dr-strat-seg" style="flex:'+s.w.QB+';background:'+s.clr[0]+';opacity:.7"></div>'+
-      '<div class="dr-strat-seg" style="flex:'+s.w.RB+';background:'+s.clr[1]+';opacity:.85"></div>'+
-      '<div class="dr-strat-seg" style="flex:'+s.w.WR+';background:'+s.clr[2]+'"></div>'+
-      '<div class="dr-strat-seg" style="flex:'+s.w.TE+';background:'+s.clr[3]+';opacity:.6"></div>'+
-      '</div></div>')})})();
 
 /* ══════════════════════════════════════════════════════════════
    2026 FANTASY PLAYER DATABASE — 220 PLAYERS
-   Projected stats based on 2025 season trajectory
    Format: [name, pos, team, bye, adp, tier, s1, s2, s3, s4, s5]
    QB: passYd, passTD, INT, rushYd, rushTD
    RB: rushYd, rushTD, rec, recYd, recTD
@@ -788,7 +678,6 @@ var RAW=[
 ["Allen Lazard",'WR','NYJ',12,172,8,40,480,3,0,0],
 ["Kenneth Gainwell",'RB','PHI',5,176,8,300,2,25,200,1],
 ["Kirk Cousins",'QB','ATL',12,180,8,3400,20,12,50,0],
-/* ── K (Kickers): s1=fg_made, s2=fg_att, s3=xp_made, s4=xp_att, s5=fg_50_plus ── */
 ["Chris Boswell",'K','PIT',9,183,6,33,38,45,47,10],
 ["Brandon Aubrey",'K','DAL',7,186,6,32,37,40,41,12],
 ["Harrison Butker",'K','KC',6,188,6,31,34,48,50,8],
@@ -809,7 +698,6 @@ var RAW=[
 ["Daniel Carlson",'K','LV',10,219,8,22,26,34,36,4],
 ["Graham Gano",'K','NYG',8,221,8,21,26,32,34,4],
 ["Wil Lutz",'K','DEN',14,223,8,21,25,34,36,3],
-/* ── DST (Defense/ST): s1=sacks, s2=INT, s3=fumble_rec, s4=def_TD, s5=pts_allowed ── */
 ["Steelers DST",'DST','PIT',9,185,6,50,18,14,4,295],
 ["Vikings DST",'DST','MIN',9,187,6,46,20,12,3,280],
 ["Ravens DST",'DST','BAL',8,190,6,48,16,12,3,300],
@@ -832,6 +720,9 @@ var RAW=[
 ["Saints DST",'DST','NO',8,224,8,32,10,8,1,355]
 ];
 
+/* ══════════════════════════════════════════════════════════════
+   HEADSHOTS
+   ══════════════════════════════════════════════════════════════ */
 var POS_CLR={QB:'qb',RB:'rb',WR:'wr',TE:'te',K:'k',DST:'dst'};
 var headshotCache={};
 function headshot(name,pos){
@@ -841,58 +732,40 @@ function headshot(name,pos){
   var ini=name.split(' ').map(function(w){return w.charAt(0)}).join('').substring(0,3);
   return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' rx='48' fill='"+c+"'/%3E%3Ctext x='48' y='58' text-anchor='middle' fill='white' font-size='30' font-weight='700' font-family='Inter,sans-serif'%3E"+ini+"%3C/text%3E%3C/svg%3E";
 }
-
-/* ══════════════════════════════════════════════════════════════
-   SPORTSDATA.IO HEADSHOT INTEGRATION
-   Fetches real player headshots at draft start; falls back to SVG initials
-   ══════════════════════════════════════════════════════════════ */
 var headshotsLoaded=false;
 function loadHeadshots(){
   if(headshotsLoaded)return Promise.resolve();
   return fetch('/api/nfl/headshots/').then(function(r){
     if(!r.ok)throw new Error('API '+r.status);return r.json()
   }).then(function(data){
-    data.forEach(function(h){
-      if(h.Name&&h.PreferredHostedHeadshotUrl){
-        headshotCache[h.Name]=h.PreferredHostedHeadshotUrl;
-      }
-    });
+    data.forEach(function(h){if(h.Name&&h.PreferredHostedHeadshotUrl)headshotCache[h.Name]=h.PreferredHostedHeadshotUrl});
     headshotsLoaded=true;
-    log('📸 Loaded '+Object.keys(headshotCache).length+' SportsData.io headshots');
-  }).catch(function(){
-    log('📸 SportsData.io headshots unavailable — using initials');
-    return Promise.resolve();
-  });
+  }).catch(function(){return Promise.resolve()});
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SCORING ENGINE — Dynamic per format
+   SCORING ENGINE
    ══════════════════════════════════════════════════════════════ */
 function calcPts(p,fmt){
   fmt=fmt||scoringFmt;
-  var rBonus=fmt==='ppr'?1:fmt==='half'?0.5:0;
+  var rB=fmt==='ppr'?1:fmt==='half'?0.5:0;
   if(p.pos==='QB')return Math.round((p.s1*0.04+p.s2*4+p.s3*(-2)+p.s4*0.1+p.s5*6)*10)/10;
-  if(p.pos==='RB')return Math.round((p.s1*0.1+p.s2*6+p.s3*rBonus+p.s4*0.1+p.s5*6)*10)/10;
+  if(p.pos==='RB')return Math.round((p.s1*0.1+p.s2*6+p.s3*rB+p.s4*0.1+p.s5*6)*10)/10;
   if(p.pos==='K')return Math.round((p.s1*3+p.s3*1)*10)/10;
   if(p.pos==='DST'){
-    var pa=p.s5,paBracket=0;
-    if(pa<200)paBracket=10;else if(pa<250)paBracket=6;else if(pa<300)paBracket=3;
-    else if(pa>=350&&pa<400)paBracket=-3;else if(pa>=400)paBracket=-6;
-    return Math.round((p.s1*1+p.s2*2+p.s3*2+p.s4*6+paBracket)*10)/10;
+    var pa=p.s5,pab=0;
+    if(pa<200)pab=10;else if(pa<250)pab=6;else if(pa<300)pab=3;
+    else if(pa>=350&&pa<400)pab=-3;else if(pa>=400)pab=-6;
+    return Math.round((p.s1*1+p.s2*2+p.s3*2+p.s4*6+pab)*10)/10;
   }
-  /* WR & TE: s1=rec, s2=recYd, s3=recTD, s4=rushYd, s5=rushTD */
-  return Math.round((p.s1*rBonus+p.s2*0.1+p.s3*6+p.s4*0.1+p.s5*6)*10)/10;
+  return Math.round((p.s1*rB+p.s2*0.1+p.s3*6+p.s4*0.1+p.s5*6)*10)/10;
 }
-
-var allPlayers=[];
 
 function buildPlayers(fmt){
   allPlayers=RAW.map(function(r,i){
     return{id:90001+i,name:r[0],pos:r[1],team:r[2],bye:r[3],adp:r[4],tier:r[5],
-      s1:r[6],s2:r[7],s3:r[8],s4:r[9],s5:r[10],pts:0,vor:0}});
-  /* Compute points */
+      s1:r[6],s2:r[7],s3:r[8],s4:r[9],s5:r[10],pts:0,vor:0,drafted:false,draftedBy:-1}});
   allPlayers.forEach(function(p){p.pts=calcPts(p,fmt)});
-  /* Compute VOR */
   var repLvl={QB:13,RB:25,WR:31,TE:13,K:10,DST:10};
   var byPos={QB:[],RB:[],WR:[],TE:[],K:[],DST:[]};
   allPlayers.forEach(function(p){if(byPos[p.pos])byPos[p.pos].push(p)});
@@ -905,24 +778,30 @@ function buildPlayers(fmt){
   return allPlayers;
 }
 
-/* Format stat line for display */
 function statLine(p){
-  if(p.pos==='QB')return p.s1.toLocaleString()+' yd · '+p.s2+' TD · '+p.s3+' INT · '+p.s4+' rush';
-  if(p.pos==='RB')return p.s1.toLocaleString()+' rush · '+p.s2+' TD · '+p.s3+' rec · '+p.s4+' rec yd';
-  if(p.pos==='K')return p.s1+'/'+p.s2+' FG · '+p.s3+'/'+p.s4+' XP · '+p.s5+' 50+';
-  if(p.pos==='DST')return p.s1+' sacks · '+p.s2+' INT · '+p.s3+' FR · '+p.s4+' TD';
-  return p.s1+' rec · '+p.s2.toLocaleString()+' yd · '+p.s3+' TD';
+  if(p.pos==='QB')return p.s1.toLocaleString()+'yd '+p.s2+'TD '+p.s3+'INT '+p.s4+'rush';
+  if(p.pos==='RB')return p.s1.toLocaleString()+'rush '+p.s2+'TD '+p.s3+'rec '+p.s4+'recY';
+  if(p.pos==='K')return p.s1+'/'+p.s2+'FG '+p.s3+'/'+p.s4+'XP';
+  if(p.pos==='DST')return p.s1+'sk '+p.s2+'INT '+p.s3+'FR '+p.s4+'TD';
+  return p.s1+'rec '+p.s2.toLocaleString()+'yd '+p.s3+'TD';
 }
 
 /* ══════════════════════════════════════════════════════════════
    SNAKE DRAFT ENGINE
    ══════════════════════════════════════════════════════════════ */
-var teamRosters=[], available=[], allPicks=[];
-
 function snakeOrder(round){
   var order=[];for(var i=0;i<NUM_TEAMS;i++)order.push(i);
   if(round%2===1)order.reverse();
-  return order}
+  return order;
+}
+
+function buildDraftQueue(){
+  draftQueue=[];
+  for(var r=0;r<ROUNDS;r++){
+    var order=snakeOrder(r);
+    for(var i=0;i<order.length;i++){
+      draftQueue.push({round:r,pickInRound:i,teamIdx:order[i]})}}
+}
 
 function aiPick(teamIdx){
   if(!available.length)return null;
@@ -937,326 +816,576 @@ function aiPick(teamIdx){
   for(var i=0;i<scanLen;i++){
     var p=available[i];
     var val=p.vor*(w[p.pos]||1);
-    /* Need boost */
     if(posCts[p.pos]<needs[p.pos])val*=1.15;
-    /* Overstock penalty */
     if(posCts[p.pos]>=needs[p.pos])val*=0.45;
-    /* Scarcity: count remaining at position in top-40 available */
     var rem=0;for(var j=0;j<Math.min(available.length,40);j++){if(available[j].pos===p.pos)rem++}
-    if(rem<=3)val*=1.35;
-    else if(rem<=6)val*=1.12;
-    /* ADP reach penalty (don't reach too far) */
+    if(rem<=3)val*=1.35;else if(rem<=6)val*=1.12;
     var overallPick=allPicks.length+1;
     if(p.adp>overallPick+30)val*=0.7;
-    /* Noise ±8% */
     val*=(0.92+Math.random()*0.16);
     if(val>bestVal){bestVal=val;bestIdx=i}}
   return available.splice(bestIdx,1)[0];
 }
 
 /* ══════════════════════════════════════════════════════════════
-   PIPELINE STEPS
+   DRAFT FLOW — Step-based with pause/resume/sim
    ══════════════════════════════════════════════════════════════ */
-function s0Load(){
-  pip(0,'active');log('📦 Loading 2026 fantasy player database…');
-  document.getElementById('drConfig').innerHTML=
-    '<div style="margin-bottom:.2rem"><b>Format:</b> '+scoringFmt.toUpperCase()+'</div>'+
-    '<div style="margin-bottom:.2rem"><b>Teams:</b> 12</div>'+
-    '<div style="margin-bottom:.2rem"><b>Rounds:</b> 19</div>'+
-    '<div style="margin-bottom:.2rem"><b>Your Pick:</b> #'+(userSlot+1)+' overall</div>'+
-    '<div style="margin-bottom:.2rem"><b>Players:</b> '+RAW.length+'</div>'+
-    '<div><b>AI:</b> 9 archetypes</div>';
-  return loadHeadshots().then(function(){return wait(500)}).then(function(){
-    buildPlayers(scoringFmt);
-    var posCts={QB:0,RB:0,WR:0,TE:0,K:0,DST:0};allPlayers.forEach(function(p){posCts[p.pos]++});
-    app('<div class="dr-step-card"><h6>📦 Step 1 — Player Database Loaded</h6>'+
-      '<p style="font-size:.7rem;opacity:.55;margin-bottom:.4rem">2026 projected stats: '+allPlayers.length+' players across 6 positions</p>'+
-      '<div class="dr-json"><span class="key">"database"</span>: {\n  <span class="key">"total"</span>: <span class="num">'+allPlayers.length+'</span>,\n  <span class="key">"QB"</span>: <span class="num">'+posCts.QB+'</span>, <span class="key">"RB"</span>: <span class="num">'+posCts.RB+'</span>, <span class="key">"WR"</span>: <span class="num">'+posCts.WR+'</span>, <span class="key">"TE"</span>: <span class="num">'+posCts.TE+'</span>, <span class="key">"K"</span>: <span class="num">'+posCts.K+'</span>, <span class="key">"DST"</span>: <span class="num">'+posCts.DST+'</span>,\n  <span class="key">"scoring"</span>: <span class="str">"'+scoringFmt.toUpperCase()+'"</span>,\n  <span class="key">"season"</span>: <span class="num">2026</span>\n}</div></div>');
-    pip(0,'done');log('✅ '+allPlayers.length+' players loaded');return wait(400)})}
+function recordPick(teamIdx,player){
+  player.drafted=true;player.draftedBy=teamIdx;
+  teamRosters[teamIdx].push(player);
+  allPicks.push({pick:allPicks.length+1,round:draftQueue[draftCursor].round,tIdx:teamIdx,player:player});
+}
 
-function s1Score(){
-  pip(1,'active');log('📊 Computing fantasy points ('+scoringFmt.toUpperCase()+' format)…');
-  return wait(500).then(function(){
-    var fmtLabel=scoringFmt==='ppr'?'1.0 pts/rec':scoringFmt==='half'?'0.5 pts/rec':'0.0 pts/rec';
-    app('<div class="dr-step-card"><h6>📊 Step 2 — Scoring Engine: '+scoringFmt.toUpperCase()+' ('+fmtLabel+')</h6>'+
-      '<p style="font-size:.68rem;opacity:.5;margin-bottom:.35rem">Position-specific formulas applied to 2026 projected stats</p>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.2rem .5rem;font-size:.6rem;margin-bottom:.4rem">'+
-      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(239,68,68,.04)"><b style="color:#dc2626">QB</b> = passYd×.04 + passTD×4 + INT×(−2) + rushYd×.1 + rushTD×6</div>'+
-      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(59,130,246,.04)"><b style="color:#2563eb">RB</b> = rushYd×.1 + rushTD×6 + rec×'+fmtLabel.charAt(0)+' + recYd×.1 + recTD×6</div>'+
-      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(139,92,246,.04)"><b style="color:#7c3aed">WR</b> = rec×'+fmtLabel.charAt(0)+' + recYd×.1 + recTD×6 + rushYd×.1</div>'+
-      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(16,185,129,.04)"><b style="color:#059669">TE</b> = rec×'+fmtLabel.charAt(0)+' + recYd×.1 + recTD×6</div>'+
-      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(234,179,8,.04)"><b style="color:#ca8a04">K</b> = FG×3 + XP×1</div>'+
-      '<div style="padding:.2rem .3rem;border-radius:5px;background:rgba(244,63,94,.04)"><b style="color:#e11d48">DST</b> = sack×1 + INT×2 + FR×2 + TD×6 + PA bracket</div></div>'+
-      '<div style="font-size:.62rem;opacity:.4">Top scorer: <b>'+allPlayers[0].name+'</b> ('+allPlayers[0].pos+') — '+allPlayers[0].pts+' proj pts</div></div>');
-    pip(1,'done');log('✅ Scoring complete — '+scoringFmt.toUpperCase()+' applied');return wait(400)})}
+function executeNextPick(){
+  if(draftCursor>=draftQueue.length){finishDraft();return}
+  if(paused){draftState='paused';return}
+  var entry=draftQueue[draftCursor];
+  var tIdx=entry.teamIdx;
 
-function s2Rank(){
-  pip(2,'active');log('📈 Computing VOR & building draft board…');
-  return wait(500).then(function(){
-    var top15=allPlayers.slice(0,15);
-    var html='<div class="dr-step-card"><h6>📈 Step 3 — VOR Rankings & Tier Classification</h6>'+
-      '<p style="font-size:.68rem;opacity:.5;margin-bottom:.3rem">VOR = Player Pts − Replacement Level | Thresholds: QB₁₃ RB₂₅ WR₃₁ TE₁₃ K₁₀ DST₁₀</p>'+
-      '<div style="overflow-x:auto"><table class="table table-sm" style="font-size:.67rem;margin:0">'+
-      '<thead><tr style="opacity:.45"><th>Rank</th><th>Player</th><th>Pos</th><th>Team</th><th>Bye</th><th>ADP</th><th>Pts</th><th>VOR</th><th>Tier</th></tr></thead><tbody>';
-    top15.forEach(function(p,i){
-      html+='<tr><td>'+(i+1)+'</td><td><b>'+p.name+'</b></td>'+
-        '<td><span class="dr-pick-pos dr-pick-pos--'+POS_CLR[p.pos]+'">'+p.pos+'</span></td>'+
-        '<td>'+p.team+'</td><td>'+p.bye+'</td><td>'+p.adp+'</td>'+
-        '<td>'+p.pts+'</td><td><b>'+p.vor+'</b></td><td>T'+p.tier+'</td></tr>'});
-    html+='</tbody></table></div></div>';
-    app(html);
-    pip(2,'done');log('✅ Draft board ready — #1 overall: '+allPlayers[0].name+' (VOR '+allPlayers[0].vor+')');
-    return wait(400)})}
+  updateOTC(tIdx,entry.round);
 
-function s3Draft(){
-  pip(3,'active');log('🏈 Starting 19-round snake draft (12 teams)…');
-  available=allPlayers.slice();
-  teamRosters=[];allPicks=[];
-  for(var t=0;t<NUM_TEAMS;t++)teamRosters.push([]);
-  buildTeams();
-  board.style.display='block';boardBody.innerHTML='';
-  document.getElementById('drBoardMeta').textContent='0 / '+(ROUNDS*NUM_TEAMS)+' picks';
+  if(tIdx===userSlot&&!autopick){
+    draftState='userPick';
+    enableDraftButtons(true);
+    startPickTimer();
+    return;
+  }
 
-  var pickNum=0;
-  function doRound(round){
-    if(round>=ROUNDS)return Promise.resolve();
-    var order=snakeOrder(round);
-    boardBody.insertAdjacentHTML('beforeend','<div class="dr-round-label">Round '+(round+1)+'</div>');
-    function doPick(idx){
-      if(idx>=order.length)return Promise.resolve();
-      var tIdx=order[idx];pickNum++;
-      if(tIdx===userSlot){
-        return new Promise(function(resolve){
-          var topAvail=available.slice(0,30);
-          var html='<div class="dr-user-pick-panel" id="drUserPanel"><h6><i class="fas fa-hand-pointer me-2"></i>Your Pick — Round '+(round+1)+', Pick #'+pickNum+'</h6>'+
-            '<div class="dr-pos-filters" id="drPosFilter">'+
-            '<button class="active" data-f="ALL">All</button><button data-f="QB">QB</button><button data-f="RB">RB</button><button data-f="WR">WR</button><button data-f="TE">TE</button><button data-f="K">K</button><button data-f="DST">DST</button></div>'+
-            '<div class="dr-avail-list" id="drAvailList">';
-          topAvail.forEach(function(p,i){
-            html+='<button class="dr-avail-btn" data-aidx="'+i+'" data-pos="'+p.pos+'">'+
-              '<img src="'+headshot(p.name,p.pos)+'" alt="">'+
-              '<div style="min-width:0"><div class="dr-avail-name">'+p.name+'</div>'+
-              '<div class="dr-avail-detail">'+p.pos+' · '+p.team+' · Bye '+p.bye+' · ADP '+p.adp+'</div>'+
-              '<div class="dr-avail-detail">'+statLine(p)+'</div></div>'+
-              '<div class="dr-avail-pts" style="color:'+(p.vor>0?'#059669':'#94a3b8')+'">'+p.pts+'<div style="font-size:.5rem;opacity:.5;font-weight:400">VOR '+p.vor+'</div></div></button>'});
-          html+='</div></div>';
-          app(html);stage.scrollTop=stage.scrollHeight;
-          log('🎯 YOUR PICK — Round '+(round+1)+' (Overall #'+pickNum+')');
-          /* Position filter */
-          var filterEl=document.getElementById('drPosFilter');
-          if(filterEl)filterEl.addEventListener('click',function(e){
-            var b=e.target.closest('button');if(!b)return;
-            filterEl.querySelectorAll('button').forEach(function(x){x.classList.remove('active')});
-            b.classList.add('active');var f=b.getAttribute('data-f');
-            document.querySelectorAll('#drAvailList .dr-avail-btn').forEach(function(btn){
-              btn.style.display=(f==='ALL'||btn.getAttribute('data-pos')===f)?'':'none'})});
-          /* Pick handler */
-          document.querySelectorAll('#drAvailList .dr-avail-btn').forEach(function(btn){
-            btn.addEventListener('click',function(){
-              var ai=parseInt(this.getAttribute('data-aidx'));
-              var picked=available.splice(ai,1)[0];
-              teamRosters[userSlot].push(picked);
-              allPicks.push({pick:pickNum,tIdx:userSlot,player:picked});
-              addPickRow(pickNum,userSlot,picked);
-              updateMyRoster();
-              var panel=document.getElementById('drUserPanel');if(panel)panel.remove();
-              log('✅ You drafted: '+picked.name+' ('+picked.pos+', '+picked.pts+' pts, VOR '+picked.vor+')');
-              resolve()})})
-        }).then(function(){return wait(200)}).then(function(){return doPick(idx+1)})
+  /* AI pick */
+  draftState='drafting';
+  enableDraftButtons(false);
+  var picked=aiPick(tIdx);
+  if(!picked){draftCursor++;executeNextPick();return}
+  recordPick(tIdx,picked);
+  draftCursor++;
+  refreshAllUI();
+
+  if(draftCursor>=draftQueue.length){finishDraft();return}
+  draftTimeout=setTimeout(executeNextPick,draftSpeed);
+}
+
+function userDraftPlayer(idx){
+  if(draftState!=='userPick')return;
+  stopPickTimer();
+  var player=null, avIdx=-1;
+  for(var i=0;i<available.length;i++){if(available[i].id===idx){avIdx=i;break}}
+  if(avIdx===-1)return;
+  player=available.splice(avIdx,1)[0];
+  recordPick(userSlot,player);
+  draftCursor++;
+  enableDraftButtons(false);
+  refreshAllUI();
+  if(draftCursor>=draftQueue.length){finishDraft();return}
+  draftState='drafting';
+  draftTimeout=setTimeout(executeNextPick,draftSpeed);
+}
+
+function autoPickForUser(){
+  if(draftState!=='userPick')return;
+  stopPickTimer();
+  var picked=aiPick(userSlot);
+  if(!picked){draftCursor++;executeNextPick();return}
+  recordPick(userSlot,picked);
+  draftCursor++;
+  enableDraftButtons(false);
+  refreshAllUI();
+  if(draftCursor>=draftQueue.length){finishDraft();return}
+  draftState='drafting';
+  draftTimeout=setTimeout(executeNextPick,draftSpeed);
+}
+
+function simToMyPick(){
+  stopPickTimer();clearTimeout(draftTimeout);
+  while(draftCursor<draftQueue.length){
+    var entry=draftQueue[draftCursor];
+    if(entry.teamIdx===userSlot&&!autopick)break;
+    var picked=aiPick(entry.teamIdx);
+    if(picked)recordPick(entry.teamIdx,picked);
+    draftCursor++;
+  }
+  refreshAllUI();
+  if(draftCursor>=draftQueue.length)finishDraft();
+  else executeNextPick();
+}
+
+function simRemaining(){
+  stopPickTimer();clearTimeout(draftTimeout);
+  while(draftCursor<draftQueue.length){
+    var entry=draftQueue[draftCursor];
+    var picked=aiPick(entry.teamIdx);
+    if(picked)recordPick(entry.teamIdx,picked);
+    draftCursor++;
+  }
+  refreshAllUI();
+  finishDraft();
+}
+
+function pauseDraft(){
+  if(paused){
+    paused=false;draftState='drafting';
+    document.getElementById('dfrPauseBtn').innerHTML='<i class="fas fa-pause"></i>';
+    executeNextPick();
+  } else {
+    paused=true;draftState='paused';clearTimeout(draftTimeout);
+    document.getElementById('dfrPauseBtn').innerHTML='<i class="fas fa-play"></i>';
+  }
+}
+
+function finishDraft(){
+  draftState='complete';stopPickTimer();clearTimeout(draftTimeout);
+  showPostDraft();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PICK TIMER
+   ══════════════════════════════════════════════════════════════ */
+function startPickTimer(){
+  if(pickTimerMax<=0)return;
+  pickTimeLeft=pickTimerMax;
+  updateTimerDisplay();
+  pickTimer=setInterval(function(){
+    pickTimeLeft--;
+    updateTimerDisplay();
+    if(pickTimeLeft<=0){clearInterval(pickTimer);autoPickForUser()}
+  },1000);
+}
+
+function stopPickTimer(){if(pickTimer){clearInterval(pickTimer);pickTimer=null}pickTimeLeft=0;updateTimerDisplay()}
+
+function updateTimerDisplay(){
+  var el=document.getElementById('dfrTimerVal');
+  var wrap=document.getElementById('dfrTimer');
+  if(!el)return;
+  var m=Math.floor(pickTimeLeft/60),s=pickTimeLeft%60;
+  el.textContent=m+':'+(s<10?'0':'')+s;
+  if(wrap){
+    wrap.classList.toggle('warning',pickTimeLeft>0&&pickTimeLeft<=10);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   UI RENDERING
+   ══════════════════════════════════════════════════════════════ */
+
+/* Roster slots */
+var ROSTER_SLOTS=[
+  {pos:'QB',count:3},{pos:'RB',count:5},{pos:'WR',count:5},
+  {pos:'TE',count:2},{pos:'K',count:2},{pos:'DST',count:2}
+];
+
+function renderRoster(){
+  var el=document.getElementById('dfrRoster');
+  var roster=teamRosters[userSlot]||[];
+  var byPos={QB:[],RB:[],WR:[],TE:[],K:[],DST:[]};
+  roster.forEach(function(p){if(byPos[p.pos])byPos[p.pos].push(p)});
+  var html='';
+  ROSTER_SLOTS.forEach(function(slot){
+    for(var i=0;i<slot.count;i++){
+      var p=byPos[slot.pos][i];
+      if(p){
+        html+='<div class="dfr-slot filled">'+
+          '<div class="dfr-slot-pos pos-'+slot.pos.toLowerCase()+'">'+slot.pos+'</div>'+
+          '<img class="dfr-slot-img" src="'+headshot(p.name,p.pos)+'" alt="">'+
+          '<div class="dfr-slot-info"><div class="dfr-slot-name">'+p.name+'</div>'+
+          '<div class="dfr-slot-meta">'+p.team+' · Bye '+p.bye+'</div></div>'+
+          '<div class="dfr-slot-pts">'+p.pts+'</div></div>';
       } else {
-        var picked=aiPick(tIdx);
-        if(!picked)return doPick(idx+1);
-        teamRosters[tIdx].push(picked);
-        allPicks.push({pick:pickNum,tIdx:tIdx,player:picked});
-        addPickRow(pickNum,tIdx,picked);
-        log('🤖 '+TEAMS[tIdx].abbr+' picks '+picked.name+' ('+picked.pos+') — '+TEAMS[tIdx].strat.name);
-        return wait(140).then(function(){return doPick(idx+1)})}
+        html+='<div class="dfr-slot">'+
+          '<div class="dfr-slot-pos pos-'+slot.pos.toLowerCase()+'">'+slot.pos+'</div>'+
+          '<div style="flex:1;font-size:.6rem;color:var(--dfr-muted)">Empty</div></div>';
+      }
     }
-    return doPick(0).then(function(){return doRound(round+1)})}
-  return doRound(0).then(function(){pip(3,'done');log('✅ Draft complete — '+pickNum+' total picks');return wait(400)})}
+  });
+  el.innerHTML=html;
+  document.getElementById('dfrRosterCt').textContent=roster.length+'/'+ROUNDS;
+  var total=0;roster.forEach(function(p){total+=p.pts});
+  document.getElementById('dfrRosterPts').textContent=Math.round(total)+' pts';
+}
 
-function addPickRow(num,tIdx,p){
-  var isUser=tIdx===userSlot;
-  var valDiff=p.adp-num;
-  var valCls=valDiff>=5?'val-good':valDiff<=-5?'val-bad':'';
-  var valStr=valDiff>0?'+'+valDiff:valDiff<0?''+valDiff:'—';
-  boardBody.insertAdjacentHTML('beforeend',
-    '<div class="dr-pick-row'+(isUser?' user-pick':'')+'">'+
-    '<div class="dr-pick-num">'+num+'</div>'+
-    '<div class="dr-pick-team"><div class="dr-tm-dot" style="background:'+TEAMS[tIdx].color+'"></div>'+TEAMS[tIdx].abbr+'</div>'+
-    '<div class="dr-pick-player">'+
-    '<img src="'+headshot(p.name,p.pos)+'" alt="">'+
-    '<div class="dr-pick-info"><div class="dr-pick-name">'+p.name+'</div><div class="dr-pick-meta">'+p.team+' · Bye '+p.bye+'</div></div></div>'+
-    '<span class="dr-pick-pos dr-pick-pos--'+POS_CLR[p.pos]+'">'+p.pos+'</span>'+
-    '<div class="dr-pick-pts">'+p.pts+' pts</div>'+
-    '<div class="dr-pick-adp">ADP '+p.adp+'</div>'+
-    '<div class="dr-pick-val '+valCls+'">'+valStr+'</div></div>');
-  document.getElementById('drBoardMeta').textContent=num+' / '+(ROUNDS*NUM_TEAMS)+' picks';
-  var s=document.querySelector('.dr-board-scroll');if(s)s.scrollTop=s.scrollHeight}
+/* Player table */
+function renderPlayerTable(){
+  var body=document.getElementById('dfrPlayerBody');
+  var search=currentSearch.toLowerCase();
+  var sorted=allPlayers.slice();
 
-function updateMyRoster(){
-  var roster=teamRosters[userSlot];
-  if(!roster||!roster.length){document.getElementById('drMyRoster').innerHTML='—';return}
-  var html='';roster.forEach(function(p,i){
-    html+='<div style="display:flex;align-items:center;gap:.25rem;margin-bottom:.15rem">'+
-      '<span class="dr-pick-pos dr-pick-pos--'+POS_CLR[p.pos]+'" style="font-size:.5rem;padding:.05rem .2rem">'+p.pos+'</span>'+
-      '<span style="font-size:.6rem;font-weight:600">'+p.name+'</span>'+
-      '<span style="font-size:.5rem;opacity:.35;margin-left:auto">'+p.pts+'</span></div>'});
-  document.getElementById('drMyRoster').innerHTML=html}
+  if(currentSort==='vor')sorted.sort(function(a,b){return(b.drafted?-9999:b.vor)-(a.drafted?-9999:a.vor)});
+  else if(currentSort==='pts')sorted.sort(function(a,b){return(b.drafted?-9999:b.pts)-(a.drafted?-9999:a.pts)});
+  else if(currentSort==='adp')sorted.sort(function(a,b){return(a.drafted?9999:a.adp)-(b.drafted?9999:b.adp)});
+  else if(currentSort==='name')sorted.sort(function(a,b){return a.name.localeCompare(b.name)});
 
-/* ══════════════════════════════════════════
-   ANALYTICS
-   ══════════════════════════════════════════ */
-function s4Analyze(){
-  pip(4,'active');log('📋 Running post-draft analytics…');
-  return wait(600).then(function(){
-    var scores=teamRosters.map(function(roster,idx){
-      var totalVor=0,totalPts=0;
-      roster.forEach(function(p){totalVor+=p.vor;totalPts+=p.pts});
-      /* Starter pts: best QB + 2 best RB + 2 best WR + best TE + best FLEX + best K + best DST */
-      var byP={QB:[],RB:[],WR:[],TE:[],K:[],DST:[]};
-      roster.forEach(function(p){if(byP[p.pos])byP[p.pos].push(p)});
-      Object.keys(byP).forEach(function(k){byP[k].sort(function(a,b){return b.pts-a.pts})});
-      var stPts=0,stCt=0;
-      if(byP.QB[0]){stPts+=byP.QB[0].pts;stCt++}
-      for(var r=0;r<2&&r<byP.RB.length;r++){stPts+=byP.RB[r].pts;stCt++}
-      for(var w=0;w<2&&w<byP.WR.length;w++){stPts+=byP.WR[w].pts;stCt++}
-      if(byP.TE[0]){stPts+=byP.TE[0].pts;stCt++}
-      /* FLEX: best remaining RB/WR/TE */
-      var flexCands=[];
-      if(byP.RB[2])flexCands.push(byP.RB[2]);
-      if(byP.WR[2])flexCands.push(byP.WR[2]);
-      if(byP.TE[1])flexCands.push(byP.TE[1]);
-      flexCands.sort(function(a,b){return b.pts-a.pts});
-      if(flexCands[0]){stPts+=flexCands[0].pts;stCt++}
-      if(byP.K[0]){stPts+=byP.K[0].pts;stCt++}
-      if(byP.DST[0]){stPts+=byP.DST[0].pts;stCt++}
-      /* Value score */
-      var valScore=0;
-      allPicks.forEach(function(pk){if(pk.tIdx===idx)valScore+=(pk.player.adp-pk.pick)});
-      /* Bye conflicts */
-      var byeMap={};roster.forEach(function(p){byeMap[p.bye]=(byeMap[p.bye]||0)+1});
-      var byeConflicts=0;Object.values(byeMap).forEach(function(c){if(c>=3)byeConflicts++});
-      var topPick=roster.length?roster.reduce(function(a,b){return a.pts>b.pts?a:b}):{name:'—',pos:'',pts:0};
-      return{idx:idx,name:TEAMS[idx].name,abbr:TEAMS[idx].abbr,color:TEAMS[idx].color,
-        strat:TEAMS[idx].strat?TEAMS[idx].strat.name:'User',
-        totalVor:Math.round(totalVor),totalPts:Math.round(totalPts),stPts:Math.round(stPts),stCt:stCt,
-        valScore:Math.round(valScore),byeConflicts:byeConflicts,topPick:topPick,roster:roster,byeMap:byeMap}});
-    scores.sort(function(a,b){return b.stPts-a.stPts});
-    var grades=['A+','A','A','A-','B+','B','B','B-','C+','C','C-','D'];
-    scores.forEach(function(t,i){t.grade=grades[i]||'D';t.rank=i+1});
-    var user=scores.find(function(t){return t.idx===userSlot});
+  var html='';var rank=0;
+  sorted.forEach(function(p){
+    if(currentFilter!=='ALL'&&p.pos!==currentFilter)return;
+    if(search&&p.name.toLowerCase().indexOf(search)===-1&&p.team.toLowerCase().indexOf(search)===-1)return;
+    if(!p.drafted)rank++;
+    var isUser=draftState==='userPick';
+    html+='<tr'+(p.drafted?' class="drafted"':'')+'>'+
+      '<td style="font-size:.6rem;opacity:.35">'+(p.drafted?'—':rank)+'</td>'+
+      '<td><div class="dfr-tbl-name"><img class="dfr-tbl-img" src="'+headshot(p.name,p.pos)+'" alt="">'+
+      '<div><div class="dfr-tbl-player">'+p.name+'</div>'+
+      '<div class="dfr-tbl-stats">'+statLine(p)+'</div></div></div></td>'+
+      '<td><span class="dr-pick-pos dr-pick-pos--'+POS_CLR[p.pos]+'">'+p.pos+'</span></td>'+
+      '<td style="font-size:.62rem">'+p.team+'</td>'+
+      '<td style="font-size:.62rem">'+p.bye+'</td>'+
+      '<td style="font-weight:700">'+p.pts+'</td>'+
+      '<td style="font-weight:700;color:'+(p.vor>0?'#059669':'#94a3b8')+'">'+p.vor+'</td>'+
+      '<td style="font-size:.62rem;opacity:.5">'+p.adp+'</td>'+
+      '<td>'+(p.drafted?'<span style="font-size:.55rem;color:var(--dfr-muted)">'+TEAMS[p.draftedBy].abbr+'</span>':
+        '<button class="dfr-draft-btn" data-pid="'+p.id+'"'+(isUser?'':' disabled')+'>DRAFT</button>')+'</td></tr>';
+  });
+  body.innerHTML=html;
 
-    /* KPIs */
-    analytics.style.display='block';
-    document.getElementById('kaGrade').textContent=user.grade;
-    document.getElementById('kaPts').textContent=user.stPts;
-    document.getElementById('kaVor').textContent=user.totalVor;
-    document.getElementById('kaRank').textContent='#'+user.rank+'/12';
-    document.getElementById('kaVal').textContent=(user.valScore>0?'+':'')+user.valScore;
-    document.getElementById('kaBye').textContent=user.byeConflicts;
-    document.getElementById('kaStarters').textContent=user.stCt+'/9';
-    document.getElementById('kaFormat').textContent=scoringFmt.toUpperCase();
+  /* Attach click handlers */
+  body.querySelectorAll('.dfr-draft-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){userDraftPlayer(parseInt(this.getAttribute('data-pid')))});
+  });
+}
 
-    /* Position strength bars */
-    var posStr=document.getElementById('kaPosStr');posStr.innerHTML='';
-    var posTotals={QB:0,RB:0,WR:0,TE:0,K:0,DST:0};var maxPosTotal=1;
-    user.roster.forEach(function(p){posTotals[p.pos]=(posTotals[p.pos]||0)+p.pts});
-    Object.values(posTotals).forEach(function(v){if(v>maxPosTotal)maxPosTotal=v});
-    ['QB','RB','WR','TE','K','DST'].forEach(function(pos){
-      var pct=Math.round(posTotals[pos]/maxPosTotal*100);
-      var clrs={QB:'#dc2626',RB:'#2563eb',WR:'#7c3aed',TE:'#059669',K:'#ca8a04',DST:'#e11d48'};
-      posStr.insertAdjacentHTML('beforeend',
-        '<div class="dr-pos-bar"><div class="dr-pos-bar-label" style="color:'+clrs[pos]+'">'+pos+'</div>'+
-        '<div style="flex:1;background:var(--dr-border);border-radius:4px;overflow:hidden">'+
-        '<div class="dr-pos-bar-fill" style="width:'+pct+'%;background:'+clrs[pos]+';opacity:.7"></div></div>'+
-        '<div class="dr-pos-bar-val">'+Math.round(posTotals[pos])+'</div></div>')});
+function enableDraftButtons(enabled){
+  document.querySelectorAll('#dfrPlayerBody .dfr-draft-btn').forEach(function(btn){btn.disabled=!enabled});
+}
 
-    /* Bye week map */
-    var byeMap=document.getElementById('kaByeMap');byeMap.innerHTML='';
-    for(var wk=5;wk<=14;wk++){
-      var ct=user.byeMap[wk]||0;
-      var cls=ct>=3?'conflict':ct===0?'clear':'';
-      byeMap.insertAdjacentHTML('beforeend',
-        '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:.1rem;margin:0 .15rem .25rem">'+
-        '<div class="dr-bye-dot '+cls+'">'+ct+'</div>'+
-        '<div style="font-size:.48rem;opacity:.35">Wk'+wk+'</div></div>')}
+/* Pick ticker */
+function renderTicker(){
+  var el=document.getElementById('dfrTicker');
+  var start=Math.max(0,draftCursor-3);
+  var end=Math.min(draftQueue.length,draftCursor+10);
+  var html='';
+  for(var i=start;i<end;i++){
+    var entry=draftQueue[i];
+    var t=TEAMS[entry.teamIdx];
+    var isCurrent=i===draftCursor;
+    var isUser=entry.teamIdx===userSlot;
+    var isDone=i<draftCursor;
+    var pick=allPicks[i];
+    html+='<div class="dfr-tick'+(isCurrent?' current':'')+(isUser?' user-tick':'')+(isDone?' done':'')+'">'+
+      '<div class="dfr-tick-dot" style="background:'+t.color+'"></div>'+
+      '<div class="tick-pick">P'+(i+1)+'</div>'+
+      '<div class="tick-team">'+(isUser?'★ YOU':t.abbr)+'</div>'+
+      '<div class="tick-player">'+(pick?pick.player.name:'—')+'</div></div>';
+    if(i<end-1)html+='<div class="dfr-tick-arr">›</div>';
+  }
+  el.innerHTML=html;
+  /* Auto-scroll ticker to current */
+  var currentTick=el.querySelector('.dfr-tick.current');
+  if(currentTick)currentTick.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
 
-    /* Team table */
-    var tbl=document.getElementById('kaTable');tbl.innerHTML='';
-    scores.forEach(function(t){
-      var isU=t.idx===userSlot;
-      tbl.insertAdjacentHTML('beforeend',
-        '<tr style="'+(isU?'background:rgba(1,51,105,.06);font-weight:700':'')+'">'+
-        '<td>'+t.rank+'</td>'+
-        '<td><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+t.color+';margin-right:3px"></span>'+t.name+'</td>'+
-        '<td style="font-size:.62rem">'+t.strat+'</td>'+
-        '<td>'+t.stPts+'</td>'+
-        '<td><b>'+t.totalVor+'</b></td>'+
-        '<td>'+t.topPick.name+' ('+t.topPick.pos+')</td>'+
-        '<td><b>'+t.grade+'</b></td></tr>')});
+/* OTC display */
+function updateOTC(teamIdx,round){
+  document.getElementById('dfrRoundBadge').textContent='RND '+(round+1)+' / '+ROUNDS;
+  document.getElementById('dfrPickBadge').textContent='Pick '+(allPicks.length)+' / '+TOTAL_PICKS;
+  var t=TEAMS[teamIdx];
+  document.getElementById('dfrOTCName').textContent=teamIdx===userSlot?'★ YOUR PICK ★':t.name;
+  document.getElementById('dfrOTCDot').style.background=t.color;
+  /* Highlight OTC */
+  var otc=document.getElementById('dfrOTC');
+  otc.style.background=teamIdx===userSlot?'rgba(59,130,246,.15)':'transparent';
+  otc.style.borderRadius='10px';otc.style.padding='0.2rem 0.6rem';
+  /* Progress */
+  var pct=Math.round(allPicks.length/TOTAL_PICKS*100);
+  document.getElementById('dfrProgressFill').style.width=pct+'%';
+  document.getElementById('dfrProgressText').textContent=pct+'%';
+}
 
-    /* Step card */
-    app('<div class="dr-step-card"><h6>📋 Step 5 — Post-Draft Analytics</h6>'+
-      '<div class="dr-json"><span class="key">"your_draft"</span>: {\n'+
-      '  <span class="key">"grade"</span>: <span class="str">"'+user.grade+'"</span>,\n'+
-      '  <span class="key">"starter_pts"</span>: <span class="num">'+user.stPts+'</span>,\n'+
-      '  <span class="key">"total_vor"</span>: <span class="num">'+user.totalVor+'</span>,\n'+
-      '  <span class="key">"league_rank"</span>: <span class="num">'+user.rank+'/12</span>,\n'+
-      '  <span class="key">"value_score"</span>: <span class="num">'+(user.valScore>0?'+':'')+user.valScore+'</span>,\n'+
-      '  <span class="key">"format"</span>: <span class="str">"'+scoringFmt.toUpperCase()+'"</span>,\n'+
-      '  <span class="key">"bye_conflicts"</span>: <span class="num">'+user.byeConflicts+'</span>\n}</div></div>');
-    pip(4,'done');log('✅ Analytics complete — Grade: '+user.grade+' | Rank: #'+user.rank);
-    return wait(400)})}
+/* Feed */
+function renderFeed(){
+  var el=document.getElementById('dfrFeed');
+  var html='';var lastRound=-1;
+  /* Show most recent picks first */
+  for(var i=allPicks.length-1;i>=Math.max(0,allPicks.length-50);i--){
+    var pk=allPicks[i];
+    if(pk.round!==lastRound){
+      if(lastRound!==-1||i===allPicks.length-1){
+        html+='<div class="dfr-feed-item round-hd">Round '+(pk.round+1)+'</div>';
+      }
+      lastRound=pk.round;
+    }
+    var isU=pk.tIdx===userSlot;
+    html+='<div class="dfr-feed-item'+(isU?' user-feed':'')+'">'+
+      '<div class="dfr-feed-num">'+pk.pick+'</div>'+
+      '<img class="dfr-feed-img" src="'+headshot(pk.player.name,pk.player.pos)+'" alt="">'+
+      '<div class="dfr-feed-info"><div class="dfr-feed-name">'+pk.player.name+'</div>'+
+      '<div class="dfr-feed-meta"><span class="dr-pick-pos dr-pick-pos--'+POS_CLR[pk.player.pos]+'" style="font-size:.48rem;padding:.02rem .2rem">'+pk.player.pos+'</span> '+
+      (isU?'★ YOU':TEAMS[pk.tIdx].abbr)+'</div></div></div>';
+  }
+  el.innerHTML=html;
+}
 
-function s5Results(){
-  pip(5,'active');log('🏆 Building final roster…');
-  return wait(400).then(function(){
-    var roster=teamRosters[userSlot];
-    var html='<div class="dr-step-card dr-step-card--ok"><h6>🏆 Your 2026 Fantasy Roster ('+scoringFmt.toUpperCase()+')</h6>'+
-      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.35rem">';
-    roster.forEach(function(p,i){
-      html+='<div style="display:flex;align-items:center;gap:.35rem;padding:.3rem .45rem;border-radius:8px;border:1px solid var(--dr-border);font-size:.66rem">'+
-        '<span style="font-weight:800;opacity:.25;width:14px;font-size:.58rem">'+(i+1)+'</span>'+
-        '<span class="dr-pick-pos dr-pick-pos--'+POS_CLR[p.pos]+'" style="font-size:.52rem;padding:.06rem .22rem">'+p.pos+'</span>'+
-        '<div style="min-width:0"><div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.name+'</div>'+
-        '<div style="font-size:.54rem;opacity:.4">'+p.team+' · Bye '+p.bye+' · '+p.pts+' pts · VOR '+p.vor+'</div></div></div>'});
-    html+='</div></div>';
-    app(html);
-    pip(5,'done');log('🏆 Draft simulation complete!');return wait(300)})}
+function refreshAllUI(){
+  renderRoster();
+  renderPlayerTable();
+  renderTicker();
+  renderFeed();
+  var pct=Math.round(allPicks.length/TOTAL_PICKS*100);
+  document.getElementById('dfrProgressFill').style.width=pct+'%';
+  document.getElementById('dfrProgressText').textContent=pct+'%';
+  document.getElementById('dfrPickBadge').textContent='Pick '+allPicks.length+' / '+TOTAL_PICKS;
+}
 
-/* ══════════════════════════════════════════
-   MAIN RUNNER
-   ══════════════════════════════════════════ */
-function runDraft(){
-  if(running)return;running=true;
-  btnRun.disabled=true;btnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Drafting…';
-  btnReset.style.display='none';
-  stage.innerHTML='';boardBody.innerHTML='';board.style.display='none';
-  analytics.style.display='none';
-  document.getElementById('kaTable').innerHTML='';
-  document.getElementById('drLogArea').innerHTML='';
-  document.getElementById('drMyRoster').innerHTML='—';
-  for(var i=0;i<6;i++){var e=document.getElementById('drPip'+i);if(e){e.classList.remove('active','done')}}
-  s0Load().then(s1Score).then(s2Rank).then(s3Draft).then(s4Analyze).then(s5Results).then(function(){
-    running=false;btnRun.disabled=false;
-    btnRun.innerHTML='<i class="fas fa-play me-1"></i> Start Draft';
-    btnReset.style.display='';
-    analytics.scrollIntoView({behavior:'smooth',block:'nearest'})})}
+/* ══════════════════════════════════════════════════════════════
+   DRAFT BOARD OVERLAY
+   ══════════════════════════════════════════════════════════════ */
+function renderBoard(){
+  var grid=document.getElementById('dfrBoardGrid');
+  grid.style.gridTemplateColumns='60px repeat('+NUM_TEAMS+',1fr)';
+  var html='<div class="dfr-board-cell header"></div>';
+  TEAMS.forEach(function(t,i){
+    html+='<div class="dfr-board-cell header'+(i===userSlot?' user-col':'')+'">'+t.abbr+'</div>';
+  });
+  for(var r=0;r<ROUNDS;r++){
+    html+='<div class="dfr-board-cell round-hd">Rd '+(r+1)+'</div>';
+    var order=snakeOrder(r);
+    /* Build picks for this round */
+    var roundPicks={};
+    allPicks.forEach(function(pk){if(pk.round===r)roundPicks[pk.tIdx]=pk});
+    for(var t=0;t<NUM_TEAMS;t++){
+      var pk=roundPicks[t];
+      html+='<div class="dfr-board-cell'+(t===userSlot?' user-col':'')+(pk?' picked':'')+'">';
+      if(pk)html+='<span class="dr-pick-pos dr-pick-pos--'+POS_CLR[pk.player.pos]+'" style="font-size:.45rem;padding:0 .15rem">'+pk.player.pos+'</span> '+pk.player.name.split(' ').pop();
+      html+='</div>';
+    }
+  }
+  grid.innerHTML=html;
+}
 
-function resetDraft(){
-  running=false;allPlayers=[];teamRosters=[];available=[];allPicks=[];
-  stage.innerHTML='';boardBody.innerHTML='';board.style.display='none';
-  analytics.style.display='none';document.getElementById('kaTable').innerHTML='';
-  document.getElementById('drLogArea').innerHTML='';
-  document.getElementById('drMyRoster').innerHTML='—';
-  document.getElementById('drConfig').innerHTML='<span style="opacity:.55">Configure &amp; click "Start Draft"</span>';
-  btnRun.disabled=false;btnRun.innerHTML='<i class="fas fa-play me-1"></i> Start Draft';
-  btnReset.style.display='none';
-  for(var i=0;i<6;i++){var e=document.getElementById('drPip'+i);if(e){e.classList.remove('active','done')}}}
+/* ══════════════════════════════════════════════════════════════
+   POST-DRAFT ANALYTICS
+   ══════════════════════════════════════════════════════════════ */
+function showPostDraft(){
+  document.getElementById('drRoom').style.display='none';
+  document.getElementById('drPost').style.display='';
 
-btnRun.addEventListener('click',runDraft);
-btnReset.addEventListener('click',resetDraft);
+  var scores=teamRosters.map(function(roster,idx){
+    var totalVor=0,totalPts=0;
+    roster.forEach(function(p){totalVor+=p.vor;totalPts+=p.pts});
+    var byP={QB:[],RB:[],WR:[],TE:[],K:[],DST:[]};
+    roster.forEach(function(p){if(byP[p.pos])byP[p.pos].push(p)});
+    Object.keys(byP).forEach(function(k){byP[k].sort(function(a,b){return b.pts-a.pts})});
+    var stPts=0,stCt=0;
+    if(byP.QB[0]){stPts+=byP.QB[0].pts;stCt++}
+    for(var r=0;r<2&&r<byP.RB.length;r++){stPts+=byP.RB[r].pts;stCt++}
+    for(var w=0;w<2&&w<byP.WR.length;w++){stPts+=byP.WR[w].pts;stCt++}
+    if(byP.TE[0]){stPts+=byP.TE[0].pts;stCt++}
+    var flex=[];if(byP.RB[2])flex.push(byP.RB[2]);if(byP.WR[2])flex.push(byP.WR[2]);if(byP.TE[1])flex.push(byP.TE[1]);
+    flex.sort(function(a,b){return b.pts-a.pts});
+    if(flex[0]){stPts+=flex[0].pts;stCt++}
+    if(byP.K[0]){stPts+=byP.K[0].pts;stCt++}
+    if(byP.DST[0]){stPts+=byP.DST[0].pts;stCt++}
+    var valScore=0;
+    allPicks.forEach(function(pk){if(pk.tIdx===idx)valScore+=(pk.player.adp-pk.pick)});
+    var byeMap={};roster.forEach(function(p){byeMap[p.bye]=(byeMap[p.bye]||0)+1});
+    var byeConflicts=0;Object.values(byeMap).forEach(function(c){if(c>=3)byeConflicts++});
+    var topPick=roster.length?roster.reduce(function(a,b){return a.pts>b.pts?a:b}):{name:'—',pos:'',pts:0};
+    return{idx:idx,name:TEAMS[idx].name,abbr:TEAMS[idx].abbr,color:TEAMS[idx].color,
+      strat:TEAMS[idx].strat?TEAMS[idx].strat.name:'You',
+      totalVor:Math.round(totalVor),totalPts:Math.round(totalPts),stPts:Math.round(stPts),stCt:stCt,
+      valScore:Math.round(valScore),byeConflicts:byeConflicts,topPick:topPick,roster:roster,byeMap:byeMap}});
+  scores.sort(function(a,b){return b.stPts-a.stPts});
+  var grades=['A+','A','A','A-','B+','B','B','B-','C+','C','C-','D'];
+  scores.forEach(function(t,i){t.grade=grades[i]||'D';t.rank=i+1});
+  var user=scores.find(function(t){return t.idx===userSlot});
+
+  var html='<div class="dfr-post-header"><h2>🏆 Draft Complete!</h2>'+
+    '<p>'+scoringFmt.toUpperCase()+' · 12 Teams · 19 Rounds · 228 Picks</p>'+
+    '<div class="dfr-post-grade">'+user.grade+'</div></div>';
+
+  /* KPIs */
+  html+='<div class="dfr-post-kpis">'+
+    '<div class="dfr-post-kpi"><div class="val">'+user.stPts+'</div><div class="lbl">Starter Points</div></div>'+
+    '<div class="dfr-post-kpi"><div class="val">'+user.totalVor+'</div><div class="lbl">Total VOR</div></div>'+
+    '<div class="dfr-post-kpi"><div class="val">#'+user.rank+'/12</div><div class="lbl">League Rank</div></div>'+
+    '<div class="dfr-post-kpi"><div class="val">'+(user.valScore>0?'+':'')+user.valScore+'</div><div class="lbl">Value Score</div></div>'+
+    '</div>';
+
+  /* Your Roster */
+  html+='<h4 style="font-size:.85rem;font-weight:800;margin-bottom:.4rem">Your Roster</h4>';
+  html+='<div class="dfr-post-roster">';
+  var userRoster=teamRosters[userSlot];
+  userRoster.forEach(function(p,i){
+    html+='<div class="dfr-post-player">'+
+      '<div class="rnd">'+(i+1)+'</div>'+
+      '<img src="'+headshot(p.name,p.pos)+'" alt="">'+
+      '<span class="dr-pick-pos dr-pick-pos--'+POS_CLR[p.pos]+'" style="font-size:.48rem;padding:.02rem .2rem">'+p.pos+'</span>'+
+      '<div class="nm">'+p.name+'</div><div class="pt">'+p.pts+'</div></div>';
+  });
+  html+='</div>';
+
+  /* Pos Strength + Bye Map */
+  html+='<div class="dfr-post-grid">'+
+    '<div class="dfr-post-panel"><h5><i class="fas fa-chart-bar me-1" style="color:#013369"></i>Positional Strength</h5>';
+  var posTotals={QB:0,RB:0,WR:0,TE:0,K:0,DST:0};var maxPos=1;
+  userRoster.forEach(function(p){posTotals[p.pos]=(posTotals[p.pos]||0)+p.pts});
+  Object.values(posTotals).forEach(function(v){if(v>maxPos)maxPos=v});
+  var posClrs={QB:'#dc2626',RB:'#2563eb',WR:'#7c3aed',TE:'#059669',K:'#ca8a04',DST:'#e11d48'};
+  ['QB','RB','WR','TE','K','DST'].forEach(function(pos){
+    var pct=Math.round(posTotals[pos]/maxPos*100);
+    html+='<div class="dfr-pos-bar"><div class="dfr-pos-bar-label" style="color:'+posClrs[pos]+'">'+pos+'</div>'+
+      '<div class="dfr-pos-bar-track"><div class="dfr-pos-bar-fill" style="width:'+pct+'%;background:'+posClrs[pos]+';opacity:.7"></div></div>'+
+      '<div class="dfr-pos-bar-val">'+Math.round(posTotals[pos])+'</div></div>';});
+  html+='</div>';
+
+  html+='<div class="dfr-post-panel"><h5><i class="fas fa-calendar-alt me-1" style="color:#d50a0a"></i>Bye Week Map</h5>';
+  html+='<div class="dfr-bye-grid">';
+  for(var wk=5;wk<=14;wk++){
+    var ct=user.byeMap[wk]||0;
+    html+='<div class="dfr-bye-cell'+(ct>=3?' conflict':'')+'">'+ct+'<div class="wk">Wk'+wk+'</div></div>';
+  }
+  html+='</div></div></div>';
+
+  /* League Standings Table */
+  html+='<h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem">League Standings</h4>';
+  html+='<div style="overflow-x:auto"><table class="dfr-post-table"><thead><tr>'+
+    '<th>#</th><th>Team</th><th>Strategy</th><th>Starters</th><th>VOR</th><th>Top Pick</th><th>Grade</th></tr></thead><tbody>';
+  scores.forEach(function(t){
+    html+='<tr'+(t.idx===userSlot?' class="user-row"':'')+'>'+
+      '<td>'+t.rank+'</td>'+
+      '<td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+t.color+';margin-right:4px"></span>'+t.name+'</td>'+
+      '<td style="font-size:.62rem">'+t.strat+'</td>'+
+      '<td>'+t.stPts+'</td>'+
+      '<td><b>'+t.totalVor+'</b></td>'+
+      '<td>'+t.topPick.name+'</td>'+
+      '<td><b>'+t.grade+'</b></td></tr>';});
+  html+='</tbody></table></div>';
+
+  /* Actions */
+  html+='<div class="dfr-post-actions">'+
+    '<button class="dfr-action-btn" id="dfrPostBoard"><i class="fas fa-th"></i> View Draft Board</button>'+
+    '<button class="dfr-action-btn primary" id="dfrPostNew"><i class="fas fa-redo"></i> New Draft</button></div>';
+
+  document.getElementById('dfrPostContent').innerHTML=html;
+
+  /* Bind post-draft buttons */
+  document.getElementById('dfrPostBoard').addEventListener('click',function(){
+    renderBoard();document.getElementById('dfrBoardOverlay').style.display='';});
+  document.getElementById('dfrPostNew').addEventListener('click',resetToLobby);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NAVIGATION
+   ══════════════════════════════════════════════════════════════ */
+function enterDraftRoom(){
+  draftState='loading';
+  scoringFmt=document.querySelector('#dfrFmtBtns .active').getAttribute('data-v');
+  userSlot=parseInt(document.getElementById('dfrPickPos').value);
+  pickTimerMax=parseInt(document.getElementById('dfrTimerSel').value);
+
+  buildTeams();buildPlayers(scoringFmt);
+  available=allPlayers.filter(function(p){return!p.drafted});
+  teamRosters=[];for(var t=0;t<NUM_TEAMS;t++)teamRosters.push([]);
+  allPicks=[];draftCursor=0;paused=false;autopick=false;
+
+  buildDraftQueue();
+
+  document.getElementById('drLobby').style.display='none';
+  document.getElementById('drRoom').style.display='';
+  document.getElementById('drPost').style.display='none';
+
+  /* Setup initial state */
+  document.getElementById('dfrAutoBtn').classList.remove('active-toggle');
+  document.getElementById('dfrPauseBtn').innerHTML='<i class="fas fa-pause"></i>';
+
+  refreshAllUI();
+
+  /* Load headshots async, then start */
+  loadHeadshots().then(function(){
+    refreshAllUI();
+    draftState='drafting';
+    executeNextPick();
+  });
+}
+
+function resetToLobby(){
+  draftState='lobby';
+  stopPickTimer();clearTimeout(draftTimeout);
+  allPlayers=[];available=[];teamRosters=[];allPicks=[];draftCursor=0;
+  document.getElementById('drLobby').style.display='';
+  document.getElementById('drRoom').style.display='none';
+  document.getElementById('drPost').style.display='none';
+  buildTeams();renderLobbyTeams();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LOBBY RENDERING
+   ══════════════════════════════════════════════════════════════ */
+function renderLobbyTeams(){
+  var el=document.getElementById('dfrTeamCards');
+  var html='';
+  TEAMS.forEach(function(t,i){
+    if(i===0)return; /* skip user */
+    html+='<div class="dfr-team-card">'+
+      '<div class="dfr-team-dot" style="background:'+t.color+'"></div>'+
+      '<div><div class="name">'+t.name+'</div>'+
+      '<div class="strat">'+t.strat.name+'</div></div></div>';
+  });
+  el.innerHTML=html;
+}
+renderLobbyTeams();
+
+/* ══════════════════════════════════════════════════════════════
+   EVENT HANDLERS
+   ══════════════════════════════════════════════════════════════ */
+
+/* Lobby */
+document.getElementById('dfrEnter').addEventListener('click',enterDraftRoom);
+document.getElementById('dfrFmtBtns').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('active')});
+  b.classList.add('active');
+});
+
+/* Draft Room Controls */
+document.getElementById('dfrAutoBtn').addEventListener('click',function(){
+  autopick=!autopick;
+  this.classList.toggle('active-toggle',autopick);
+  if(autopick&&draftState==='userPick')autoPickForUser();
+});
+document.getElementById('dfrSimMyBtn').addEventListener('click',simToMyPick);
+document.getElementById('dfrSimAllBtn').addEventListener('click',simRemaining);
+document.getElementById('dfrPauseBtn').addEventListener('click',pauseDraft);
+document.getElementById('dfrBoardBtn').addEventListener('click',function(){
+  renderBoard();document.getElementById('dfrBoardOverlay').style.display='';});
+document.getElementById('dfrBoardClose').addEventListener('click',function(){
+  document.getElementById('dfrBoardOverlay').style.display='none';});
+document.getElementById('dfrExitBtn').addEventListener('click',function(){
+  if(draftState==='complete'||confirm('Exit draft room? Progress will be lost.')){resetToLobby()}});
+
+/* Position filters */
+document.getElementById('dfrPosFilter').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('active')});
+  b.classList.add('active');currentFilter=b.getAttribute('data-f');renderPlayerTable();
+});
+
+/* Search */
+document.getElementById('dfrSearch').addEventListener('input',function(){
+  currentSearch=this.value;renderPlayerTable();
+});
+
+/* Sort columns */
+document.querySelectorAll('.dfr-tbl th[data-col]').forEach(function(th){
+  th.addEventListener('click',function(){
+    var col=this.getAttribute('data-col');
+    currentSort=col;
+    document.querySelectorAll('.dfr-tbl th').forEach(function(h){h.classList.remove('sort-active')});
+    this.classList.add('sort-active');
+    document.getElementById('dfrSortLabel').textContent=col.toUpperCase();
+    renderPlayerTable();
+  });
+});
+
+/* Speed controls */
+document.querySelectorAll('.dfr-speed-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.dfr-speed-btn').forEach(function(b){b.classList.remove('active')});
+    this.classList.add('active');draftSpeed=parseInt(this.getAttribute('data-sp'));
+  });
+});
+
+/* Close board overlay on background click */
+document.getElementById('dfrBoardOverlay').addEventListener('click',function(e){
+  if(e.target===this)this.style.display='none';
+});
 
 })();
 </script>
