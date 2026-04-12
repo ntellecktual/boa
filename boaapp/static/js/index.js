@@ -170,22 +170,24 @@ function updateProgress() {
     });
 }
 
-// --- Sidebar Toggle ---
+// --- Sidebar ---
 (function () {
   var sidebar = document.getElementById('mainSidebar');
   var sidebarToggle = document.getElementById('sidebarToggle');
   var mobileToggle = document.getElementById('mobileToggle');
   var sidebarOverlay = document.getElementById('sidebarOverlay');
+  var searchInput = document.getElementById('sbSearchInput');
+  var tooltip = document.getElementById('sbTooltip');
 
   if (!sidebar) return;
 
-  // Restore collapsed state from localStorage
+  // ── Restore collapsed state ──
   if (localStorage.getItem('sidebar-collapsed') === 'true') {
     sidebar.classList.add('collapsed');
     document.body.classList.add('sidebar-collapsed');
   }
 
-  // Desktop collapse/expand toggle
+  // ── Desktop collapse/expand toggle ──
   if (sidebarToggle) {
     sidebarToggle.addEventListener('click', function () {
       sidebar.classList.toggle('collapsed');
@@ -194,15 +196,14 @@ function updateProgress() {
     });
   }
 
-  // Mobile hamburger toggle
+  // ── Mobile hamburger toggle ──
   if (mobileToggle) {
     mobileToggle.addEventListener('click', function () {
       sidebar.classList.toggle('mobile-open');
-      sidebarOverlay.classList.toggle('active');
+      if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
     });
   }
 
-  // Close sidebar on overlay click
   if (sidebarOverlay) {
     sidebarOverlay.addEventListener('click', function () {
       sidebar.classList.remove('mobile-open');
@@ -210,12 +211,125 @@ function updateProgress() {
     });
   }
 
-  // Highlight active sidebar link based on current path
+  // ── Active link ──
   var currentPath = window.location.pathname;
   sidebar.querySelectorAll('.sidebar-link[href]').forEach(function (link) {
     var href = link.getAttribute('href');
     if (href && href === currentPath) {
       link.classList.add('active');
+      // Ensure parent group is open
+      var group = link.closest('.sb-group');
+      if (group) {
+        var items = group.querySelector('.sb-group-items');
+        if (items) items.classList.add('open');
+        var toggle = group.querySelector('.sb-group-toggle');
+        if (toggle) toggle.setAttribute('aria-expanded', 'true');
+      }
     }
   });
+
+  // ── Collapsible groups ──
+  sidebar.querySelectorAll('.sb-group-toggle').forEach(function (btn) {
+    var group = btn.closest('.sb-group');
+    var items = group ? group.querySelector('.sb-group-items') : null;
+    var key = 'sb-group-' + (group ? group.getAttribute('data-group') : '');
+
+    // Restore state — default open
+    if (items) {
+      var stored = localStorage.getItem(key);
+      if (stored === 'closed') {
+        items.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        items.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+      // If group has active link, always open
+      if (items.querySelector('.sidebar-link.active')) {
+        items.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    btn.addEventListener('click', function () {
+      if (!items) return;
+      var isOpen = items.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      localStorage.setItem(key, isOpen ? 'open' : 'closed');
+    });
+  });
+
+  // ── Search / Filter ──
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      var q = this.value.toLowerCase().trim();
+      sidebar.querySelectorAll('.sb-group').forEach(function (group) {
+        var links = group.querySelectorAll('.sidebar-link');
+        var anyVisible = false;
+        links.forEach(function (link) {
+          var text = (link.textContent || '').toLowerCase();
+          var desc = (link.getAttribute('data-desc') || '').toLowerCase();
+          var match = !q || text.indexOf(q) !== -1 || desc.indexOf(q) !== -1;
+          link.classList.toggle('sb-hidden', !match);
+          if (match) anyVisible = true;
+        });
+        group.classList.toggle('sb-hidden', !anyVisible);
+        // Auto-open matching groups during search
+        if (q && anyVisible) {
+          var items = group.querySelector('.sb-group-items');
+          if (items) items.classList.add('open');
+        }
+      });
+      // Also filter top-level links (Home)
+      sidebar.querySelectorAll('.sidebar-nav > .sidebar-link').forEach(function (link) {
+        var text = (link.textContent || '').toLowerCase();
+        var desc = (link.getAttribute('data-desc') || '').toLowerCase();
+        var match = !q || text.indexOf(q) !== -1 || desc.indexOf(q) !== -1;
+        link.classList.toggle('sb-hidden', !match);
+      });
+    });
+
+    // Ctrl+K / Cmd+K shortcut
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+      // Escape clears search
+      if (e.key === 'Escape' && document.activeElement === searchInput) {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.blur();
+      }
+    });
+  }
+
+  // ── Collapsed-mode tooltips ──
+  if (tooltip) {
+    var hideTimer;
+    sidebar.querySelectorAll('.sidebar-link').forEach(function (link) {
+      link.addEventListener('mouseenter', function () {
+        if (!sidebar.classList.contains('collapsed')) return;
+        clearTimeout(hideTimer);
+        var text = link.querySelector('.sidebar-text');
+        var desc = link.getAttribute('data-desc');
+        var name = text ? text.textContent.trim() : '';
+        if (!name) return;
+
+        tooltip.innerHTML = name + (desc ? '<span class="sb-tip-desc">' + desc + '</span>' : '');
+        var rect = link.getBoundingClientRect();
+        tooltip.style.left = (rect.right + 8) + 'px';
+        tooltip.style.top = (rect.top + rect.height / 2) + 'px';
+        tooltip.style.transform = 'translateY(-50%)';
+        tooltip.classList.add('visible');
+      });
+
+      link.addEventListener('mouseleave', function () {
+        hideTimer = setTimeout(function () {
+          tooltip.classList.remove('visible');
+        }, 80);
+      });
+    });
+  }
 }());

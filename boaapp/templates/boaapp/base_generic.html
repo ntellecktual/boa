@@ -21,8 +21,8 @@
       ::view-transition-new(root){animation:vtFadeIn .2s ease-out both}
       @keyframes vtFadeOut{to{opacity:0}}
       @keyframes vtFadeIn{from{opacity:0}to{opacity:1}}
-      /* Active sidebar link */
-      .sidebar-link.sidebar-active{background:rgba(59,130,246,.12)!important;color:var(--color-accent,#3b82f6)!important;border-left:3px solid var(--color-accent,#3b82f6);padding-left:calc(var(--sidebar-link-px,1rem) - 3px)}
+      /* Active sidebar link — enhanced in index.css, keep minimal override */
+      .sidebar-link.sidebar-active{background:linear-gradient(135deg,rgba(79,70,229,.08),rgba(139,92,246,.06))!important;color:var(--link-color,#6366f1)!important;font-weight:600}
     </style>
     {% block extra_head %}{% endblock %}
 
@@ -67,86 +67,139 @@
         </button>
       </div>
 
-      <nav class="sidebar-nav">
-        <a href="{% url 'home' %}" class="sidebar-link">
-          <i class="fas fa-home"></i>
+      <!-- Search -->
+      <div class="sb-search" id="sbSearch">
+        <i class="fas fa-search sb-search-icon"></i>
+        <input type="text" id="sbSearchInput" placeholder="Search..." autocomplete="off" spellcheck="false" />
+        <kbd class="sb-search-kbd">⌘K</kbd>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebarNav">
+        <a href="{% url 'home' %}" class="sidebar-link" data-desc="Dashboard overview & quick stats">
+          <span class="sb-icon-wrap sb-icon--blue"><i class="fas fa-home"></i></span>
           <span class="sidebar-text">Home</span>
         </a>
 
-        <div class="sidebar-group-label">Profile</div>
-        <a href="{% url 'portfolio_showcase' %}" class="sidebar-link">
-          <i class="fas fa-briefcase"></i>
-          <span class="sidebar-text">Portfolio</span>
-        </a>
-        <a href="{% url 'education_details' %}" class="sidebar-link">
-          <i class="fas fa-graduation-cap"></i>
-          <span class="sidebar-text">Education</span>
-        </a>
+        <!-- ── Profile ── -->
+        <div class="sb-group" data-group="profile">
+          <button class="sb-group-toggle" type="button" aria-expanded="true">
+            <span class="sb-group-dot" style="--dot:#3b82f6"></span>
+            <span class="sb-group-label">Profile</span>
+            <span class="sb-group-count">2</span>
+            <i class="fas fa-chevron-down sb-group-chevron"></i>
+          </button>
+          <div class="sb-group-items open">
+            <a href="{% url 'portfolio_showcase' %}" class="sidebar-link" data-desc="Work experience, projects & tech stack">
+              <span class="sb-icon-wrap sb-icon--indigo"><i class="fas fa-briefcase"></i></span>
+              <span class="sidebar-text">Portfolio</span>
+            </a>
+            <a href="{% url 'education_details' %}" class="sidebar-link" data-desc="Academic background & certifications">
+              <span class="sb-icon-wrap sb-icon--sky"><i class="fas fa-graduation-cap"></i></span>
+              <span class="sidebar-text">Education</span>
+            </a>
+          </div>
+        </div>
 
-        <div class="sidebar-group-label">Demos</div>
-        <a href="{% url 'live_demos' %}" class="sidebar-link">
-          <i class="fas fa-compass"></i>
-          <span class="sidebar-text">Discover</span>
-        </a>
-        <a href="{% url 'process_flows' %}" class="sidebar-link">
-          <i class="fas fa-arrows-spin"></i>
-          <span class="sidebar-text">AI Process Flows</span>
-        </a>
-        <a href="{% url 'platform_engineering' %}" class="sidebar-link">
-          <i class="fas fa-code-branch"></i>
-          <span class="sidebar-text">Platform Engineering</span>
-        </a>
-        <a href="{% url 'mlops_lifecycle' %}" class="sidebar-link">
-          <i class="fas fa-brain"></i>
-          <span class="sidebar-text">MLOps Lifecycle</span>
-        </a>
-        <a href="{% url 'streaming_architecture' %}" class="sidebar-link">
-          <i class="fas fa-bolt"></i>
-          <span class="sidebar-text">Streaming Architecture</span>
-        </a>
-        <a href="{% url 'api_orchestration' %}" class="sidebar-link">
-          <i class="fas fa-project-diagram"></i>
-          <span class="sidebar-text">API Orchestration</span>
-        </a>
-        <a href="{% url 'idp_demo' %}" class="sidebar-link">
-          <i class="fas fa-file-alt"></i>
-          <span class="sidebar-text">Document Processing</span>
-        </a>
-        <a href="{% url 'job_match' %}" class="sidebar-link">
-          <i class="fas fa-crosshairs"></i>
-          <span class="sidebar-text">Job Match</span>
-        </a>
+        <!-- ── Demos ── -->
+        <div class="sb-group" data-group="demos">
+          <button class="sb-group-toggle" type="button" aria-expanded="true">
+            <span class="sb-group-dot" style="--dot:#8b5cf6"></span>
+            <span class="sb-group-label">Demos</span>
+            <span class="sb-group-count">8</span>
+            <i class="fas fa-chevron-down sb-group-chevron"></i>
+          </button>
+          <div class="sb-group-items open">
+            <a href="{% url 'live_demos' %}" class="sidebar-link" data-desc="Browse all interactive demos">
+              <span class="sb-icon-wrap sb-icon--violet"><i class="fas fa-compass"></i></span>
+              <span class="sidebar-text">Discover</span>
+            </a>
+            <a href="{% url 'process_flows' %}" class="sidebar-link" data-desc="RAG pipeline & AI workflow visualizer">
+              <span class="sb-icon-wrap sb-icon--emerald"><i class="fas fa-arrows-spin"></i></span>
+              <span class="sidebar-text">AI Process Flows</span>
+            </a>
+            <a href="{% url 'platform_engineering' %}" class="sidebar-link" data-desc="CI/CD pipelines & infrastructure">
+              <span class="sb-icon-wrap sb-icon--cyan"><i class="fas fa-code-branch"></i></span>
+              <span class="sidebar-text">Platform Engineering</span>
+            </a>
+            <a href="{% url 'mlops_lifecycle' %}" class="sidebar-link" data-desc="Model training, metrics & deployment">
+              <span class="sb-icon-wrap sb-icon--pink"><i class="fas fa-brain"></i></span>
+              <span class="sidebar-text">MLOps Lifecycle</span>
+            </a>
+            <a href="{% url 'streaming_architecture' %}" class="sidebar-link" data-desc="Real-time event streaming demo">
+              <span class="sb-icon-wrap sb-icon--amber"><i class="fas fa-bolt"></i></span>
+              <span class="sidebar-text">Streaming</span>
+            </a>
+            <a href="{% url 'api_orchestration' %}" class="sidebar-link" data-desc="Live API probes & endpoint testing">
+              <span class="sb-icon-wrap sb-icon--teal"><i class="fas fa-project-diagram"></i></span>
+              <span class="sidebar-text">API Orchestration</span>
+            </a>
+            <a href="{% url 'idp_demo' %}" class="sidebar-link" data-desc="Intelligent document parsing & OCR">
+              <span class="sb-icon-wrap sb-icon--rose"><i class="fas fa-file-alt"></i></span>
+              <span class="sidebar-text">Doc Processing</span>
+            </a>
+            <a href="{% url 'job_match' %}" class="sidebar-link" data-desc="AI-powered job matching engine">
+              <span class="sb-icon-wrap sb-icon--orange"><i class="fas fa-crosshairs"></i></span>
+              <span class="sidebar-text">Job Match</span>
+              <span class="sb-badge-new">NEW</span>
+            </a>
+          </div>
+        </div>
 
-        <div class="sidebar-group-label">Tools</div>
-        <a href="{% url 'course_list' %}" class="sidebar-link">
-          <i class="fas fa-book-open"></i>
-          <span class="sidebar-text">Courses</span>
-        </a>
-        <a href="{% url 'analytics' %}" class="sidebar-link">
-          <i class="fas fa-chart-line"></i>
-          <span class="sidebar-text">Analytics</span>
-        </a>
-        <a href="{% url 'code_playground' %}" class="sidebar-link">
-          <i class="fas fa-laptop-code"></i>
-          <span class="sidebar-text">Playground</span>
-        </a>
-        <a href="{% url 'system_observability' %}" class="sidebar-link">
-          <i class="fas fa-satellite-dish"></i>
-          <span class="sidebar-text">Observability</span>
-        </a>
+        <!-- ── Tools ── -->
+        <div class="sb-group" data-group="tools">
+          <button class="sb-group-toggle" type="button" aria-expanded="true">
+            <span class="sb-group-dot" style="--dot:#22c55e"></span>
+            <span class="sb-group-label">Tools</span>
+            <span class="sb-group-count">4</span>
+            <i class="fas fa-chevron-down sb-group-chevron"></i>
+          </button>
+          <div class="sb-group-items open">
+            <a href="{% url 'course_list' %}" class="sidebar-link" data-desc="Interactive learning modules & quizzes">
+              <span class="sb-icon-wrap sb-icon--green"><i class="fas fa-book-open"></i></span>
+              <span class="sidebar-text">Courses</span>
+            </a>
+            <a href="{% url 'analytics' %}" class="sidebar-link" data-desc="Usage analytics & learning insights">
+              <span class="sb-icon-wrap sb-icon--blue"><i class="fas fa-chart-line"></i></span>
+              <span class="sidebar-text">Analytics</span>
+            </a>
+            <a href="{% url 'code_playground' %}" class="sidebar-link" data-desc="Full web IDE — Monaco, Pyodide & more">
+              <span class="sb-icon-wrap sb-icon--violet"><i class="fas fa-laptop-code"></i></span>
+              <span class="sidebar-text">Playground</span>
+              <span class="sb-badge-new">NEW</span>
+            </a>
+            <a href="{% url 'system_observability' %}" class="sidebar-link" data-desc="System health, latency & uptime monitors">
+              <span class="sb-icon-wrap sb-icon--red"><i class="fas fa-satellite-dish"></i></span>
+              <span class="sidebar-text">Observability</span>
+              <span class="sb-badge-new">NEW</span>
+            </a>
+          </div>
+        </div>
       </nav>
 
+      <!-- Footer -->
       <div class="sidebar-footer">
-        <button class="sidebar-link" id="theme-toggle-btn" type="button">
-          <i class="fas fa-moon"></i>
-          <span class="sidebar-text">Dark Mode</span>
-        </button>
-        <a href="{% url 'logout' %}" class="sidebar-link">
-          <i class="fas fa-sign-out-alt"></i>
-          <span class="sidebar-text">Logout</span>
-        </a>
+        <div class="sb-user" id="sbUser">
+          <div class="sb-avatar">{{ user.first_name|first|default:"K" }}</div>
+          <div class="sb-user-info">
+            <span class="sb-user-name">{{ user.first_name|default:user.username }}</span>
+            <span class="sb-user-role">Developer</span>
+          </div>
+        </div>
+        <div class="sb-footer-actions">
+          <button class="sidebar-link" id="theme-toggle-btn" type="button">
+            <i class="fas fa-moon"></i>
+            <span class="sidebar-text">Dark Mode</span>
+          </button>
+          <a href="{% url 'logout' %}" class="sidebar-link sb-link--danger">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="sidebar-text">Logout</span>
+          </a>
+        </div>
       </div>
     </aside>
+
+    <!-- Collapsed-mode tooltip -->
+    <div class="sb-tooltip" id="sbTooltip"></div>
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -381,11 +434,15 @@
     <!-- Custom JS -->
     <script src="{% static 'js/index.js' %}?v={{ timestamp }}"></script>
     <script>
-    /* ── Active sidebar link ── */
+    /* ── Active sidebar link (early, before index.js) ── */
     (function(){
       var path=window.location.pathname;
       document.querySelectorAll('.sidebar-link[href]').forEach(function(a){
-        if(a.getAttribute('href')===path)a.classList.add('sidebar-active');
+        if(a.getAttribute('href')===path){
+          a.classList.add('sidebar-active');
+          var g=a.closest('.sb-group');
+          if(g){var items=g.querySelector('.sb-group-items');if(items)items.classList.add('open');}
+        }
       });
     }());
     </script>
