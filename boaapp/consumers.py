@@ -190,3 +190,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         conversation = ChatConversation.objects.get(pk=self.conversation_id)
         return get_rag_response(query, conversation.document_id)
+
+
+class NotificationConsumer(AsyncWebsocketConsumer):
+    """WebSocket consumer for real-time toast notifications."""
+
+    async def connect(self):
+        user = self.scope.get('user')
+        if not user or user.is_anonymous:
+            await self.close()
+            return
+
+        self.group_name = f'notifications_{user.id}'
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept()
+        await self.send(text_data=json.dumps({
+            'type': 'connected',
+            'message': 'Notification channel active',
+        }))
+
+    async def disconnect(self, close_code):
+        if hasattr(self, 'group_name'):
+            await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    async def notification(self, event):
+        """Send a notification to the client."""
+        await self.send(text_data=json.dumps({
+            'type': 'notification',
+            'title': event.get('title', ''),
+            'message': event.get('message', ''),
+            'level': event.get('level', 'info'),
+            'icon': event.get('icon', 'bell'),
+        }))

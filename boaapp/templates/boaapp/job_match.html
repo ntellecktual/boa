@@ -1,0 +1,205 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}AI Job Match Analyzer{% endblock %}
+
+{% block container_class %}jm-container{% endblock %}
+
+{% block content %}
+<style>
+.jm-container{display:block;width:100%;max-width:100%;padding:0}
+:root{--jm-surface:rgba(255,255,255,.8);--jm-border:rgba(0,0,0,.07);--jm-shadow:0 1px 4px rgba(0,0,0,.06)}
+[data-theme="dark"]{--jm-surface:rgba(30,32,48,.85);--jm-border:rgba(255,255,255,.07);--jm-shadow:0 1px 4px rgba(0,0,0,.25)}
+@keyframes jmFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes jmPulse{0%,100%{opacity:.4}50%{opacity:1}}
+.jm-wrap{max-width:960px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.jm-hero{text-align:center;padding:2rem 0 1.5rem}
+.jm-hero h1{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:800;margin-bottom:.3rem;
+  background:linear-gradient(135deg,#8b5cf6 0%,#ec4899 50%,#f59e0b 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.jm-hero p{font-size:.85rem;opacity:.6}
+.jm-card{border-radius:18px;padding:1.3rem;background:var(--jm-surface);border:1px solid var(--jm-border);
+  box-shadow:var(--jm-shadow);backdrop-filter:blur(10px);animation:jmFadeUp .5s ease both;margin-bottom:1rem}
+.jm-card h4{font-size:.82rem;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem}
+.jm-card h4 i{opacity:.5}
+.jm-textarea{width:100%;min-height:160px;border:1px solid var(--jm-border);border-radius:12px;
+  padding:.8rem;font-family:Inter,sans-serif;font-size:.8rem;resize:vertical;
+  background:transparent;color:inherit;transition:border .2s}
+.jm-textarea:focus{outline:none;border-color:#8b5cf6}
+.jm-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.2rem;border:none;
+  border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;
+  background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff}
+.jm-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(139,92,246,.35)}
+.jm-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.jm-loading{display:none;text-align:center;padding:2rem;font-size:.8rem;opacity:.6;animation:jmPulse 1.2s ease infinite}
+/* Results */
+.jm-results{display:none}
+.jm-score-ring{width:120px;height:120px;margin:0 auto 1rem;position:relative}
+.jm-score-ring svg{transform:rotate(-90deg)}
+.jm-score-ring circle{fill:none;stroke-width:8}
+.jm-score-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:1.6rem;font-weight:800;line-height:1}
+.jm-score-lbl{text-align:center;font-size:.75rem;font-weight:700;margin-bottom:.5rem}
+.jm-pills{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+.jm-pill{font-size:.65rem;padding:.2rem .5rem;border-radius:20px;font-weight:600}
+.jm-pill--match{background:rgba(34,197,94,.12);color:#16a34a}
+[data-theme="dark"] .jm-pill--match{background:rgba(34,197,94,.2);color:#4ade80}
+.jm-pill--miss{background:rgba(239,68,68,.1);color:#dc2626}
+[data-theme="dark"] .jm-pill--miss{background:rgba(239,68,68,.2);color:#f87171}
+.jm-grid{display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-top:1rem}
+@media(max-width:768px){.jm-grid{grid-template-columns:1fr}}
+.jm-points li{font-size:.78rem;margin-bottom:.5rem;line-height:1.4}
+.jm-points li i{color:#8b5cf6;margin-right:.3rem}
+.jm-summary{font-size:.8rem;line-height:1.6;opacity:.85;margin-top:.5rem}
+</style>
+
+<div class="jm-wrap">
+  <div class="jm-hero">
+    <h1><i class="fas fa-crosshairs me-2"></i>AI Job Match Analyzer</h1>
+    <p>Paste a job description to see how well it aligns with my skills and experience</p>
+  </div>
+
+  <div class="jm-card">
+    <h4><i class="fas fa-paste"></i> Job Description</h4>
+    <textarea class="jm-textarea" id="jmInput" placeholder="Paste the full job description here..."></textarea>
+    <div class="mt-3 d-flex align-items-center gap-3">
+      <button class="jm-btn" id="jmAnalyze" onclick="analyzeJob()">
+        <i class="fas fa-bolt"></i> Analyze Match
+      </button>
+      <span id="jmCharCount" style="font-size:.65rem;opacity:.4">0 / 5,000</span>
+    </div>
+  </div>
+
+  <div class="jm-loading" id="jmLoading">
+    <i class="fas fa-atom fa-spin" style="font-size:1.5rem;color:#8b5cf6"></i>
+    <p style="margin-top:.5rem">Analyzing job description against portfolio...</p>
+  </div>
+
+  <div class="jm-results" id="jmResults">
+    <div class="jm-grid">
+      <div class="jm-card" style="text-align:center">
+        <div class="jm-score-ring">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <circle cx="60" cy="60" r="50" stroke="rgba(128,128,128,.1)"/>
+            <circle cx="60" cy="60" r="50" id="jmRing" stroke="#8b5cf6"
+              stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"
+              style="transition:stroke-dashoffset 1s ease"/>
+          </svg>
+          <div class="jm-score-val" id="jmScoreVal">0</div>
+        </div>
+        <div class="jm-score-lbl" id="jmLevel">—</div>
+        <div style="font-size:.65rem;opacity:.5" id="jmSalary"></div>
+      </div>
+      <div>
+        <div class="jm-card">
+          <h4><i class="fas fa-check-circle" style="color:#22c55e"></i> Matching Skills</h4>
+          <div class="jm-pills" id="jmMatch"></div>
+        </div>
+        <div class="jm-card">
+          <h4><i class="fas fa-exclamation-circle" style="color:#ef4444"></i> Gaps</h4>
+          <div class="jm-pills" id="jmMiss"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-card">
+      <h4><i class="fas fa-lightbulb" style="color:#f59e0b"></i> Interview Talking Points</h4>
+      <ul class="jm-points" id="jmPoints"></ul>
+    </div>
+
+    <div class="jm-card">
+      <h4><i class="fas fa-briefcase" style="color:#3b82f6"></i> Suggested Projects to Highlight</h4>
+      <ul class="jm-points" id="jmProjects"></ul>
+    </div>
+
+    <div class="jm-card">
+      <h4><i class="fas fa-align-left"></i> Summary</h4>
+      <p class="jm-summary" id="jmSummary"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+var jmInput = document.getElementById('jmInput');
+jmInput.addEventListener('input', function(){
+  document.getElementById('jmCharCount').textContent = this.value.length.toLocaleString() + ' / 5,000';
+});
+
+function analyzeJob(){
+  var description = jmInput.value.trim();
+  if(description.length < 20){ alert('Please paste at least 20 characters.'); return; }
+
+  var btn = document.getElementById('jmAnalyze');
+  var loading = document.getElementById('jmLoading');
+  var results = document.getElementById('jmResults');
+
+  btn.disabled = true;
+  loading.style.display = 'block';
+  results.style.display = 'none';
+
+  fetch("{% url 'job_match_api' %}", {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','X-CSRFToken': getCookie('csrftoken')},
+    body: JSON.stringify({job_description: description})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    loading.style.display = 'none';
+    btn.disabled = false;
+    if(data.error){ alert(data.error); return; }
+    renderResults(data.analysis);
+  })
+  .catch(function(err){
+    loading.style.display = 'none';
+    btn.disabled = false;
+    alert('Analysis failed — please try again.');
+    console.error(err);
+  });
+}
+
+function renderResults(a){
+  var results = document.getElementById('jmResults');
+  results.style.display = 'block';
+
+  // Score ring
+  var score = a.match_score || 0;
+  var circumference = 2 * Math.PI * 50;
+  var offset = circumference - (score / 100) * circumference;
+  var ring = document.getElementById('jmRing');
+  var scoreColor = score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444';
+  ring.setAttribute('stroke', scoreColor);
+  ring.style.strokeDashoffset = offset;
+  document.getElementById('jmScoreVal').textContent = score;
+  document.getElementById('jmScoreVal').style.color = scoreColor;
+  document.getElementById('jmLevel').textContent = a.match_level || '';
+  document.getElementById('jmLevel').style.color = scoreColor;
+  document.getElementById('jmSalary').textContent = a.salary_insight || '';
+
+  // Skills
+  var matchEl = document.getElementById('jmMatch');
+  matchEl.innerHTML = (a.matching_skills || []).map(function(s){ return '<span class="jm-pill jm-pill--match">'+s+'</span>'; }).join('');
+  var missEl = document.getElementById('jmMiss');
+  missEl.innerHTML = (a.missing_skills || []).length ?
+    (a.missing_skills || []).map(function(s){ return '<span class="jm-pill jm-pill--miss">'+s+'</span>'; }).join('') :
+    '<span style="font-size:.7rem;opacity:.4">No significant gaps detected</span>';
+
+  // Talking points
+  var pointsEl = document.getElementById('jmPoints');
+  pointsEl.innerHTML = (a.talking_points || []).map(function(p){ return '<li><i class="fas fa-chevron-right"></i> '+p+'</li>'; }).join('');
+
+  // Projects
+  var projEl = document.getElementById('jmProjects');
+  projEl.innerHTML = (a.suggested_projects || []).map(function(p){ return '<li><i class="fas fa-folder-open"></i> '+p+'</li>'; }).join('');
+
+  // Summary
+  document.getElementById('jmSummary').textContent = a.summary || '';
+}
+
+function getCookie(name){
+  var value = '; ' + document.cookie;
+  var parts = value.split('; ' + name + '=');
+  if(parts.length === 2) return parts.pop().split(';').shift();
+  return '';
+}
+</script>
+{% endblock %}

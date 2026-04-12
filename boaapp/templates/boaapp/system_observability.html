@@ -1,0 +1,244 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}System Observability{% endblock %}
+
+{% block container_class %}obs-container{% endblock %}
+
+{% block content %}
+<style>
+.obs-container{display:block;width:100%;max-width:100%;padding:0}
+:root{--ob-surface:rgba(255,255,255,.8);--ob-border:rgba(0,0,0,.07);--ob-shadow:0 1px 4px rgba(0,0,0,.06)}
+[data-theme="dark"]{--ob-surface:rgba(30,32,48,.85);--ob-border:rgba(255,255,255,.07);--ob-shadow:0 1px 4px rgba(0,0,0,.25)}
+@keyframes obFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.ob-wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.ob-hero{text-align:center;padding:2rem 0 1.5rem}
+.ob-hero h1{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:800;margin-bottom:.3rem;
+  background:linear-gradient(135deg,#06b6d4 0%,#3b82f6 50%,#8b5cf6 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ob-hero p{font-size:.85rem;opacity:.6}
+/* Health cards */
+.ob-health{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:1.5rem}
+@media(max-width:768px){.ob-health{grid-template-columns:1fr}}
+.ob-hcard{border-radius:16px;padding:1rem;background:var(--ob-surface);border:1px solid var(--ob-border);
+  box-shadow:var(--ob-shadow);backdrop-filter:blur(10px);animation:obFadeUp .5s ease both;
+  display:flex;align-items:center;gap:.8rem}
+.ob-hcard:nth-child(2){animation-delay:.07s}.ob-hcard:nth-child(3){animation-delay:.14s}
+.ob-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.ob-dot--ok{background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.5);animation:obPulse 2s ease infinite}
+.ob-dot--fail{background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,.5)}
+.ob-hname{font-size:.78rem;font-weight:700}
+.ob-hlatency{font-size:.6rem;opacity:.45}
+.ob-hstatus{font-size:.6rem;font-weight:600;margin-left:auto}
+/* Cards */
+.ob-card{border-radius:18px;padding:1.1rem;background:var(--ob-surface);border:1px solid var(--ob-border);
+  box-shadow:var(--ob-shadow);backdrop-filter:blur(10px);animation:obFadeUp .5s ease both;margin-bottom:1rem}
+.ob-card h4{font-size:.82rem;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem}
+.ob-card h4 i{opacity:.5}
+/* Stats grid */
+.ob-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-bottom:1rem}
+@media(max-width:768px){.ob-stats{grid-template-columns:repeat(2,1fr)}}
+.ob-stat{text-align:center;padding:.6rem}
+.ob-stat-val{font-size:1.3rem;font-weight:800;line-height:1}
+.ob-stat-lbl{font-size:.6rem;opacity:.45;text-transform:uppercase;letter-spacing:.04em;margin-top:.2rem}
+/* Grid layouts */
+.ob-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:768px){.ob-grid{grid-template-columns:1fr}}
+/* Pipeline table */
+.ob-table{width:100%;font-size:.7rem;border-collapse:separate;border-spacing:0}
+.ob-table th{font-size:.6rem;text-transform:uppercase;letter-spacing:.04em;opacity:.4;font-weight:600;
+  padding:.4rem .5rem;text-align:left;border-bottom:1px solid var(--ob-border)}
+.ob-table td{padding:.4rem .5rem;border-bottom:1px solid var(--ob-border);vertical-align:middle}
+.ob-table tbody tr:hover{background:rgba(59,130,246,.04)}
+.ob-badge{font-size:.55rem;padding:.15rem .4rem;border-radius:10px;font-weight:600;text-transform:uppercase}
+.ob-badge--ok{background:rgba(34,197,94,.12);color:#16a34a}
+.ob-badge--fail{background:rgba(239,68,68,.1);color:#dc2626}
+.ob-badge--run{background:rgba(59,130,246,.12);color:#2563eb}
+[data-theme="dark"] .ob-badge--ok{background:rgba(34,197,94,.2);color:#4ade80}
+[data-theme="dark"] .ob-badge--fail{background:rgba(239,68,68,.2);color:#f87171}
+[data-theme="dark"] .ob-badge--run{background:rgba(59,130,246,.2);color:#60a5fa}
+</style>
+
+<div class="ob-wrap">
+  <div class="ob-hero">
+    <h1><i class="fas fa-satellite-dish me-2"></i>System Observability</h1>
+    <p>Real-time health monitoring and infrastructure metrics</p>
+  </div>
+
+  <!-- Service Health -->
+  <div class="ob-health">
+    <div class="ob-hcard">
+      <div class="ob-dot {% if db_healthy %}ob-dot--ok{% else %}ob-dot--fail{% endif %}"></div>
+      <div>
+        <div class="ob-hname">PostgreSQL</div>
+        <div class="ob-hlatency">{{ db_latency }} ms</div>
+      </div>
+      <div class="ob-hstatus" style="color:{% if db_healthy %}#22c55e{% else %}#ef4444{% endif %}">
+        {% if db_healthy %}Healthy{% else %}Unreachable{% endif %}
+      </div>
+    </div>
+    <div class="ob-hcard">
+      <div class="ob-dot {% if redis_healthy %}ob-dot--ok{% else %}ob-dot--fail{% endif %}"></div>
+      <div>
+        <div class="ob-hname">Redis</div>
+        <div class="ob-hlatency">{{ redis_latency }} ms</div>
+      </div>
+      <div class="ob-hstatus" style="color:{% if redis_healthy %}#22c55e{% else %}#ef4444{% endif %}">
+        {% if redis_healthy %}Healthy{% else %}Unreachable{% endif %}
+      </div>
+    </div>
+    <div class="ob-hcard">
+      <div class="ob-dot {% if celery_healthy %}ob-dot--ok{% else %}ob-dot--fail{% endif %}"></div>
+      <div>
+        <div class="ob-hname">Celery Workers</div>
+        <div class="ob-hlatency">Task queue</div>
+      </div>
+      <div class="ob-hstatus" style="color:{% if celery_healthy %}#22c55e{% else %}#f59e0b{% endif %}">
+        {% if celery_healthy %}Active{% else %}No Workers{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline Stats -->
+  <div class="ob-card">
+    <h4><i class="fas fa-cogs"></i> Pipeline Metrics <span style="font-size:.55rem;opacity:.35;font-weight:400;margin-left:.5rem">Last 7 days</span></h4>
+    <div class="ob-stats">
+      <div class="ob-stat">
+        <div class="ob-stat-val" style="color:#3b82f6">{{ pipeline_stats.total|default:"0" }}</div>
+        <div class="ob-stat-lbl">Total Runs</div>
+      </div>
+      <div class="ob-stat">
+        <div class="ob-stat-val" style="color:#22c55e">{{ pipeline_stats.completed|default:"0" }}</div>
+        <div class="ob-stat-lbl">Completed</div>
+      </div>
+      <div class="ob-stat">
+        <div class="ob-stat-val" style="color:#ef4444">{{ pipeline_stats.failed|default:"0" }}</div>
+        <div class="ob-stat-lbl">Failed</div>
+      </div>
+      <div class="ob-stat">
+        <div class="ob-stat-val" style="color:#8b5cf6">{{ pipeline_stats.avg_progress|floatformat:0|default:"—" }}%</div>
+        <div class="ob-stat-lbl">Avg Progress</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ob-grid">
+    <!-- Pipeline Daily Chart -->
+    <div class="ob-card">
+      <h4><i class="fas fa-chart-area"></i> Pipeline Activity</h4>
+      <canvas id="obPipeChart" height="180"></canvas>
+    </div>
+
+    <!-- Content Stats -->
+    <div class="ob-card">
+      <h4><i class="fas fa-database"></i> Content Statistics</h4>
+      <div class="ob-stats" style="grid-template-columns:repeat(2,1fr)">
+        <div class="ob-stat">
+          <div class="ob-stat-val" style="color:#3b82f6">{{ content_stats.total_users }}</div>
+          <div class="ob-stat-lbl">Users</div>
+        </div>
+        <div class="ob-stat">
+          <div class="ob-stat-val" style="color:#8b5cf6">{{ content_stats.total_documents }}</div>
+          <div class="ob-stat-lbl">Documents</div>
+        </div>
+        <div class="ob-stat">
+          <div class="ob-stat-val" style="color:#f59e0b">{{ content_stats.total_audio }}</div>
+          <div class="ob-stat-lbl">Audio Files</div>
+        </div>
+        <div class="ob-stat">
+          <div class="ob-stat-val" style="color:#22c55e">{{ content_stats.total_courses }}</div>
+          <div class="ob-stat-lbl">Courses</div>
+        </div>
+        <div class="ob-stat">
+          <div class="ob-stat-val" style="color:#ec4899">{{ content_stats.total_quizzes }}</div>
+          <div class="ob-stat-lbl">Quizzes</div>
+        </div>
+        <div class="ob-stat">
+          <div class="ob-stat-val" style="color:#06b6d4">{{ content_stats.total_chats }}</div>
+          <div class="ob-stat-lbl">Chats</div>
+        </div>
+        <div class="ob-stat">
+          <div class="ob-stat-val" style="color:#84cc16">{{ content_stats.total_events }}</div>
+          <div class="ob-stat-lbl">Events</div>
+        </div>
+        <div class="ob-stat">
+          <div class="ob-stat-val" style="color:#a855f7">{{ content_stats.total_reviews }}</div>
+          <div class="ob-stat-lbl">Code Reviews</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Pipelines -->
+  <div class="ob-card">
+    <h4><i class="fas fa-list"></i> Recent Pipeline Runs</h4>
+    <div style="overflow-x:auto">
+      <table class="ob-table" id="obPipeTable">
+        <thead>
+          <tr><th>Document</th><th>Status</th><th>Progress</th><th>Step</th><th>Started</th><th>Duration</th></tr>
+        </thead>
+        <tbody id="obPipeBody"></tbody>
+      </table>
+    </div>
+    <p id="obNoRuns" style="display:none;text-align:center;font-size:.75rem;opacity:.4;padding:1.5rem 0">No pipeline runs recorded yet</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+(function(){
+var pipeDaily = {{ pipeline_daily|safe }};
+var recentPipes = {{ recent_pipelines|safe }};
+var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+var gridColor = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+
+Chart.defaults.color = isDark ? '#94a3b8' : '#64748b';
+Chart.defaults.font.family = 'Inter, sans-serif';
+Chart.defaults.font.size = 10;
+
+// Pipeline daily chart
+if(pipeDaily.length){
+  new Chart(document.getElementById('obPipeChart'),{
+    type:'bar',
+    data:{
+      labels:pipeDaily.map(function(d){var dt=new Date(d.date);return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})}),
+      datasets:[{label:'Runs',data:pipeDaily.map(function(d){return d.count}),
+        backgroundColor:'rgba(6,182,212,.6)',borderRadius:6,borderSkipped:false}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:gridColor}}}}
+  });
+} else {
+  document.getElementById('obPipeChart').parentElement.innerHTML += '<p style="text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem">No pipeline data in last 7 days</p>';
+}
+
+// Recent pipelines table
+var tbody = document.getElementById('obPipeBody');
+if(recentPipes.length === 0){
+  document.getElementById('obNoRuns').style.display = 'block';
+  document.getElementById('obPipeTable').style.display = 'none';
+} else {
+  recentPipes.forEach(function(p){
+    var statusCls = p.status === 'complete' ? 'ob-badge--ok' : p.status === 'failed' ? 'ob-badge--fail' : 'ob-badge--run';
+    var started = p.started_at ? new Date(p.started_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+    var duration = '—';
+    if(p.started_at && p.completed_at){
+      var ms = new Date(p.completed_at) - new Date(p.started_at);
+      var secs = Math.round(ms/1000);
+      duration = secs >= 60 ? Math.floor(secs/60)+'m '+secs%60+'s' : secs+'s';
+    }
+    var docName = (p.document__original_filename || 'Unknown').substring(0,30);
+    tbody.innerHTML += '<tr>'+
+      '<td>'+docName+'</td>'+
+      '<td><span class="ob-badge '+statusCls+'">'+p.status+'</span></td>'+
+      '<td>'+Math.round(p.progress_pct || 0)+'%</td>'+
+      '<td>'+(p.current_step || '—')+'</td>'+
+      '<td>'+started+'</td>'+
+      '<td>'+duration+'</td></tr>';
+  });
+}
+}());
+</script>
+{% endblock %}

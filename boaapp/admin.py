@@ -9,6 +9,7 @@ from .models import (
     CourseThumbnail,
     Document,
     Enrollment,
+    FeatureFlag,
     LearningEvent,
     PipelineRun,
     Quiz,
@@ -125,3 +126,10 @@ class CourseThumbnailAdmin(admin.ModelAdmin):
 @admin.register(CodeReview)
 class CodeReviewAdmin(admin.ModelAdmin):
     list_display = ('user', 'language', 'created_at')
+
+
+@admin.register(FeatureFlag)
+class FeatureFlagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_enabled', 'description', 'created_at')
+    list_editable = ('is_enabled',)
+    search_fields = ('name', 'description')

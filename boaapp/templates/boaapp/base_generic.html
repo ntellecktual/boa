@@ -112,6 +112,10 @@
           <i class="fas fa-file-alt"></i>
           <span class="sidebar-text">Document Processing</span>
         </a>
+        <a href="{% url 'job_match' %}" class="sidebar-link">
+          <i class="fas fa-crosshairs"></i>
+          <span class="sidebar-text">Job Match</span>
+        </a>
 
         <div class="sidebar-group-label">Tools</div>
         <a href="{% url 'course_list' %}" class="sidebar-link">
@@ -125,6 +129,10 @@
         <a href="{% url 'code_playground' %}" class="sidebar-link">
           <i class="fas fa-laptop-code"></i>
           <span class="sidebar-text">Playground</span>
+        </a>
+        <a href="{% url 'system_observability' %}" class="sidebar-link">
+          <i class="fas fa-satellite-dish"></i>
+          <span class="sidebar-text">Observability</span>
         </a>
       </nav>
 
@@ -379,6 +387,50 @@
       document.querySelectorAll('.sidebar-link[href]').forEach(function(a){
         if(a.getAttribute('href')===path)a.classList.add('sidebar-active');
       });
+    }());
+    </script>
+    <!-- Notification Toasts -->
+    <div id="notifContainer" style="position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;max-width:340px"></div>
+    <script>
+    (function(){
+      {% if user.is_authenticated %}
+      var proto = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      var wsUrl = proto + window.location.host + '/ws/notifications/';
+      var ws = null;
+      var retries = 0;
+      var maxRetries = 5;
+      function connectNotifs(){
+        if(retries >= maxRetries) return;
+        ws = new WebSocket(wsUrl);
+        ws.onmessage = function(e){
+          var data = JSON.parse(e.data);
+          if(data.type === 'notification') showToast(data);
+        };
+        ws.onclose = function(){
+          retries++;
+          setTimeout(connectNotifs, Math.min(retries * 2000, 10000));
+        };
+        ws.onerror = function(){ ws.close(); };
+      }
+      connectNotifs();
+      {% endif %}
+      window.showToast = function(opts){
+        var colors = {info:'#3b82f6',success:'#22c55e',warning:'#f59e0b',error:'#ef4444'};
+        var color = colors[opts.level] || colors.info;
+        var icon = opts.icon || 'bell';
+        var el = document.createElement('div');
+        el.style.cssText = 'display:flex;align-items:flex-start;gap:.5rem;padding:.65rem .85rem;border-radius:12px;'+
+          'background:var(--an-surface,rgba(255,255,255,.95));border:1px solid '+color+'33;'+
+          'box-shadow:0 4px 20px rgba(0,0,0,.12);backdrop-filter:blur(12px);font-size:.78rem;'+
+          'animation:dscFadeUp .3s ease both;cursor:pointer;max-width:340px';
+        el.innerHTML = '<i class="fas fa-'+icon+'" style="color:'+color+';margin-top:2px"></i>'+
+          '<div><div style="font-weight:700;margin-bottom:1px">'+(opts.title||'')+'</div>'+
+          '<div style="opacity:.7;font-size:.72rem">'+(opts.message||'')+'</div></div>';
+        el.onclick = function(){ el.remove(); };
+        var container = document.getElementById('notifContainer');
+        container.appendChild(el);
+        setTimeout(function(){ if(el.parentNode) el.remove(); }, 6000);
+      };
     }());
     </script>
     {% block extra_js %}{% endblock %}

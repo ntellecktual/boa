@@ -3,111 +3,211 @@
 
 {% block title %}Learning Analytics{% endblock %}
 
+{% block container_class %}analytics-container{% endblock %}
+
 {% block content %}
 <style>
-.analytics{max-width:1100px;margin:0 auto;padding:1rem}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
-.stat-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1rem;text-align:center}
-.stat-value{font-size:1.6rem;font-weight:800}
-.stat-label{font-size:.7rem;opacity:.5;text-transform:uppercase;letter-spacing:.05em}
-.chart-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:1rem;margin-bottom:1rem}
-.chart-card h4{font-size:.85rem;font-weight:700;margin-bottom:.8rem}
-.chart-row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
-@media(max-width:768px){.chart-row{grid-template-columns:1fr}}
+.analytics-container{display:block;width:100%;max-width:100%;padding:0}
+:root{--an-surface:rgba(255,255,255,.8);--an-border:rgba(0,0,0,.07);--an-shadow:0 1px 4px rgba(0,0,0,.06);--an-shadow-lg:0 8px 24px rgba(0,0,0,.08)}
+[data-theme="dark"]{--an-surface:rgba(30,32,48,.85);--an-border:rgba(255,255,255,.07);--an-shadow:0 1px 4px rgba(0,0,0,.25);--an-shadow-lg:0 8px 24px rgba(0,0,0,.35)}
+@keyframes anFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.an-wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.an-hero{text-align:center;padding:2rem 0 1.5rem}
+.an-hero h1{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:800;margin-bottom:.3rem;
+  background:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 50%,#06b6d4 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.an-hero p{font-size:.85rem;opacity:.6}
+.an-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:.85rem;margin-bottom:1.5rem}
+@media(max-width:768px){.an-stats{grid-template-columns:repeat(2,1fr)}}
+.an-stat{border-radius:16px;padding:1rem;text-align:center;background:var(--an-surface);
+  border:1px solid var(--an-border);box-shadow:var(--an-shadow);
+  backdrop-filter:blur(10px);animation:anFadeUp .5s ease both}
+.an-stat:nth-child(2){animation-delay:.05s}.an-stat:nth-child(3){animation-delay:.1s}
+.an-stat:nth-child(4){animation-delay:.15s}.an-stat:nth-child(5){animation-delay:.2s}
+.an-stat-val{font-size:1.6rem;font-weight:800;line-height:1}
+.an-stat-lbl{font-size:.65rem;opacity:.5;text-transform:uppercase;letter-spacing:.05em;margin-top:.25rem}
+.an-stat-sub{font-size:.6rem;opacity:.4;margin-top:.1rem}
+.an-grid{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:768px){.an-grid{grid-template-columns:1fr}}
+.an-card{border-radius:18px;padding:1.1rem;background:var(--an-surface);border:1px solid var(--an-border);
+  box-shadow:var(--an-shadow);backdrop-filter:blur(10px);animation:anFadeUp .5s ease both}
+.an-card h4{font-size:.82rem;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem}
+.an-card h4 i{opacity:.5}
+.an-full{grid-column:1/-1}
+/* Heatmap */
+.an-heatmap{display:grid;grid-template-columns:auto repeat(24,1fr);gap:2px;font-size:.55rem}
+.an-hm-cell{width:100%;aspect-ratio:1;border-radius:3px;min-width:8px}
+.an-hm-lbl{font-size:.55rem;opacity:.4;display:flex;align-items:center;justify-content:flex-end;padding-right:4px}
+.an-hm-hr{font-size:.5rem;opacity:.3;text-align:center}
+/* Recent feed */
+.an-feed{max-height:320px;overflow-y:auto}
+.an-feed-item{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--an-border);font-size:.75rem}
+.an-feed-item:last-child{border:none}
+.an-feed-icon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:#fff;flex-shrink:0}
+.an-feed-time{font-size:.6rem;opacity:.4;margin-left:auto;white-space:nowrap}
 </style>
 
-<div class="analytics">
-  <div class="text-center mb-4">
-    <h2 style="font-size:1.3rem;font-weight:800"><i class="fas fa-chart-line me-2"></i>Learning Analytics</h2>
-    <p style="font-size:.75rem;opacity:.5">Your activity over the last 30 days</p>
+<div class="an-wrap">
+  <div class="an-hero">
+    <h1><i class="fas fa-chart-line me-2"></i>Learning Analytics</h1>
+    <p>Your activity over the last 30 days</p>
   </div>
 
-  <div class="stat-grid">
-    <div class="stat-card">
-      <div class="stat-value" style="color:#3b82f6">{{ total_events }}</div>
-      <div class="stat-label">Total Activities</div>
+  <div class="an-stats">
+    <div class="an-stat">
+      <div class="an-stat-val" style="color:#3b82f6">{{ total_events }}</div>
+      <div class="an-stat-lbl">Total Activities</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value" style="color:#22c55e">{{ total_quizzes }}</div>
-      <div class="stat-label">Quizzes Taken</div>
+    <div class="an-stat">
+      <div class="an-stat-val" style="color:#22c55e">{{ total_quizzes }}</div>
+      <div class="an-stat-lbl">Quizzes Taken</div>
+      <div class="an-stat-sub">Avg: {{ avg_quiz_score|floatformat:0 }}%</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value" style="color:#8b5cf6">{{ avg_quiz_score|floatformat:0 }}%</div>
-      <div class="stat-label">Avg Quiz Score</div>
+    <div class="an-stat">
+      <div class="an-stat-val" style="color:#8b5cf6">{{ total_documents }}</div>
+      <div class="an-stat-lbl">Notebooks</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value" style="color:#f59e0b">{{ total_documents }}</div>
-      <div class="stat-label">Notebooks Processed</div>
+    <div class="an-stat">
+      <div class="an-stat-val" style="color:#f59e0b">{{ total_audio }}</div>
+      <div class="an-stat-lbl">Audio Files</div>
+    </div>
+    <div class="an-stat">
+      <div class="an-stat-val" style="color:#ef4444">{{ streak }}<span style="font-size:.8rem">d</span></div>
+      <div class="an-stat-lbl">Current Streak</div>
     </div>
   </div>
 
-  <div class="chart-row">
-    <div class="chart-card">
-      <h4><i class="fas fa-calendar-alt me-2"></i>Daily Activity</h4>
-      <canvas id="activityChart" height="200"></canvas>
+  <div class="an-grid">
+    <div class="an-card">
+      <h4><i class="fas fa-calendar-alt"></i> Daily Activity</h4>
+      <canvas id="activityChart" height="180"></canvas>
     </div>
-    <div class="chart-card">
-      <h4><i class="fas fa-pie-chart me-2"></i>Activity Breakdown</h4>
-      <canvas id="breakdownChart" height="200"></canvas>
+    <div class="an-card">
+      <h4><i class="fas fa-chart-pie"></i> Activity Breakdown</h4>
+      <canvas id="breakdownChart" height="180"></canvas>
+    </div>
+  </div>
+
+  <div class="an-grid">
+    <div class="an-card">
+      <h4><i class="fas fa-trophy"></i> Quiz Score Trend</h4>
+      <canvas id="quizChart" height="160"></canvas>
+    </div>
+    <div class="an-card">
+      <h4><i class="fas fa-stream"></i> Recent Activity</h4>
+      <div class="an-feed" id="anFeed"></div>
+    </div>
+  </div>
+
+  <div class="an-grid" style="grid-template-columns:1fr">
+    <div class="an-card an-full">
+      <h4><i class="fas fa-fire"></i> Activity Heatmap <span style="font-size:.6rem;opacity:.4;font-weight:400;margin-left:.5rem">Last 30 days — hour of day vs day of week</span></h4>
+      <div class="an-heatmap" id="anHeatmap"></div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
+(function(){
 const dailyData = {{ daily_activity|safe }};
 const breakdownData = {{ event_breakdown|safe }};
+const quizTrend = {{ quiz_trend|safe }};
+const heatmap = {{ heatmap|safe }};
+const recentEvents = {{ recent_events|safe }};
+const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+const gridColor = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+const textColor = isDark ? '#94a3b8' : '#64748b';
 
-// Daily Activity Line Chart
-new Chart(document.getElementById('activityChart').getContext('2d'), {
-  type: 'line',
+Chart.defaults.color = textColor;
+Chart.defaults.font.family = 'Inter, sans-serif';
+Chart.defaults.font.size = 10;
+
+// Daily Activity
+new Chart(document.getElementById('activityChart'), {
+  type: 'bar',
   data: {
-    labels: dailyData.map(d => d.date),
+    labels: dailyData.map(d => {var dt=new Date(d.date);return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})}),
     datasets: [{
       label: 'Activities',
       data: dailyData.map(d => d.count),
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59,130,246,.1)',
-      fill: true,
-      tension: .4,
-      borderWidth: 2,
-      pointRadius: 3
+      backgroundColor: 'rgba(59,130,246,.6)',
+      borderRadius: 6,
+      borderSkipped: false,
     }]
   },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {legend: {display: false}},
-    scales: {
-      x: {grid: {display: false}, ticks: {font: {size: 9}, maxTicksLimit: 10}},
-      y: {beginAtZero: true, ticks: {font: {size: 9}}}
-    }
-  }
+  options: {responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{x:{grid:{display:false},ticks:{maxTicksLimit:10}},y:{beginAtZero:true,grid:{color:gridColor}}}}
 });
 
-// Breakdown Doughnut Chart
-const typeLabels = {
-  page_view: 'Page Views', quiz_attempt: 'Quizzes', video_watch: 'Videos',
-  audio_listen: 'Audio', code_run: 'Code Runs', chat_message: 'Chat',
-  section_complete: 'Completions', course_enroll: 'Enrollments'
-};
+// Breakdown Doughnut
+const typeLabels = {page_view:'Page Views',quiz_attempt:'Quizzes',video_watch:'Videos',audio_listen:'Audio',code_run:'Code Runs',chat_message:'Chat',section_complete:'Completions',course_enroll:'Enrollments'};
 const colors = ['#3b82f6','#22c55e','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#ec4899','#84cc16'];
-
-new Chart(document.getElementById('breakdownChart').getContext('2d'), {
+new Chart(document.getElementById('breakdownChart'), {
   type: 'doughnut',
   data: {
     labels: breakdownData.map(d => typeLabels[d.event_type] || d.event_type),
-    datasets: [{
-      data: breakdownData.map(d => d.count),
-      backgroundColor: colors.slice(0, breakdownData.length),
-      borderWidth: 0
-    }]
+    datasets: [{data: breakdownData.map(d => d.count),backgroundColor: colors.slice(0,breakdownData.length),borderWidth:0}]
   },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {legend: {position: 'bottom', labels: {font: {size: 10}, padding: 8}}}
+  options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+    plugins:{legend:{position:'bottom',labels:{padding:6,font:{size:9}}}}}
+});
+
+// Quiz Score Trend
+if(quizTrend.length) {
+  new Chart(document.getElementById('quizChart'), {
+    type: 'line',
+    data: {
+      labels: quizTrend.map(d => d.quiz__title ? d.quiz__title.substring(0,20) : 'Quiz'),
+      datasets: [{
+        label: 'Score %',
+        data: quizTrend.map(d => d.pct),
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139,92,246,.1)',
+        fill: true,tension:.4,borderWidth:2,pointRadius:4,
+        pointBackgroundColor: quizTrend.map(d => d.pct >= 70 ? '#22c55e' : d.pct >= 50 ? '#f59e0b' : '#ef4444')
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{display:false},y:{min:0,max:100,grid:{color:gridColor},ticks:{callback:v=>v+'%'}}}}
+  });
+} else {
+  document.getElementById('quizChart').parentElement.innerHTML += '<p style="text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem">No quiz attempts yet</p>';
+}
+
+// Heatmap
+var hmEl = document.getElementById('anHeatmap');
+var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var maxVal = 0;
+heatmap.forEach(row => row.forEach(v => { if(v > maxVal) maxVal = v; }));
+// Header row
+hmEl.innerHTML = '<div></div>' + Array.from({length:24}, (_,i) => '<div class="an-hm-hr">'+i+'</div>').join('');
+days.forEach(function(day, di) {
+  hmEl.innerHTML += '<div class="an-hm-lbl">'+day+'</div>';
+  for(var h=0;h<24;h++){
+    var v = heatmap[di][h];
+    var intensity = maxVal > 0 ? v / maxVal : 0;
+    var bg = intensity === 0 ? (isDark ? 'rgba(255,255,255,.03)' : 'rgba(0,0,0,.03)') :
+      'rgba(59,130,246,' + (.15 + intensity * .75).toFixed(2) + ')';
+    hmEl.innerHTML += '<div class="an-hm-cell" style="background:'+bg+'" title="'+day+' '+h+':00 — '+v+' events"></div>';
   }
 });
+
+// Recent Activity Feed
+var feedEl = document.getElementById('anFeed');
+var eventIcons = {page_view:{icon:'eye',color:'#3b82f6'},quiz_attempt:{icon:'brain',color:'#8b5cf6'},video_watch:{icon:'play',color:'#ef4444'},audio_listen:{icon:'headphones',color:'#f59e0b'},code_run:{icon:'code',color:'#22c55e'},chat_message:{icon:'comment',color:'#06b6d4'},section_complete:{icon:'check',color:'#10b981'},course_enroll:{icon:'book-open',color:'#ec4899'}};
+if(recentEvents.length === 0) {
+  feedEl.innerHTML = '<p style="text-align:center;font-size:.75rem;opacity:.4;padding:2rem 0">No activity yet — start exploring!</p>';
+} else {
+  recentEvents.forEach(function(ev){
+    var cfg = eventIcons[ev.event_type] || {icon:'circle',color:'#64748b'};
+    var label = typeLabels[ev.event_type] || ev.event_type;
+    var time = ev.created_at ? new Date(ev.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '';
+    feedEl.innerHTML += '<div class="an-feed-item"><div class="an-feed-icon" style="background:'+cfg.color+'"><i class="fas fa-'+cfg.icon+'"></i></div><span>'+label+'</span><span class="an-feed-time">'+time+'</span></div>';
+  });
+}
+}());
 </script>
 {% endblock %}

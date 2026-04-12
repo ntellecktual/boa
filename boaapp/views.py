@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.db import transaction
+from django.db import models, transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -1093,26 +1093,29 @@ def code_review_api(request):
 @login_required
 def analytics_dashboard_view(request):
     """Learning analytics dashboard."""
-    from django.db.models import Avg, Count
-    from django.db.models.functions import TruncDate
-
-    user = request.user
-
-    # Activity over time (last 30 days)
+    import json
     from datetime import timedelta
 
+    from django.db.models import Avg, Count, F, FloatField
+    from django.db.models.functions import TruncDate, TruncHour
+
+    user = request.user
     thirty_days_ago = timezone.now() - timedelta(days=30)
 
-    daily_activity = (
+    # Activity over time (last 30 days)
+    daily_activity = list(
         LearningEvent.objects.filter(user=user, created_at__gte=thirty_days_ago)
         .annotate(date=TruncDate('created_at'))
         .values('date')
         .annotate(count=Count('id'))
         .order_by('date')
     )
+    # Serialize dates for JS
+    for row in daily_activity:
+        row['date'] = row['date'].isoformat() if row['date'] else ''
 
     # Event type breakdown
-    event_breakdown = (
+    event_breakdown = list(
         LearningEvent.objects.filter(user=user).values('event_type').annotate(count=Count('id')).order_by('-count')
     )
 
@@ -1122,15 +1125,67 @@ def analytics_dashboard_view(request):
         total_attempts=Count('id'),
     )
 
-    # Total content consumed
-    total_audio = AudioFile.objects.filter(user=user).count()
+    # Quiz trend (last 10 attempts)
+    quiz_trend = list(
+        QuizAttempt.objects.filter(user=user)
+        .order_by('-completed_at')[:10]
+        .values('quiz__title', 'score', 'total_questions', 'completed_at')
+    )
+    quiz_trend.reverse()
+    for row in quiz_trend:
+        row['completed_at'] = row['completed_at'].isoformat() if row['completed_at'] else ''
+        row['pct'] = round(row['score'] / row['total_questions'] * 100, 1) if row['total_questions'] else 0
+
+    # Hourly heatmap data (last 30 days)
+    hourly_data = list(
+        LearningEvent.objects.filter(user=user, created_at__gte=thirty_days_ago)
+        .annotate(hour=TruncHour('created_at'))
+        .values('hour')
+        .annotate(count=Count('id'))
+        .order_by('hour')
+    )
+    # Build 7x24 heatmap grid (day_of_week x hour)
+    heatmap = [[0] * 24 for _ in range(7)]
+    for row in hourly_data:
+        if row['hour']:
+            heatmap[row['hour'].weekday()][row['hour'].hour] += row['count']
+
+    # Recent activity feed
+    recent_events = list(
+        LearningEvent.objects.filter(user=user)
+        .order_by('-created_at')[:15]
+        .values('event_type', 'metadata', 'created_at')
+    )
+    for row in recent_events:
+        row['created_at'] = row['created_at'].isoformat() if row['created_at'] else ''
+
+    # Streak calculation
+    from collections import OrderedDict
+    activity_dates = set()
+    for row in daily_activity:
+        if row['date']:
+            activity_dates.add(row['date'])
+    streak = 0
+    check_date = timezone.now().date()
+    while check_date.isoformat() in activity_dates:
+        streak += 1
+        check_date -= timedelta(days=1)
+
+    total_documents = Document.objects.filter(user=user).count()
 
     context = {
-        'daily_activity': list(daily_activity),
-        'event_breakdown': list(event_breakdown),
+        'daily_activity': json.dumps(daily_activity),
+        'event_breakdown': json.dumps(event_breakdown),
         'quiz_stats': quiz_stats,
-        'total_audio': total_audio,
+        'quiz_trend': json.dumps(quiz_trend),
+        'heatmap': json.dumps(heatmap),
+        'recent_events': json.dumps(recent_events),
+        'total_audio': AudioFile.objects.filter(user=user).count(),
         'total_events': LearningEvent.objects.filter(user=user).count(),
+        'total_quizzes': quiz_stats['total_attempts'] or 0,
+        'avg_quiz_score': quiz_stats['avg_score'] or 0,
+        'total_documents': total_documents,
+        'streak': streak,
         'page_id': 'analytics',
     }
 
@@ -1379,3 +1434,375 @@ def learning_path_view(request):
     }
 
     return render(request, 'boaapp/learning_path.html', context)
+
+
+# ==========================================================================
+# LIVE API ORCHESTRATION — Real API calls with circuit breaker
+# ==========================================================================
+
+
+def live_api_proxy(request):
+    """Call real public APIs and return actual responses with latency metrics."""
+    import json
+    import time
+    import urllib.request
+    import urllib.error
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    api_name = data.get('api', '')
+    results = []
+
+    API_CONFIGS = {
+        'weather': {
+            'url': 'https://api.open-meteo.com/v1/forecast?latitude=32.78&longitude=-96.80&current=temperature_2m,wind_speed_10m,relative_humidity_2m&temperature_unit=fahrenheit',
+            'label': 'Open-Meteo Weather API',
+            'desc': 'Real-time weather for Dallas, TX',
+        },
+        'countries': {
+            'url': 'https://restcountries.com/v3.1/alpha/US?fields=name,capital,population,currencies,languages',
+            'label': 'REST Countries API',
+            'desc': 'Country metadata lookup',
+        },
+        'universities': {
+            'url': 'https://universities.hipolabs.com/search?country=United+States&name=texas',
+            'label': 'Universities API',
+            'desc': 'University search — Texas institutions',
+        },
+        'spacex': {
+            'url': 'https://api.spacexdata.com/v4/launches/latest',
+            'label': 'SpaceX Launches API',
+            'desc': 'Latest SpaceX launch data',
+        },
+        'exchange': {
+            'url': 'https://open.er-api.com/v6/latest/USD',
+            'label': 'Exchange Rate API',
+            'desc': 'Live USD exchange rates',
+        },
+    }
+
+    apis_to_call = [api_name] if api_name and api_name in API_CONFIGS else list(API_CONFIGS.keys())
+
+    for name in apis_to_call:
+        cfg = API_CONFIGS[name]
+        start = time.monotonic()
+        status_code = 0
+        response_data = None
+        error_msg = ''
+        try:
+            req = urllib.request.Request(cfg['url'], headers={'User-Agent': 'BOA-Portfolio/1.0'})
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                status_code = resp.status
+                raw = resp.read().decode('utf-8')
+                response_data = json.loads(raw)
+        except urllib.error.HTTPError as e:
+            status_code = e.code
+            error_msg = str(e.reason)
+        except urllib.error.URLError as e:
+            status_code = 503
+            error_msg = f'Connection failed: {e.reason}'
+        except Exception as e:
+            status_code = 500
+            error_msg = str(e)
+
+        latency_ms = round((time.monotonic() - start) * 1000)
+
+        # Truncate large responses
+        if response_data and isinstance(response_data, list) and len(response_data) > 5:
+            response_data = response_data[:5]
+
+        results.append({
+            'api': name,
+            'label': cfg['label'],
+            'desc': cfg['desc'],
+            'url': cfg['url'],
+            'status': status_code,
+            'latency_ms': latency_ms,
+            'data': response_data,
+            'error': error_msg,
+            'circuit': 'closed' if status_code == 200 else 'open',
+        })
+
+    return JsonResponse({'results': results, 'timestamp': timezone.now().isoformat()})
+
+
+# ==========================================================================
+# AI JOB MATCH ANALYZER
+# ==========================================================================
+
+
+def job_match_view(request):
+    """Job match analyzer page — public."""
+    return render(request, 'boaapp/job_match.html', {'page_id': 'job_match'})
+
+
+def job_match_api(request):
+    """Analyze a job description against portfolio data using LLM."""
+    import json
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    job_description = data.get('job_description', '').strip()
+    if not job_description or len(job_description) < 20:
+        return JsonResponse({'error': 'Please provide a job description (at least 20 characters).'}, status=400)
+
+    # Truncate to prevent abuse
+    job_description = job_description[:5000]
+
+    # Portfolio context
+    portfolio_context = """
+CANDIDATE: Kieth — thenumerix
+CURRENT ROLE: Senior Data Engineer / Platform Engineer
+
+TECHNICAL SKILLS:
+- Cloud: Azure (DevOps, Data Factory, Databricks, Synapse, Functions, App Service, Entra ID, Key Vault)
+- Data Engineering: Python, SQL, Spark, Kafka, Flink, Airflow, dbt, Delta Lake
+- MLOps: MLflow, Azure ML, model registry, feature store, drift monitoring, XGBoost, scikit-learn
+- DevOps/Platform: Terraform, Docker, Kubernetes, GitHub Actions, Azure DevOps CI/CD, Helm
+- Backend: Django, FastAPI, PostgreSQL, Redis, Celery, WebSockets (Django Channels)
+- Frontend: HTML/CSS/JS, Bootstrap, HTMX, Chart.js
+- AI/LLM: Claude API, OpenAI GPT, RAG (ChromaDB), prompt engineering, embeddings
+- Streaming: Kafka, Flink, Redis Streams, event-driven architecture
+
+PORTFOLIO HIGHLIGHTS:
+- Built a full-stack Django app with Celery, WebSockets, RAG chatbot, AI quiz generation, and video pipeline
+- Oracle Finance & Accounting automation (AP/AR process flows with Claude AI)
+- NFL platform engineering (Azure DevOps + Databricks + Entra ID RBAC)
+- MLB game prediction MLOps pipeline (XGBoost, feature store, model registry)
+- Netflix-style real-time streaming architecture (Kafka + Flink + Redis)
+- API orchestration with saga pattern, circuit breakers, and resilience patterns
+- Intelligent Document Processing pipeline (OCR, classification, extraction, validation)
+- Live code playground with Pyodide (in-browser Python) + AI code review
+- System observability dashboard with real-time health monitoring
+
+EDUCATION:
+- Doctoral Studies, University of Texas at Austin
+- PCAP Certified Python Programmer, Python Institute
+- M.S. Data Science, Southern Methodist University
+- B.S. Computer Science, UC Riverside
+
+NOTABLE EMPLOYERS: Witherite Law Group, American Airlines, Citi, Barvin, Code Ninjas
+"""
+
+    use_llm = getattr(settings, 'USE_LLM', False)
+
+    if use_llm:
+        try:
+            api_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
+            if api_key:
+                import anthropic
+                client = anthropic.Anthropic(api_key=api_key)
+                msg = client.messages.create(
+                    model='claude-sonnet-4-20250514',
+                    max_tokens=1500,
+                    messages=[{
+                        'role': 'user',
+                        'content': f"""Analyze this job description against the candidate's profile. Return JSON only, no markdown:
+
+{{
+  "match_score": <0-100>,
+  "match_level": "<Perfect Match|Strong Match|Good Match|Partial Match|Weak Match>",
+  "matching_skills": ["skill1", "skill2", ...],
+  "missing_skills": ["skill1", ...],
+  "talking_points": ["compelling point for interview 1", "point 2", "point 3"],
+  "suggested_projects": ["project to highlight 1", "project 2"],
+  "salary_insight": "<brief market insight if discernible>",
+  "summary": "<2-3 sentence executive summary>"
+}}
+
+CANDIDATE PROFILE:
+{portfolio_context}
+
+JOB DESCRIPTION:
+{job_description}"""
+                    }],
+                )
+                import json as json_mod
+                result_text = msg.content[0].text.strip()
+                # Try to parse JSON from the response
+                if result_text.startswith('{'):
+                    result = json_mod.loads(result_text)
+                else:
+                    # Extract JSON from markdown code block
+                    start = result_text.find('{')
+                    end = result_text.rfind('}') + 1
+                    result = json_mod.loads(result_text[start:end])
+                return JsonResponse({'analysis': result})
+        except Exception as e:
+            logger.warning(f'LLM job match failed: {e}')
+
+    # Dev mode / fallback: keyword-based analysis
+    jd_lower = job_description.lower()
+    skills_map = {
+        'python': 95, 'django': 90, 'sql': 95, 'azure': 90, 'aws': 60,
+        'spark': 85, 'kafka': 85, 'docker': 80, 'kubernetes': 75, 'terraform': 80,
+        'data engineer': 95, 'mlops': 90, 'machine learning': 85, 'devops': 85,
+        'ci/cd': 90, 'postgresql': 90, 'redis': 85, 'api': 90, 'rest': 90,
+        'etl': 90, 'databricks': 90, 'airflow': 80, 'dbt': 75, 'fastapi': 80,
+        'celery': 85, 'websocket': 85, 'llm': 85, 'rag': 85, 'gpt': 80,
+        'javascript': 70, 'react': 40, 'java': 30, 'go': 20, 'rust': 15,
+    }
+    matching = []
+    missing = []
+    scores = []
+    for skill, score in skills_map.items():
+        if skill in jd_lower:
+            if score >= 60:
+                matching.append(skill.title())
+                scores.append(score)
+            else:
+                missing.append(skill.title())
+
+    avg_score = round(sum(scores) / len(scores)) if scores else 45
+    match_score = min(avg_score + len(matching) * 2, 100)
+
+    if match_score >= 85:
+        level = 'Perfect Match'
+    elif match_score >= 70:
+        level = 'Strong Match'
+    elif match_score >= 55:
+        level = 'Good Match'
+    elif match_score >= 40:
+        level = 'Partial Match'
+    else:
+        level = 'Weak Match'
+
+    result = {
+        'match_score': match_score,
+        'match_level': level,
+        'matching_skills': matching[:12],
+        'missing_skills': missing[:5],
+        'talking_points': [
+            'Built production Django platform with Celery, WebSockets, RAG chatbot, and AI-powered features',
+            'Hands-on Azure cloud experience across DevOps, Data Factory, Databricks, and Entra ID',
+            'End-to-end MLOps pipeline with model training, registry, and monitoring',
+        ],
+        'suggested_projects': [
+            'AI Process Flows demo — enterprise finance automation',
+            'MLOps Lifecycle — live MLB prediction pipeline',
+        ],
+        'salary_insight': 'Market rate for matching skills: competitive with senior-level roles',
+        'summary': f'Based on keyword analysis, this role is a {level.lower()} with {len(matching)} matching competencies. '
+                   f'Strongest areas: cloud infrastructure, data engineering, and full-stack development.',
+    }
+    return JsonResponse({'analysis': result})
+
+
+# ==========================================================================
+# SYSTEM OBSERVABILITY DASHBOARD
+# ==========================================================================
+
+
+@login_required
+def system_observability_view(request):
+    """System health and observability dashboard."""
+    import json
+    import time
+    from datetime import timedelta
+
+    from django.db import connection
+    from django.db.models import Avg, Count
+    from django.db.models.functions import TruncDate
+
+    # Database health
+    db_healthy = False
+    db_latency = 0
+    try:
+        start = time.monotonic()
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT 1')
+        db_latency = round((time.monotonic() - start) * 1000, 1)
+        db_healthy = True
+    except Exception:
+        pass
+
+    # Redis health
+    redis_healthy = False
+    redis_latency = 0
+    try:
+        from django.core.cache import cache
+        start = time.monotonic()
+        cache.set('_health_check', '1', 5)
+        val = cache.get('_health_check')
+        redis_latency = round((time.monotonic() - start) * 1000, 1)
+        redis_healthy = val == '1'
+    except Exception:
+        pass
+
+    # Celery health
+    celery_healthy = False
+    try:
+        insp = current_app.control.inspect(timeout=2)
+        workers = insp.ping() or {}
+        celery_healthy = len(workers) > 0
+    except Exception:
+        pass
+
+    # Pipeline statistics
+    seven_days_ago = timezone.now() - timedelta(days=7)
+    pipeline_stats = PipelineRun.objects.filter(started_at__gte=seven_days_ago).aggregate(
+        total=Count('id'),
+        completed=Count('id', filter=models.Q(status='complete')),
+        failed=Count('id', filter=models.Q(status='failed')),
+        avg_progress=Avg('progress_pct'),
+    )
+
+    recent_pipelines = list(
+        PipelineRun.objects.order_by('-started_at')[:20]
+        .values('id', 'status', 'progress_pct', 'current_step', 'started_at', 'completed_at',
+                'document__original_filename')
+    )
+    for row in recent_pipelines:
+        row['started_at'] = row['started_at'].isoformat() if row['started_at'] else ''
+        row['completed_at'] = row['completed_at'].isoformat() if row['completed_at'] else ''
+
+    # Content stats
+    from django.contrib.auth.models import User
+    content_stats = {
+        'total_users': User.objects.count(),
+        'total_documents': Document.objects.count(),
+        'total_audio': AudioFile.objects.count(),
+        'total_quizzes': Quiz.objects.count(),
+        'total_courses': Course.objects.count(),
+        'total_chats': ChatConversation.objects.count(),
+        'total_events': LearningEvent.objects.count(),
+        'total_reviews': CodeReview.objects.count(),
+    }
+
+    # Daily pipeline activity
+    pipeline_daily = list(
+        PipelineRun.objects.filter(started_at__gte=seven_days_ago)
+        .annotate(date=TruncDate('started_at'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+    for row in pipeline_daily:
+        row['date'] = row['date'].isoformat() if row['date'] else ''
+
+    context = {
+        'db_healthy': db_healthy,
+        'db_latency': db_latency,
+        'redis_healthy': redis_healthy,
+        'redis_latency': redis_latency,
+        'celery_healthy': celery_healthy,
+        'pipeline_stats': pipeline_stats,
+        'recent_pipelines': json.dumps(recent_pipelines),
+        'content_stats': content_stats,
+        'pipeline_daily': json.dumps(pipeline_daily),
+        'page_id': 'observability',
+    }
+
+    return render(request, 'boaapp/system_observability.html', context)

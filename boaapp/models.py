@@ -391,3 +391,26 @@ class CodeReview(models.Model):
 
     def __str__(self):
         return f'Review by {self.user.username} at {self.created_at}'
+
+
+# ==========================================================================
+# Feature Flags
+# ==========================================================================
+
+
+class FeatureFlag(models.Model):
+    name = models.CharField(max_length=100, unique=True, help_text='e.g., enable_job_match, enable_live_apis')
+    is_enabled = models.BooleanField(default=True)
+    description = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        status = 'ON' if self.is_enabled else 'OFF'
+        return f'{self.name} [{status}]'
+
+    @classmethod
+    def is_active(cls, flag_name):
+        try:
+            return cls.objects.get(name=flag_name).is_enabled
+        except cls.DoesNotExist:
+            return True  # Default to enabled if flag doesn't exist

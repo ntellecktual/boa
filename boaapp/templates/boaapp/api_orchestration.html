@@ -524,4 +524,89 @@ function resetDemo(){sagas=[];totalSpans=0;totalLat=0;stage.innerHTML='';dashWra
 btnRun.addEventListener('click',runDemo);btnReset.addEventListener('click',resetDemo);
 })();
 </script>
+
+<!-- ═════════════════════ LIVE API PROBE ═════════════════════ -->
+<style>
+.ao-probe{max-width:940px;margin:0 auto;padding:0 0 2rem}
+.ao-probe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.85rem;margin-top:1rem}
+.ao-probe-card{border-radius:16px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  backdrop-filter:blur(8px);padding:1rem;position:relative;overflow:hidden;transition:all .3s}
+.ao-probe-card.probed{border-color:rgba(16,185,129,.3)}
+.ao-probe-card.failed{border-color:rgba(239,68,68,.3)}
+.ao-probe-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+.ao-probe-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#fff;flex-shrink:0}
+.ao-probe-name{font-size:.82rem;font-weight:700}
+.ao-probe-desc{font-size:.68rem;opacity:.55}
+.ao-probe-stats{display:flex;gap:.8rem;font-size:.65rem;margin-top:.5rem}
+.ao-probe-stat{display:flex;align-items:center;gap:.25rem}
+.ao-probe-stat i{font-size:.6rem}
+.ao-probe-data{margin-top:.5rem;font-family:monospace;font-size:.62rem;line-height:1.6;
+  background:rgba(0,0,0,.04);border-radius:8px;padding:.5rem .6rem;max-height:140px;overflow-y:auto;display:none}
+[data-theme="dark"] .ao-probe-data{background:rgba(255,255,255,.04)}
+.ao-probe-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border:none;
+  border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;
+  background:var(--ao-grad-g);color:#fff}
+.ao-probe-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(16,185,129,.3)}
+.ao-probe-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.ao-probe-summary{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem;justify-content:center}
+.ao-probe-kpi{text-align:center;padding:.4rem .8rem}
+.ao-probe-kpi .val{font-size:1.1rem;font-weight:800}.ao-probe-kpi .lbl{font-size:.6rem;opacity:.45}
+</style>
+<section class="ao-sec">
+  <div class="ao-sec-head">
+    <span class="ao-tag ao-tag--g">Real APIs</span>
+    <h2>Live API Probe</h2>
+    <p>Hit real public APIs through the backend proxy — actual HTTP calls with measured latency and circuit breaker status.</p>
+  </div>
+  <div class="ao-probe">
+    <div style="text-align:center">
+      <button class="ao-probe-btn" id="aoProbeBtn" onclick="probeApis()">
+        <i class="fas fa-satellite-dish"></i> Probe All 5 APIs
+      </button>
+    </div>
+    <div class="ao-probe-summary" id="aoProbeSummary" style="display:none"></div>
+    <div class="ao-probe-grid" id="aoProbeGrid"></div>
+  </div>
+</section>
+
+<script>
+function probeApis(){
+  var btn=document.getElementById('aoProbeBtn');
+  var grid=document.getElementById('aoProbeGrid');
+  var summary=document.getElementById('aoProbeSummary');
+  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Probing\u2026';
+  grid.innerHTML='';summary.style.display='none';
+
+  var icons={weather:{icon:'cloud-sun',color:'#3b82f6'},countries:{icon:'globe-americas',color:'#8b5cf6'},
+    universities:{icon:'university',color:'#f59e0b'},spacex:{icon:'rocket',color:'#ef4444'},
+    exchange:{icon:'exchange-alt',color:'#10b981'}};
+
+  fetch("{% url 'live_api_proxy' %}",{
+    method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},
+    body:JSON.stringify({})
+  }).then(function(r){return r.json()}).then(function(data){
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-satellite-dish"></i> Probe Again';
+    var results=data.results||[];var totalLat=0,okCount=0;
+    results.forEach(function(r){
+      var ic=icons[r.api]||{icon:'plug',color:'#64748b'};
+      var ok=r.status===200;if(ok)okCount++;totalLat+=r.latency_ms;
+      var preview=r.data?JSON.stringify(r.data,null,2).substring(0,500):(r.error||'No data');
+      grid.innerHTML+='<div class="ao-probe-card '+(ok?'probed':'failed')+'">'+
+        '<div class="ao-probe-head"><div class="ao-probe-icon" style="background:'+ic.color+'"><i class="fas fa-'+ic.icon+'"></i></div>'+
+        '<div><div class="ao-probe-name">'+r.label+'</div><div class="ao-probe-desc">'+r.desc+'</div></div></div>'+
+        '<div class="ao-probe-stats">'+
+        '<div class="ao-probe-stat"><i class="fas fa-'+(ok?'check-circle" style="color:#10b981':'times-circle" style="color:#ef4444')+'"></i> '+r.status+'</div>'+
+        '<div class="ao-probe-stat"><i class="fas fa-bolt" style="color:#f59e0b"></i> '+r.latency_ms+'ms</div>'+
+        '<div class="ao-probe-stat"><i class="fas fa-'+(r.circuit==='closed'?'lock" style="color:#10b981':'lock-open" style="color:#ef4444')+'"></i> '+r.circuit+'</div>'+
+        '</div><div class="ao-probe-data" style="display:block"><pre style="margin:0;white-space:pre-wrap">'+escHtml(preview)+'</pre></div></div>';
+    });
+    summary.style.display='flex';
+    summary.innerHTML='<div class="ao-probe-kpi"><div class="val" style="color:#10b981">'+okCount+'/'+results.length+'</div><div class="lbl">APIs Healthy</div></div>'+
+      '<div class="ao-probe-kpi"><div class="val" style="color:#f59e0b">'+(totalLat/results.length).toFixed(0)+'ms</div><div class="lbl">Avg Latency</div></div>'+
+      '<div class="ao-probe-kpi"><div class="val" style="color:#3b82f6">'+totalLat+'ms</div><div class="lbl">Total Round-Trip</div></div>';
+  }).catch(function(){btn.disabled=false;btn.innerHTML='<i class="fas fa-satellite-dish"></i> Retry Probe';alert('Probe failed')});
+}
+function getCsrf(){var v='; '+document.cookie;var p=v.split('; csrftoken=');if(p.length===2)return p.pop().split(';').shift();return ''}
+function escHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+</script>
 {% endblock %}

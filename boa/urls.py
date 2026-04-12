@@ -85,6 +85,13 @@ urlpatterns = [
     path('api_orchestration/', boaapp_views.api_orchestration, name='api_orchestration'),
     path('idp_demo/', boaapp_views.idp_demo, name='idp_demo'),
     path('api/portfolio-chat/', boaapp_views.portfolio_chat_api, name='portfolio_chat_api'),
+    # Live API Orchestration
+    path('api/live-apis/', boaapp_views.live_api_proxy, name='live_api_proxy'),
+    # AI Job Match Analyzer
+    path('job_match/', boaapp_views.job_match_view, name='job_match'),
+    path('api/job-match/', boaapp_views.job_match_api, name='job_match_api'),
+    # System Observability
+    path('observability/', boaapp_views.system_observability_view, name='system_observability'),
 ]
 
 if settings.DEBUG:
