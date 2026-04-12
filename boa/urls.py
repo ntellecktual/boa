@@ -4,10 +4,17 @@ from django.contrib import admin
 from django.urls import include, path
 
 from boaapp import views as boaapp_views
+from boaapp.api import api as ninja_api
 
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
+
+    # Django Ninja API (Swagger at /api/docs, health at /api/v1/health)
+    path('api/v1/', ninja_api.urls),
+
+    # Social Auth (allauth)
+    path('accounts/', include('allauth.urls')),
 
     # Auth
     path('register/', boaapp_views.register, name='register'),

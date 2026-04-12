@@ -1,13 +1,14 @@
-import os
 import logging
-from celery import shared_task
-from django.conf import settings
+import os
 import re
-from django.contrib.auth import get_user_model
 from pathlib import Path
 
+from celery import shared_task
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
+from .models import AudioFile, Document
 from .process_notebook import process_notebook_and_create_audio
-from .models import Document, AudioFile
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -93,6 +94,7 @@ def create_single_video_task(self, audio_file_pk):
     Writes audio to a temp file, generates video to a temp file, returns video bytes.
     """
     import tempfile
+
     from .create_video import create_video_parallel
     from .utils import _get_random_background
 
@@ -195,11 +197,11 @@ def run_full_pipeline_task(self, document_pk, user_id, pipeline_run_id=None):
     One-click pipeline: generates audio, quizzes, and thumbnail.
     Audio bytes stored in DB. Video generation is on-demand (not part of pipeline).
     """
+    from .models import AudioFile, Document, Quiz, QuizQuestion
     from .pipeline_utils import send_pipeline_update
-    from .rag_engine import index_document
     from .quiz_generator import generate_quiz_for_section
+    from .rag_engine import index_document
     from .thumbnail_generator import generate_thumbnail
-    from .models import Document, AudioFile, Quiz, QuizQuestion, PipelineRun
 
     logger.info(f"Full Pipeline Started for Document PK {document_pk}")
 
@@ -326,8 +328,8 @@ def run_full_pipeline_task(self, document_pk, user_id, pipeline_run_id=None):
 @shared_task(bind=True)
 def generate_quiz_task(self, audio_file_pk):
     """Generate a quiz for a single audio file's content."""
-    from .quiz_generator import generate_quiz_for_section
     from .models import AudioFile, Quiz, QuizQuestion
+    from .quiz_generator import generate_quiz_for_section
 
     try:
         audio = AudioFile.objects.get(pk=audio_file_pk)
@@ -360,10 +362,12 @@ def generate_quiz_task(self, audio_file_pk):
 @shared_task(bind=True)
 def generate_quiz_from_document_task(self, document_pk):
     """Generate quizzes from a document's stored notebook JSON content."""
-    import nbformat
     import io
-    from .quiz_generator import generate_quiz_for_section
+
+    import nbformat
+
     from .models import Document, Quiz, QuizQuestion
+    from .quiz_generator import generate_quiz_for_section
 
     try:
         doc = Document.objects.get(pk=document_pk)
@@ -468,8 +472,9 @@ def translate_document_task(self, document_pk, target_language_code, target_lang
         if not doc.notebook_json:
             return {'status': 'FAILED', 'error': 'No notebook content stored'}
 
-        import nbformat
         import io
+
+        import nbformat
         nb = nbformat.read(io.StringIO(doc.notebook_json), as_version=4)
 
         sections_to_translate = []
@@ -504,7 +509,6 @@ def translate_document_task(self, document_pk, target_language_code, target_lang
 
 def _translate_sections(sections, lang_code, lang_name):
     """Translate sections using LLM."""
-    import json as _json
 
     all_content = "\n---SECTION_BREAK---\n".join(s['content'] for s in sections)
 

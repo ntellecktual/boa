@@ -1,10 +1,22 @@
 from django.contrib import admin
 
 from .models import (
-    Document, AudioFile, VideoFile, Course, Enrollment, CourseSection,
-    Quiz, QuizQuestion, QuizAttempt, ChatConversation, ChatMessage,
-    LearningEvent, CourseThumbnail, TranslatedContent, WebhookConfig,
-    PipelineRun, CodeReview,
+    AudioFile,
+    ChatConversation,
+    CodeReview,
+    Course,
+    CourseSection,
+    CourseThumbnail,
+    Document,
+    Enrollment,
+    LearningEvent,
+    PipelineRun,
+    Quiz,
+    QuizAttempt,
+    QuizQuestion,
+    TranslatedContent,
+    VideoFile,
+    WebhookConfig,
 )
 
 

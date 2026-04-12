@@ -154,7 +154,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def _get_rag_response(self, user_id, query):
-        from .rag_engine import get_rag_response
         from .models import ChatConversation
+        from .rag_engine import get_rag_response
         conversation = ChatConversation.objects.get(pk=self.conversation_id)
         return get_rag_response(query, conversation.document_id)

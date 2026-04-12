@@ -51,7 +51,7 @@ def index_document(document_id):
         logger.error(f"Notebook not found for indexing: {notebook_path}")
         return
 
-    with open(notebook_path, 'r', encoding='utf-8') as f:
+    with open(notebook_path, encoding='utf-8') as f:
         nb = nbformat.read(f, as_version=4)
 
     # Extract chunks from notebook cells

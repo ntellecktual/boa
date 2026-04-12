@@ -1,13 +1,12 @@
 # c:\Users\Kieth\Documents\Repositories\thenumerix\Belonging.Opportunity.Acceptance\boa\boaapp\process_notebook.py
 import asyncio
-import json
+import logging
 import os
 import re
-import nbformat
+
 import edge_tts
-from django.conf import settings
-import logging
 import markdown
+import nbformat
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
@@ -85,10 +84,10 @@ def _rewrite_with_llm(section_title, cells, notebook_title=""):
     Falls back to None if no API key is configured or the call fails,
     letting the caller use the basic TTS cleaning approach instead.
     """
-    from decouple import config as decouple_config
-    api_key = decouple_config('ANTHROPIC_API_KEY', default='')
-    openai_key = decouple_config('OPENAI_API_KEY', default='')
-    use_llm = decouple_config('USE_LLM', default=True, cast=bool)
+    from django.conf import settings as django_settings
+    api_key = django_settings.ANTHROPIC_API_KEY
+    openai_key = django_settings.OPENAI_API_KEY
+    use_llm = django_settings.USE_LLM
 
     if not use_llm:
         logger.info(f"USE_LLM=False — skipping LLM narration for '{section_title}'")
@@ -219,7 +218,7 @@ def process_notebook(file_path=None, notebook_json_str=None):
             nb_content = nbformat.read(io.StringIO(notebook_json_str), as_version=4)
             notebook_basename = "Notebook"
         elif file_path:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 nb_content = nbformat.read(f, as_version=4)
             notebook_basename = os.path.splitext(os.path.basename(file_path))[0]
         else:
@@ -332,8 +331,8 @@ def generate_audio_for_block(text, voice=TTS_VOICE, pre_cleaned=False):
     Returns audio bytes on success, or None on failure.
     Retries up to 3 times with exponential backoff on transient failure.
     """
-    import time as _time
     import tempfile
+    import time as _time
 
     if not text or not text.strip():
         logger.warning("Skipped empty content for audio generation")

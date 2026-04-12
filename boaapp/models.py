@@ -1,10 +1,9 @@
 # boaapp/models.py
 
-import os
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import timezone
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -168,8 +167,8 @@ class Enrollment(models.Model):
     def all_learn_sections_completed(self):
         """Checks if all 'learn' sections for the course are marked as completed."""
         total_learn_sections = self.course.sections.count()
-        if total_learn_sections == 0: 
-            return True 
+        if total_learn_sections == 0:
+            return True
         return self.completed_learn_sections.count() >= total_learn_sections
 
 

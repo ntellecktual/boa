@@ -3,24 +3,48 @@
 # ==============================================================================
 
 # Django & Extensions
-Django>=5.1,<5.2
+Django>=5.2,<5.3
 django-widget-tweaks>=1.5
-django-celery-results>=2.5
-python-decouple>=3.8
+django-environ>=0.13
 whitenoise>=6.5
 
 # Database
 psycopg2-binary>=2.9
 
-# Async Task Queue
+# Task Queue (PostgreSQL-backed, no Redis needed)
 celery>=5.3
-redis>=5.0
+django-celery-results>=2.5
 kombu>=5.3
 
 # WebSocket / Channels (real-time progress, chatbot)
 channels>=4.0
 daphne>=4.0
 channels-redis>=4.1
+
+# API Framework
+django-ninja>=1.0
+
+# Auth & Social Login
+django-allauth[socialaccount]>=65.0
+
+# HTMX (modern frontend)
+django-htmx>=1.17
+
+# Structured Logging
+django-structlog>=10.0
+structlog>=25.0
+
+# CORS
+django-cors-headers>=4.0
+
+# Caching
+django-cachalot>=2.9
+
+# Import/Export
+django-import-export>=4.0
+
+# Error Tracking
+sentry-sdk[django]>=2.0
 
 # Jupyter Notebook Processing
 nbformat>=5.10
@@ -40,6 +64,9 @@ openai>=1.40
 
 # Development tools (inactive in production when DEBUG=False)
 django-debug-toolbar>=4.3
+
+# Linter & Formatter
+ruff>=0.15
 
 # RAG / Embeddings
 chromadb>=0.4

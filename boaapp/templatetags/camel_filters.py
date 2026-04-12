@@ -1,6 +1,7 @@
-import re
-from django import template
 import os
+import re
+
+from django import template
 
 register = template.Library()
 
@@ -44,6 +45,5 @@ def relative_media_path(value):
     Cleans full file path to be relative to MEDIA_ROOT.
     For example: 'boa/media/audio/file.mp3' -> 'audio/file.mp3'
     """
-    import os
     parts = value.replace("\\", "/").split("media/")
     return parts[-1] if len(parts) > 1 else value

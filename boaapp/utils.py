@@ -1,8 +1,9 @@
+import logging
 import os
 import random
-import logging
-from django.conf import settings
 from pathlib import Path
+
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ def _get_video_paths(audio_file_instance):
             logger.warning(f"[_get_video_paths] Path parts found ({len(parts)}): {parts}")
             # Log specific reasons for failure
             if relative_audio_path.is_absolute():
-                 logger.warning(f"[_get_video_paths] Reason: Path is absolute.")
+                 logger.warning("[_get_video_paths] Reason: Path is absolute.")
             if len(parts) != 3:
                  logger.warning(f"[_get_video_paths] Reason: Expected 3 path parts, got {len(parts)}.")
             # Check parts length before accessing index 0

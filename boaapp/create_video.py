@@ -1,24 +1,19 @@
 import json
 import os
-from decouple import config
 
-os.environ["IMAGEMAGICK_BINARY"] = config('IMAGEMAGICK_BINARY', default='/usr/bin/convert')
-import time
-import re
+os.environ["IMAGEMAGICK_BINARY"] = os.environ.get('IMAGEMAGICK_BINARY', '/usr/bin/convert')
 import logging
+import re
+
 import numpy as np
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from PIL import Image
 
 # Lazy-import moviepy so a missing ImageMagick binary doesn't crash app startup.
 # Video creation will fail at call time with a clear error, not at import time.
 try:
-    from moviepy.editor import (
-        AudioFileClip, ColorClip, CompositeVideoClip,
-        ImageClip, TextClip, VideoFileClip
-    )
+    from moviepy.editor import AudioFileClip, ColorClip, CompositeVideoClip, ImageClip, TextClip, VideoFileClip
     MOVIEPY_AVAILABLE = True
-except (OSError, IOError) as e:
+except OSError as e:
     logging.getLogger(__name__).warning("moviepy unavailable: %s — video creation disabled.", e)
     MOVIEPY_AVAILABLE = False
 
@@ -43,7 +38,9 @@ def render_code_panel_image(code_text, target_size=(1080, 1920)):
     Renders code as a VS Code-style dark panel on a transparent full-frame RGBA image.
     Returns a PIL Image suitable for conversion to a MoviePy ImageClip via numpy.
     """
-    from PIL import Image as PILImage, ImageDraw, ImageFont as PILFont
+    from PIL import Image as PILImage
+    from PIL import ImageDraw
+    from PIL import ImageFont as PILFont
 
     W, H = target_size
     img = PILImage.new('RGBA', (W, H), (0, 0, 0, 0))
@@ -70,14 +67,14 @@ def render_code_panel_image(code_text, target_size=(1080, 1920)):
             code_font = PILFont.truetype(fp, font_size)
             lnum_font = PILFont.truetype(fp, lnum_size)
             break
-        except (IOError, OSError):
+        except OSError:
             continue
     if code_font is None:
         code_font = lnum_font = PILFont.load_default()
 
     try:
         header_font = PILFont.truetype(r"C:\Windows\Fonts\arialbd.ttf", 22)
-    except (IOError, OSError):
+    except OSError:
         header_font = lnum_font
 
     # Prepare lines: expand tabs, truncate long lines
@@ -212,7 +209,8 @@ def _render_code_panel_inline(code_text, frame_width, pad_x, start_y, text_font,
     Draws a VS Code-style dark code panel directly onto an existing Pillow RGBA image
     at the given Y offset.  Returns the updated cursor_y (bottom of the panel).
     """
-    from PIL import ImageDraw, ImageFont as PILFont
+    from PIL import ImageDraw
+    from PIL import ImageFont as PILFont
 
     draw = ImageDraw.Draw(frame_img)
 
@@ -232,14 +230,14 @@ def _render_code_panel_inline(code_text, frame_width, pad_x, start_y, text_font,
             code_font = PILFont.truetype(fp, font_size)
             lnum_font = PILFont.truetype(fp, lnum_size)
             break
-        except (IOError, OSError):
+        except OSError:
             continue
     if code_font is None:
         code_font = lnum_font = PILFont.load_default()
 
     try:
         header_font = PILFont.truetype(r"C:\Windows\Fonts\arialbd.ttf", 18)
-    except (IOError, OSError):
+    except OSError:
         header_font = lnum_font
 
     # Prepare code lines
@@ -317,7 +315,8 @@ def _render_output_inline(output_text, frame_width, pad_x, start_y, frame_img):
     at the given Y offset.  Dark green-tinted background with monospace white/green text.
     Returns the updated cursor_y (bottom of the panel).
     """
-    from PIL import ImageDraw, ImageFont as PILFont
+    from PIL import ImageDraw
+    from PIL import ImageFont as PILFont
 
     draw = ImageDraw.Draw(frame_img)
 
@@ -337,7 +336,7 @@ def _render_output_inline(output_text, frame_width, pad_x, start_y, frame_img):
             out_font = PILFont.truetype(fp, font_size)
             label_font = PILFont.truetype(fp, label_size)
             break
-        except (IOError, OSError):
+        except OSError:
             continue
     if out_font is None:
         out_font = label_font = PILFont.load_default()
@@ -605,7 +604,9 @@ def create_video_parallel(section, audio_file, output_file, logo_path, backgroun
                 text_color = font_styles.get("text_color", "white")
 
                 # --- Build a single composite frame with ALL content stacked vertically ---
-                from PIL import Image as PILImage, ImageDraw, ImageFont as PILFont
+                from PIL import Image as PILImage
+                from PIL import ImageDraw
+                from PIL import ImageFont as PILFont
                 W, H = target_size
                 frame_img = PILImage.new('RGBA', (W, H), (0, 0, 0, 0))
 
@@ -616,7 +617,7 @@ def create_video_parallel(section, audio_file, output_file, logo_path, backgroun
                     try:
                         text_font = PILFont.truetype(fp, font_size)
                         break
-                    except (IOError, OSError):
+                    except OSError:
                         continue
                 if text_font is None:
                     text_font = PILFont.load_default()

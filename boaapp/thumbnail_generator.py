@@ -7,7 +7,6 @@ Falls back to HTML-to-image style generation if DALL-E is not available.
 import logging
 import os
 import random
-from io import BytesIO
 from pathlib import Path
 
 from django.conf import settings
@@ -31,7 +30,7 @@ def generate_thumbnail(document_id, title=None, subtitle=None):
     Generate a styled thumbnail image for a document.
     Returns the absolute path to the generated thumbnail.
     """
-    from .models import Document, CourseThumbnail
+    from .models import CourseThumbnail, Document
 
     doc = Document.objects.get(pk=document_id)
 

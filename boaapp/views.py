@@ -1,30 +1,40 @@
-import logging
-import nbformat
-from nbconvert import HTMLExporter
-import os
 import io
+import logging
+import os
 import threading
-import tempfile
 
-from django.conf import settings
-from django.db import transaction
-from django.contrib import messages
-from celery.result import AsyncResult
+import nbformat
 from celery import current_app
+from celery.result import AsyncResult
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse, FileResponse
-from django.shortcuts import redirect, render, get_object_or_404
-from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
+from django.db import transaction
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from nbconvert import HTMLExporter
 
-from .forms import DocumentForm, CustomUserCreationForm
+from .forms import CustomUserCreationForm, DocumentForm
 from .models import (
-    Document, AudioFile, VideoFile, Course, Enrollment, CourseSection,
-    PortfolioItem, DevopsItem, ResumeDocument,
-    Quiz, QuizQuestion, QuizAttempt, ChatConversation, ChatMessage,
-    LearningEvent, CourseThumbnail, TranslatedContent, WebhookConfig,
-    PipelineRun, CodeReview,
+    AudioFile,
+    ChatConversation,
+    ChatMessage,
+    CodeReview,
+    Course,
+    CourseSection,
+    DevopsItem,
+    Document,
+    Enrollment,
+    LearningEvent,
+    PipelineRun,
+    PortfolioItem,
+    Quiz,
+    QuizAttempt,
+    TranslatedContent,
+    WebhookConfig,
 )
 from .tasks import create_audio_files_task, create_single_video_task, run_full_pipeline_task
 
@@ -53,14 +63,14 @@ def course_list_view(request):
     user_enrollments_ids = []
     if request.user.is_authenticated:
         user_enrollments_ids = Enrollment.objects.filter(user=request.user).values_list('course_id', flat=True)
-    
+
     return render(request, 'boaapp/course_list.html', {'courses': courses, 'user_enrollments_ids': user_enrollments_ids})
 
 @login_required
 def course_detail_view(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     sections = course.sections.all().order_by('order') # CourseSection.Meta.ordering handles this too
-    
+
     is_enrolled = False
     completed_learn_sections_ids = []
     current_step_number = 0
@@ -115,7 +125,7 @@ def course_detail_view(request, course_id):
         'completed_learn_sections_ids': completed_learn_sections_ids,
         'current_step_name': current_step_name,
         'current_step_description': current_step_description,
-        'page_id': 'course-detail' 
+        'page_id': 'course-detail'
     }
     return render(request, 'boaapp/course_detail.html', context)
 
@@ -294,7 +304,6 @@ def upload_document(request):
 
             def _run_audio_generation(doc_pk, user_pk):
                 """Run audio generation in a background thread."""
-                import django
                 from django.db import connection
                 try:
                     create_audio_files_task(doc_pk, user_pk)
@@ -505,7 +514,7 @@ def dashboard(request):
     }
 
     return render(request, 'boaapp/dashboard.html', context)
-  
+
 @login_required
 @transaction.atomic
 def delete_orphaned_files(request):
@@ -890,7 +899,7 @@ def code_review_api(request):
 @login_required
 def analytics_dashboard_view(request):
     """Learning analytics dashboard."""
-    from django.db.models import Count, Avg
+    from django.db.models import Avg, Count
     from django.db.models.functions import TruncDate
 
     user = request.user
@@ -975,9 +984,10 @@ def chaptered_player_view(request, document_pk):
 # GITHUB WEBHOOK
 # ==========================================================================
 
-from django.views.decorators.csrf import csrf_exempt
 import hashlib
 import hmac
+
+from django.views.decorators.csrf import csrf_exempt
 
 
 @csrf_exempt
