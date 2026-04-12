@@ -519,6 +519,10 @@ def streaming_architecture(request):
     return render(request, 'boaapp/streaming_architecture.html')
 
 
+def nfl_draft(request):
+    return render(request, 'boaapp/nfl_draft.html')
+
+
 def api_orchestration(request):
     return render(request, 'boaapp/api_orchestration.html')
 
