@@ -17,15 +17,15 @@
   <style>
   /* ══ LANDING PAGE ══════════════════════════════════════ */
   :root {
-    --ld-blue: #3b82f6; --ld-violet: #8b5cf6; --ld-emerald: #10b981;
+    --ld-blue: #2563eb; --ld-violet: #7c3aed; --ld-emerald: #10b981;
     --ld-amber: #f59e0b; --ld-rose: #f43f5e;
     --ld-surface: #fff; --ld-border: rgba(0,0,0,.07);
-    --ld-muted: #6b7280; --ld-text: #0f172a;
+    --ld-muted: #4b5563; --ld-text: #0f172a;
     --ld-bg: #f8fafc;
   }
   [data-theme="dark"] {
-    --ld-surface: #1a1d2e; --ld-border: rgba(255,255,255,.08);
-    --ld-muted: #94a3b8; --ld-text: #f1f5f9;
+    --ld-surface: #1a1d2e; --ld-border: rgba(255,255,255,.12);
+    --ld-muted: #b8c4d4; --ld-text: #f1f5f9;
     --ld-bg: #0f1117;
   }
   body { background: var(--ld-bg); color: var(--ld-text); font-family: Inter, sans-serif; }
@@ -95,6 +95,7 @@
     transition: background .15s, border-color .15s;
   }
   .ld-cta-secondary:hover { border-color: rgba(99,102,241,.4); }
+  [data-theme="dark"] .ld-cta-secondary { border-color: rgba(255,255,255,.18); color: #f1f5f9; }
 
   /* Tech chips */
   .ld-chips { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: center; padding: 0 1rem 3rem; }
@@ -227,7 +228,7 @@
 <div class="ld-section">
   <div class="ld-section-hd">
     <h2>What You Get Access To</h2>
-    <p>Create a free account to unlock the full suite of tools, demos, and learning content.</p>
+    <p>Sign in to unlock the full suite of interactive tools, demos, and learning content.</p>
   </div>
   <div class="ld-features">
     <div class="ld-feat-card">
@@ -281,9 +282,9 @@
 <!-- CTA Band -->
 <div class="ld-cta-band">
   <h2>Ready to explore?</h2>
-  <p>Free to join — no credit card required. Guest browsing available for portfolio pages.</p>
+  <p>Create an account to access all demos and tools, or browse the portfolio without signing up.</p>
   <div class="ld-hero-ctas">
-    <a href="{% url 'register' %}" class="ld-cta-primary"><i class="fas fa-rocket"></i> Create Account — It's Free</a>
+    <a href="{% url 'register' %}" class="ld-cta-primary"><i class="fas fa-rocket"></i> Create Account</a>
     <a href="{% url 'login' %}" class="ld-cta-secondary"><i class="fas fa-sign-in-alt"></i> Sign In</a>
   </div>
 </div>
