@@ -65,6 +65,10 @@ openai>=1.40
 # Development tools (inactive in production when DEBUG=False)
 django-debug-toolbar>=4.3
 
+# Testing
+pytest>=8.0
+pytest-django>=4.9
+
 # Linter & Formatter
 ruff>=0.15
 

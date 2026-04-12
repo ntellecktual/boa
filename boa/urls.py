@@ -9,6 +9,8 @@ from boaapp.api import api as ninja_api
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
+    # Health check (DB, cache, storage)
+    path('health/', boaapp_views.health_check, name='health_check'),
     # Django Ninja API (Swagger at /api/docs, health at /api/v1/health)
     path('api/v1/', ninja_api.urls),
     # Social Auth (allauth)

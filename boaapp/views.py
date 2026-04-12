@@ -214,6 +214,28 @@ def register(request):
     return render(request, 'boaapp/register.html', {'form': form})
 
 
+def health_check(request):
+    """Health endpoint — verifies DB and returns service status."""
+    import time
+
+    status = {'status': 'ok', 'checks': {}}
+    http_status = 200
+
+    # Database check
+    try:
+        start = time.monotonic()
+        from django.db import connection
+
+        connection.ensure_connection()
+        status['checks']['db'] = {'status': 'ok', 'latency_ms': round((time.monotonic() - start) * 1000, 1)}
+    except Exception as exc:
+        status['checks']['db'] = {'status': 'error', 'detail': str(exc)}
+        status['status'] = 'degraded'
+        http_status = 500
+
+    return JsonResponse(status, status=http_status)
+
+
 def home_view(request):
     """Authenticated home dashboard, or redirect to login."""
     if request.user.is_authenticated:
