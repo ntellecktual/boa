@@ -17,7 +17,8 @@
 .fst-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:.9rem;margin-top:1rem}
 @media(max-width:1000px){.fst-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.fst-grid{grid-template-columns:1fr}}
-.fst-panel{background:var(--fst-surface);border:1px solid var(--fst-border);border-radius:16px;box-shadow:var(--fst-shadow);padding:1.1rem;animation:fstUp .5s ease both}
+.fst-panel{background:var(--fst-surface);border:1px solid var(--fst-border);border-radius:16px;box-shadow:var(--fst-shadow);padding:1.1rem;animation:fstUp .5s ease both;min-height:0;overflow:hidden}
+.fst-chart-wrap{position:relative;width:100%;height:200px}
 .fst-panel:nth-child(2){animation-delay:.07s}.fst-panel:nth-child(3){animation-delay:.14s}
 .fst-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:1px solid var(--fst-border);color:inherit}
 .fst-panel-hd i{color:var(--fst-accent);opacity:.75}
@@ -106,7 +107,7 @@
         <tbody id="fstRegBody"></tbody>
       </table>
       <div class="fst-panel-hd"><i class="fas fa-chart-bar"></i> Feature Importance (XGBoost)</div>
-      <canvas id="fstImpChart" height="200"></canvas>
+      <div class="fst-chart-wrap"><canvas id="fstImpChart"></canvas></div>
     </div>
 
   </div>

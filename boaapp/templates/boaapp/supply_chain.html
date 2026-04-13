@@ -17,7 +17,8 @@
 .sc-body{display:grid;grid-template-columns:280px 1fr;gap:1rem;margin-top:1rem}
 @media(max-width:800px){.sc-body{grid-template-columns:1fr}}
 /* Panels */
-.sc-panel{background:var(--sc-surface);border:1px solid var(--sc-border);border-radius:16px;box-shadow:var(--sc-shadow);padding:1.1rem;animation:scUp .45s ease both}
+.sc-panel{background:var(--sc-surface);border:1px solid var(--sc-border);border-radius:16px;box-shadow:var(--sc-shadow);padding:1.1rem;animation:scUp .45s ease both;min-height:0;overflow:hidden}
+.sc-chart-wrap{position:relative;width:100%;height:260px}
 .sc-panel:nth-child(2){animation-delay:.07s}
 .sc-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--sc-border)}
 .sc-panel-hd i{color:var(--sc-accent);opacity:.8}
@@ -110,7 +111,9 @@ input[type="range"].sc-range::-webkit-slider-thumb{appearance:none;-webkit-appea
         <button class="sc-tab active" id="scTabSim">Simulation</button>
         <button class="sc-tab" id="scTabCurve">Cost Curve</button>
       </div>
-      <canvas id="scChart" height="260"></canvas>
+      <div class="sc-chart-wrap">
+        <canvas id="scChart"></canvas>
+      </div>
       <div class="sc-legend" id="scLegend">
         <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#f59e0b"></span>Inventory Level</span>
         <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#ef4444;opacity:.6"></span>Reorder Point</span>

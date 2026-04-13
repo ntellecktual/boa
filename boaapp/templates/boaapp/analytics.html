@@ -30,7 +30,8 @@
 .an-grid{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem}
 @media(max-width:768px){.an-grid{grid-template-columns:1fr}}
 .an-card{border-radius:18px;padding:1.1rem;background:var(--an-surface);border:1px solid var(--an-border);
-  box-shadow:var(--an-shadow);backdrop-filter:blur(10px);animation:anFadeUp .5s ease both}
+  box-shadow:var(--an-shadow);backdrop-filter:blur(10px);animation:anFadeUp .5s ease both;min-height:0;overflow:hidden}
+.an-chart-wrap{position:relative;width:100%}
 .an-card h4{font-size:.82rem;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem}
 .an-card h4 i{opacity:.5}
 .an-full{grid-column:1/-1}
@@ -80,18 +81,18 @@
   <div class="an-grid">
     <div class="an-card">
       <h4><i class="fas fa-calendar-alt"></i> Daily Activity</h4>
-      <canvas id="activityChart" height="180"></canvas>
+      <div class="an-chart-wrap" style="height:180px"><canvas id="activityChart"></canvas></div>
     </div>
     <div class="an-card">
       <h4><i class="fas fa-chart-pie"></i> Activity Breakdown</h4>
-      <canvas id="breakdownChart" height="180"></canvas>
+      <div class="an-chart-wrap" style="height:180px"><canvas id="breakdownChart"></canvas></div>
     </div>
   </div>
 
   <div class="an-grid">
     <div class="an-card">
       <h4><i class="fas fa-trophy"></i> Quiz Score Trend</h4>
-      <canvas id="quizChart" height="160"></canvas>
+      <div class="an-chart-wrap" style="height:160px"><canvas id="quizChart"></canvas></div>
     </div>
     <div class="an-card">
       <h4><i class="fas fa-stream"></i> Recent Activity</h4>
