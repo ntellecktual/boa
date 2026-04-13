@@ -1,0 +1,266 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}Supply Chain Optimizer{% endblock %}
+{% block container_class %}sc-shell{% endblock %}
+{% block content %}
+<style>
+.sc-shell{display:block;width:100%;max-width:100%;padding:0}
+:root{--sc-accent:#f59e0b;--sc-accent2:#d97706;--sc-surface:#fff;--sc-border:rgba(0,0,0,.07);--sc-shadow:0 2px 12px rgba(0,0,0,.06);--sc-muted:#6b7280}
+[data-theme="dark"]{--sc-surface:rgba(22,20,16,.97);--sc-border:rgba(255,255,255,.08);--sc-shadow:0 2px 12px rgba(0,0,0,.35);--sc-muted:#94a3b8}
+@keyframes scUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sc-wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.sc-hero{text-align:center;padding:1.4rem 0 1rem;animation:scUp .4s ease both}
+.sc-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.2);color:var(--sc-accent);margin-bottom:.65rem}
+.sc-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#f59e0b,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
+.sc-hero p{font-size:.84rem;color:var(--sc-muted);max-width:560px;margin:0 auto;line-height:1.6}
+/* Main layout */
+.sc-body{display:grid;grid-template-columns:280px 1fr;gap:1rem;margin-top:1rem}
+@media(max-width:800px){.sc-body{grid-template-columns:1fr}}
+/* Panels */
+.sc-panel{background:var(--sc-surface);border:1px solid var(--sc-border);border-radius:16px;box-shadow:var(--sc-shadow);padding:1.1rem;animation:scUp .45s ease both}
+.sc-panel:nth-child(2){animation-delay:.07s}
+.sc-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--sc-border)}
+.sc-panel-hd i{color:var(--sc-accent);opacity:.8}
+/* Sliders */
+.sc-slider-row{margin-bottom:.95rem}
+.sc-slider-label{display:flex;justify-content:space-between;align-items:center;font-size:.7rem;font-weight:700;margin-bottom:.32rem;color:inherit}
+.sc-slider-label span{font-weight:400;color:var(--sc-accent);font-size:.72rem;font-family:'Cascadia Code',monospace}
+.sc-slider-sub{font-size:.58rem;color:var(--sc-muted);margin-bottom:.3rem}
+input[type="range"].sc-range{width:100%;height:5px;border-radius:3px;appearance:none;-webkit-appearance:none;background:var(--sc-border);outline:none;cursor:pointer}
+input[type="range"].sc-range::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--sc-accent);border:2px solid var(--sc-surface);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+/* Equation display */
+.sc-eq{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.14);border-radius:10px;padding:.65rem .85rem;font-size:.7rem;font-family:'Cascadia Code',monospace;line-height:1.8;margin-bottom:.95rem}
+.sc-eq-title{font-size:.6rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--sc-muted);margin-bottom:.25rem;font-family:inherit}
+/* KPI grid */
+.sc-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-top:.9rem}
+@media(max-width:600px){.sc-kpis{grid-template-columns:repeat(2,1fr)}}
+.sc-kpi{background:var(--sc-surface);border:1px solid var(--sc-border);border-radius:14px;box-shadow:var(--sc-shadow);padding:.85rem .75rem;text-align:center;animation:scUp .5s ease both}
+.sc-kpi:nth-child(2){animation-delay:.05s}.sc-kpi:nth-child(3){animation-delay:.1s}.sc-kpi:nth-child(4){animation-delay:.15s}
+.sc-kpi-val{font-size:1.4rem;font-weight:900;line-height:1;color:var(--sc-accent)}
+.sc-kpi-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--sc-muted);margin-top:.25rem}
+.sc-kpi-sub{font-size:.58rem;color:var(--sc-muted);opacity:.6;margin-top:.15rem}
+/* Chart tabs */
+.sc-tabs{display:flex;gap:.35rem;margin-bottom:.75rem}
+.sc-tab{padding:.3rem .75rem;border-radius:8px;font-size:.68rem;font-weight:700;border:1px solid var(--sc-border);background:transparent;color:var(--sc-muted);cursor:pointer;transition:all .18s}
+.sc-tab.active{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-color:transparent}
+.sc-tab:hover:not(.active){border-color:rgba(245,158,11,.35);color:var(--sc-accent)}
+/* Simulation legend */
+.sc-legend{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.6rem;font-size:.65rem;color:var(--sc-muted)}
+.sc-leg-item{display:flex;align-items:center;gap:.3rem}
+.sc-leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+/* Stats row */
+.sc-stats-row{display:flex;gap:.75rem;font-size:.68rem;color:var(--sc-muted);margin-top:.5rem;flex-wrap:wrap}
+.sc-stat{display:flex;align-items:center;gap:.3rem}
+.sc-stat strong{color:inherit;font-weight:700}
+.sc-stat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+</style>
+
+<div class="sc-wrap">
+  <!-- Hero -->
+  <div class="sc-hero">
+    <div class="sc-tag"><i class="fas fa-boxes me-1"></i> Inventory Optimization</div>
+    <h1>Supply Chain Optimizer</h1>
+    <p>Interactive EOQ model with safety stock and demand simulation. Tune demand variability, lead time, and costs to find the optimal reorder strategy — with a 52-week inventory simulation.</p>
+  </div>
+
+  <div class="sc-body">
+    <!-- Controls -->
+    <div class="sc-panel">
+      <div class="sc-panel-hd"><i class="fas fa-sliders-h"></i> Model Parameters</div>
+
+      <div class="sc-slider-row">
+        <div class="sc-slider-label">Annual Demand (D) <span id="scValD">2600</span> units</div>
+        <div class="sc-slider-sub">Total units sold per year</div>
+        <input type="range" class="sc-range" id="scD" min="500" max="10000" step="100" value="2600">
+      </div>
+      <div class="sc-slider-row">
+        <div class="sc-slider-label">Demand Std Dev (σ/wk) <span id="scValSigma">8</span> units</div>
+        <div class="sc-slider-sub">Weekly demand variability</div>
+        <input type="range" class="sc-range" id="scSigma" min="1" max="30" step="1" value="8">
+      </div>
+      <div class="sc-slider-row">
+        <div class="sc-slider-label">Lead Time (L) <span id="scValL">3</span> weeks</div>
+        <div class="sc-slider-sub">Supplier replenishment delay</div>
+        <input type="range" class="sc-range" id="scL" min="1" max="12" step="1" value="3">
+      </div>
+      <div class="sc-slider-row">
+        <div class="sc-slider-label">Order Cost (S) $<span id="scValS">120</span></div>
+        <div class="sc-slider-sub">Fixed cost per purchase order</div>
+        <input type="range" class="sc-range" id="scS" min="20" max="500" step="10" value="120">
+      </div>
+      <div class="sc-slider-row">
+        <div class="sc-slider-label">Holding Cost (H) $<span id="scValH">4.50</span>/unit/yr</div>
+        <div class="sc-slider-sub">Storage, capital, insurance costs</div>
+        <input type="range" class="sc-range" id="scH" min="0.5" max="20" step="0.5" value="4.5">
+      </div>
+
+      <div class="sc-eq">
+        <div class="sc-eq-title">Key Formulas</div>
+        EOQ = √(2DS / H)<br>
+        ROP = d̄·L + Z·σ·√L<br>
+        SS  = 1.645 · σ · √L<br>
+        TC  = (D/Q)·S + (Q/2 + SS)·H
+      </div>
+    </div>
+
+    <!-- Chart panel -->
+    <div class="sc-panel">
+      <div class="sc-panel-hd"><i class="fas fa-chart-area"></i> 52-Week Inventory Simulation</div>
+      <div class="sc-tabs">
+        <button class="sc-tab active" id="scTabSim">Simulation</button>
+        <button class="sc-tab" id="scTabCurve">Cost Curve</button>
+      </div>
+      <canvas id="scChart" height="260"></canvas>
+      <div class="sc-legend" id="scLegend">
+        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#f59e0b"></span>Inventory Level</span>
+        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#ef4444;opacity:.6"></span>Reorder Point</span>
+        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#3b82f6"></span>Order Arrival ↑</span>
+        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#dc2626"></span>Stockout ✕</span>
+      </div>
+      <div class="sc-stats-row" id="scStatsRow"></div>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="sc-kpis">
+    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiEOQ">—</div><div class="sc-kpi-label">EOQ</div><div class="sc-kpi-sub">units per order</div></div>
+    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiROP">—</div><div class="sc-kpi-label">Reorder Point</div><div class="sc-kpi-sub">units on-hand trigger</div></div>
+    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiSS">—</div><div class="sc-kpi-label">Safety Stock</div><div class="sc-kpi-sub">buffer against variability</div></div>
+    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiTC" style="font-size:1.1rem">—</div><div class="sc-kpi-label">Total Annual Cost</div><div class="sc-kpi-sub">order + holding</div></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+'use strict';
+/* ─── Box-Muller normal sample ─── */
+function noise(mu,sigma){
+  var u1=Math.random(),u2=Math.random();
+  return mu+sigma*Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+}
+
+var isDark = document.documentElement.getAttribute('data-theme')==='dark';
+var gridColor = isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
+var chart = null;
+var showCurve = false;
+
+/* ─── Get slider values ─── */
+function vals(){
+  return {
+    D:+document.getElementById('scD').value,
+    sigma:+document.getElementById('scSigma').value,
+    L:+document.getElementById('scL').value,
+    S:+document.getElementById('scS').value,
+    H:+document.getElementById('scH').value
+  };
+}
+
+/* ─── Recalculate & re-render ─── */
+function recalc(){
+  var v = vals();
+  var Dw = v.D/52;
+  var EOQ = Math.sqrt(2*v.D*v.S/v.H);
+  var Z = 1.645;
+  var SS = Z*v.sigma*Math.sqrt(v.L);
+  var ROP = Dw*v.L+SS;
+  var TC = (v.D/EOQ)*v.S+(EOQ/2+SS)*v.H;
+
+  document.getElementById('kpiEOQ').textContent = Math.round(EOQ);
+  document.getElementById('kpiROP').textContent = Math.round(ROP);
+  document.getElementById('kpiSS').textContent = Math.round(SS);
+  document.getElementById('kpiTC').textContent = '$'+Math.round(TC).toLocaleString();
+
+  if(showCurve) renderCurve(v.D,v.S,v.H,SS);
+  else renderSim(Dw,v.sigma,v.L,EOQ,ROP,SS);
+}
+
+/* ─── Simulate 52 weeks ─── */
+function renderSim(Dw,sigma,L,EOQ,ROP,SS){
+  var inv = EOQ+SS, levels=[], onOrder=0, arrival=-1;
+  var stockouts=[],reorders=[];
+  for(var w=0;w<52;w++){
+    var demand=Math.max(0,noise(Dw,sigma));
+    if(w===arrival){inv+=onOrder;onOrder=0;}
+    if(inv<=ROP&&onOrder===0){onOrder=EOQ;arrival=Math.round(w+L);reorders.push(w);}
+    if(inv>=demand){inv-=demand;}else{stockouts.push(w);inv=0;}
+    levels.push(Math.round(inv));
+  }
+
+  var labels=[];for(var i=0;i<52;i++)labels.push('W'+(i+1));
+  var ropLine=new Array(52).fill(Math.round(ROP));
+  var ptColors=levels.map(function(v,i){
+    if(stockouts.indexOf(i)>-1) return '#dc2626';
+    if(reorders.indexOf(i)>-1) return '#3b82f6';
+    return '#f59e0b';
+  });
+
+  document.getElementById('scLegend').style.display='flex';
+  document.getElementById('scStatsRow').innerHTML =
+    '<span class="sc-stat"><span class="sc-stat-dot" style="background:#dc2626"></span><strong>'+stockouts.length+'</strong>&nbsp;stockouts</span>'
+    +'<span class="sc-stat"><span class="sc-stat-dot" style="background:#3b82f6"></span><strong>'+reorders.length+'</strong>&nbsp;orders placed</span>'
+    +'<span class="sc-stat"><span class="sc-stat-dot" style="background:#22c55e"></span>Service level&nbsp;<strong>'+((1-stockouts.length/52)*100).toFixed(1)+'%</strong></span>';
+
+  renderChart(labels,[
+    {label:'Inventory',data:levels,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.12)',fill:true,tension:.2,pointRadius:stockouts.map(function(v,i){return 0;}).concat([0]).slice(0,52),pointBackgroundColor:ptColors,pointRadius:3,borderWidth:1.5},
+    {label:'ROP',data:ropLine,borderColor:'rgba(239,68,68,.5)',borderDash:[5,4],pointRadius:0,fill:false,borderWidth:1}
+  ],'y','Units on Hand','linear');
+}
+
+/* ─── Cost curve (EOQ trade-off) ─── */
+function renderCurve(D,S,H,SS){
+  document.getElementById('scLegend').style.display='none';
+  document.getElementById('scStatsRow').innerHTML='';
+  var qs=[],tc=[],hc=[],oc=[];
+  for(var q=50;q<=2000;q+=25){
+    qs.push(q);
+    var h=(q/2+SS)*H;
+    var o=(D/q)*S;
+    hc.push(+h.toFixed(0));
+    oc.push(+o.toFixed(0));
+    tc.push(+(h+o).toFixed(0));
+  }
+  renderChart(qs.map(String),[
+    {label:'Total Cost',data:tc,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.08)',fill:true,tension:.4,pointRadius:0,borderWidth:2},
+    {label:'Holding Cost',data:hc,borderColor:'#3b82f6',borderDash:[4,3],pointRadius:0,fill:false,borderWidth:1.5},
+    {label:'Ordering Cost',data:oc,borderColor:'#8b5cf6',borderDash:[4,3],pointRadius:0,fill:false,borderWidth:1.5}
+  ],'y','Annual Cost ($)','linear');
+}
+
+/* ─── Chart render helper ─── */
+function renderChart(labels,datasets,axisId,yLabel){
+  if(chart){chart.destroy();}
+  chart=new Chart(document.getElementById('scChart'),{
+    type:'line',
+    data:{labels:labels,datasets:datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:200},
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:9},maxTicksLimit:13}},
+        y:{beginAtZero:true,grid:{color:gridColor},ticks:{font:{size:9}},title:{display:true,text:yLabel,font:{size:9}}}
+      }
+    }
+  });
+}
+
+/* ─── Slider display updates ─── */
+[['scD','scValD'],['scSigma','scValSigma'],['scL','scValL'],['scS','scValS'],['scH','scValH']].forEach(function(pair){
+  document.getElementById(pair[0]).addEventListener('input',function(){
+    document.getElementById(pair[1]).textContent=this.value;
+    recalc();
+  });
+});
+
+/* ─── Tab switching ─── */
+document.getElementById('scTabSim').addEventListener('click',function(){
+  showCurve=false;this.classList.add('active');document.getElementById('scTabCurve').classList.remove('active');recalc();
+});
+document.getElementById('scTabCurve').addEventListener('click',function(){
+  showCurve=true;this.classList.add('active');document.getElementById('scTabSim').classList.remove('active');recalc();
+});
+
+recalc();
+}());
+</script>
+{% endblock %}

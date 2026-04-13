@@ -1,0 +1,257 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}Feature Store{% endblock %}
+{% block container_class %}fst-shell{% endblock %}
+{% block content %}
+<style>
+.fst-shell{display:block;width:100%;max-width:100%;padding:0}
+:root{--fst-accent:#8b5cf6;--fst-accent2:#6366f1;--fst-surface:#fff;--fst-border:rgba(0,0,0,.07);--fst-shadow:0 2px 12px rgba(0,0,0,.06);--fst-muted:#6b7280}
+[data-theme="dark"]{--fst-surface:rgba(22,24,42,.97);--fst-border:rgba(255,255,255,.08);--fst-shadow:0 2px 12px rgba(0,0,0,.35);--fst-muted:#94a3b8}
+@keyframes fstUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fst-wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.fst-hero{text-align:center;padding:1.5rem 0 1.2rem;animation:fstUp .4s ease both}
+.fst-hero-tag{display:inline-block;padding:.25rem .9rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.18);color:var(--fst-accent);margin-bottom:.7rem}
+.fst-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#8b5cf6 0%,#6366f1 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.35rem}
+.fst-hero p{font-size:.84rem;color:var(--fst-muted);max-width:580px;margin:0 auto;line-height:1.6}
+/* Three-panel grid */
+.fst-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:.9rem;margin-top:1rem}
+@media(max-width:1000px){.fst-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.fst-grid{grid-template-columns:1fr}}
+.fst-panel{background:var(--fst-surface);border:1px solid var(--fst-border);border-radius:16px;box-shadow:var(--fst-shadow);padding:1.1rem;animation:fstUp .5s ease both}
+.fst-panel:nth-child(2){animation-delay:.07s}.fst-panel:nth-child(3){animation-delay:.14s}
+.fst-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:1px solid var(--fst-border);color:inherit}
+.fst-panel-hd i{color:var(--fst-accent);opacity:.75}
+.fst-panel-hd .fst-badge{margin-left:auto;font-size:.58rem;font-weight:700;padding:.15rem .5rem;border-radius:999px;background:rgba(139,92,246,.08);color:var(--fst-accent);border:1px solid rgba(139,92,246,.12)}
+/* Raw data table */
+.fst-table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--fst-border);margin-bottom:.85rem}
+.fst-table{width:100%;font-size:.62rem;border-collapse:collapse;font-family:'Cascadia Code','JetBrains Mono','Fira Code',monospace}
+.fst-table th{background:rgba(139,92,246,.06);font-size:.58rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:.35rem .55rem;text-align:left;color:var(--fst-muted);border-bottom:1px solid var(--fst-border)}
+.fst-table td{padding:.3rem .55rem;border-bottom:1px solid var(--fst-border);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fst-table tr:last-child td{border-bottom:none}
+.fst-table tr:hover td{background:rgba(139,92,246,.03)}
+/* Column selector chips */
+.fst-cols{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.6rem}
+.fst-col-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .6rem;border-radius:6px;border:1px solid rgba(139,92,246,.22);font-size:.65rem;font-weight:600;cursor:pointer;user-select:none;transition:all .2s;color:var(--fst-muted);background:transparent}
+.fst-col-chip.active{background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.35);color:var(--fst-accent)}
+.fst-col-chip input{display:none}
+/* Feature list */
+.fst-feat-list{list-style:none;padding:0;margin:0 0 .85rem;font-size:.7rem}
+.fst-feat-list li{display:flex;align-items:center;gap:.5rem;padding:.32rem 0;border-bottom:1px solid var(--fst-border)}
+.fst-feat-list li:last-child{border-bottom:none}
+.fst-feat-name{font-weight:700;flex:1;font-size:.68rem}
+.fst-feat-agg{font-size:.58rem;color:var(--fst-muted);font-family:'Cascadia Code',monospace}
+.fst-feat-kind{font-size:.56rem;font-weight:700;padding:.1rem .4rem;border-radius:999px}
+.fst-feat-kind--window{background:rgba(139,92,246,.1);color:#7c3aed}
+.fst-feat-kind--derived{background:rgba(99,102,241,.1);color:#4338ca}
+[data-theme="dark"] .fst-feat-kind--window{background:rgba(139,92,246,.2);color:#c4b5fd}
+[data-theme="dark"] .fst-feat-kind--derived{background:rgba(99,102,241,.2);color:#a5b4fc}
+/* Buttons */
+.fst-btn{display:inline-flex;align-items:center;gap:.45rem;padding:.5rem 1.2rem;border-radius:9px;font-size:.75rem;font-weight:700;border:none;cursor:pointer;transition:all .2s}
+.fst-btn--primary{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff}
+.fst-btn--primary:hover{opacity:.85;transform:translateY(-1px)}
+.fst-btn--success{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+/* Feature vector JSON output */
+.fst-vector{background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.14);border-radius:9px;padding:.75rem;font-size:.63rem;font-family:'Cascadia Code','JetBrains Mono',monospace;line-height:1.65;max-height:180px;overflow-y:auto;display:none;white-space:pre}
+.fst-vector.show{display:block;animation:fstUp .3s ease both}
+/* Registry */
+.fst-reg{width:100%;font-size:.65rem;border-collapse:collapse;margin-bottom:.85rem}
+.fst-reg th{font-size:.58rem;text-transform:uppercase;letter-spacing:.04em;color:var(--fst-muted);font-weight:600;padding:.35rem .4rem;text-align:left;border-bottom:1px solid var(--fst-border)}
+.fst-reg td{padding:.32rem .4rem;border-bottom:1px solid var(--fst-border);vertical-align:middle}
+.fst-reg tr:last-child td{border-bottom:none}
+.fst-pill{font-size:.56rem;font-weight:700;padding:.1rem .4rem;border-radius:999px;background:rgba(16,185,129,.1);color:#059669;border:1px solid rgba(16,185,129,.2)}
+[data-theme="dark"] .fst-pill{background:rgba(16,185,129,.2);color:#34d399}
+.fst-mono{font-family:'Cascadia Code',monospace;font-size:.6rem;color:var(--fst-muted)}
+</style>
+
+<div class="fst-wrap">
+  <!-- Hero -->
+  <div class="fst-hero">
+    <div class="fst-hero-tag"><i class="fas fa-warehouse me-1"></i> Offline Feature Store</div>
+    <h1>Feature Store</h1>
+    <p>Define time-window aggregations from raw events, compute feature vectors per entity, and register versioned feature groups to serve training and inference without data leakage.</p>
+  </div>
+
+  <div class="fst-grid">
+
+    <!-- Panel 1: Raw Dataset -->
+    <div class="fst-panel">
+      <div class="fst-panel-hd"><i class="fas fa-table"></i> Raw Event Stream <span class="fst-badge">entity: user_id</span></div>
+      <div class="fst-table-wrap">
+        <table class="fst-table">
+          <thead>
+            <tr><th>user_id</th><th>event_ts</th><th>event_type</th><th>amount</th><th>category</th><th>country</th></tr>
+          </thead>
+          <tbody id="fstRawBody"></tbody>
+        </table>
+      </div>
+      <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--fst-muted);margin-bottom:.45rem">Feature Columns</div>
+      <div class="fst-cols" id="fstColChips"></div>
+    </div>
+
+    <!-- Panel 2: Feature Engineering -->
+    <div class="fst-panel">
+      <div class="fst-panel-hd"><i class="fas fa-flask"></i> Feature Definitions</div>
+      <ul class="fst-feat-list" id="fstFeatList"></ul>
+      <button class="fst-btn fst-btn--primary" id="fstComputeBtn"><i class="fas fa-play"></i> Compute Features</button>
+      <div class="fst-panel-hd" style="margin-top:.9rem"><i class="fas fa-vector-square"></i> Feature Vector — user_id: 1042</div>
+      <div class="fst-vector" id="fstVector"></div>
+      <div id="fstVectorPlaceholder" style="font-size:.72rem;color:var(--fst-muted);margin-top:.5rem">Click <strong>Compute Features</strong> to materialise the feature vector for user 1042 as of the point-in-time cutoff.</div>
+    </div>
+
+    <!-- Panel 3: Registry -->
+    <div class="fst-panel">
+      <div class="fst-panel-hd"><i class="fas fa-layer-group"></i> Feature Registry <span class="fst-badge">v1.0</span></div>
+      <table class="fst-reg">
+        <thead><tr><th>Feature</th><th>Type</th><th>Window</th><th>Status</th></tr></thead>
+        <tbody id="fstRegBody"></tbody>
+      </table>
+      <div class="fst-panel-hd"><i class="fas fa-chart-bar"></i> Feature Importance (XGBoost)</div>
+      <canvas id="fstImpChart" height="200"></canvas>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+'use strict';
+/* ─── Raw event data ─── */
+var RAW = [
+  {uid:1042,ts:'2026-04-12 14:22',type:'purchase',amount:89.99,cat:'electronics',country:'US'},
+  {uid:1042,ts:'2026-04-10 09:14',type:'purchase',amount:24.50,cat:'books',country:'US'},
+  {uid:1042,ts:'2026-04-08 18:45',type:'view',amount:0,cat:'clothing',country:'US'},
+  {uid:1042,ts:'2026-04-05 11:22',type:'purchase',amount:142.00,cat:'electronics',country:'US'},
+  {uid:1042,ts:'2026-03-28 20:11',type:'purchase',amount:67.30,cat:'home',country:'US'},
+  {uid:2187,ts:'2026-04-11 16:30',type:'purchase',amount:310.00,cat:'electronics',country:'CA'},
+  {uid:2187,ts:'2026-04-09 08:00',type:'view',amount:0,cat:'books',country:'CA'},
+  {uid:3301,ts:'2026-04-12 10:00',type:'purchase',amount:45.00,cat:'clothing',country:'UK'},
+  {uid:3301,ts:'2026-04-07 13:22',type:'refund',amount:-45.00,cat:'clothing',country:'UK'},
+  {uid:4455,ts:'2026-04-01 09:00',type:'purchase',amount:999.99,cat:'electronics',country:'US'},
+];
+var CUT = new Date('2026-04-12');
+
+/* ─── Render raw table ─── */
+var rb = document.getElementById('fstRawBody');
+RAW.forEach(function(r){
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td>'+r.uid+'</td><td style="color:var(--fst-muted)">'+r.ts.slice(5)+'</td><td>'+r.type+'</td><td>'+(r.amount?'$'+Math.abs(r.amount).toFixed(2)+(r.amount<0?' ↩':''):'—')+'</td><td>'+r.cat+'</td><td>'+r.country+'</td>';
+  rb.appendChild(tr);
+});
+
+/* ─── Column chips ─── */
+var COLS = [
+  {id:'amount',label:'amount',active:true},
+  {id:'event_type',label:'event_type',active:true},
+  {id:'category',label:'category',active:true},
+  {id:'country',label:'country',active:false},
+];
+var chipWrap = document.getElementById('fstColChips');
+COLS.forEach(function(c){
+  var chip = document.createElement('span');
+  chip.className = 'fst-col-chip' + (c.active ? ' active' : '');
+  chip.textContent = c.id;
+  chip.addEventListener('click', function(){c.active=!c.active;chip.classList.toggle('active',c.active);renderFeatList();});
+  chipWrap.appendChild(chip);
+});
+
+/* ─── Feature definitions ─── */
+var ALL_FEATS = [
+  {name:'spend_7d',   base:'amount',      window:'7d', agg:'SUM',       kind:'window'},
+  {name:'spend_30d',  base:'amount',      window:'30d',agg:'SUM',       kind:'window'},
+  {name:'cnt_7d',     base:'event_type',  window:'7d', agg:'COUNT(purchase)', kind:'window'},
+  {name:'cnt_30d',    base:'event_type',  window:'30d',agg:'COUNT(purchase)', kind:'window'},
+  {name:'aov_30d',    base:'amount',      window:'30d',agg:'AVG(purchase)',    kind:'window'},
+  {name:'pct_elec',   base:'category',    window:'30d',agg:'% electronics',   kind:'window'},
+  {name:'days_since', base:'event_type',  window:'—',  agg:'DATEDIFF(now)',   kind:'derived'},
+  {name:'country_US', base:'country',     window:'—',  agg:'ONEHOT=US',       kind:'derived'},
+];
+function renderFeatList(){
+  var ul = document.getElementById('fstFeatList');
+  ul.innerHTML = '';
+  ALL_FEATS.forEach(function(f){
+    var col = COLS.find(function(c){return f.base.startsWith(c.id);});
+    if(col && !col.active) return;
+    var li = document.createElement('li');
+    li.innerHTML = '<span class="fst-feat-name">'+f.name+'</span><span class="fst-feat-agg">'+f.agg+'</span><span class="fst-feat-kind fst-feat-kind--'+f.kind+'">'+f.kind+'</span>';
+    ul.appendChild(li);
+  });
+}
+renderFeatList();
+
+/* ─── Compute button ─── */
+document.getElementById('fstComputeBtn').addEventListener('click', function(){
+  var u = RAW.filter(function(r){return r.uid===1042;});
+  var purchases = u.filter(function(r){return r.type==='purchase';});
+  var p7 = purchases.filter(function(r){return (CUT-new Date(r.ts))<7*864e5;});
+  var p30 = purchases;
+  var spend7d = p7.reduce(function(s,r){return s+r.amount;},0);
+  var spend30d = p30.reduce(function(s,r){return s+r.amount;},0);
+  var elec = p30.filter(function(r){return r.cat==='electronics';}).length;
+  var last = new Date(u[0].ts);
+  var vec = {
+    entity_key:{user_id:1042},
+    feature_timestamp:'2026-04-12T00:00:00Z',
+    features:{
+      spend_7d:+spend7d.toFixed(2),
+      spend_30d:+spend30d.toFixed(2),
+      cnt_7d:p7.length,
+      cnt_30d:p30.length,
+      aov_30d:+(spend30d/(p30.length||1)).toFixed(2),
+      pct_elec:+(elec/(p30.length||1)).toFixed(3),
+      days_since:Math.floor((CUT-last)/864e5),
+      country_US:1
+    }
+  };
+  document.getElementById('fstVector').textContent = JSON.stringify(vec,null,2);
+  document.getElementById('fstVector').classList.add('show');
+  document.getElementById('fstVectorPlaceholder').style.display='none';
+  this.classList.remove('fst-btn--primary');
+  this.classList.add('fst-btn--success');
+  this.innerHTML='<i class="fas fa-check"></i> Computed';
+});
+
+/* ─── Registry table ─── */
+var REG = [
+  {feat:'spend_7d',   dtype:'float64',window:'7d', served:'REST + batch'},
+  {feat:'spend_30d',  dtype:'float64',window:'30d',served:'REST + batch'},
+  {feat:'cnt_7d',     dtype:'int32',  window:'7d', served:'REST'},
+  {feat:'cnt_30d',    dtype:'int32',  window:'30d',served:'REST + batch'},
+  {feat:'aov_30d',    dtype:'float64',window:'30d',served:'batch'},
+  {feat:'pct_elec',   dtype:'float32',window:'30d',served:'batch'},
+  {feat:'days_since', dtype:'int32',  window:'—',  served:'REST'},
+];
+var regB = document.getElementById('fstRegBody');
+REG.forEach(function(r){
+  var tr = document.createElement('tr');
+  tr.innerHTML='<td style="font-weight:700;font-size:.65rem">'+r.feat+'</td>'
+    +'<td class="fst-mono">'+r.dtype+'</td>'
+    +'<td class="fst-mono">'+r.window+'</td>'
+    +'<td><span class="fst-pill">online</span></td>';
+  regB.appendChild(tr);
+});
+
+/* ─── Importance chart ─── */
+var isDark = document.documentElement.getAttribute('data-theme')==='dark';
+new Chart(document.getElementById('fstImpChart'),{
+  type:'bar',
+  data:{
+    labels:['spend_30d','cnt_7d','aov_30d','spend_7d','pct_elec','days_since','cnt_30d'],
+    datasets:[{
+      data:[0.26,0.19,0.16,0.13,0.11,0.09,0.06],
+      backgroundColor:['#8b5cf6','#7c3aed','#6d28d9','#6366f1','#4f46e5','#a78bfa','#c4b5fd'],
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ' '+Math.round(ctx.raw*100)+'% importance';}}}},
+    scales:{
+      x:{beginAtZero:true,max:.30,grid:{color:isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'},ticks:{callback:function(v){return Math.round(v*100)+'%';},font:{size:10}}},
+      y:{grid:{display:false},ticks:{font:{size:10}}}
+    }
+  }
+});
+}());
+</script>
+{% endblock %}

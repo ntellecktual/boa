@@ -14,6 +14,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.db import models, transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 from django.utils import timezone
 from nbconvert import HTMLExporter
 
@@ -1771,3 +1772,81 @@ JOB DESCRIPTION:
                    f'Strongest areas: cloud infrastructure, data engineering, and full-stack development.',
     }
     return JsonResponse({'analysis': result})
+
+
+# ─── New Demo Views ────────────────────────────────────────────────────────────
+
+def feature_store_view(request):
+    return render(request, 'boaapp/feature_store.html')
+
+
+def supply_chain_view(request):
+    return render(request, 'boaapp/supply_chain.html')
+
+
+def anomaly_detection_view(request):
+    return render(request, 'boaapp/anomaly_detection.html')
+
+
+def data_quality_view(request):
+    return render(request, 'boaapp/data_quality.html')
+
+
+def schema_registry_view(request):
+    return render(request, 'boaapp/schema_registry.html')
+
+
+def multi_agent_view(request):
+    return render(request, 'boaapp/multi_agent.html')
+
+
+@require_POST
+def multi_agent_api(request):
+    """Run a 5-agent orchestration pipeline (Planner → Researcher → Calculator → Critic → Synthesizer)."""
+    import json as _json
+
+    try:
+        body = _json.loads(request.body)
+    except (_json.JSONDecodeError, ValueError):
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    question = body.get('question', '').strip()
+    if not question or len(question) < 5:
+        return JsonResponse({'error': 'Question is required.'}, status=400)
+
+    question = question[:2000]
+
+    api_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
+    if api_key:
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=api_key)
+            prompt = f"""You are orchestrating a 5-agent AI pipeline. For the question below, provide each agent's output.
+Return ONLY valid JSON with exactly these keys: planner, researcher, calculator, critic, synthesizer.
+Each value should be a focused, practical paragraph (3-6 sentences) from that agent's perspective.
+
+Agents:
+- planner: Breaks the question into a structured step-by-step plan.
+- researcher: Provides relevant domain knowledge, patterns, and context.
+- calculator: Gives quantitative estimates, sizing, or performance math where applicable.
+- critic: Identifies risks, edge cases, or gaps in the plan.
+- synthesizer: Writes the final integrated recommendation.
+
+QUESTION: {question}
+
+Respond with JSON only, no markdown fences."""
+            msg = client.messages.create(
+                model='claude-sonnet-4-20250514',
+                max_tokens=1800,
+                messages=[{'role': 'user', 'content': prompt}],
+            )
+            raw = msg.content[0].text.strip()
+            start = raw.find('{')
+            end = raw.rfind('}') + 1
+            steps = _json.loads(raw[start:end])
+            return JsonResponse({'steps': steps})
+        except Exception as e:
+            logger.warning(f'multi_agent_api LLM error: {e}')
+
+    # Fallback: return a minimal structured response
+    return JsonResponse({'steps': None})

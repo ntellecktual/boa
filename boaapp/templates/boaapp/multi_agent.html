@@ -1,0 +1,309 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}Multi-Agent AI Orchestration{% endblock %}
+{% block container_class %}ma-shell{% endblock %}
+{% block content %}
+<style>
+.ma-shell{display:block;width:100%;max-width:100%;padding:0}
+:root{--ma-accent:#6366f1;--ma-accent2:#4f46e5;--ma-surface:#fff;--ma-border:rgba(0,0,0,.07);--ma-shadow:0 2px 12px rgba(0,0,0,.06);--ma-muted:#6b7280}
+[data-theme="dark"]{--ma-surface:rgba(14,12,28,.97);--ma-border:rgba(255,255,255,.08);--ma-shadow:0 2px 12px rgba(0,0,0,.35);--ma-muted:#94a3b8}
+@keyframes maUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes maSpin{to{transform:rotate(360deg)}}
+@keyframes maPulse{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.4)}70%{box-shadow:0 0 0 8px rgba(99,102,241,0)}}
+@keyframes maTyping{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.ma-wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.ma-hero{text-align:center;padding:1.4rem 0 1rem;animation:maUp .4s ease both}
+.ma-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(99,102,241,.09);border:1px solid rgba(99,102,241,.2);color:var(--ma-accent);margin-bottom:.65rem}
+.ma-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#6366f1,#8b5cf6,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
+.ma-hero p{font-size:.84rem;color:var(--ma-muted);max-width:580px;margin:0 auto;line-height:1.6}
+/* Pipeline */
+.ma-pipeline-wrap{background:var(--ma-surface);border:1px solid var(--ma-border);border-radius:16px;box-shadow:var(--ma-shadow);padding:1.25rem 1.25rem 1rem;margin-top:1rem;animation:maUp .45s ease both;overflow-x:auto}
+.ma-pipeline{display:flex;align-items:center;gap:0;min-width:580px}
+.ma-node{flex:1;display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:.65rem .5rem;border-radius:14px;border:1.5px solid var(--ma-border);position:relative;transition:all .3s;cursor:default;background:transparent}
+.ma-node.is-active{border-color:var(--ma-accent);background:rgba(99,102,241,.06);animation:maPulse 1.2s infinite}
+.ma-node.is-done{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.05)}
+.ma-node-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.95rem;background:rgba(99,102,241,.1);color:var(--ma-accent);transition:all .3s}
+.ma-node.is-active .ma-node-icon{background:rgba(99,102,241,.2);color:var(--ma-accent)}
+.ma-node.is-done .ma-node-icon{background:rgba(16,185,129,.15);color:#059669}
+.ma-node-name{font-size:.68rem;font-weight:800;text-align:center;line-height:1.2}
+.ma-node-role{font-size:.58rem;color:var(--ma-muted);text-align:center;line-height:1.3}
+.ma-node-status{font-size:.58rem;font-weight:700;padding:.1rem .4rem;border-radius:4px;margin-top:.1rem;min-width:50px;text-align:center}
+.ma-node-status--idle{background:rgba(107,114,128,.1);color:var(--ma-muted)}
+.ma-node-status--active{background:rgba(99,102,241,.15);color:var(--ma-accent);animation:maSpin 0s linear;display:flex;align-items:center;justify-content:center;gap:.25rem}
+.ma-node-status--done{background:rgba(16,185,129,.12);color:#059669}
+/* Arrow connectors */
+.ma-arrow{font-size:.9rem;color:var(--ma-muted);opacity:.4;padding:0 .2rem;flex-shrink:0;align-self:center;padding-bottom:1.5rem}
+/* Body layout */
+.ma-body{display:grid;grid-template-columns:320px 1fr;gap:1rem;margin-top:1rem}
+@media(max-width:780px){.ma-body{grid-template-columns:1fr}}
+/* Panels */
+.ma-panel{background:var(--ma-surface);border:1px solid var(--ma-border);border-radius:16px;box-shadow:var(--ma-shadow);padding:1rem;animation:maUp .5s ease both}
+.ma-panel:nth-child(2){animation-delay:.07s}
+.ma-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:1px solid var(--ma-border)}
+.ma-panel-hd i{color:var(--ma-accent);opacity:.8}
+/* Input */
+.ma-input-area{width:100%;border:1px solid var(--ma-border);border-radius:10px;padding:.65rem .75rem;font-size:.75rem;resize:vertical;min-height:80px;background:transparent;color:inherit;transition:border-color .2s;font-family:inherit;line-height:1.5}
+.ma-input-area:focus{outline:none;border-color:rgba(99,102,241,.5)}
+.ma-presets{display:flex;flex-direction:column;gap:.35rem;margin:.65rem 0}
+.ma-preset-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--ma-muted);margin-bottom:.2rem}
+.ma-preset-btn{width:100%;padding:.38rem .65rem;border-radius:8px;font-size:.68rem;border:1px solid var(--ma-border);background:rgba(99,102,241,.04);cursor:pointer;text-align:left;color:inherit;transition:all .18s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ma-preset-btn:hover{border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.08)}
+.ma-run-btn{width:100%;padding:.58rem;border-radius:10px;font-size:.8rem;font-weight:800;border:none;cursor:pointer;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.65rem}
+.ma-run-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,.35)}
+.ma-run-btn:disabled{opacity:.55;cursor:not-allowed}
+/* Output log */
+.ma-output{height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:.65rem;padding-right:.25rem}
+.ma-step{background:rgba(99,102,241,.04);border:1px solid var(--ma-border);border-radius:12px;padding:.75rem .9rem;animation:maTyping .3s ease both}
+.ma-step-hd{display:flex;align-items:center;gap:.45rem;margin-bottom:.45rem}
+.ma-step-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0}
+.ma-step-name{font-size:.72rem;font-weight:800}
+.ma-step-body{font-size:.72rem;line-height:1.65;color:var(--ma-muted);white-space:pre-wrap}
+.ma-step--planner .ma-step-icon{background:rgba(99,102,241,.15);color:#6366f1}
+.ma-step--researcher .ma-step-icon{background:rgba(59,130,246,.15);color:#2563eb}
+.ma-step--calculator .ma-step-icon{background:rgba(16,185,129,.15);color:#059669}
+.ma-step--critic .ma-step-icon{background:rgba(245,158,11,.15);color:#d97706}
+.ma-step--synthesizer .ma-step-icon{background:rgba(168,85,247,.15);color:#7c3aed}
+.ma-empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--ma-muted);gap:.5rem;opacity:.55}
+.ma-empty-state i{font-size:2rem;opacity:.4}
+.ma-empty-state p{font-size:.75rem;max-width:220px;line-height:1.55}
+.ma-step--response{border-color:rgba(99,102,241,.25);background:rgba(99,102,241,.06)}
+.ma-thinking{display:flex;align-items:center;gap:.35rem;font-size:.68rem;color:var(--ma-accent);font-style:italic}
+.ma-thinking i{animation:maSpin .8s linear infinite}
+</style>
+
+<div class="ma-wrap">
+  <div class="ma-hero">
+    <div class="ma-tag"><i class="fas fa-robot me-1"></i> AI Orchestration</div>
+    <h1>Multi-Agent AI Orchestration</h1>
+    <p>Five specialized AI agents collaborate — Planner decomposes, Researcher provides context, Calculator runs the math, Critic catches errors, and Synthesizer produces the final answer.</p>
+  </div>
+
+  <!-- Agent Pipeline -->
+  <div class="ma-pipeline-wrap">
+    <div class="ma-pipeline" id="maPipeline">
+      <div class="ma-node" id="maNode-planner">
+        <div class="ma-node-icon"><i class="fas fa-sitemap"></i></div>
+        <div class="ma-node-name">Planner</div>
+        <div class="ma-node-role">Decomposes the<br>task into steps</div>
+        <div class="ma-node-status ma-node-status--idle" id="maStatus-planner">idle</div>
+      </div>
+      <div class="ma-arrow">→</div>
+      <div class="ma-node" id="maNode-researcher">
+        <div class="ma-node-icon"><i class="fas fa-magnifying-glass"></i></div>
+        <div class="ma-node-name">Researcher</div>
+        <div class="ma-node-role">Retrieves domain<br>knowledge & context</div>
+        <div class="ma-node-status ma-node-status--idle" id="maStatus-researcher">idle</div>
+      </div>
+      <div class="ma-arrow">→</div>
+      <div class="ma-node" id="maNode-calculator">
+        <div class="ma-node-icon"><i class="fas fa-calculator"></i></div>
+        <div class="ma-node-name">Calculator</div>
+        <div class="ma-node-role">Runs quantitative<br>analysis & estimates</div>
+        <div class="ma-node-status ma-node-status--idle" id="maStatus-calculator">idle</div>
+      </div>
+      <div class="ma-arrow">→</div>
+      <div class="ma-node" id="maNode-critic">
+        <div class="ma-node-icon"><i class="fas fa-shield-check"></i></div>
+        <div class="ma-node-name">Critic</div>
+        <div class="ma-node-role">Identifies gaps<br>& potential errors</div>
+        <div class="ma-node-status ma-node-status--idle" id="maStatus-critic">idle</div>
+      </div>
+      <div class="ma-arrow">→</div>
+      <div class="ma-node" id="maNode-synthesizer">
+        <div class="ma-node-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+        <div class="ma-node-name">Synthesizer</div>
+        <div class="ma-node-role">Produces the final<br>integrated answer</div>
+        <div class="ma-node-status ma-node-status--idle" id="maStatus-synthesizer">idle</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ma-body">
+    <!-- Input panel -->
+    <div class="ma-panel">
+      <div class="ma-panel-hd"><i class="fas fa-keyboard"></i> Query</div>
+      <textarea class="ma-input-area" id="maInput" placeholder="Ask a data engineering or ML systems question…">How should I optimize a Kafka consumer group for a high-throughput event stream with exactly-once semantics?</textarea>
+      <div class="ma-preset-label" style="margin-top:.65rem">Try a preset</div>
+      <div class="ma-presets">
+        <button class="ma-preset-btn" data-q="How should I design a feature store for a real-time fraud detection model at 50K events/sec?">Feature store for fraud detection at 50K eps</button>
+        <button class="ma-preset-btn" data-q="What are the trade-offs between Delta Lake, Apache Iceberg, and Apache Hudi for a medallion architecture?">Delta Lake vs Iceberg vs Hudi — medallion arch</button>
+        <button class="ma-preset-btn" data-q="How should I size and partition a Cassandra cluster for 1TB/day write throughput with 99th-percentile latency under 10ms?">Cassandra cluster sizing for 1 TB/day writes</button>
+      </div>
+      <button class="ma-run-btn" id="maRunBtn"><i class="fas fa-play"></i> Run Agents</button>
+    </div>
+
+    <!-- Output panel -->
+    <div class="ma-panel">
+      <div class="ma-panel-hd"><i class="fas fa-terminal"></i> Agent Reasoning Trace</div>
+      <div class="ma-output" id="maOutput">
+        <div class="ma-empty-state">
+          <i class="fas fa-robot"></i>
+          <p>Enter a data engineering question and click Run Agents to watch the multi-agent pipeline reason through it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var CSRF='{{ csrf_token }}';
+var AGENT_ORDER=['planner','researcher','calculator','critic','synthesizer'];
+var AGENT_COLORS={planner:'#6366f1',researcher:'#2563eb',calculator:'#059669',critic:'#d97706',synthesizer:'#7c3aed'};
+var AGENT_ICONS={planner:'fa-sitemap',researcher:'fa-magnifying-glass',calculator:'fa-calculator',critic:'fa-shield-check',synthesizer:'fa-wand-magic-sparkles'};
+var AGENT_LABELS={planner:'Planner',researcher:'Researcher',calculator:'Calculator',critic:'Critic',synthesizer:'Synthesizer'};
+
+/* ─── Node state helpers ─── */
+function setNodeState(agent, state){
+  var node=document.getElementById('maNode-'+agent);
+  var status=document.getElementById('maStatus-'+agent);
+  node.classList.remove('is-active','is-done');
+  if(state==='active'){
+    node.classList.add('is-active');
+    status.className='ma-node-status ma-node-status--active';
+    status.innerHTML='<i class="fas fa-spinner fa-spin"></i> working';
+  } else if(state==='done'){
+    node.classList.add('is-done');
+    status.className='ma-node-status ma-node-status--done';
+    status.textContent='✓ done';
+  } else {
+    status.className='ma-node-status ma-node-status--idle';
+    status.textContent='idle';
+  }
+}
+
+function resetNodes(){
+  AGENT_ORDER.forEach(function(a){setNodeState(a,'idle');});
+}
+
+/* ─── Output helpers ─── */
+function clearOutput(){
+  document.getElementById('maOutput').innerHTML='';
+}
+
+function addStep(agent, text, isResponse){
+  var out=document.getElementById('maOutput');
+  var div=document.createElement('div');
+  div.className='ma-step ma-step--'+agent+(isResponse?' ma-step--response':'');
+  div.style.animationDelay=(out.children.length*50)+'ms';
+  var color=AGENT_COLORS[agent]||'#6366f1';
+  var icon=AGENT_ICONS[agent]||'fa-robot';
+  div.innerHTML='<div class="ma-step-hd"><div class="ma-step-icon" style="background:rgba('+hexToRgb(color)+',.15);color:'+color+'"><i class="fas '+icon+'"></i></div><div class="ma-step-name">'+AGENT_LABELS[agent]+(isResponse?' — Final Answer':'')+'</div></div><div class="ma-step-body">'+escHtml(text)+'</div>';
+  out.appendChild(div);
+  out.scrollTop=out.scrollHeight;
+}
+
+function addThinking(agent){
+  var out=document.getElementById('maOutput');
+  var div=document.createElement('div');
+  div.id='ma-thinking-'+agent;
+  div.className='ma-thinking';
+  div.innerHTML='<i class="fas fa-spinner"></i> '+AGENT_LABELS[agent]+' is processing…';
+  out.appendChild(div);
+  out.scrollTop=out.scrollHeight;
+}
+
+function removeThinking(agent){
+  var el=document.getElementById('ma-thinking-'+agent);
+  if(el) el.remove();
+}
+
+function escHtml(s){
+  if(!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function hexToRgb(hex){
+  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return r+','+g+','+b;
+}
+
+function delay(ms){ return new Promise(function(res){setTimeout(res,ms);}); }
+
+/* ─── Fallback responses when no API key ─── */
+function getFallback(question){
+  var q=question.toLowerCase();
+  var isKafka=q.indexOf('kafka')>-1||q.indexOf('consumer')>-1;
+  var isFeature=q.indexOf('feature store')>-1||q.indexOf('feature')>-1;
+  var isSizing=q.indexOf('cassandra')>-1||q.indexOf('partition')>-1||q.indexOf('sizing')>-1;
+
+  if(isFeature){return{
+    planner:'1. Identify entity key and time semantics\n2. Define offline vs. online store split\n3. Design feature computation pipeline\n4. Plan point-in-time correct joins\n5. Specify serving latency SLAs',
+    researcher:'Feature stores solve training-serving skew by centralizing feature computation. Key components: (1) Offline store — historical features for training; typically Parquet/Delta. (2) Online store — low-latency serving for inference; typically Redis or DynamoDB. (3) Feature registry — schema, lineage, ownership metadata. Feast, Tecton, and Hopsworks are common OSS options.',
+    calculator:'At 50K events/sec:\n• Ingestion throughput: 50K × ~200 bytes avg = ~10 MB/s\n• Online store reads: assume 5× read:write = 250K/sec → Redis cluster ~20 nodes\n• Offline storage: 10 MB/s × 86400s × 365 = ~316 TB/year → Parquet with Snappy ≈ 63 TB compressed\n• P99 online latency target: <5ms → single-hop Redis, no network hops',
+    critic:'Gaps to address: (1) What is the feature freshness SLA? Near-real-time requires streaming feature computation (Flink/Spark Streaming), not batch. (2) Point-in-time joins must use entity timestamps, not processing timestamps — easy to get wrong. (3) Online store hot-key problem if a small set of entity keys receive disproportionate reads.',
+    response:'Design recommendation:\n• Use Flink for streaming feature computation (sub-second freshness)\n• Separate offline (Delta Lake) and online (Redis Cluster) stores\n• Implement point-in-time joins via entity_timestamp watermarks\n• Use consistent hashing in Redis to distribute hot entities\n• Store feature metadata (dtype, owner, SLA) in a schema registry\n• Monitor training-serving skew with KL-divergence alerts'
+  };}
+  if(isSizing){return{
+    planner:'1. Quantify write/read throughput requirements\n2. Calculate partition count and replication factor\n3. Estimate node count from throughput and storage\n4. Design data model (primary key, clustering columns)\n5. Plan compaction and TTL strategies',
+    researcher:'Cassandra is AP (availability + partition-tolerant per CAP). Writes are O(1) — appended to memtable, flushed to SSTables. Reads are more expensive (requires merging SSTables). Optimal for write-heavy, time-series data. Partition key must distribute evenly to avoid hot partitions — avoid user_id alone if traffic is skewed.',
+    calculator:'1 TB/day ÷ 86400s = ~11.6 MB/s = ~580K rows/s (assuming 20KB avg row).\n\nWith RF=3 and 16-core nodes at ~100K writes/core/sec:\n• Required write cores: 580K × 3 (RF) ÷ 100K = ~17 cores → 2-3 nodes minimum\n• Storage: 1 TB/day × 3 (RF) × 365 × 0.5 (Snappy compression) = ~548 TB/year → ~14 nodes at 40 TB/node SSD\n• Final: 16+ nodes for headroom and P99 < 10ms',
+    critic:'Risk areas: (1) Partition skew — if any partition key gets >10× average, P99 will blow up. Use time bucketing: (device_id, date_bucket). (2) Compaction — with 580K writes/sec, STCS may not keep up; consider LCS for read-heavy workloads. (3) GC pressure at high throughput — tune heap to 8GB max, use G1GC.',
+    response:'Architecture recommendation:\n• Partition key: (tenant_id, date_bucket) — avoids hot partitions\n• Clustering columns: (device_id, event_ts DESC) — efficient time-range scans\n• Node count: 20 nodes (16 data nodes + 4 for compaction headroom)\n• SSD only — spinning disk cannot sustain P99 < 10ms at this throughput\n• Use QUORUM consistency for writes (N/2+1 = 2), LOCAL_ONE for reads\n• Enable row-level TTL: 90 days = 7776000 seconds\n• Monitor: max_partition_size (alert >100MB), read_latency_p99, compaction_pending_tasks'
+  };}
+  // Default: Kafka
+  return{
+    planner:'1. Analyze current consumer group lag and throughput\n2. Identify bottlenecks (network, processing, commit frequency)\n3. Design exactly-once transaction boundaries\n4. Plan partition-to-consumer ratio optimization\n5. Define idempotency guarantees at the sink',
+    researcher:'Kafka exactly-once semantics (EOS) require: (1) Idempotent producer: enable.idempotence=true, prevents duplicate writes on retry. (2) Transactional API: producer wraps read-process-write in atomic transactions. (3) isolation.level=read_committed on consumer: only sees committed records. EOS requires Kafka 0.11+ and adds ~10-20% latency overhead.',
+    calculator:'For high-throughput EOS optimization:\n• Consumer throughput: N_partitions × processing_rate_per_consumer\n• Optimal partition count: target_throughput ÷ max_throughput_per_partition\n• Commit interval: transaction.timeout.ms should be > max processing time per batch\n• At 1M events/sec with 1ms processing/event: 1000 partitions, 1000 consumers, batch size 500-1000 events\n• EOS overhead: ~15% → net throughput 850K events/sec per consumer group',
+    critic:'Critical considerations: (1) EOS in Kafka Streams is simpler than manual transactional API — prefer Streams if possible. (2) Consumer group rebalancing breaks in-flight transactions — use cooperative sticky rebalancing (partition.assignment.strategy=CooperativeStickyAssignor). (3) max.poll.records and session.timeout.ms must be tuned together — fetching 500 records that take 30s to process will trigger rebalance if session.timeout.ms=30000.',
+    response:'Optimization plan:\n• Set enable.idempotence=true and transactional.id per consumer instance\n• Use CooperativeStickyAssignor to minimize rebalance disruption\n• Tune max.poll.records to match processing capacity (start at 500)\n• Set isolation.level=read_committed; max.poll.interval.ms = 2× p99 processing time\n• Use Kafka Streams for stateful EOS — it handles transaction management transparently\n• Monitor consumer_lag per partition; alert at lag > 10K events\n• Add dead-letter topic for poison messages — never block the consumer on parse errors'
+  };
+}
+
+/* ─── Run agents ─── */
+async function runAgents(){
+  var question=document.getElementById('maInput').value.trim();
+  if(!question) return;
+
+  var btn=document.getElementById('maRunBtn');
+  btn.disabled=true;
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Running…';
+  clearOutput();
+  resetNodes();
+
+  var steps=null;
+
+  try {
+    var resp=await fetch('{% url "multi_agent_api" %}',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+      body:JSON.stringify({question:question})
+    });
+    var data=await resp.json();
+    if(data.steps) steps=data.steps;
+  } catch(e){
+    // Network error — use fallback
+  }
+
+  if(!steps) steps=getFallback(question);
+
+  // Animate each agent
+  var agentKeys=['planner','researcher','calculator','critic','synthesizer'];
+  for(var i=0;i<agentKeys.length;i++){
+    var agent=agentKeys[i];
+    setNodeState(agent,'active');
+    addThinking(agent);
+    await delay(800);
+    removeThinking(agent);
+    var isLast=agent==='synthesizer';
+    addStep(agent, steps[agent]||'(no output)', isLast);
+    setNodeState(agent,'done');
+    await delay(300);
+  }
+
+  btn.disabled=false;
+  btn.innerHTML='<i class="fas fa-play"></i> Run Agents';
+}
+
+document.getElementById('maRunBtn').addEventListener('click',runAgents);
+
+document.querySelectorAll('.ma-preset-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.getElementById('maInput').value=this.getAttribute('data-q');
+  });
+});
+}());
+</script>
+{% endblock %}

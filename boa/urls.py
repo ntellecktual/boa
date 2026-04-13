@@ -93,6 +93,13 @@ urlpatterns = [
     # AI Job Match Analyzer
     path('job_match/', boaapp_views.job_match_view, name='job_match'),
     path('api/job-match/', boaapp_views.job_match_api, name='job_match_api'),
+    path('feature-store/', boaapp_views.feature_store_view, name='feature_store'),
+    path('supply-chain/', boaapp_views.supply_chain_view, name='supply_chain'),
+    path('anomaly-detection/', boaapp_views.anomaly_detection_view, name='anomaly_detection'),
+    path('data-quality/', boaapp_views.data_quality_view, name='data_quality'),
+    path('schema-registry/', boaapp_views.schema_registry_view, name='schema_registry'),
+    path('multi-agent/', boaapp_views.multi_agent_view, name='multi_agent'),
+    path('api/multi-agent/', boaapp_views.multi_agent_api, name='multi_agent_api'),
 ]
 
 if settings.DEBUG:

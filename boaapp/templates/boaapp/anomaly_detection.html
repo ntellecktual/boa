@@ -1,0 +1,289 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}Real-Time Anomaly Detection{% endblock %}
+{% block container_class %}anom-shell{% endblock %}
+{% block content %}
+<style>
+.anom-shell{display:block;width:100%;max-width:100%;padding:0}
+:root{--anom-accent:#06b6d4;--anom-accent2:#0891b2;--anom-surface:#fff;--anom-border:rgba(0,0,0,.07);--anom-shadow:0 2px 12px rgba(0,0,0,.06);--anom-muted:#6b7280}
+[data-theme="dark"]{--anom-surface:rgba(10,20,30,.97);--anom-border:rgba(255,255,255,.08);--anom-shadow:0 2px 12px rgba(0,0,0,.35);--anom-muted:#94a3b8}
+@keyframes anomUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes anomPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.anom-wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.anom-hero{text-align:center;padding:1.4rem 0 1rem;animation:anomUp .4s ease both}
+.anom-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(6,182,212,.09);border:1px solid rgba(6,182,212,.2);color:var(--anom-accent);margin-bottom:.65rem}
+.anom-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#06b6d4,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
+.anom-hero p{font-size:.84rem;color:var(--anom-muted);max-width:560px;margin:0 auto;line-height:1.6}
+/* Body layout */
+.anom-body{display:grid;grid-template-columns:1fr 300px;gap:1rem;margin-top:1rem}
+@media(max-width:860px){.anom-body{grid-template-columns:1fr}}
+/* Panels */
+.anom-panel{background:var(--anom-surface);border:1px solid var(--anom-border);border-radius:16px;box-shadow:var(--anom-shadow);padding:1.1rem;animation:anomUp .45s ease both}
+.anom-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--anom-border)}
+.anom-panel-hd i{color:var(--anom-accent);opacity:.8}
+/* Status bar */
+.anom-status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.85rem}
+@media(max-width:600px){.anom-status-grid{grid-template-columns:repeat(2,1fr)}}
+.anom-stat{background:rgba(6,182,212,.04);border:1px solid rgba(6,182,212,.12);border-radius:10px;padding:.55rem .65rem;text-align:center}
+.anom-stat-val{font-size:1.1rem;font-weight:900;color:var(--anom-accent);line-height:1;font-family:'Cascadia Code',monospace}
+.anom-stat-lbl{font-size:.58rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--anom-muted);margin-top:.2rem}
+.anom-stat.is-alert .anom-stat-val{color:#ef4444;animation:anomPulse .8s infinite}
+/* Controls row */
+.anom-controls{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;margin-bottom:.85rem}
+.anom-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.38rem .95rem;border-radius:9px;font-size:.72rem;font-weight:700;border:none;cursor:pointer;transition:all .18s;white-space:nowrap}
+.anom-btn--start{background:linear-gradient(135deg,#06b6d4,#3b82f6);color:#fff}
+.anom-btn--start.is-running{background:linear-gradient(135deg,#64748b,#475569)}
+.anom-btn--spike{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:#d97706}
+.anom-btn--drift{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#dc2626}
+.anom-btn--reset{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:#6366f1}
+.anom-btn:hover{transform:translateY(-1px);opacity:.88}
+/* Algo selector */
+.anom-algo-group{display:flex;gap:.3rem;background:var(--anom-border);border-radius:9px;padding:2px}
+.anom-algo-btn{padding:.28rem .7rem;border-radius:7px;font-size:.65rem;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--anom-muted);transition:all .18s}
+.anom-algo-btn.active{background:var(--anom-surface);color:var(--anom-accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+/* Alert log */
+.anom-log{height:300px;overflow-y:auto;background:rgba(0,0,0,.03);border-radius:10px;padding:.65rem;font-size:.65rem;font-family:'Cascadia Code',monospace;line-height:1.6}
+[data-theme="dark"] .anom-log{background:rgba(255,255,255,.03)}
+.anom-log-entry{padding:.2rem 0;border-bottom:1px solid var(--anom-border);display:flex;gap:.5rem}
+.anom-log-entry:last-child{border:none}
+.anom-log-time{opacity:.4;white-space:nowrap}
+.anom-log-msg{color:#ef4444;font-weight:600}
+.anom-log-msg.warn{color:#f59e0b}
+.anom-log-empty{text-align:center;opacity:.35;padding-top:1rem}
+/* Drift indicator */
+.anom-drift-badge{display:none;font-size:.65rem;font-weight:700;padding:.2rem .6rem;border-radius:999px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#dc2626;animation:anomPulse 1s infinite}
+.anom-drift-badge.visible{display:inline-block}
+/* Legend */
+.anom-leg{display:flex;flex-wrap:wrap;gap:.65rem;font-size:.65rem;color:var(--anom-muted);margin-top:.5rem}
+.anom-leg-item{display:flex;align-items:center;gap:.3rem}
+.anom-leg-dot{width:20px;height:3px;border-radius:2px}
+</style>
+
+<div class="anom-wrap">
+  <div class="anom-hero">
+    <div class="anom-tag"><i class="fas fa-wave-square me-1"></i> Stream Processing</div>
+    <h1>Real-Time Anomaly Detection</h1>
+    <p>Live sensor stream with Z-score, EWMA, and CUSUM detection algorithms. Inject spikes and drift — watch each algorithm detect differently in real time.</p>
+  </div>
+
+  <div class="anom-status-grid">
+    <div class="anom-stat" id="sValBox"><div class="anom-stat-val" id="sVal">—</div><div class="anom-stat-lbl">Current Value</div></div>
+    <div class="anom-stat" id="sZBox"><div class="anom-stat-val" id="sZ">—</div><div class="anom-stat-lbl">Z-Score</div></div>
+    <div class="anom-stat"><div class="anom-stat-val" id="sEWMA">—</div><div class="anom-stat-lbl">EWMA (α=0.15)</div></div>
+    <div class="anom-stat"><div class="anom-stat-val" id="sStatus" style="font-size:.85rem">NORMAL</div><div class="anom-stat-lbl">Detection Status</div></div>
+  </div>
+
+  <div class="anom-body">
+    <!-- Chart panel -->
+    <div class="anom-panel">
+      <div class="anom-panel-hd">
+        <i class="fas fa-chart-line"></i> Live Sensor Stream
+        <span class="anom-drift-badge" id="driftBadge">DRIFT ACTIVE</span>
+        <span style="margin-left:auto;font-size:.6rem;font-weight:500;opacity:.4" id="sAlgoName">ALGORITHM: Z-SCORE</span>
+      </div>
+      <!-- Controls -->
+      <div class="anom-controls">
+        <button class="anom-btn anom-btn--start" id="btnToggle"><i class="fas fa-play"></i> Start Stream</button>
+        <button class="anom-btn anom-btn--spike" id="btnSpike" disabled><i class="fas fa-bolt"></i> Inject Spike</button>
+        <button class="anom-btn anom-btn--drift" id="btnDrift" disabled><i class="fas fa-arrow-trend-up"></i> Inject Drift</button>
+        <button class="anom-btn anom-btn--reset" id="btnReset" disabled><i class="fas fa-undo"></i> Reset</button>
+        <div class="anom-algo-group">
+          <button class="anom-algo-btn active" data-algo="zscore">Z-Score</button>
+          <button class="anom-algo-btn" data-algo="ewma">EWMA</button>
+          <button class="anom-algo-btn" data-algo="cusum">CUSUM</button>
+        </div>
+      </div>
+      <canvas id="anomChart" height="220"></canvas>
+      <div class="anom-leg">
+        <span class="anom-leg-item"><span class="anom-leg-dot" style="background:#06b6d4"></span>Signal</span>
+        <span class="anom-leg-item"><span class="anom-leg-dot" style="background:rgba(239,68,68,.4)"></span>3σ Upper</span>
+        <span class="anom-leg-item"><span class="anom-leg-dot" style="background:rgba(239,68,68,.4)"></span>3σ Lower</span>
+        <span class="anom-leg-item"><span class="anom-leg-dot" style="background:rgba(245,158,11,.45)"></span>2σ Band</span>
+        <span class="anom-leg-item"><span class="anom-leg-dot" style="background:#a78bfa"></span>EWMA Trend</span>
+      </div>
+    </div>
+
+    <!-- Alert log -->
+    <div class="anom-panel">
+      <div class="anom-panel-hd"><i class="fas fa-bell"></i> Alert Log</div>
+      <div class="anom-log" id="anomLog">
+        <div class="anom-log-empty">Start stream to see alerts…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+'use strict';
+/* ─── Constants ─── */
+var MU=100, SIGMA=15, WIN=60, ALPHA=0.15, THRESH=3;
+/* ─── State ─── */
+var history=[], ewmaHistory=[], ewma=MU, cusum=0, driftOffset=0;
+var spikeQueued=false, driftActive=false, running=false, timer=null;
+var alertCount=0, algo='zscore';
+
+function noise(mu,sigma){
+  var u1=Math.random(),u2=Math.random();
+  return mu+sigma*Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+}
+
+/* ─── Chart setup ─── */
+var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+var gridColor=isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
+var chart=new Chart(document.getElementById('anomChart'),{
+  type:'line',
+  data:{
+    labels:[],
+    datasets:[
+      {label:'Signal',data:[],borderColor:'#06b6d4',backgroundColor:'transparent',pointRadius:0,borderWidth:2,tension:.2,order:1},
+      {label:'EWMA',data:[],borderColor:'rgba(167,139,250,.7)',pointRadius:0,borderWidth:1.5,borderDash:[4,3],tension:.3,order:2},
+      {label:'3σ Upper',data:[],borderColor:'rgba(239,68,68,.35)',backgroundColor:'rgba(239,68,68,.04)',fill:'+1',pointRadius:0,borderWidth:1,tension:0,order:3},
+      {label:'3σ Lower',data:[],borderColor:'rgba(239,68,68,.35)',backgroundColor:'transparent',fill:false,pointRadius:0,borderWidth:1,tension:0,order:4},
+      {label:'2σ Upper',data:[],borderColor:'rgba(245,158,11,.3)',backgroundColor:'rgba(245,158,11,.04)',fill:'+1',pointRadius:0,borderWidth:1,tension:0,order:5},
+      {label:'2σ Lower',data:[],borderColor:'rgba(245,158,11,.3)',backgroundColor:'transparent',fill:false,pointRadius:0,borderWidth:1,tension:0,order:6},
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    animation:{duration:0},
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.raw.toFixed(1);}}}},
+    scales:{
+      x:{grid:{display:false},ticks:{display:false}},
+      y:{grid:{color:gridColor},min:MU-6*SIGMA,max:MU+7*SIGMA,ticks:{font:{size:9}}}
+    }
+  }
+});
+
+/* ─── Detection logic ─── */
+function isAnomaly(x,z){
+  if(algo==='zscore') return Math.abs(z)>THRESH;
+  if(algo==='ewma'){
+    var ewmaZ=Math.abs(x-ewma)/SIGMA;
+    return ewmaZ>THRESH*0.85;
+  }
+  if(algo==='cusum'){
+    cusum=Math.max(0,cusum+(Math.abs(x-MU)/SIGMA-1.5));
+    return cusum>5;
+  }
+  return false;
+}
+
+/* ─── Tick ─── */
+var tickN=0;
+function tick(){
+  tickN++;
+  // Generate sample
+  var effectiveMu=MU+(driftActive?driftOffset:0);
+  var x=noise(effectiveMu,SIGMA);
+  if(spikeQueued){x=MU+SIGMA*(3.5+Math.random());spikeQueued=false;}
+  if(driftActive) driftOffset+=0.4;
+
+  // EWMA
+  ewma=ALPHA*x+(1-ALPHA)*ewma;
+
+  // Z-score relative to true MU
+  var z=(x-MU)/SIGMA;
+
+  // Update history
+  history.push(x); if(history.length>WIN) history.shift();
+  ewmaHistory.push(ewma); if(ewmaHistory.length>WIN) ewmaHistory.shift();
+
+  // Update chart
+  var labels=history.map(function(v,i){return i;});
+  chart.data.labels=labels;
+  chart.data.datasets[0].data=history;
+  chart.data.datasets[1].data=ewmaHistory;
+  chart.data.datasets[2].data=history.map(function(){return MU+3*SIGMA;});
+  chart.data.datasets[3].data=history.map(function(){return MU-3*SIGMA;});
+  chart.data.datasets[4].data=history.map(function(){return MU+2*SIGMA;});
+  chart.data.datasets[5].data=history.map(function(){return MU-2*SIGMA;});
+  chart.update('none');
+
+  // Status boxes
+  document.getElementById('sVal').textContent=x.toFixed(1);
+  document.getElementById('sZ').textContent=(z>=0?'+':'')+z.toFixed(2);
+  document.getElementById('sEWMA').textContent=ewma.toFixed(1);
+
+  var anomaly=isAnomaly(x,z);
+  var statusEl=document.getElementById('sStatus');
+  var zBox=document.getElementById('sZBox');
+  var valBox=document.getElementById('sValBox');
+  if(anomaly){
+    statusEl.textContent='ALERT';
+    statusEl.style.color='#ef4444';
+    zBox.classList.add('is-alert');
+    valBox.classList.add('is-alert');
+    addAlert(x,z,algo);
+  } else {
+    statusEl.textContent='NORMAL';
+    statusEl.style.color='#22c55e';
+    zBox.classList.remove('is-alert');
+    valBox.classList.remove('is-alert');
+  }
+}
+
+/* ─── Alert log ─── */
+function addAlert(x,z,detector){
+  alertCount++;
+  var log=document.getElementById('anomLog');
+  var empty=log.querySelector('.anom-log-empty');
+  if(empty) empty.remove();
+  if(log.children.length>40) log.removeChild(log.lastChild);
+  var now=new Date();
+  var ts=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
+  var entry=document.createElement('div');
+  entry.className='anom-log-entry';
+  var sev=Math.abs(z)>4.5?'<span class="anom-log-msg">CRITICAL</span>':'<span class="anom-log-msg warn">WARNING</span>';
+  entry.innerHTML='<span class="anom-log-time">'+ts+'</span>'+sev+'<span>x='+x.toFixed(1)+' Z='+z.toFixed(2)+' ['+detector.toUpperCase()+']</span>';
+  log.insertBefore(entry,log.firstChild);
+}
+
+/* ─── Controls ─── */
+document.getElementById('btnToggle').addEventListener('click',function(){
+  if(!running){
+    running=true; timer=setInterval(tick,600);
+    this.innerHTML='<i class="fas fa-pause"></i> Pause';
+    this.classList.add('is-running');
+    ['btnSpike','btnDrift','btnReset'].forEach(function(id){document.getElementById(id).disabled=false;});
+  } else {
+    running=false; clearInterval(timer);
+    this.innerHTML='<i class="fas fa-play"></i> Resume';
+    this.classList.remove('is-running');
+  }
+});
+document.getElementById('btnSpike').addEventListener('click',function(){spikeQueued=true;});
+document.getElementById('btnDrift').addEventListener('click',function(){
+  driftActive=!driftActive;
+  driftOffset=0;
+  document.getElementById('driftBadge').classList.toggle('visible',driftActive);
+  this.style.background=driftActive?'rgba(239,68,68,.25)':'rgba(239,68,68,.1)';
+});
+document.getElementById('btnReset').addEventListener('click',function(){
+  driftActive=false; driftOffset=0; spikeQueued=false;
+  cusum=0; ewma=MU; history=[]; ewmaHistory=[];
+  document.getElementById('driftBadge').classList.remove('visible');
+  document.getElementById('btnDrift').style.background='rgba(239,68,68,.1)';
+  document.getElementById('anomLog').innerHTML='<div class="anom-log-empty">Reset — start stream again…</div>';
+  chart.data.labels=[];
+  chart.data.datasets.forEach(function(ds){ds.data=[];});
+  chart.update('none');
+  ['sVal','sZ','sEWMA'].forEach(function(id){document.getElementById(id).textContent='—';});
+  document.getElementById('sStatus').textContent='NORMAL';
+  document.getElementById('sStatus').style.color='';
+});
+
+/* ─── Algorithm buttons ─── */
+document.querySelectorAll('.anom-algo-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    algo=this.getAttribute('data-algo');
+    cusum=0;
+    document.querySelectorAll('.anom-algo-btn').forEach(function(b){b.classList.remove('active');});
+    this.classList.add('active');
+    document.getElementById('sAlgoName').textContent='ALGORITHM: '+algo.toUpperCase();
+  });
+});
+}());
+</script>
+{% endblock %}

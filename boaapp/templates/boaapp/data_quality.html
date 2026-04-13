@@ -1,0 +1,270 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}Data Quality Framework{% endblock %}
+{% block container_class %}dq-shell{% endblock %}
+{% block content %}
+<style>
+.dq-shell{display:block;width:100%;max-width:100%;padding:0}
+:root{--dq-accent:#10b981;--dq-accent2:#059669;--dq-surface:#fff;--dq-border:rgba(0,0,0,.07);--dq-shadow:0 2px 12px rgba(0,0,0,.06);--dq-muted:#6b7280}
+[data-theme="dark"]{--dq-surface:rgba(10,22,16,.97);--dq-border:rgba(255,255,255,.08);--dq-shadow:0 2px 12px rgba(0,0,0,.35);--dq-muted:#94a3b8}
+@keyframes dqUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dqSpin{to{transform:rotate(360deg)}}
+@keyframes dqBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.dq-wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.dq-hero{text-align:center;padding:1.4rem 0 1rem;animation:dqUp .4s ease both}
+.dq-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.2);color:var(--dq-accent);margin-bottom:.65rem}
+.dq-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
+.dq-hero p{font-size:.84rem;color:var(--dq-muted);max-width:580px;margin:0 auto;line-height:1.6}
+/* Grid layout */
+.dq-grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem}
+/* Panels */
+.dq-panel{background:var(--dq-surface);border:1px solid var(--dq-border);border-radius:16px;box-shadow:var(--dq-shadow);padding:1.1rem;animation:dqUp .45s ease both}
+.dq-panel:nth-child(2){animation-delay:.07s}.dq-panel:nth-child(3){animation-delay:.14s}
+.dq-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--dq-border)}
+.dq-panel-hd i{color:var(--dq-accent);opacity:.8}
+/* Data table */
+.dq-dt{width:100%;font-size:.65rem;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:10px;border:1px solid var(--dq-border)}
+.dq-dt th{background:rgba(16,185,129,.06);font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:.4rem .6rem;text-align:left;white-space:nowrap}
+.dq-dt td{padding:.38rem .6rem;border-top:1px solid var(--dq-border);font-size:.65rem;white-space:nowrap}
+.dq-dt tr.dq-row--bad td{background:rgba(239,68,68,.04)}
+.dq-dt tr.dq-row--warn td{background:rgba(245,158,11,.04)}
+.dq-cell--err{color:#ef4444;font-weight:700}
+.dq-cell--warn{color:#d97706;font-weight:700}
+/* Rules table */
+.dq-rules{width:100%;font-size:.68rem;border-collapse:separate;border-spacing:0}
+.dq-rules th{font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:.38rem .6rem;text-align:left;opacity:.5;border-bottom:1px solid var(--dq-border)}
+.dq-rules td{padding:.45rem .6rem;border-bottom:1px solid var(--dq-border);vertical-align:middle}
+.dq-rules tr:last-child td{border-bottom:none}
+.dq-rule-badge{display:inline-block;padding:.1rem .45rem;border-radius:6px;font-size:.58rem;font-weight:700;background:rgba(16,185,129,.1);color:var(--dq-accent);border:1px solid rgba(16,185,129,.15)}
+.dq-rule-status{display:inline-block;width:22px;height:22px;border-radius:50%;font-size:.7rem;text-align:center;line-height:22px}
+.dq-rule-status--pass{background:rgba(16,185,129,.15);color:#059669}
+.dq-rule-status--fail{background:rgba(239,68,68,.15);color:#dc2626}
+.dq-rule-status--pending{background:rgba(107,114,128,.1);color:#9ca3af}
+.dq-rule-status--running{background:rgba(99,102,241,.15);color:#6366f1;animation:dqSpin .6s linear infinite;display:inline-block}
+/* Run button */
+.dq-run-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.5rem;border-radius:10px;font-size:.8rem;font-weight:800;border:none;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;transition:all .2s}
+.dq-run-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 16px rgba(16,185,129,.3)}
+.dq-run-btn:disabled{opacity:.55;cursor:not-allowed}
+/* Score section */
+.dq-score-wrap{display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center}
+@media(max-width:600px){.dq-score-wrap{grid-template-columns:1fr}}
+.dq-score-ring{position:relative;width:100px;height:100px;flex-shrink:0}
+.dq-score-ring svg{transform:rotate(-90deg)}
+.dq-score-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dq-score-num{font-size:1.6rem;font-weight:900;color:var(--dq-accent);line-height:1}
+.dq-score-pct{font-size:.6rem;opacity:.5;font-weight:600}
+.dq-col-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem}
+.dq-col-badge{background:rgba(16,185,129,.05);border:1px solid var(--dq-border);border-radius:10px;padding:.55rem .65rem;font-size:.65rem}
+.dq-col-badge--fail{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.15)}
+.dq-col-badge-name{font-weight:700;margin-bottom:.2rem}
+.dq-col-badge-stat{font-size:.6rem;display:flex;align-items:center;gap:.3rem;color:var(--dq-muted)}
+.dq-dimension-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-top:.75rem}
+@media(max-width:600px){.dq-dimension-grid{grid-template-columns:repeat(2,1fr)}}
+.dq-dim{text-align:center;background:rgba(16,185,129,.04);border:1px solid var(--dq-border);border-radius:10px;padding:.6rem .4rem}
+.dq-dim-val{font-size:1rem;font-weight:800;color:var(--dq-accent)}
+.dq-dim-fail .dq-dim-val{color:#ef4444}
+.dq-dim-lbl{font-size:.58rem;text-transform:uppercase;letter-spacing:.04em;color:var(--dq-muted);margin-top:.2rem;font-weight:600}
+</style>
+
+<div class="dq-wrap">
+  <div class="dq-hero">
+    <div class="dq-tag"><i class="fas fa-shield-check me-1"></i> Data Engineering</div>
+    <h1>Data Quality Framework</h1>
+    <p>Validate datasets against a configurable rule suite — NULL checks, value ranges, regex patterns, uniqueness, and temporal constraints — with an automated quality score report.</p>
+  </div>
+
+  <div class="dq-grid">
+    <!-- Dataset preview -->
+    <div class="dq-panel">
+      <div class="dq-panel-hd"><i class="fas fa-table"></i> Customer Dataset Preview
+        <span style="margin-left:auto;font-size:.6rem;font-weight:500;opacity:.4">8 rows · 8 columns · issues highlighted</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dq-dt">
+          <thead><tr><th>id</th><th>name</th><th>email</th><th>age</th><th>phone</th><th>signup</th><th>tier</th><th>orders</th></tr></thead>
+          <tbody id="dqDataBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rules -->
+    <div class="dq-panel">
+      <div class="dq-panel-hd"><i class="fas fa-list-check"></i> Validation Suite
+        <span style="margin-left:auto">
+          <button class="dq-run-btn" id="dqRunBtn"><i class="fas fa-play"></i> Run Suite</button>
+        </span>
+      </div>
+      <table class="dq-rules">
+        <thead><tr><th>Column</th><th>Expectation</th><th>Parameter</th><th>Failures</th><th></th></tr></thead>
+        <tbody id="dqRulesBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Score report (hidden until run) -->
+    <div class="dq-panel" id="dqScorePanel" style="display:none">
+      <div class="dq-panel-hd"><i class="fas fa-chart-pie"></i> Quality Report</div>
+      <div class="dq-score-wrap">
+        <div style="text-align:center">
+          <div class="dq-score-ring">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="40" stroke="var(--dq-border)" stroke-width="10"/>
+              <circle cx="50" cy="50" r="40" stroke="var(--dq-accent)" stroke-width="10"
+                stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
+                id="dqRingPath" style="transition:stroke-dashoffset 1s ease"/>
+            </svg>
+            <div class="dq-score-ring-text"><span class="dq-score-num" id="dqScoreNum">0</span><span class="dq-score-pct">DQ Score</span></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.72rem;font-weight:800;margin-bottom:.5rem">Per-Column Results</div>
+          <div class="dq-col-grid" id="dqColGrid"></div>
+        </div>
+      </div>
+      <div style="font-size:.72rem;font-weight:800;margin-top:.9rem;margin-bottom:.5rem">Quality Dimensions</div>
+      <div class="dq-dimension-grid" id="dqDimGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ─── Dataset ─── */
+var DATA = [
+  {id:1, name:'Alice Johnson', email:'alice@corp.com', age:32, phone:'555-1234', signup:'2024-03-15', tier:'gold', orders:47, _issues:[]},
+  {id:2, name:'Bob Smith', email:'BOB@CORP', age:-5, phone:'555-0001', signup:'2024-07-22', tier:'silver', orders:12, _issues:['email','age']},
+  {id:3, name:'Carol Williams', email:'carol@corp', age:28, phone:'(555)789-2345', signup:'2024-01-08', tier:'bronze', orders:3, _issues:['email','phone']},
+  {id:4, name:'', email:'dave@corp.com', age:41, phone:'555-5678', signup:'2027-12-01', tier:'gold', orders:89, _issues:['name','signup']},
+  {id:5, name:'Eve Martinez', email:'eve@corp.com', age:55, phone:'555-9012', signup:'2025-11-30', tier:'gold', orders:156, _issues:[]},
+  {id:1, name:'Alice Johnson', email:'alice@corp.com', age:32, phone:'555-1234', signup:'2024-03-15', tier:'gold', orders:47, _issues:['id']},
+  {id:7, name:'Grace Lee', email:'', age:29, phone:'555-3456', signup:'2024-06-01', tier:'bronze', orders:0, _issues:['email']},
+  {id:8, name:'Henry Brown', email:'henry@corp.com', age:150, phone:'555-7890', signup:'2024-09-15', tier:'silver', orders:22, _issues:['age']},
+];
+/* ─── Rules ─── */
+var RULES = [
+  {col:'id', desc:'expect_column_values_to_be_unique', param:'—', type:'UNIQUE',
+    check: function(data){ var ids=data.map(function(r){return r.id;}); var seen={}; return data.filter(function(r){if(seen[r.id])return true;seen[r.id]=1;return false;}).length; }},
+  {col:'name', desc:'expect_column_values_to_not_be_null', param:'—', type:'NOT NULL',
+    check: function(data){ return data.filter(function(r){return !r.name||r.name.trim()==='';}).length; }},
+  {col:'email', desc:'expect_column_values_to_match_regex', param:'/^[\\w.]+@[\\w]+\\.[\\w]+$/', type:'REGEX',
+    check: function(data){ return data.filter(function(r){return !r.email||!/^[\w.+-]+@[\w-]+\.[\w.]+$/.test(r.email);}).length; }},
+  {col:'age', desc:'expect_column_values_to_be_between', param:'1 – 99', type:'RANGE',
+    check: function(data){ return data.filter(function(r){return r.age<1||r.age>99;}).length; }},
+  {col:'phone', desc:'expect_column_values_to_match_regex', param:'/^\\d{3}-\\d{4}$/', type:'REGEX',
+    check: function(data){ return data.filter(function(r){return !/^\d{3}-\d{4}$/.test(r.phone||'');}).length; }},
+  {col:'signup', desc:'expect_column_values_to_be_in_the_past', param:'≤ today', type:'DATE PAST',
+    check: function(data){ var now=new Date(); return data.filter(function(r){return new Date(r.signup)>now;}).length; }},
+];
+
+/* ─── Render data table ─── */
+var COLS=['id','name','email','age','phone','signup','tier','orders'];
+var tbody=document.getElementById('dqDataBody');
+DATA.forEach(function(row){
+  var tr=document.createElement('tr');
+  var issues=row._issues||[];
+  if(issues.length>1) tr.className='dq-row--bad';
+  else if(issues.length===1) tr.className='dq-row--warn';
+  COLS.forEach(function(col){
+    var td=document.createElement('td');
+    var val=row[col];
+    td.textContent=(val===''||val===null||val===undefined)?'NULL':val;
+    if(issues.indexOf(col)>-1) td.className=issues.length>1?'dq-cell--err':'dq-cell--warn';
+    if(val===''||val===null||val===undefined) td.style.opacity='.4';
+    tr.appendChild(td);
+  });
+  tbody.appendChild(tr);
+});
+
+/* ─── Render rules table ─── */
+var rulesBody=document.getElementById('dqRulesBody');
+RULES.forEach(function(rule,idx){
+  var tr=document.createElement('tr');
+  tr.id='dq-rule-'+idx;
+  tr.innerHTML='<td style="font-weight:700">'+rule.col+'</td>'
+    +'<td style="font-size:.62rem;opacity:.7">'+rule.desc+'</td>'
+    +'<td><code style="font-size:.6rem">'+rule.param+'</code></td>'
+    +'<td id="dq-fail-'+idx+'" style="font-size:.68rem;opacity:.45">—</td>'
+    +'<td><span class="dq-rule-status dq-rule-status--pending" id="dq-status-'+idx+'">·</span></td>';
+  rulesBody.appendChild(tr);
+});
+
+/* ─── Run suite ─── */
+document.getElementById('dqRunBtn').addEventListener('click', function(){
+  this.disabled=true;
+  this.innerHTML='<i class="fas fa-spinner fa-spin"></i> Running…';
+  var self=this;
+  var results=[];
+  function runNext(idx){
+    if(idx>=RULES.length){
+      setTimeout(function(){showReport(results); self.innerHTML='<i class="fas fa-redo"></i> Re-run Suite'; self.disabled=false;},400);
+      return;
+    }
+    var statusEl=document.getElementById('dq-status-'+idx);
+    statusEl.className='dq-rule-status dq-rule-status--running';
+    statusEl.textContent='↻';
+    setTimeout(function(){
+      try {
+        var failures=RULES[idx].check(DATA);
+        results.push({rule:RULES[idx],failures:failures});
+        document.getElementById('dq-fail-'+idx).textContent=failures>0?failures+' row'+(failures>1?'s':''):'0 rows';
+        document.getElementById('dq-fail-'+idx).style.color=failures>0?'#ef4444':'#10b981';
+        document.getElementById('dq-fail-'+idx).style.opacity='1';
+        statusEl.className='dq-rule-status '+(failures===0?'dq-rule-status--pass':'dq-rule-status--fail');
+        statusEl.textContent=failures===0?'✓':'✕';
+      } catch(e){}
+      runNext(idx+1);
+    }, 500);
+  }
+  runNext(0);
+});
+
+/* ─── Show report ─── */
+function showReport(results){
+  var panel=document.getElementById('dqScorePanel');
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+
+  var passing=results.filter(function(r){return r.failures===0;}).length;
+  var score=Math.round(passing/results.length*100);
+
+  // Ring
+  var circumference=251.2;
+  var offset=circumference*(1-score/100);
+  document.getElementById('dqRingPath').style.strokeDashoffset=offset;
+  document.getElementById('dqRingPath').style.stroke=score>=80?'#10b981':score>=60?'#f59e0b':'#ef4444';
+  setTimeout(function(){document.getElementById('dqScoreNum').textContent=score+'%';},200);
+
+  // Per-column badges
+  var colGrid=document.getElementById('dqColGrid');
+  colGrid.innerHTML='';
+  var colResults={};
+  results.forEach(function(r){colResults[r.rule.col]=r.failures;});
+  Object.keys(colResults).forEach(function(col){
+    var fail=colResults[col]>0;
+    var badge=document.createElement('div');
+    badge.className='dq-col-badge'+(fail?' dq-col-badge--fail':'');
+    badge.innerHTML='<div class="dq-col-badge-name">'+col+'</div><div class="dq-col-badge-stat">'+(fail?'<span style="color:#ef4444">✕</span>'+colResults[col]+' issue'+(colResults[col]>1?'s':''):'<span style="color:#10b981">✓</span> OK')+'</div>';
+    colGrid.appendChild(badge);
+  });
+
+  // Dimensions
+  var dims=[
+    {name:'Completeness',pass:results.filter(function(r){return r.rule.type==='NOT NULL'&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='NOT NULL';}).length},
+    {name:'Validity',pass:results.filter(function(r){return (r.rule.type==='RANGE'||r.rule.type==='REGEX')&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='RANGE'||r.rule.type==='REGEX';}).length},
+    {name:'Uniqueness',pass:results.filter(function(r){return r.rule.type==='UNIQUE'&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='UNIQUE';}).length},
+    {name:'Timeliness',pass:results.filter(function(r){return r.rule.type==='DATE PAST'&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='DATE PAST';}).length},
+    {name:'Overall',pass:passing,total:results.length}
+  ];
+  var dimGrid=document.getElementById('dqDimGrid');
+  dimGrid.innerHTML='';
+  dims.forEach(function(d){
+    var pct=d.total>0?Math.round(d.pass/d.total*100):100;
+    var div=document.createElement('div');
+    div.className='dq-dim'+(pct<100?' dq-dim-fail':'');
+    div.innerHTML='<div class="dq-dim-val">'+pct+'%</div><div class="dq-dim-lbl">'+d.name+'</div>';
+    dimGrid.appendChild(div);
+  });
+}
+}());
+</script>
+{% endblock %}

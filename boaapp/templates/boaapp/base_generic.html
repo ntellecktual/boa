@@ -105,7 +105,7 @@
           <button class="sb-group-toggle" type="button" aria-expanded="true">
             <span class="sb-group-dot" style="--dot:#8b5cf6"></span>
             <span class="sb-group-label">Demos</span>
-            <span class="sb-group-count">8</span>
+            <span class="sb-group-count">14</span>
             <i class="fas fa-chevron-down sb-group-chevron"></i>
           </button>
           <div class="sb-group-items open">
@@ -145,6 +145,30 @@
             <a href="{% url 'job_match' %}" class="sidebar-link" data-desc="AI-powered job matching engine">
               <span class="sb-icon-wrap sb-icon--orange"><i class="fas fa-crosshairs"></i></span>
               <span class="sidebar-text">Job Match</span>
+            </a>
+            <a href="{% url 'feature_store' %}" class="sidebar-link" data-desc="Offline feature engineering & registry">
+              <span class="sb-icon-wrap sb-icon--violet"><i class="fas fa-warehouse"></i></span>
+              <span class="sidebar-text">Feature Store</span>
+            </a>
+            <a href="{% url 'supply_chain' %}" class="sidebar-link" data-desc="EOQ optimizer with inventory simulation">
+              <span class="sb-icon-wrap sb-icon--amber"><i class="fas fa-boxes"></i></span>
+              <span class="sidebar-text">Supply Chain</span>
+            </a>
+            <a href="{% url 'anomaly_detection' %}" class="sidebar-link" data-desc="Live sensor stream with Z-score & EWMA">
+              <span class="sb-icon-wrap sb-icon--cyan"><i class="fas fa-wave-square"></i></span>
+              <span class="sidebar-text">Anomaly Detection</span>
+            </a>
+            <a href="{% url 'data_quality' %}" class="sidebar-link" data-desc="Configurable data validation rule suite">
+              <span class="sb-icon-wrap sb-icon--green"><i class="fas fa-shield-check"></i></span>
+              <span class="sidebar-text">Data Quality</span>
+            </a>
+            <a href="{% url 'schema_registry' %}" class="sidebar-link" data-desc="Schema evolution & compatibility checker">
+              <span class="sb-icon-wrap sb-icon--rose"><i class="fas fa-file-code"></i></span>
+              <span class="sidebar-text">Schema Registry</span>
+            </a>
+            <a href="{% url 'multi_agent' %}" class="sidebar-link" data-desc="5-agent AI orchestration pipeline">
+              <span class="sb-icon-wrap sb-icon--indigo"><i class="fas fa-robot"></i></span>
+              <span class="sidebar-text">Multi-Agent AI</span>
             </a>
           </div>
         </div>

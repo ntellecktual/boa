@@ -1,0 +1,355 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}Schema Registry{% endblock %}
+{% block container_class %}sreg-shell{% endblock %}
+{% block content %}
+<style>
+.sreg-shell{display:block;width:100%;max-width:100%;padding:0}
+:root{--sreg-accent:#f43f5e;--sreg-accent2:#e11d48;--sreg-surface:#fff;--sreg-border:rgba(0,0,0,.07);--sreg-shadow:0 2px 12px rgba(0,0,0,.06);--sreg-muted:#6b7280}
+[data-theme="dark"]{--sreg-surface:rgba(22,10,14,.97);--sreg-border:rgba(255,255,255,.08);--sreg-shadow:0 2px 12px rgba(0,0,0,.35);--sreg-muted:#94a3b8}
+@keyframes sregUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sregFlash{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+.sreg-wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.sreg-hero{text-align:center;padding:1.4rem 0 1rem;animation:sregUp .4s ease both}
+.sreg-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(244,63,94,.09);border:1px solid rgba(244,63,94,.2);color:var(--sreg-accent);margin-bottom:.65rem}
+.sreg-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#f43f5e,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
+.sreg-hero p{font-size:.84rem;color:var(--sreg-muted);max-width:580px;margin:0 auto;line-height:1.6}
+/* Layout */
+.sreg-body{display:grid;grid-template-columns:180px 1fr 220px;gap:1rem;margin-top:1rem}
+@media(max-width:900px){.sreg-body{grid-template-columns:1fr 1fr}}
+@media(max-width:580px){.sreg-body{grid-template-columns:1fr}}
+/* Panels */
+.sreg-panel{background:var(--sreg-surface);border:1px solid var(--sreg-border);border-radius:16px;box-shadow:var(--sreg-shadow);padding:1rem;animation:sregUp .45s ease both}
+.sreg-panel:nth-child(2){animation-delay:.07s}.sreg-panel:nth-child(3){animation-delay:.14s}
+.sreg-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:1px solid var(--sreg-border)}
+.sreg-panel-hd i{color:var(--sreg-accent);opacity:.8}
+/* Version timeline */
+.sreg-timeline{list-style:none;padding:0;margin:0;position:relative}
+.sreg-timeline::before{content:'';position:absolute;left:9px;top:4px;bottom:4px;width:2px;background:var(--sreg-border)}
+.sreg-tl-item{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem 0;cursor:pointer;border-radius:8px;position:relative;padding-left:6px;transition:background .15s}
+.sreg-tl-item:hover{background:rgba(244,63,94,.04)}
+.sreg-tl-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--sreg-border);background:var(--sreg-surface);flex-shrink:0;margin-top:1px;position:relative;z-index:1;transition:all .2s}
+.sreg-tl-item.active .sreg-tl-dot{border-color:var(--sreg-accent);background:var(--sreg-accent)}
+.sreg-tl-content{flex:1}
+.sreg-tl-ver{font-size:.72rem;font-weight:800;line-height:1.2}
+.sreg-tl-ts{font-size:.58rem;color:var(--sreg-muted);margin-top:1px}
+.sreg-tl-tag{display:inline-block;font-size:.55rem;font-weight:700;padding:.08rem .35rem;border-radius:4px;margin-top:.25rem}
+.sreg-tl-tag--safe{background:rgba(16,185,129,.1);color:#059669}
+.sreg-tl-tag--break{background:rgba(244,63,94,.1);color:#e11d48}
+/* Schema display */
+.sreg-code{background:rgba(0,0,0,.03);border:1px solid var(--sreg-border);border-radius:10px;padding:.85rem;font-size:.66rem;font-family:'Cascadia Code','JetBrains Mono',monospace;line-height:1.8;white-space:pre-wrap;min-height:260px;overflow-x:auto;position:relative}
+[data-theme="dark"] .sreg-code{background:rgba(255,255,255,.03)}
+.sreg-code .k{color:#f43f5e;font-weight:600}
+.sreg-code .s{color:#10b981}
+.sreg-code .n{color:#f59e0b}
+.sreg-code .b{color:#3b82f6}
+.sreg-code .field-new{background:rgba(16,185,129,.1);border-left:2px solid #10b981;padding-left:.2rem}
+.sreg-code .field-del{background:rgba(244,63,94,.1);border-left:2px solid #f43f5e;padding-left:.2rem;text-decoration:line-through;opacity:.7}
+.sreg-code .field-mod{background:rgba(245,158,11,.1);border-left:2px solid #f59e0b;padding-left:.2rem}
+/* Change buttons */
+.sreg-changes{display:flex;flex-direction:column;gap:.45rem;margin-bottom:.85rem}
+.sreg-change-btn{display:block;width:100%;padding:.42rem .7rem;border-radius:9px;font-size:.7rem;font-weight:700;border:1px solid var(--sreg-border);background:transparent;cursor:pointer;text-align:left;transition:all .18s}
+.sreg-change-btn:hover{border-color:var(--sreg-accent);color:var(--sreg-accent)}
+.sreg-change-btn .sreg-cb-tag{display:inline-block;font-size:.58rem;padding:.07rem .4rem;border-radius:4px;float:right;font-weight:700}
+.sreg-change-btn .sreg-cb-tag--safe{background:rgba(16,185,129,.15);color:#059669}
+.sreg-change-btn .sreg-cb-tag--break{background:rgba(244,63,94,.12);color:#e11d48}
+/* Compatibility check */
+.sreg-compat-row{margin-bottom:.7rem}
+.sreg-compat-label{font-size:.65rem;font-weight:700;margin-bottom:.3rem;opacity:.6}
+.sreg-mode-group{display:flex;gap:.3rem}
+.sreg-mode-btn{flex:1;padding:.28rem 0;border-radius:7px;font-size:.62rem;font-weight:700;border:1px solid var(--sreg-border);background:transparent;cursor:pointer;transition:all .18s;color:var(--sreg-muted)}
+.sreg-mode-btn.active{background:linear-gradient(135deg,#f43f5e,#f97316);color:#fff;border-color:transparent}
+/* Result badge */
+.sreg-result{border-radius:12px;padding:.85rem;text-align:center;margin-top:.75rem;transition:all .3s}
+.sreg-result--compat{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25)}
+.sreg-result--incompat{background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25)}
+.sreg-result-icon{font-size:1.75rem;margin-bottom:.35rem}
+.sreg-result-title{font-size:.78rem;font-weight:800;margin-bottom:.35rem}
+.sreg-result--compat .sreg-result-title{color:#059669}
+.sreg-result--incompat .sreg-result-title{color:#e11d48}
+.sreg-result-issues{list-style:none;padding:0;margin:0;text-align:left}
+.sreg-result-issues li{font-size:.64rem;padding:.2rem 0;display:flex;align-items:flex-start;gap:.35rem;color:var(--sreg-muted)}
+.sreg-result-issues li::before{content:'→';color:var(--sreg-accent);flex-shrink:0}
+/* Version metadata */
+.sreg-meta{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
+.sreg-meta-badge{display:inline-block;font-size:.6rem;font-weight:700;padding:.15rem .5rem;border-radius:6px;background:rgba(244,63,94,.08);color:var(--sreg-accent);border:1px solid rgba(244,63,94,.12)}
+.sreg-diff-hint{font-size:.65rem;color:var(--sreg-muted);margin-top:.5rem;display:flex;gap:1rem;flex-wrap:wrap}
+.sreg-diff-hint span{display:inline-flex;align-items:center;gap:.3rem}
+.sreg-diff-swatch{width:10px;height:10px;border-radius:2px}
+</style>
+
+<div class="sreg-wrap">
+  <div class="sreg-hero">
+    <div class="sreg-tag"><i class="fas fa-file-code me-1"></i> Data Contracts</div>
+    <h1>Schema Registry</h1>
+    <p>Manage event schema evolution with strict backward/forward compatibility checking. Apply field changes and immediately see which breaks your consumers — before it hits production.</p>
+  </div>
+
+  <div class="sreg-body">
+    <!-- Version sidebar -->
+    <div class="sreg-panel">
+      <div class="sreg-panel-hd"><i class="fas fa-history"></i> Versions</div>
+      <ul class="sreg-timeline" id="sregTimeline"></ul>
+    </div>
+
+    <!-- Schema viewer -->
+    <div class="sreg-panel">
+      <div class="sreg-panel-hd"><i class="fas fa-code"></i> Schema — <span id="sregSubject">OrderEvent</span>
+        <span style="margin-left:.5rem;font-size:.68rem;font-weight:600;opacity:.5" id="sregVerBadge">v1</span>
+      </div>
+      <div class="sreg-meta" id="sregMeta"></div>
+      <div class="sreg-code" id="sregCodeView"></div>
+      <div class="sreg-diff-hint" id="sregDiffHint" style="display:none">
+        <span><span class="sreg-diff-swatch" style="background:rgba(16,185,129,.35)"></span>Added</span>
+        <span><span class="sreg-diff-swatch" style="background:rgba(244,63,94,.25)"></span>Removed</span>
+        <span><span class="sreg-diff-swatch" style="background:rgba(245,158,11,.25)"></span>Modified</span>
+      </div>
+    </div>
+
+    <!-- Compatibility panel -->
+    <div class="sreg-panel">
+      <div class="sreg-panel-hd"><i class="fas fa-shield-halved"></i> Change Simulator</div>
+
+      <div class="sreg-compat-label">Apply a Schema Change</div>
+      <div class="sreg-changes">
+        <button class="sreg-change-btn" data-change="add_safe">
+          <i class="fas fa-plus-circle" style="color:#10b981"></i> Add field w/ default
+          <span class="sreg-cb-tag sreg-cb-tag--safe">SAFE</span>
+        </button>
+        <button class="sreg-change-btn" data-change="remove_required">
+          <i class="fas fa-minus-circle" style="color:#f43f5e"></i> Remove required field
+          <span class="sreg-cb-tag sreg-cb-tag--break">⚡ BREAKING</span>
+        </button>
+        <button class="sreg-change-btn" data-change="rename_field">
+          <i class="fas fa-pen-to-square" style="color:#f43f5e"></i> Rename field
+          <span class="sreg-cb-tag sreg-cb-tag--break">⚡ BREAKING</span>
+        </button>
+        <button class="sreg-change-btn" data-change="change_type">
+          <i class="fas fa-arrows-rotate" style="color:#f43f5e"></i> Change field type
+          <span class="sreg-cb-tag sreg-cb-tag--break">⚡ BREAKING</span>
+        </button>
+        <button class="sreg-change-btn" data-change="reset" style="background:rgba(99,102,241,.06);border-color:rgba(99,102,241,.2)">
+          <i class="fas fa-undo" style="color:#6366f1"></i> Reset to v1
+        </button>
+      </div>
+
+      <div class="sreg-compat-label">Compatibility Mode</div>
+      <div class="sreg-mode-group" id="sregModes">
+        <button class="sreg-mode-btn active" data-mode="BACKWARD">BACKWARD</button>
+        <button class="sreg-mode-btn" data-mode="FORWARD">FORWARD</button>
+        <button class="sreg-mode-btn" data-mode="FULL">FULL</button>
+      </div>
+
+      <div id="sregResult" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ─── Schema versions ─── */
+var V1 = {
+  ver:1, ts:'2026-01-15 09:00', label:'Initial Release',
+  subject:'OrderEvent', namespace:'com.thenumerix.events',
+  fields:[
+    {name:'order_id', type:'string', required:true, _tag:''},
+    {name:'user_id', type:'int', required:true, _tag:''},
+    {name:'amount', type:'double', required:true, _tag:''},
+    {name:'currency', type:'string', default:'USD', _tag:''},
+    {name:'created_at', type:'timestamp', required:true, _tag:''},
+  ]
+};
+
+var versions=[JSON.parse(JSON.stringify(V1))];
+var currentVer=0; // index into versions
+
+/* ─── Render timeline ─── */
+var CHANGES_META={
+  add_safe:{label:'Added channel field',tag:'safe',tagLabel:'BACKWARD-SAFE'},
+  remove_required:{label:'Removed amount',tag:'break',tagLabel:'BREAKING'},
+  rename_field:{label:'Renamed amount→total',tag:'break',tagLabel:'BREAKING'},
+  change_type:{label:'user_id: int→string',tag:'break',tagLabel:'BREAKING'},
+};
+function renderTimeline(){
+  var tl=document.getElementById('sregTimeline');
+  tl.innerHTML='';
+  versions.forEach(function(v,idx){
+    var li=document.createElement('li');
+    li.className='sreg-tl-item'+(idx===currentVer?' active':'');
+    li.dataset.idx=idx;
+    var tag=idx===0?'':'';
+    var tagHtml='';
+    if(v._changeMeta){
+      tagHtml='<span class="sreg-tl-tag sreg-tl-tag--'+v._changeMeta.tag+'">'+v._changeMeta.tagLabel+'</span>';
+    }
+    li.innerHTML='<span class="sreg-tl-dot"></span><div class="sreg-tl-content"><div class="sreg-tl-ver">v'+v.ver+'</div><div class="sreg-tl-ts">'+v.ts+'</div>'+tagHtml+'</div>';
+    li.addEventListener('click',function(){currentVer=idx;renderView();renderTimeline();});
+    tl.appendChild(li);
+  });
+}
+
+/* ─── Render schema code ─── */
+function renderView(){
+  var v=versions[currentVer];
+  document.getElementById('sregVerBadge').textContent='v'+v.ver;
+  // Metadata badges
+  var meta=document.getElementById('sregMeta');
+  meta.innerHTML='<span class="sreg-meta-badge"><i class="fas fa-tag me-1"></i>'+v.namespace+'</span>'
+    +'<span class="sreg-meta-badge">'+v.fields.length+' fields</span>'
+    +'<span class="sreg-meta-badge">'+new Date(v.ts).toLocaleDateString()+'</span>';
+
+  // Build code
+  var lines=[];
+  lines.push('<span class="k">schema</span> <span class="s">'+v.subject+'</span> {');
+  lines.push('  <span class="k">namespace</span>: <span class="s">"'+v.namespace+'"</span>');
+  lines.push('  <span class="k">version</span>:   <span class="n">'+v.ver+'</span>');
+  lines.push('  <span class="k">fields</span>: [');
+  v.fields.forEach(function(f){
+    var parts=['    { <span class="k">name</span>: <span class="s">"'+f.name+'"</span>'];
+    parts.push('<span class="k">type</span>: <span class="n">'+f.type+'</span>');
+    if(f.required) parts.push('<span class="k">required</span>: <span class="b">true</span>');
+    if(f.default!==undefined) parts.push('<span class="k">default</span>: <span class="s">"'+f.default+'"</span>');
+    var line=parts.join(', ')+' }';
+    if(f._tag) line='<span class="field-'+f._tag+'">'+line+'</span>';
+    lines.push(line);
+  });
+  lines.push('  ]');
+  lines.push('}');
+  var code=document.getElementById('sregCodeView');
+  code.innerHTML=lines.join('\n');
+
+  // Diff hint
+  var hasDiff=v.fields.some(function(f){return f._tag;});
+  document.getElementById('sregDiffHint').style.display=hasDiff?'flex':'none';
+
+  // Clear result when navigating
+  document.getElementById('sregResult').style.display='none';
+}
+
+/* ─── Compatibility check ─── */
+var compatMode='BACKWARD';
+function checkCompat(oldV,newV){
+  var issues=[];
+  // BACKWARD: new can read old data → removed fields must have default in new; new required fields not in old = break
+  if(compatMode==='BACKWARD'||compatMode==='FULL'){
+    oldV.fields.forEach(function(f){
+      var inNew=newV.fields.find(function(f2){return f2.name===f.name;});
+      if(!inNew) issues.push('Field "'+f.name+'" removed — old consumers will break.');
+      else if(inNew.type!==f.type) issues.push('Field "'+f.name+'" type changed '+f.type+'→'+inNew.type+' — deserialization breaks.');
+    });
+    newV.fields.forEach(function(f){
+      var inOld=oldV.fields.find(function(f2){return f2.name===f.name;});
+      if(!inOld&&f.default===undefined) issues.push('New required field "'+f.name+'" breaks old data (no default).');
+    });
+  }
+  // FORWARD: old can read new data → old consumers read new schemas
+  if(compatMode==='FORWARD'||compatMode==='FULL'){
+    newV.fields.forEach(function(f){
+      var inOld=oldV.fields.find(function(f2){return f2.name===f.name;});
+      if(!inOld&&f.required) issues.push('Field "'+f.name+'" required in new but absent in old schema.');
+    });
+    oldV.fields.forEach(function(f){
+      var inNew=newV.fields.find(function(f2){return f2.name===f.name;});
+      if(inNew&&inNew.type!==f.type) issues.push('Type change on "'+f.name+'" — forward readers will fail.');
+    });
+  }
+  return issues;
+}
+
+function showResult(issues,changed){
+  if(!changed){
+    var res=document.getElementById('sregResult');res.style.display='none';return;
+  }
+  var pass=issues.length===0;
+  var res=document.getElementById('sregResult');
+  res.style.display='block';
+  res.className='sreg-result '+(pass?'sreg-result--compat':'sreg-result--incompat');
+  var issueHtml='';
+  if(!pass){
+    issueHtml='<ul class="sreg-result-issues">'+issues.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>';
+  }
+  res.innerHTML='<div class="sreg-result-icon">'+(pass?'✅':'🚨')+'</div>'
+    +'<div class="sreg-result-title">'+(pass?compatMode+' COMPATIBLE':compatMode+' INCOMPATIBLE')+'</div>'
+    +(pass?'<div style="font-size:.68rem;color:var(--sreg-muted)">This change is safe to deploy.</div>':issueHtml);
+}
+
+/* ─── Apply changes ─── */
+var CHANGE_DEFS = {
+  add_safe: function(schema){
+    schema.fields.push({name:'channel',type:'string',default:'web',_tag:'new'});
+    schema._desc='Added channel (backward-safe)';
+    schema._changeMeta={tag:'safe',tagLabel:'SAFE'};
+  },
+  remove_required: function(schema){
+    schema.fields=schema.fields.map(function(f){
+      return f.name==='amount'?Object.assign({},f,{_tag:'del'}):f;
+    }).filter(function(f){return f._tag!=='del';});
+    schema._desc='Removed amount';
+    schema._changeMeta={tag:'break',tagLabel:'BREAKING'};
+  },
+  rename_field: function(schema){
+    schema.fields=schema.fields.map(function(f){
+      if(f.name==='amount'){
+        return Object.assign({},f,{name:'total_amount',_tag:'mod'});
+      } return f;
+    });
+    schema._desc='Renamed amount→total_amount';
+    schema._changeMeta={tag:'break',tagLabel:'BREAKING'};
+  },
+  change_type: function(schema){
+    schema.fields=schema.fields.map(function(f){
+      if(f.name==='user_id'){
+        return Object.assign({},f,{type:'string',_tag:'mod'});
+      } return f;
+    });
+    schema._desc='Changed user_id: int→string';
+    schema._changeMeta={tag:'break',tagLabel:'BREAKING'};
+  },
+  reset: null
+};
+
+document.querySelectorAll('.sreg-change-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var change=this.getAttribute('data-change');
+    if(change==='reset'){
+      versions=[JSON.parse(JSON.stringify(V1))]; currentVer=0;
+      renderTimeline(); renderView();
+      document.getElementById('sregResult').style.display='none';
+      return;
+    }
+    // Build new version from v1 base (always diff against v1)
+    var base=JSON.parse(JSON.stringify(V1));
+    var newSchema=JSON.parse(JSON.stringify(V1));
+    newSchema.ver=versions.length+1;
+    var now=new Date();
+    newSchema.ts=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+now.toTimeString().slice(0,5);
+    newSchema.fields=newSchema.fields.map(function(f){return Object.assign({},f,{_tag:''});});
+    CHANGE_DEFS[change](newSchema);
+    // Check compat
+    var issues=checkCompat(base,newSchema);
+    versions.push(newSchema);
+    currentVer=versions.length-1;
+    renderTimeline(); renderView();
+    showResult(issues,true);
+  });
+});
+
+/* ─── Mode buttons ─── */
+document.querySelectorAll('.sreg-mode-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    compatMode=this.getAttribute('data-mode');
+    document.querySelectorAll('.sreg-mode-btn').forEach(function(b){b.classList.remove('active');});
+    this.classList.add('active');
+    if(versions.length>1){
+      var issues=checkCompat(versions[0],versions[currentVer]);
+      showResult(issues,true);
+    }
+  });
+});
+
+renderTimeline(); renderView();
+}());
+</script>
+{% endblock %}
