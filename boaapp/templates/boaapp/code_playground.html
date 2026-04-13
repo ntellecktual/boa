@@ -391,7 +391,7 @@ var PG = (function(){
 
 var STORAGE_KEY = 'pg_project_v2';
 var MONACO_CDN  = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs';
-var PYODIDE_CDN = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
+var PYODIDE_CDN = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
 var CSRF = '{{ csrf_token }}';
 
 /* ─── State ─── */
@@ -405,7 +405,7 @@ var models     = {};         /* path → Monaco model */
 var viewStates = {};         /* path → Monaco view state */
 var pyodide    = null;
 var pyodideReady = false;
-var installedPkgs = ['numpy'];
+var installedPkgs = [];
 var collapsedFolders = {};
 var ctxTarget  = null;       /* right-click target path */
 var wrapOutput = true;
@@ -762,21 +762,48 @@ function loadPyodideScript(){
   });
 }
 
+var _pyodidePromise = null;
 async function initPyodide(){
   if(pyodide) return pyodide;
-  document.getElementById('sbPyodide').innerHTML = '<i class="fas fa-circle-notch fa-spin" style="color:var(--pg-warning)"></i> Pyodide: loading';
-  consolePrint('Loading Python runtime (Pyodide)...', 'info');
-  await loadPyodideScript();
-  pyodide = await loadPyodide();
-  await pyodide.loadPackage(['numpy','micropip']);
-  pyodideReady = true;
-  document.getElementById('sbPyodide').innerHTML = '<i class="fas fa-circle" style="color:var(--pg-success)"></i> Pyodide: ready';
-  consolePrint('Python runtime ready. numpy pre-loaded.', 'info');
-  return pyodide;
+  if(_pyodidePromise) return _pyodidePromise;
+  _pyodidePromise = (async function(){
+    document.getElementById('sbPyodide').innerHTML = '<i class="fas fa-circle-notch fa-spin" style="color:var(--pg-warning)"></i> Pyodide: loading';
+    consolePrint('Loading Python runtime (Pyodide v0.26.4)...', 'info');
+    var timeout = new Promise(function(_,reject){
+      setTimeout(function(){ reject(new Error('Pyodide load timed out after 45s. Check your connection and refresh.')); }, 45000);
+    });
+    await Promise.race([loadPyodideScript(), timeout]);
+    consolePrint('Pyodide script fetched — initializing...', 'info');
+    pyodide = await Promise.race([loadPyodide({indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'}), timeout]);
+    /* Only load micropip — numpy loaded on-demand when code imports it */
+    await pyodide.loadPackage(['micropip']);
+    pyodideReady = true;
+    _pyodidePromise = null;
+    document.getElementById('sbPyodide').innerHTML = '<i class="fas fa-circle" style="color:var(--pg-success)"></i> Pyodide: ready';
+    consolePrint('Python runtime ready. Use Packages to pre-install libraries.', 'info');
+    return pyodide;
+  })();
+  return _pyodidePromise;
+}
+
+/* Common packages that Pyodide bundles natively (no micropip needed) */
+var BUNDLED_PKGS = ['numpy','scipy','pandas','matplotlib','pillow','lxml','statsmodels','scikit-learn','cryptography'];
+async function ensureImports(code){
+  /* Scan for 'import X' / 'from X import' and load bundled packages needed */
+  var needed = [];
+  BUNDLED_PKGS.forEach(function(pkg){
+    var alias = pkg === 'scikit-learn' ? 'sklearn' : pkg === 'pillow' ? 'PIL' : pkg;
+    if(new RegExp('(^|\n)\\s*(import\\s+'+alias+'|from\\s+'+alias+'\\s)').test(code)) needed.push(pkg);
+  });
+  if(needed.length){
+    consolePrint('Loading packages: ' + needed.join(', ') + '...', 'info');
+    await pyodide.loadPackage(needed);
+  }
 }
 
 async function runPython(code){
   var py = await initPyodide();
+  await ensureImports(code);
   /* Sync ALL .py files to Pyodide FS so imports work */
   Object.keys(files).forEach(function(path){
     if(extOf(path) === 'py'){
