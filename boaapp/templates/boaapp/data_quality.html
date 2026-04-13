@@ -1,20 +1,22 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
-{% block title %}Data Quality Framework{% endblock %}
+{% block title %}Data Quality — Omni Hotels{% endblock %}
 {% block container_class %}dq-shell{% endblock %}
 {% block content %}
 <style>
 .dq-shell{display:block;width:100%;max-width:100%;padding:0}
-:root{--dq-accent:#10b981;--dq-accent2:#059669;--dq-surface:#fff;--dq-border:rgba(0,0,0,.07);--dq-shadow:0 2px 12px rgba(0,0,0,.06);--dq-muted:#6b7280}
+:root{--dq-accent:#10b981;--dq-accent2:#059669;--dq-surface:#fff;--dq-border:rgba(0,0,0,.07);--dq-shadow:0 2px 12px rgba(0,0,0,.06);--dq-muted:#6b7280;--dq-brand:#1a3c5e}
 [data-theme="dark"]{--dq-surface:rgba(10,22,16,.97);--dq-border:rgba(255,255,255,.08);--dq-shadow:0 2px 12px rgba(0,0,0,.35);--dq-muted:#94a3b8}
 @keyframes dqUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dqSpin{to{transform:rotate(360deg)}}
 @keyframes dqBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.dq-wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.dq-wrap{max-width:1280px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
 .dq-hero{text-align:center;padding:1.4rem 0 1rem;animation:dqUp .4s ease both}
 .dq-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.2);color:var(--dq-accent);margin-bottom:.65rem}
-.dq-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
-.dq-hero p{font-size:.84rem;color:var(--dq-muted);max-width:580px;margin:0 auto;line-height:1.6}
+.dq-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#10b981,#1a3c5e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
+.dq-hero p{font-size:.84rem;color:var(--dq-muted);max-width:640px;margin:0 auto;line-height:1.6}
+.dq-hero-context{display:inline-flex;align-items:center;gap:.5rem;margin-top:.7rem;padding:.4rem .9rem;border-radius:10px;background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.12);font-size:.68rem;color:var(--dq-muted)}
+.dq-hero-context strong{color:var(--dq-accent);font-weight:800}
 /* Grid layout */
 .dq-grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem}
 /* Panels */
@@ -22,18 +24,19 @@
 .dq-panel:nth-child(2){animation-delay:.07s}.dq-panel:nth-child(3){animation-delay:.14s}
 .dq-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--dq-border)}
 .dq-panel-hd i{color:var(--dq-accent);opacity:.8}
+.dq-panel-hd .dq-badge{margin-left:auto;font-size:.56rem;font-weight:700;padding:.14rem .5rem;border-radius:999px;background:rgba(16,185,129,.08);color:var(--dq-accent);border:1px solid rgba(16,185,129,.14)}
 /* Data table */
-.dq-dt{width:100%;font-size:.65rem;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:10px;border:1px solid var(--dq-border)}
-.dq-dt th{background:rgba(16,185,129,.06);font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:.4rem .6rem;text-align:left;white-space:nowrap}
-.dq-dt td{padding:.38rem .6rem;border-top:1px solid var(--dq-border);font-size:.65rem;white-space:nowrap}
+.dq-dt{width:100%;font-size:.62rem;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:10px;border:1px solid var(--dq-border)}
+.dq-dt th{background:rgba(16,185,129,.06);font-size:.56rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:.35rem .5rem;text-align:left;white-space:nowrap}
+.dq-dt td{padding:.32rem .5rem;border-top:1px solid var(--dq-border);font-size:.62rem;white-space:nowrap}
 .dq-dt tr.dq-row--bad td{background:rgba(239,68,68,.04)}
 .dq-dt tr.dq-row--warn td{background:rgba(245,158,11,.04)}
 .dq-cell--err{color:#ef4444;font-weight:700}
 .dq-cell--warn{color:#d97706;font-weight:700}
 /* Rules table */
-.dq-rules{width:100%;font-size:.68rem;border-collapse:separate;border-spacing:0}
-.dq-rules th{font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:.38rem .6rem;text-align:left;opacity:.5;border-bottom:1px solid var(--dq-border)}
-.dq-rules td{padding:.45rem .6rem;border-bottom:1px solid var(--dq-border);vertical-align:middle}
+.dq-rules{width:100%;font-size:.66rem;border-collapse:separate;border-spacing:0}
+.dq-rules th{font-size:.58rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:.35rem .55rem;text-align:left;opacity:.5;border-bottom:1px solid var(--dq-border)}
+.dq-rules td{padding:.4rem .55rem;border-bottom:1px solid var(--dq-border);vertical-align:middle}
 .dq-rules tr:last-child td{border-bottom:none}
 .dq-rule-badge{display:inline-block;padding:.1rem .45rem;border-radius:6px;font-size:.58rem;font-weight:700;background:rgba(16,185,129,.1);color:var(--dq-accent);border:1px solid rgba(16,185,129,.15)}
 .dq-rule-status{display:inline-block;width:22px;height:22px;border-radius:50%;font-size:.7rem;text-align:center;line-height:22px}
@@ -42,7 +45,7 @@
 .dq-rule-status--pending{background:rgba(107,114,128,.1);color:#9ca3af}
 .dq-rule-status--running{background:rgba(99,102,241,.15);color:#6366f1;animation:dqSpin .6s linear infinite;display:inline-block}
 /* Run button */
-.dq-run-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.5rem;border-radius:10px;font-size:.8rem;font-weight:800;border:none;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;transition:all .2s}
+.dq-run-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.5rem;border-radius:10px;font-size:.78rem;font-weight:800;border:none;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;transition:all .2s}
 .dq-run-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 16px rgba(16,185,129,.3)}
 .dq-run-btn:disabled{opacity:.55;cursor:not-allowed}
 /* Score section */
@@ -54,42 +57,60 @@
 .dq-score-num{font-size:1.6rem;font-weight:900;color:var(--dq-accent);line-height:1}
 .dq-score-pct{font-size:.6rem;opacity:.5;font-weight:600}
 .dq-col-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem}
-.dq-col-badge{background:rgba(16,185,129,.05);border:1px solid var(--dq-border);border-radius:10px;padding:.55rem .65rem;font-size:.65rem}
+.dq-col-badge{background:rgba(16,185,129,.05);border:1px solid var(--dq-border);border-radius:10px;padding:.5rem .6rem;font-size:.63rem}
 .dq-col-badge--fail{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.15)}
 .dq-col-badge-name{font-weight:700;margin-bottom:.2rem}
-.dq-col-badge-stat{font-size:.6rem;display:flex;align-items:center;gap:.3rem;color:var(--dq-muted)}
+.dq-col-badge-stat{font-size:.58rem;display:flex;align-items:center;gap:.3rem;color:var(--dq-muted)}
 .dq-dimension-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-top:.75rem}
 @media(max-width:600px){.dq-dimension-grid{grid-template-columns:repeat(2,1fr)}}
 .dq-dim{text-align:center;background:rgba(16,185,129,.04);border:1px solid var(--dq-border);border-radius:10px;padding:.6rem .4rem}
 .dq-dim-val{font-size:1rem;font-weight:800;color:var(--dq-accent)}
 .dq-dim-fail .dq-dim-val{color:#ef4444}
 .dq-dim-lbl{font-size:.58rem;text-transform:uppercase;letter-spacing:.04em;color:var(--dq-muted);margin-top:.2rem;font-weight:600}
+/* Architecture callout */
+.dq-arch{background:rgba(16,185,129,.03);border:1px solid rgba(16,185,129,.1);border-radius:10px;padding:.6rem .75rem;font-size:.6rem;line-height:1.6;color:var(--dq-muted);margin-top:.75rem}
+.dq-arch strong{color:var(--dq-accent);font-weight:700}
+.dq-arch-title{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--dq-accent);margin-bottom:.25rem}
 </style>
 
 <div class="dq-wrap">
   <div class="dq-hero">
-    <div class="dq-tag"><i class="fas fa-shield-check me-1"></i> Data Engineering</div>
-    <h1>Data Quality Framework</h1>
-    <p>Validate datasets against a configurable rule suite — NULL checks, value ranges, regex patterns, uniqueness, and temporal constraints — with an automated quality score report.</p>
+    <div class="dq-tag"><i class="fas fa-shield-alt me-1"></i> Omni Hotels & Resorts — Data Quality</div>
+    <h1>Reservation Data Quality Framework</h1>
+    <p>Validate Omni Hotels reservation and guest profile data against a production rule suite —
+       NULL checks, rate ranges, date logic, email format, loyalty tier consistency, and PII
+       completeness — powering reliable revenue management and personalized guest experiences.</p>
+    <div class="dq-hero-context">
+      <i class="fas fa-database" style="color:var(--dq-accent)"></i>
+      <span>Source: <strong>Opera PMS → Snowflake</strong> &nbsp;|&nbsp; Pipeline: <strong>nightly ETL</strong> &nbsp;|&nbsp; Records: <strong>10 reservations</strong></span>
+    </div>
   </div>
 
   <div class="dq-grid">
     <!-- Dataset preview -->
     <div class="dq-panel">
-      <div class="dq-panel-hd"><i class="fas fa-table"></i> Customer Dataset Preview
-        <span style="margin-left:auto;font-size:.6rem;font-weight:500;opacity:.4">8 rows · 8 columns · issues highlighted</span>
+      <div class="dq-panel-hd"><i class="fas fa-table"></i> Reservation Extract — Omni Hotels
+        <span class="dq-badge">10 rows · 10 columns · issues highlighted</span>
       </div>
       <div style="overflow-x:auto">
         <table class="dq-dt">
-          <thead><tr><th>id</th><th>name</th><th>email</th><th>age</th><th>phone</th><th>signup</th><th>tier</th><th>orders</th></tr></thead>
+          <thead><tr><th>res_id</th><th>guest_name</th><th>email</th><th>phone</th><th>check_in</th><th>check_out</th><th>room_type</th><th>rate</th><th>loyalty</th><th>property</th></tr></thead>
           <tbody id="dqDataBody"></tbody>
         </table>
+      </div>
+      <div class="dq-arch">
+        <div class="dq-arch-title"><i class="fas fa-hotel me-1"></i> Why This Matters at Omni</div>
+        Omni Hotels operates <strong>50+ properties</strong> across North America. Reservation data flows from
+        <strong>Opera PMS</strong> into the data warehouse nightly. Revenue management models depend on accurate
+        rates, dates, and loyalty tiers. A single invalid check-out date can cascade into
+        <strong>incorrect ADR calculations</strong>, broken forecasting models, and misrouted loyalty rewards.
+        This framework catches issues before they reach downstream analytics.
       </div>
     </div>
 
     <!-- Rules -->
     <div class="dq-panel">
-      <div class="dq-panel-hd"><i class="fas fa-list-check"></i> Validation Suite
+      <div class="dq-panel-hd"><i class="fas fa-list-check"></i> Validation Suite — Great Expectations Style
         <span style="margin-left:auto">
           <button class="dq-run-btn" id="dqRunBtn"><i class="fas fa-play"></i> Run Suite</button>
         </span>
@@ -122,6 +143,15 @@
       </div>
       <div style="font-size:.72rem;font-weight:800;margin-top:.9rem;margin-bottom:.5rem">Quality Dimensions</div>
       <div class="dq-dimension-grid" id="dqDimGrid"></div>
+
+      <div class="dq-arch" style="margin-top:.65rem">
+        <div class="dq-arch-title"><i class="fas fa-chart-line me-1"></i> Downstream Impact</div>
+        Quality failures directly affect: <strong>Revenue Management</strong> (ADR, RevPAR miscalculations),
+        <strong>Loyalty Program</strong> (incorrect tier assignments, missing reward points),
+        <strong>Marketing</strong> (invalid emails = wasted campaign spend),
+        and <strong>Operations</strong> (overbooking from date errors). Each dimension score maps to a
+        specific business risk.
+      </div>
     </div>
   </div>
 </div>
@@ -129,35 +159,60 @@
 <script>
 (function(){
 'use strict';
-/* ─── Dataset ─── */
+
+/* ═══════════════════════════════════════════════════════════════
+   OMNI HOTELS & RESORTS — RESERVATION DATA
+   Realistic hotel PMS extract with intentional quality issues.
+   Each row represents a guest reservation across Omni properties.
+   Issues mirror real-world data problems in hospitality:
+   - Missing guest names (walk-in with no profile)
+   - Invalid email formats (front desk typos)
+   - Rate outliers (comp rooms entered wrong, luxury suites)
+   - Check-out before check-in (AM/PM confusion)
+   - Future check-in dates in historical extract
+   - Duplicate confirmation numbers (system sync glitch)
+   ═══════════════════════════════════════════════════════════════ */
+
 var DATA = [
-  {id:1, name:'Alice Johnson', email:'alice@corp.com', age:32, phone:'555-1234', signup:'2024-03-15', tier:'gold', orders:47, _issues:[]},
-  {id:2, name:'Bob Smith', email:'BOB@CORP', age:-5, phone:'555-0001', signup:'2024-07-22', tier:'silver', orders:12, _issues:['email','age']},
-  {id:3, name:'Carol Williams', email:'carol@corp', age:28, phone:'(555)789-2345', signup:'2024-01-08', tier:'bronze', orders:3, _issues:['email','phone']},
-  {id:4, name:'', email:'dave@corp.com', age:41, phone:'555-5678', signup:'2027-12-01', tier:'gold', orders:89, _issues:['name','signup']},
-  {id:5, name:'Eve Martinez', email:'eve@corp.com', age:55, phone:'555-9012', signup:'2025-11-30', tier:'gold', orders:156, _issues:[]},
-  {id:1, name:'Alice Johnson', email:'alice@corp.com', age:32, phone:'555-1234', signup:'2024-03-15', tier:'gold', orders:47, _issues:['id']},
-  {id:7, name:'Grace Lee', email:'', age:29, phone:'555-3456', signup:'2024-06-01', tier:'bronze', orders:0, _issues:['email']},
-  {id:8, name:'Henry Brown', email:'henry@corp.com', age:150, phone:'555-7890', signup:'2024-09-15', tier:'silver', orders:22, _issues:['age']},
+  {res_id:'OMN-284701', guest:'Margaret Chen',     email:'m.chen@deloitte.com',   phone:'617-555-0142', cin:'2026-04-10', cout:'2026-04-12', room:'Deluxe King',    rate:289, loyalty:'Select Guest', property:'Omni Parker House',       _issues:[]},
+  {res_id:'OMN-284702', guest:'James Rodriguez',   email:'j.rodriguez@gmail.com', phone:'312-555-0198', cin:'2026-04-08', cout:'2026-04-11', room:'Premier Suite',   rate:549, loyalty:'Select Guest', property:'Omni Chicago Hotel',      _issues:[]},
+  {res_id:'OMN-284703', guest:'',                   email:'walk.in@na',            phone:'',             cin:'2026-04-11', cout:'2026-04-12', room:'Standard Queen',  rate:199, loyalty:'',             property:'Omni Nashville Hotel',    _issues:['guest','email','phone','loyalty']},
+  {res_id:'OMN-284704', guest:'Sarah Mitchell',    email:'s.mitchell@amex.com',   phone:'214-555-0267', cin:'2026-04-12', cout:'2026-04-09', room:'Deluxe King',    rate:319, loyalty:'Gold',         property:'Omni Dallas Hotel',       _issues:['cout']},
+  {res_id:'OMN-284705', guest:'Robert Kim',        email:'r.kim@jpmorgan.com',    phone:'415-555-0334', cin:'2026-04-09', cout:'2026-04-13', room:'Presidential',    rate:2850,loyalty:'Platinum',      property:'Omni San Francisco',      _issues:['rate']},
+  {res_id:'OMN-284701', guest:'Margaret Chen',     email:'m.chen@deloitte.com',   phone:'617-555-0142', cin:'2026-04-10', cout:'2026-04-12', room:'Deluxe King',    rate:289, loyalty:'Select Guest', property:'Omni Parker House',       _issues:['res_id']},
+  {res_id:'OMN-284707', guest:'Patricia Alvarez',  email:'p.alvarez@',            phone:'404-555-0411', cin:'2026-04-11', cout:'2026-04-14', room:'Club Level',      rate:429, loyalty:'Gold',         property:'Omni CNN Center',         _issues:['email']},
+  {res_id:'OMN-284708', guest:'William Foster',    email:'w.foster@microsoft.com',phone:'858-555-0156', cin:'2027-12-25', cout:'2027-12-28', room:'Oceanfront King', rate:479, loyalty:'Platinum',      property:'Omni La Costa Resort',    _issues:['cin']},
+  {res_id:'OMN-284709', guest:'Lisa Nakamura',     email:'l.nakamura@sony.com',   phone:'512-555-0289', cin:'2026-04-07', cout:'2026-04-10', room:'Deluxe Double',   rate:0,   loyalty:'Select Guest', property:'Omni Barton Creek',       _issues:['rate']},
+  {res_id:'OMN-284710', guest:'David Thompson',    email:'d.thompson@ge.com',     phone:'202-555-0373', cin:'2026-04-13', cout:'2026-04-15', room:'Standard King',   rate:259, loyalty:'Gold',         property:'Omni Shoreham DC',        _issues:[]},
 ];
-/* ─── Rules ─── */
+
+/* ═══════════════════════════════════════════════════════════════
+   VALIDATION RULES — Great Expectations-style
+   8 rules covering all 5 quality dimensions:
+   Completeness, Validity, Uniqueness, Timeliness, Consistency
+   ═══════════════════════════════════════════════════════════════ */
 var RULES = [
-  {col:'id', desc:'expect_column_values_to_be_unique', param:'—', type:'UNIQUE',
-    check: function(data){ var ids=data.map(function(r){return r.id;}); var seen={}; return data.filter(function(r){if(seen[r.id])return true;seen[r.id]=1;return false;}).length; }},
-  {col:'name', desc:'expect_column_values_to_not_be_null', param:'—', type:'NOT NULL',
-    check: function(data){ return data.filter(function(r){return !r.name||r.name.trim()==='';}).length; }},
-  {col:'email', desc:'expect_column_values_to_match_regex', param:'/^[\\w.]+@[\\w]+\\.[\\w]+$/', type:'REGEX',
+  {col:'res_id', desc:'expect_column_values_to_be_unique', param:'—', type:'UNIQUE',
+    check: function(data){ var seen={}; return data.filter(function(r){if(seen[r.res_id])return true;seen[r.res_id]=1;return false;}).length; }},
+  {col:'guest_name', desc:'expect_column_values_to_not_be_null', param:'—', type:'NOT NULL',
+    check: function(data){ return data.filter(function(r){return !r.guest||r.guest.trim()==='';}).length; }},
+  {col:'email', desc:'expect_column_values_to_match_regex', param:'/^[\\w.+-]+@[\\w-]+\\.[\\w.]+$/', type:'REGEX',
     check: function(data){ return data.filter(function(r){return !r.email||!/^[\w.+-]+@[\w-]+\.[\w.]+$/.test(r.email);}).length; }},
-  {col:'age', desc:'expect_column_values_to_be_between', param:'1 – 99', type:'RANGE',
-    check: function(data){ return data.filter(function(r){return r.age<1||r.age>99;}).length; }},
-  {col:'phone', desc:'expect_column_values_to_match_regex', param:'/^\\d{3}-\\d{4}$/', type:'REGEX',
-    check: function(data){ return data.filter(function(r){return !/^\d{3}-\d{4}$/.test(r.phone||'');}).length; }},
-  {col:'signup', desc:'expect_column_values_to_be_in_the_past', param:'≤ today', type:'DATE PAST',
-    check: function(data){ var now=new Date(); return data.filter(function(r){return new Date(r.signup)>now;}).length; }},
+  {col:'phone', desc:'expect_column_values_to_not_be_null', param:'—', type:'NOT NULL',
+    check: function(data){ return data.filter(function(r){return !r.phone||r.phone.trim()==='';}).length; }},
+  {col:'rate', desc:'expect_column_values_to_be_between', param:'$89 – $1,500/night', type:'RANGE',
+    check: function(data){ return data.filter(function(r){return r.rate<89||r.rate>1500;}).length; }},
+  {col:'check_out', desc:'expect_checkout_after_checkin', param:'check_out > check_in', type:'CONSISTENCY',
+    check: function(data){ return data.filter(function(r){return new Date(r.cout)<=new Date(r.cin);}).length; }},
+  {col:'check_in', desc:'expect_column_values_to_be_in_the_past', param:'≤ today (in extract)', type:'DATE PAST',
+    check: function(data){ var cut=new Date('2026-04-15'); return data.filter(function(r){return new Date(r.cin)>cut;}).length; }},
+  {col:'loyalty', desc:'expect_column_values_to_be_in_set', param:'{Select Guest, Gold, Platinum}', type:'SET',
+    check: function(data){ var valid=['Select Guest','Gold','Platinum']; return data.filter(function(r){return !r.loyalty||valid.indexOf(r.loyalty)<0;}).length; }},
 ];
 
 /* ─── Render data table ─── */
-var COLS=['id','name','email','age','phone','signup','tier','orders'];
+var COLS=['res_id','guest','email','phone','cin','cout','room','rate','loyalty','property'];
+var HDRS=['res_id','guest_name','email','phone','check_in','check_out','room_type','rate','loyalty','property'];
 var tbody=document.getElementById('dqDataBody');
 DATA.forEach(function(row){
   var tr=document.createElement('tr');
@@ -167,9 +222,10 @@ DATA.forEach(function(row){
   COLS.forEach(function(col){
     var td=document.createElement('td');
     var val=row[col];
-    td.textContent=(val===''||val===null||val===undefined)?'NULL':val;
+    if(col==='rate' && val!==0 && val) td.textContent='$'+val;
+    else if(val===''||val===null||val===undefined||val===0) { td.textContent=(col==='rate')?'$0':'NULL'; td.style.opacity='.4'; }
+    else td.textContent=val;
     if(issues.indexOf(col)>-1) td.className=issues.length>1?'dq-cell--err':'dq-cell--warn';
-    if(val===''||val===null||val===undefined) td.style.opacity='.4';
     tr.appendChild(td);
   });
   tbody.appendChild(tr);
@@ -181,9 +237,9 @@ RULES.forEach(function(rule,idx){
   var tr=document.createElement('tr');
   tr.id='dq-rule-'+idx;
   tr.innerHTML='<td style="font-weight:700">'+rule.col+'</td>'
-    +'<td style="font-size:.62rem;opacity:.7">'+rule.desc+'</td>'
-    +'<td><code style="font-size:.6rem">'+rule.param+'</code></td>'
-    +'<td id="dq-fail-'+idx+'" style="font-size:.68rem;opacity:.45">—</td>'
+    +'<td style="font-size:.6rem;opacity:.7">'+rule.desc+'</td>'
+    +'<td><code style="font-size:.58rem">'+rule.param+'</code></td>'
+    +'<td id="dq-fail-'+idx+'" style="font-size:.66rem;opacity:.45">—</td>'
     +'<td><span class="dq-rule-status dq-rule-status--pending" id="dq-status-'+idx+'">·</span></td>';
   rulesBody.appendChild(tr);
 });
@@ -227,14 +283,14 @@ function showReport(results){
   var passing=results.filter(function(r){return r.failures===0;}).length;
   var score=Math.round(passing/results.length*100);
 
-  // Ring
+  /* Ring */
   var circumference=251.2;
   var offset=circumference*(1-score/100);
   document.getElementById('dqRingPath').style.strokeDashoffset=offset;
   document.getElementById('dqRingPath').style.stroke=score>=80?'#10b981':score>=60?'#f59e0b':'#ef4444';
   setTimeout(function(){document.getElementById('dqScoreNum').textContent=score+'%';},200);
 
-  // Per-column badges
+  /* Per-column badges */
   var colGrid=document.getElementById('dqColGrid');
   colGrid.innerHTML='';
   var colResults={};
@@ -243,17 +299,17 @@ function showReport(results){
     var fail=colResults[col]>0;
     var badge=document.createElement('div');
     badge.className='dq-col-badge'+(fail?' dq-col-badge--fail':'');
-    badge.innerHTML='<div class="dq-col-badge-name">'+col+'</div><div class="dq-col-badge-stat">'+(fail?'<span style="color:#ef4444">✕</span>'+colResults[col]+' issue'+(colResults[col]>1?'s':''):'<span style="color:#10b981">✓</span> OK')+'</div>';
+    badge.innerHTML='<div class="dq-col-badge-name">'+col+'</div><div class="dq-col-badge-stat">'+(fail?'<span style="color:#ef4444">✕</span> '+colResults[col]+' issue'+(colResults[col]>1?'s':''):'<span style="color:#10b981">✓</span> OK')+'</div>';
     colGrid.appendChild(badge);
   });
 
-  // Dimensions
+  /* Dimensions — mapped to hospitality-specific concerns */
   var dims=[
     {name:'Completeness',pass:results.filter(function(r){return r.rule.type==='NOT NULL'&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='NOT NULL';}).length},
-    {name:'Validity',pass:results.filter(function(r){return (r.rule.type==='RANGE'||r.rule.type==='REGEX')&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='RANGE'||r.rule.type==='REGEX';}).length},
+    {name:'Validity',pass:results.filter(function(r){return (r.rule.type==='RANGE'||r.rule.type==='REGEX'||r.rule.type==='SET')&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='RANGE'||r.rule.type==='REGEX'||r.rule.type==='SET';}).length},
     {name:'Uniqueness',pass:results.filter(function(r){return r.rule.type==='UNIQUE'&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='UNIQUE';}).length},
     {name:'Timeliness',pass:results.filter(function(r){return r.rule.type==='DATE PAST'&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='DATE PAST';}).length},
-    {name:'Overall',pass:passing,total:results.length}
+    {name:'Consistency',pass:results.filter(function(r){return r.rule.type==='CONSISTENCY'&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='CONSISTENCY';}).length}
   ];
   var dimGrid=document.getElementById('dqDimGrid');
   dimGrid.innerHTML='';

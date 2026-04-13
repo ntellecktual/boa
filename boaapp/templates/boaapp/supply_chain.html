@@ -1,20 +1,22 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
-{% block title %}Supply Chain Optimizer{% endblock %}
+{% block title %}Supply Chain — Amazon Fulfillment{% endblock %}
 {% block container_class %}sc-shell{% endblock %}
 {% block content %}
 <style>
 .sc-shell{display:block;width:100%;max-width:100%;padding:0}
-:root{--sc-accent:#f59e0b;--sc-accent2:#d97706;--sc-surface:#fff;--sc-border:rgba(0,0,0,.07);--sc-shadow:0 2px 12px rgba(0,0,0,.06);--sc-muted:#6b7280}
+:root{--sc-accent:#ff9900;--sc-accent2:#e88b00;--sc-surface:#fff;--sc-border:rgba(0,0,0,.07);--sc-shadow:0 2px 12px rgba(0,0,0,.06);--sc-muted:#6b7280;--sc-dark:#232f3e}
 [data-theme="dark"]{--sc-surface:rgba(22,20,16,.97);--sc-border:rgba(255,255,255,.08);--sc-shadow:0 2px 12px rgba(0,0,0,.35);--sc-muted:#94a3b8}
 @keyframes scUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.sc-wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.sc-wrap{max-width:1280px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
 .sc-hero{text-align:center;padding:1.4rem 0 1rem;animation:scUp .4s ease both}
-.sc-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.2);color:var(--sc-accent);margin-bottom:.65rem}
-.sc-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#f59e0b,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
-.sc-hero p{font-size:.84rem;color:var(--sc-muted);max-width:560px;margin:0 auto;line-height:1.6}
+.sc-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(255,153,0,.09);border:1px solid rgba(255,153,0,.2);color:var(--sc-accent);margin-bottom:.65rem}
+.sc-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#ff9900,#232f3e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
+.sc-hero p{font-size:.84rem;color:var(--sc-muted);max-width:640px;margin:0 auto;line-height:1.6}
+.sc-hero-context{display:inline-flex;align-items:center;gap:.5rem;margin-top:.7rem;padding:.4rem .9rem;border-radius:10px;background:rgba(255,153,0,.04);border:1px solid rgba(255,153,0,.12);font-size:.68rem;color:var(--sc-muted)}
+.sc-hero-context strong{color:var(--sc-accent);font-weight:800}
 /* Main layout */
-.sc-body{display:grid;grid-template-columns:280px 1fr;gap:1rem;margin-top:1rem}
+.sc-body{display:grid;grid-template-columns:290px 1fr;gap:1rem;margin-top:1rem}
 @media(max-width:800px){.sc-body{grid-template-columns:1fr}}
 /* Panels */
 .sc-panel{background:var(--sc-surface);border:1px solid var(--sc-border);border-radius:16px;box-shadow:var(--sc-shadow);padding:1.1rem;animation:scUp .45s ease both;min-height:0;overflow:hidden}
@@ -22,35 +24,46 @@
 .sc-panel:nth-child(2){animation-delay:.07s}
 .sc-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--sc-border)}
 .sc-panel-hd i{color:var(--sc-accent);opacity:.8}
+.sc-panel-hd .sc-badge{margin-left:auto;font-size:.56rem;font-weight:700;padding:.14rem .5rem;border-radius:999px;background:rgba(255,153,0,.08);color:var(--sc-accent);border:1px solid rgba(255,153,0,.14)}
+/* SKU selector */
+.sc-sku-row{display:flex;align-items:center;gap:.4rem;margin-bottom:.85rem;flex-wrap:wrap}
+.sc-sku-chip{padding:.2rem .55rem;border-radius:7px;font-size:.62rem;font-weight:700;border:1px solid var(--sc-border);cursor:pointer;transition:all .18s;background:transparent;color:var(--sc-muted)}
+.sc-sku-chip.active{background:rgba(255,153,0,.1);border-color:rgba(255,153,0,.3);color:var(--sc-accent)}
+.sc-sku-chip:hover:not(.active){border-color:rgba(255,153,0,.2)}
+.sc-sku-label{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--sc-muted)}
 /* Sliders */
-.sc-slider-row{margin-bottom:.95rem}
-.sc-slider-label{display:flex;justify-content:space-between;align-items:center;font-size:.7rem;font-weight:700;margin-bottom:.32rem;color:inherit}
-.sc-slider-label span{font-weight:400;color:var(--sc-accent);font-size:.72rem;font-family:'Cascadia Code',monospace}
-.sc-slider-sub{font-size:.58rem;color:var(--sc-muted);margin-bottom:.3rem}
+.sc-slider-row{margin-bottom:.85rem}
+.sc-slider-label{display:flex;justify-content:space-between;align-items:center;font-size:.68rem;font-weight:700;margin-bottom:.28rem;color:inherit}
+.sc-slider-label span{font-weight:400;color:var(--sc-accent);font-size:.7rem;font-family:'Cascadia Code',monospace}
+.sc-slider-sub{font-size:.56rem;color:var(--sc-muted);margin-bottom:.25rem}
 input[type="range"].sc-range{width:100%;height:5px;border-radius:3px;appearance:none;-webkit-appearance:none;background:var(--sc-border);outline:none;cursor:pointer}
 input[type="range"].sc-range::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--sc-accent);border:2px solid var(--sc-surface);box-shadow:0 1px 4px rgba(0,0,0,.2)}
 /* Equation display */
-.sc-eq{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.14);border-radius:10px;padding:.65rem .85rem;font-size:.7rem;font-family:'Cascadia Code',monospace;line-height:1.8;margin-bottom:.95rem}
-.sc-eq-title{font-size:.6rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--sc-muted);margin-bottom:.25rem;font-family:inherit}
+.sc-eq{background:rgba(255,153,0,.05);border:1px solid rgba(255,153,0,.12);border-radius:10px;padding:.6rem .8rem;font-size:.66rem;font-family:'Cascadia Code',monospace;line-height:1.75;margin-bottom:.85rem}
+.sc-eq-title{font-size:.58rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--sc-muted);margin-bottom:.2rem;font-family:inherit}
+/* Architecture callout */
+.sc-arch{background:rgba(255,153,0,.03);border:1px solid rgba(255,153,0,.1);border-radius:10px;padding:.6rem .75rem;font-size:.6rem;line-height:1.6;color:var(--sc-muted);margin-top:.65rem}
+.sc-arch strong{color:var(--sc-accent);font-weight:700}
+.sc-arch-title{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--sc-accent);margin-bottom:.25rem}
 /* KPI grid */
-.sc-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-top:.9rem}
-@media(max-width:600px){.sc-kpis{grid-template-columns:repeat(2,1fr)}}
-.sc-kpi{background:var(--sc-surface);border:1px solid var(--sc-border);border-radius:14px;box-shadow:var(--sc-shadow);padding:.85rem .75rem;text-align:center;animation:scUp .5s ease both}
-.sc-kpi:nth-child(2){animation-delay:.05s}.sc-kpi:nth-child(3){animation-delay:.1s}.sc-kpi:nth-child(4){animation-delay:.15s}
-.sc-kpi-val{font-size:1.4rem;font-weight:900;line-height:1;color:var(--sc-accent)}
-.sc-kpi-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--sc-muted);margin-top:.25rem}
-.sc-kpi-sub{font-size:.58rem;color:var(--sc-muted);opacity:.6;margin-top:.15rem}
+.sc-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:.65rem;margin-top:.9rem}
+@media(max-width:700px){.sc-kpis{grid-template-columns:repeat(2,1fr)}}
+.sc-kpi{background:var(--sc-surface);border:1px solid var(--sc-border);border-radius:14px;box-shadow:var(--sc-shadow);padding:.8rem .65rem;text-align:center;animation:scUp .5s ease both}
+.sc-kpi:nth-child(2){animation-delay:.05s}.sc-kpi:nth-child(3){animation-delay:.1s}.sc-kpi:nth-child(4){animation-delay:.15s}.sc-kpi:nth-child(5){animation-delay:.2s}
+.sc-kpi-val{font-size:1.3rem;font-weight:900;line-height:1;color:var(--sc-accent)}
+.sc-kpi-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--sc-muted);margin-top:.2rem}
+.sc-kpi-sub{font-size:.54rem;color:var(--sc-muted);opacity:.6;margin-top:.12rem}
 /* Chart tabs */
 .sc-tabs{display:flex;gap:.35rem;margin-bottom:.75rem}
-.sc-tab{padding:.3rem .75rem;border-radius:8px;font-size:.68rem;font-weight:700;border:1px solid var(--sc-border);background:transparent;color:var(--sc-muted);cursor:pointer;transition:all .18s}
-.sc-tab.active{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-color:transparent}
-.sc-tab:hover:not(.active){border-color:rgba(245,158,11,.35);color:var(--sc-accent)}
+.sc-tab{padding:.28rem .7rem;border-radius:8px;font-size:.66rem;font-weight:700;border:1px solid var(--sc-border);background:transparent;color:var(--sc-muted);cursor:pointer;transition:all .18s}
+.sc-tab.active{background:linear-gradient(135deg,#ff9900,#e88b00);color:#fff;border-color:transparent}
+.sc-tab:hover:not(.active){border-color:rgba(255,153,0,.35);color:var(--sc-accent)}
 /* Simulation legend */
-.sc-legend{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.6rem;font-size:.65rem;color:var(--sc-muted)}
+.sc-legend{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.6rem;font-size:.63rem;color:var(--sc-muted)}
 .sc-leg-item{display:flex;align-items:center;gap:.3rem}
 .sc-leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 /* Stats row */
-.sc-stats-row{display:flex;gap:.75rem;font-size:.68rem;color:var(--sc-muted);margin-top:.5rem;flex-wrap:wrap}
+.sc-stats-row{display:flex;gap:.7rem;font-size:.66rem;color:var(--sc-muted);margin-top:.45rem;flex-wrap:wrap}
 .sc-stat{display:flex;align-items:center;gap:.3rem}
 .sc-stat strong{color:inherit;font-weight:700}
 .sc-stat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -59,54 +72,75 @@ input[type="range"].sc-range::-webkit-slider-thumb{appearance:none;-webkit-appea
 <div class="sc-wrap">
   <!-- Hero -->
   <div class="sc-hero">
-    <div class="sc-tag"><i class="fas fa-boxes me-1"></i> Inventory Optimization</div>
-    <h1>Supply Chain Optimizer</h1>
-    <p>Interactive EOQ model with safety stock and demand simulation. Tune demand variability, lead time, and costs to find the optimal reorder strategy — with a 52-week inventory simulation.</p>
+    <div class="sc-tag"><i class="fas fa-warehouse me-1"></i> Amazon — Fulfillment Center Optimization</div>
+    <h1>FC Inventory Optimizer</h1>
+    <p>Production EOQ model for Amazon Fulfillment Centers — optimizes reorder quantity, safety stock,
+       and replenishment timing for warehouse SKUs. Tunes for Prime 2-day SLA compliance while
+       minimizing holding costs across 110+ FCs nationwide.</p>
+    <div class="sc-hero-context">
+      <i class="fas fa-map-marker-alt" style="color:var(--sc-accent)"></i>
+      <span>FC: <strong>BOS5 (Fall River, MA)</strong> &nbsp;|&nbsp; Region: <strong>Northeast</strong> &nbsp;|&nbsp; Prime SLA: <strong>2-Day</strong></span>
+    </div>
   </div>
 
   <div class="sc-body">
     <!-- Controls -->
     <div class="sc-panel">
-      <div class="sc-panel-hd"><i class="fas fa-sliders-h"></i> Model Parameters</div>
+      <div class="sc-panel-hd"><i class="fas fa-sliders-h"></i> SKU Parameters <span class="sc-badge">EOQ + Safety Stock</span></div>
+
+      <div class="sc-sku-row">
+        <span class="sc-sku-label">SKU:</span>
+        <button class="sc-sku-chip active" data-sku="echo">Echo Dot 5th Gen</button>
+        <button class="sc-sku-chip" data-sku="kindle">Kindle Paperwhite</button>
+        <button class="sc-sku-chip" data-sku="fire">Fire TV Stick 4K</button>
+      </div>
 
       <div class="sc-slider-row">
-        <div class="sc-slider-label">Annual Demand (D) <span id="scValD">2600</span> units</div>
-        <div class="sc-slider-sub">Total units sold per year</div>
-        <input type="range" class="sc-range" id="scD" min="500" max="10000" step="100" value="2600">
+        <div class="sc-slider-label">Annual Demand (D) <span id="scValD">52000</span> units</div>
+        <div class="sc-slider-sub">Forecasted sell-through for this FC region</div>
+        <input type="range" class="sc-range" id="scD" min="5000" max="200000" step="1000" value="52000">
       </div>
       <div class="sc-slider-row">
-        <div class="sc-slider-label">Demand Std Dev (σ/wk) <span id="scValSigma">8</span> units</div>
-        <div class="sc-slider-sub">Weekly demand variability</div>
-        <input type="range" class="sc-range" id="scSigma" min="1" max="30" step="1" value="8">
+        <div class="sc-slider-label">Demand Std Dev (σ/wk) <span id="scValSigma">85</span> units</div>
+        <div class="sc-slider-sub">Weekly demand variability — spikes during Prime Day, holidays</div>
+        <input type="range" class="sc-range" id="scSigma" min="10" max="500" step="5" value="85">
       </div>
       <div class="sc-slider-row">
-        <div class="sc-slider-label">Lead Time (L) <span id="scValL">3</span> weeks</div>
-        <div class="sc-slider-sub">Supplier replenishment delay</div>
-        <input type="range" class="sc-range" id="scL" min="1" max="12" step="1" value="3">
+        <div class="sc-slider-label">Vendor Lead Time (L) <span id="scValL">2</span> weeks</div>
+        <div class="sc-slider-sub">Inbound shipment from vendor to FC receiving dock</div>
+        <input type="range" class="sc-range" id="scL" min="1" max="12" step="1" value="2">
       </div>
       <div class="sc-slider-row">
-        <div class="sc-slider-label">Order Cost (S) $<span id="scValS">120</span></div>
-        <div class="sc-slider-sub">Fixed cost per purchase order</div>
-        <input type="range" class="sc-range" id="scS" min="20" max="500" step="10" value="120">
+        <div class="sc-slider-label">Order Cost (S) $<span id="scValS">350</span></div>
+        <div class="sc-slider-sub">PO processing, inbound freight, receiving labor per order</div>
+        <input type="range" class="sc-range" id="scS" min="50" max="2000" step="25" value="350">
       </div>
       <div class="sc-slider-row">
-        <div class="sc-slider-label">Holding Cost (H) $<span id="scValH">4.50</span>/unit/yr</div>
-        <div class="sc-slider-sub">Storage, capital, insurance costs</div>
-        <input type="range" class="sc-range" id="scH" min="0.5" max="20" step="0.5" value="4.5">
+        <div class="sc-slider-label">Holding Cost (H) $<span id="scValH">8.50</span>/unit/yr</div>
+        <div class="sc-slider-sub">FC storage ($0.87/cu ft/mo), capital, shrinkage, insurance</div>
+        <input type="range" class="sc-range" id="scH" min="1" max="40" step="0.5" value="8.5">
       </div>
 
       <div class="sc-eq">
-        <div class="sc-eq-title">Key Formulas</div>
+        <div class="sc-eq-title">Amazon FC Replenishment Model</div>
         EOQ = √(2DS / H)<br>
         ROP = d̄·L + Z·σ·√L<br>
-        SS  = 1.645 · σ · √L<br>
+        SS  = 1.645 · σ · √L &nbsp;(95% SLA)<br>
         TC  = (D/Q)·S + (Q/2 + SS)·H
+      </div>
+
+      <div class="sc-arch">
+        <div class="sc-arch-title"><i class="fas fa-brain me-1"></i> Why This Matters at Amazon Scale</div>
+        Amazon manages <strong>~12 million</strong> unique ASINs across 110+ FCs. Each SKU at each FC
+        needs its own reorder parameters. Getting EOQ wrong by 20% on Echo Dot alone wastes
+        <strong>$2.3M/yr</strong> in excess holding or causes Prime SLA misses. This model is the
+        building block for Amazon's automated replenishment system.
       </div>
     </div>
 
     <!-- Chart panel -->
     <div class="sc-panel">
-      <div class="sc-panel-hd"><i class="fas fa-chart-area"></i> 52-Week Inventory Simulation</div>
+      <div class="sc-panel-hd"><i class="fas fa-chart-area"></i> 52-Week FC Inventory Simulation <span class="sc-badge" id="scSkuLabel">Echo Dot 5th Gen</span></div>
       <div class="sc-tabs">
         <button class="sc-tab active" id="scTabSim">Simulation</button>
         <button class="sc-tab" id="scTabCurve">Cost Curve</button>
@@ -115,21 +149,30 @@ input[type="range"].sc-range::-webkit-slider-thumb{appearance:none;-webkit-appea
         <canvas id="scChart"></canvas>
       </div>
       <div class="sc-legend" id="scLegend">
-        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#f59e0b"></span>Inventory Level</span>
+        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#ff9900"></span>FC On-Hand</span>
         <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#ef4444;opacity:.6"></span>Reorder Point</span>
-        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#3b82f6"></span>Order Arrival ↑</span>
-        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#dc2626"></span>Stockout ✕</span>
+        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#3b82f6"></span>Inbound Arrival</span>
+        <span class="sc-leg-item"><span class="sc-leg-dot" style="background:#dc2626"></span>Stockout (SLA Miss)</span>
       </div>
       <div class="sc-stats-row" id="scStatsRow"></div>
+
+      <div class="sc-arch" style="margin-top:.65rem">
+        <div class="sc-arch-title"><i class="fas fa-truck me-1"></i> FC Network Architecture</div>
+        <strong>Inbound:</strong> Vendor ships pallets to FC receiving dock → inventory stowed in pods by Kiva robots.<br>
+        <strong>Demand signal:</strong> Real-time POS + forecast from ML demand planning (DeepAR / Prophet ensemble).<br>
+        <strong>Outbound:</strong> Pick → Pack → Ship via AMZL / UPS / USPS. <strong>Prime 2-day</strong> requires
+        maintaining ≥95% in-stock rate at the regional FC closest to customer density clusters.
+      </div>
     </div>
   </div>
 
   <!-- KPI row -->
   <div class="sc-kpis">
-    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiEOQ">—</div><div class="sc-kpi-label">EOQ</div><div class="sc-kpi-sub">units per order</div></div>
-    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiROP">—</div><div class="sc-kpi-label">Reorder Point</div><div class="sc-kpi-sub">units on-hand trigger</div></div>
-    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiSS">—</div><div class="sc-kpi-label">Safety Stock</div><div class="sc-kpi-sub">buffer against variability</div></div>
-    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiTC" style="font-size:1.1rem">—</div><div class="sc-kpi-label">Total Annual Cost</div><div class="sc-kpi-sub">order + holding</div></div>
+    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiEOQ">—</div><div class="sc-kpi-label">EOQ</div><div class="sc-kpi-sub">units per PO</div></div>
+    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiROP">—</div><div class="sc-kpi-label">Reorder Point</div><div class="sc-kpi-sub">trigger replenishment</div></div>
+    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiSS">—</div><div class="sc-kpi-label">Safety Stock</div><div class="sc-kpi-sub">Prime SLA buffer</div></div>
+    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiTC" style="font-size:1.05rem">—</div><div class="sc-kpi-label">Annual Cost</div><div class="sc-kpi-sub">order + holding</div></div>
+    <div class="sc-kpi"><div class="sc-kpi-val" id="kpiTurns">—</div><div class="sc-kpi-label">Inv. Turns</div><div class="sc-kpi-sub">D / avg on-hand</div></div>
   </div>
 </div>
 
@@ -137,6 +180,20 @@ input[type="range"].sc-range::-webkit-slider-thumb{appearance:none;-webkit-appea
 <script>
 (function(){
 'use strict';
+
+/* ═══════════════════════════════════════════════════════════════
+   AMAZON FULFILLMENT CENTER — SKU INVENTORY MODEL
+   Three real Amazon private-label products with realistic
+   demand profiles, cost structures, and variability.
+   ═══════════════════════════════════════════════════════════════ */
+
+var SKUS = {
+  echo:   {name:'Echo Dot 5th Gen',  D:52000,  sigma:85,  L:2, S:350,  H:8.50},
+  kindle: {name:'Kindle Paperwhite',  D:28000,  sigma:45,  L:3, S:420,  H:12.00},
+  fire:   {name:'Fire TV Stick 4K',   D:78000,  sigma:150, L:2, S:280,  H:6.50}
+};
+var activeSku = 'echo';
+
 /* ─── Box-Muller normal sample ─── */
 function noise(mu,sigma){
   var u1=Math.random(),u2=Math.random();
@@ -147,6 +204,28 @@ var isDark = document.documentElement.getAttribute('data-theme')==='dark';
 var gridColor = isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
 var chart = null;
 var showCurve = false;
+
+/* ─── SKU selector ─── */
+document.querySelectorAll('.sc-sku-chip').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    activeSku = this.getAttribute('data-sku');
+    document.querySelectorAll('.sc-sku-chip').forEach(function(b){b.classList.remove('active');});
+    this.classList.add('active');
+    var sku = SKUS[activeSku];
+    document.getElementById('scD').value = sku.D;
+    document.getElementById('scSigma').value = sku.sigma;
+    document.getElementById('scL').value = sku.L;
+    document.getElementById('scS').value = sku.S;
+    document.getElementById('scH').value = sku.H;
+    document.getElementById('scValD').textContent = sku.D;
+    document.getElementById('scValSigma').textContent = sku.sigma;
+    document.getElementById('scValL').textContent = sku.L;
+    document.getElementById('scValS').textContent = sku.S;
+    document.getElementById('scValH').textContent = sku.H;
+    document.getElementById('scSkuLabel').textContent = sku.name;
+    recalc();
+  });
+});
 
 /* ─── Get slider values ─── */
 function vals(){
@@ -168,11 +247,14 @@ function recalc(){
   var SS = Z*v.sigma*Math.sqrt(v.L);
   var ROP = Dw*v.L+SS;
   var TC = (v.D/EOQ)*v.S+(EOQ/2+SS)*v.H;
+  var avgOnHand = EOQ/2+SS;
+  var turns = avgOnHand > 0 ? v.D/avgOnHand : 0;
 
-  document.getElementById('kpiEOQ').textContent = Math.round(EOQ);
-  document.getElementById('kpiROP').textContent = Math.round(ROP);
-  document.getElementById('kpiSS').textContent = Math.round(SS);
+  document.getElementById('kpiEOQ').textContent = Math.round(EOQ).toLocaleString();
+  document.getElementById('kpiROP').textContent = Math.round(ROP).toLocaleString();
+  document.getElementById('kpiSS').textContent = Math.round(SS).toLocaleString();
   document.getElementById('kpiTC').textContent = '$'+Math.round(TC).toLocaleString();
+  document.getElementById('kpiTurns').textContent = turns.toFixed(1)+'x';
 
   if(showCurve) renderCurve(v.D,v.S,v.H,SS);
   else renderSim(Dw,v.sigma,v.L,EOQ,ROP,SS);
@@ -195,19 +277,22 @@ function renderSim(Dw,sigma,L,EOQ,ROP,SS){
   var ptColors=levels.map(function(v,i){
     if(stockouts.indexOf(i)>-1) return '#dc2626';
     if(reorders.indexOf(i)>-1) return '#3b82f6';
-    return '#f59e0b';
+    return '#ff9900';
   });
+
+  var svcLevel = ((1-stockouts.length/52)*100).toFixed(1);
+  var svcColor = svcLevel >= 95 ? '#22c55e' : svcLevel >= 90 ? '#f59e0b' : '#ef4444';
 
   document.getElementById('scLegend').style.display='flex';
   document.getElementById('scStatsRow').innerHTML =
-    '<span class="sc-stat"><span class="sc-stat-dot" style="background:#dc2626"></span><strong>'+stockouts.length+'</strong>&nbsp;stockouts</span>'
-    +'<span class="sc-stat"><span class="sc-stat-dot" style="background:#3b82f6"></span><strong>'+reorders.length+'</strong>&nbsp;orders placed</span>'
-    +'<span class="sc-stat"><span class="sc-stat-dot" style="background:#22c55e"></span>Service level&nbsp;<strong>'+((1-stockouts.length/52)*100).toFixed(1)+'%</strong></span>';
+    '<span class="sc-stat"><span class="sc-stat-dot" style="background:#dc2626"></span><strong>'+stockouts.length+'</strong>&nbsp;SLA misses</span>'
+    +'<span class="sc-stat"><span class="sc-stat-dot" style="background:#3b82f6"></span><strong>'+reorders.length+'</strong>&nbsp;POs placed</span>'
+    +'<span class="sc-stat"><span class="sc-stat-dot" style="background:'+svcColor+'"></span>In-stock rate&nbsp;<strong style="color:'+svcColor+'">'+svcLevel+'%</strong>'+(parseFloat(svcLevel)>=95?' ✓ Prime SLA':' ✕ Below target')+'</span>';
 
   renderChart(labels,[
-    {label:'Inventory',data:levels,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.12)',fill:true,tension:.2,pointRadius:stockouts.map(function(v,i){return 0;}).concat([0]).slice(0,52),pointBackgroundColor:ptColors,pointRadius:3,borderWidth:1.5},
+    {label:'FC On-Hand',data:levels,borderColor:'#ff9900',backgroundColor:'rgba(255,153,0,.12)',fill:true,tension:.2,pointBackgroundColor:ptColors,pointRadius:3,borderWidth:1.5},
     {label:'ROP',data:ropLine,borderColor:'rgba(239,68,68,.5)',borderDash:[5,4],pointRadius:0,fill:false,borderWidth:1}
-  ],'y','Units on Hand','linear');
+  ],'y','Units on Hand');
 }
 
 /* ─── Cost curve (EOQ trade-off) ─── */
@@ -215,7 +300,9 @@ function renderCurve(D,S,H,SS){
   document.getElementById('scLegend').style.display='none';
   document.getElementById('scStatsRow').innerHTML='';
   var qs=[],tc=[],hc=[],oc=[];
-  for(var q=50;q<=2000;q+=25){
+  var maxQ = Math.max(10000, Math.round(Math.sqrt(2*D*S/H)*4));
+  var step = Math.max(50, Math.round(maxQ/80));
+  for(var q=step;q<=maxQ;q+=step){
     qs.push(q);
     var h=(q/2+SS)*H;
     var o=(D/q)*S;
@@ -223,11 +310,11 @@ function renderCurve(D,S,H,SS){
     oc.push(+o.toFixed(0));
     tc.push(+(h+o).toFixed(0));
   }
-  renderChart(qs.map(String),[
-    {label:'Total Cost',data:tc,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.08)',fill:true,tension:.4,pointRadius:0,borderWidth:2},
+  renderChart(qs.map(function(q){return q.toLocaleString();}),[
+    {label:'Total Cost',data:tc,borderColor:'#ff9900',backgroundColor:'rgba(255,153,0,.08)',fill:true,tension:.4,pointRadius:0,borderWidth:2},
     {label:'Holding Cost',data:hc,borderColor:'#3b82f6',borderDash:[4,3],pointRadius:0,fill:false,borderWidth:1.5},
     {label:'Ordering Cost',data:oc,borderColor:'#8b5cf6',borderDash:[4,3],pointRadius:0,fill:false,borderWidth:1.5}
-  ],'y','Annual Cost ($)','linear');
+  ],'y','Annual Cost ($)');
 }
 
 /* ─── Chart render helper ─── */
@@ -241,7 +328,7 @@ function renderChart(labels,datasets,axisId,yLabel){
       plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
       scales:{
         x:{grid:{display:false},ticks:{font:{size:9},maxTicksLimit:13}},
-        y:{beginAtZero:true,grid:{color:gridColor},ticks:{font:{size:9}},title:{display:true,text:yLabel,font:{size:9}}}
+        y:{beginAtZero:true,grid:{color:gridColor},ticks:{font:{size:9},callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v;}},title:{display:true,text:yLabel,font:{size:9}}}
       }
     }
   });
