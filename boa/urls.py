@@ -93,8 +93,6 @@ urlpatterns = [
     # AI Job Match Analyzer
     path('job_match/', boaapp_views.job_match_view, name='job_match'),
     path('api/job-match/', boaapp_views.job_match_api, name='job_match_api'),
-    # System Observability
-    path('observability/', boaapp_views.system_observability_view, name='system_observability'),
 ]
 
 if settings.DEBUG:
