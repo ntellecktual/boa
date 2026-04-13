@@ -342,6 +342,9 @@
     <button class="dfr-enter-btn" id="dfrEnter">
       <i class="fas fa-play"></i> ENTER DRAFT ROOM
     </button>
+    <div id="dfrLoadingMsg" style="display:none;font-size:.8rem;color:var(--dfr-muted);margin-bottom:1rem">
+      <i class="fas fa-spinner fa-spin me-1"></i> Loading live projections from SportsData.io...
+    </div>
 
     <div class="dfr-team-preview">
       <h3>YOUR OPPONENTS</h3>
@@ -357,6 +360,7 @@
     <div class="dfr-topbar">
       <div class="dfr-topbar-brand"><i class="fas fa-football-ball"></i> DRAFT ROOM</div>
       <div class="dfr-round-badge" id="dfrRoundBadge">RND 1 / 19</div>
+      <div class="dfr-round-badge" id="dfrDataBadge" style="font-size:.58rem;opacity:.7" title="Player data source">OFFLINE</div>
       <div class="dfr-pick-badge" id="dfrPickBadge">Pick 0 / 228</div>
       <div class="dfr-otc" id="dfrOTC">
         <div>
@@ -719,6 +723,106 @@ var RAW=[
 ["Seahawks DST",'DST','SEA',10,222,8,33,11,7,1,350],
 ["Saints DST",'DST','NO',8,224,8,32,10,8,1,355]
 ];
+
+var liveDataSource=false; /* true if RAW was replaced with SportsData.io live projections */
+
+/* ══════════════════════════════════════════════════════════════
+   LIVE DATA — SportsData.io Season Projections
+   Fetches real projected stats + ADP, maps to RAW format.
+   Falls back to hardcoded RAW on failure.
+   ══════════════════════════════════════════════════════════════ */
+
+/* 2026 NFL bye weeks — used when API data lacks ByeWeek field (esp. DST) */
+var BYE_LOOKUP={
+  ARI:11,ATL:12,BAL:8,BUF:12,CAR:11,CHI:7,CIN:7,CLE:10,
+  DAL:7,DEN:14,DET:5,GB:10,HOU:14,IND:14,JAX:12,KC:6,
+  LV:10,LAC:5,LAR:5,MIA:6,MIN:9,NE:14,NO:8,NYG:8,
+  NYJ:12,PHI:5,PIT:9,SF:9,SEA:10,TB:11,TEN:5,WAS:14
+};
+
+function fetchLiveData(season){
+  season=season||'2026';
+  return Promise.all([
+    fetch('/api/nfl/projections/?season='+season).then(function(r){return r.ok?r.json():Promise.reject(r.status)}),
+    fetch('/api/nfl/defense/?season='+season).then(function(r){return r.ok?r.json():Promise.reject(r.status)})
+  ]).then(function(results){
+    var mapped=mapApiToRaw(results[0],results[1]);
+    if(mapped.length<60)return Promise.reject('Insufficient data: '+mapped.length+' players');
+    return mapped;
+  });
+}
+
+function mapApiToRaw(players,defense){
+  var raw=[];
+  /* Position caps — keep pool around 200 players */
+  var caps={QB:20,RB:50,WR:55,TE:20,K:20};
+  var counts={QB:0,RB:0,WR:0,TE:0,K:0};
+
+  /* Sort by ADP so we take top-ranked first */
+  players.sort(function(a,b){return(a.AverageDraftPosition||999)-(b.AverageDraftPosition||999)});
+
+  players.forEach(function(p){
+    var pos=p.Position;
+    if(!caps[pos]||counts[pos]>=caps[pos])return;
+    if(!p.Name||!p.Team)return;
+
+    var adp=Math.round(p.AverageDraftPosition||p.AverageDraftPositionPPR||999);
+    if(adp>300)return; /* skip unranked */
+    var bye=p.ByeWeek||BYE_LOOKUP[p.Team]||0;
+    var tier=adp<=12?1:adp<=24?2:adp<=48?3:adp<=72?4:adp<=96?5:adp<=120?6:adp<=168?7:8;
+
+    var s1=0,s2=0,s3=0,s4=0,s5=0;
+    if(pos==='QB'){
+      s1=Math.round(p.PassingYards||0);s2=Math.round(p.PassingTouchdowns||0);
+      s3=Math.round(p.PassingInterceptions||0);s4=Math.round(p.RushingYards||0);
+      s5=Math.round(p.RushingTouchdowns||0);
+      if(s1<500)return;
+    }else if(pos==='RB'){
+      s1=Math.round(p.RushingYards||0);s2=Math.round(p.RushingTouchdowns||0);
+      s3=Math.round(p.Receptions||0);s4=Math.round(p.ReceivingYards||0);
+      s5=Math.round(p.ReceivingTouchdowns||0);
+      if(s1<80&&s3<8)return;
+    }else if(pos==='WR'){
+      s1=Math.round(p.Receptions||0);s2=Math.round(p.ReceivingYards||0);
+      s3=Math.round(p.ReceivingTouchdowns||0);s4=Math.round(p.RushingYards||0);
+      s5=Math.round(p.RushingTouchdowns||0);
+      if(s2<150)return;
+    }else if(pos==='TE'){
+      s1=Math.round(p.Receptions||0);s2=Math.round(p.ReceivingYards||0);
+      s3=Math.round(p.ReceivingTouchdowns||0);s4=0;s5=0;
+      if(s2<80)return;
+    }else if(pos==='K'){
+      s1=Math.round(p.FieldGoalsMade||0);s2=Math.round(p.FieldGoalsAttempted||0);
+      s3=Math.round(p.ExtraPointsMade||0);s4=Math.round(p.ExtraPointsAttempted||0);
+      s5=Math.round(p.FieldGoalsMade50Plus||(s1*0.25));
+      if(s1<3)return;
+    }else{return}
+
+    raw.push([p.Name,pos,p.Team,bye,adp,tier,s1,s2,s3,s4,s5]);
+    counts[pos]++;
+  });
+
+  /* Defense — from separate endpoint */
+  if(defense&&defense.length){
+    defense.sort(function(a,b){return(a.AverageDraftPosition||999)-(b.AverageDraftPosition||999)});
+    var dstCt=0;
+    defense.forEach(function(d){
+      if(dstCt>=20||!d.Team)return;
+      var adp=Math.round(d.AverageDraftPosition||200);
+      var bye=BYE_LOOKUP[d.Team]||0;
+      var tier=adp<=120?6:adp<=168?7:8;
+      raw.push([
+        d.Team+' DST','DST',d.Team,bye,adp,tier,
+        Math.round(d.Sacks||0),Math.round(d.Interceptions||0),
+        Math.round(d.FumblesRecovered||0),Math.round(d.DefensiveTouchdowns||0),
+        Math.round(d.PointsAllowed||300)
+      ]);
+      dstCt++;
+    });
+  }
+
+  return raw;
+}
 
 /* ══════════════════════════════════════════════════════════════
    HEADSHOTS
@@ -1187,7 +1291,8 @@ function showPostDraft(){
   var user=scores.find(function(t){return t.idx===userSlot});
 
   var html='<div class="dfr-post-header"><h2>🏆 Draft Complete!</h2>'+
-    '<p>'+scoringFmt.toUpperCase()+' · 12 Teams · 19 Rounds · 228 Picks</p>'+
+    '<p>'+scoringFmt.toUpperCase()+' · 12 Teams · 19 Rounds · '+allPicks.length+' Picks'+
+    (liveDataSource?' · <span style="color:#10b981">⚡ Live SportsData.io Projections</span>':' · Offline Projections')+'</p>'+
     '<div class="dfr-post-grade">'+user.grade+'</div></div>';
 
   /* KPIs */
@@ -1270,28 +1375,52 @@ function enterDraftRoom(){
   userSlot=parseInt(document.getElementById('dfrPickPos').value);
   pickTimerMax=parseInt(document.getElementById('dfrTimerSel').value);
 
-  buildTeams();buildPlayers(scoringFmt);
-  available=allPlayers.filter(function(p){return!p.drafted});
-  teamRosters=[];for(var t=0;t<NUM_TEAMS;t++)teamRosters.push([]);
-  allPicks=[];draftCursor=0;paused=false;autopick=false;
+  var enterBtn=document.getElementById('dfrEnter');
+  var loadMsg=document.getElementById('dfrLoadingMsg');
+  enterBtn.disabled=true;enterBtn.style.opacity='.5';
+  loadMsg.style.display='';
 
-  buildDraftQueue();
+  /* Try live SportsData.io projections, fall back to hardcoded RAW */
+  fetchLiveData('2026').catch(function(){
+    /* 2026 may not exist yet — try 2025 */
+    return fetchLiveData('2025');
+  }).then(function(liveRaw){
+    RAW=liveRaw;liveDataSource=true;
+  }).catch(function(){
+    liveDataSource=false; /* keep hardcoded RAW */
+  }).then(function(){
+    buildTeams();buildPlayers(scoringFmt);
+    available=allPlayers.filter(function(p){return!p.drafted});
+    teamRosters=[];for(var t=0;t<NUM_TEAMS;t++)teamRosters.push([]);
+    allPicks=[];draftCursor=0;paused=false;autopick=false;
 
-  document.getElementById('drLobby').style.display='none';
-  document.getElementById('drRoom').style.display='';
-  document.getElementById('drPost').style.display='none';
+    buildDraftQueue();
 
-  /* Setup initial state */
-  document.getElementById('dfrAutoBtn').classList.remove('active-toggle');
-  document.getElementById('dfrPauseBtn').innerHTML='<i class="fas fa-pause"></i>';
+    loadMsg.style.display='none';
+    enterBtn.disabled=false;enterBtn.style.opacity='1';
+    document.getElementById('drLobby').style.display='none';
+    document.getElementById('drRoom').style.display='';
+    document.getElementById('drPost').style.display='none';
 
-  refreshAllUI();
+    /* Show data source */
+    var badge=document.getElementById('dfrDataBadge');
+    if(liveDataSource){
+      badge.textContent='⚡ LIVE DATA';badge.style.background='rgba(16,185,129,.2)';badge.style.color='#10b981';
+    }else{
+      badge.textContent='📋 OFFLINE';badge.style.background='rgba(255,255,255,.08)';badge.style.color='';
+    }
 
-  /* Load headshots async, then start */
-  loadHeadshots().then(function(){
+    document.getElementById('dfrAutoBtn').classList.remove('active-toggle');
+    document.getElementById('dfrPauseBtn').innerHTML='<i class="fas fa-pause"></i>';
+
     refreshAllUI();
-    draftState='drafting';
-    executeNextPick();
+
+    /* Load headshots async, then start */
+    loadHeadshots().then(function(){
+      refreshAllUI();
+      draftState='drafting';
+      executeNextPick();
+    });
   });
 }
 

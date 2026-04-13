@@ -532,9 +532,14 @@ def nfl_api_proxy(request, endpoint):
     if not api_key:
         return JsonResponse({'error': 'API key not configured'}, status=503)
 
+    season = request.GET.get('season', '2026')
+    valid_seasons = {str(y) + s for y in range(2020, 2030) for s in ('', 'REG', 'PRE', 'POST')}
+    if season not in valid_seasons:
+        return JsonResponse({'error': 'Invalid season'}, status=400)
+
     allowed_endpoints = {
-        'projections': f'https://api.sportsdata.io/v3/nfl/projections/json/PlayerSeasonProjectionStats/2025?key={api_key}',
-        'defense': f'https://api.sportsdata.io/v3/nfl/projections/json/FantasyDefenseProjectionsBySeason/2025?key={api_key}',
+        'projections': f'https://api.sportsdata.io/v3/nfl/projections/json/PlayerSeasonProjectionStats/{season}?key={api_key}',
+        'defense': f'https://api.sportsdata.io/v3/nfl/projections/json/FantasyDefenseProjectionsBySeason/{season}?key={api_key}',
         'headshots': f'https://api.sportsdata.io/v3/nfl/headshots/json/Headshots?key={api_key}',
     }
 
@@ -545,7 +550,7 @@ def nfl_api_proxy(request, endpoint):
     try:
         req = urllib.request.Request(url)
         req.add_header('Ocp-Apim-Subscription-Key', api_key)
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:
             data = json.loads(resp.read().decode())
         return JsonResponse(data, safe=False)
     except Exception:
