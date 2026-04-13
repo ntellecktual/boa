@@ -55,7 +55,7 @@
   .ld-nav-actions{display:flex;align-items:center;gap:.4rem}
   .ld-btn-ghost{padding:.35rem .85rem;border-radius:8px;border:1px solid var(--ld-border);background:transparent;color:var(--ld-text);font-size:.78rem;font-weight:600;text-decoration:none!important;cursor:pointer;font-family:inherit;transition:all .15s}
   .ld-btn-ghost:hover{background:var(--ld-glow);border-color:rgba(99,102,241,.3)}
-  .ld-btn-primary{padding:.35rem 1rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--ld-blue),var(--ld-violet));color:#fff;font-size:.78rem;font-weight:700;text-decoration:none!important;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(99,102,241,.3);transition:opacity .15s,transform .15s}
+  .ld-btn-primary{padding:.35rem 1rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--ld-blue),var(--ld-violet));color:#fff;font-size:.78rem;font-weight:700;text-decoration:none!important;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(247, 247, 252, 0.35);transition:opacity .15s,transform .15s}
   .ld-btn-primary:hover{opacity:.9;transform:translateY(-1px)}
 
   /* ── Animations ── */
@@ -80,7 +80,7 @@
   .ld-hero-sub{font-size:1.1rem;color:var(--ld-muted);max-width:580px;margin:0 auto 2.2rem;line-height:1.65;animation:ldUp .6s ease both .2s;opacity:0}
   .ld-hero-sub strong{color:var(--ld-text);font-weight:700}
   .ld-hero-ctas{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;animation:ldUp .6s ease both .3s;opacity:0}
-  .ld-cta-primary{position:relative;padding:.75rem 2rem;border-radius:12px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:.95rem;font-weight:700;font-family:inherit;text-decoration:none!important;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 4px 24px rgba(99,102,241,.35);transition:all .25s;overflow:hidden}
+  .ld-cta-primary{position:relative;padding:.75rem 2rem;border-radius:12px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:.95rem;font-weight:700;font-family:inherit;text-decoration:none!important;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 4px 24px rgba(247, 247, 252, 0.35);transition:all .25s;overflow:hidden}
   .ld-cta-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.15));opacity:0;transition:opacity .25s}
   .ld-cta-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,.45)}
   .ld-cta-primary:hover::before{opacity:1}
@@ -212,7 +212,7 @@
   <h1>Engineering at the<br/><span class="ld-gradient">Intersection of Cloud,<br/>Data & AI</span></h1>
   <p class="ld-hero-sub">A live, production-grade engineering portfolio built by a <strong>Platform Engineer</strong> and <strong>Azure Cloud Architect</strong> — featuring 12+ interactive demos, Fortune 500 work history, and enterprise systems you can actually run.</p>
   <div class="ld-hero-ctas">
-    <a href="{% url 'register' %}" class="ld-cta-primary"><i class="fas fa-rocket"></i> Create Free Account</a>
+    <a href="{% url 'register' %}" class="ld-cta-primary"><i class="fas fa-rocket"></i> Create Account</a>
     <a href="{% url 'portfolio_showcase' %}" class="ld-cta-secondary"><i class="fas fa-briefcase"></i> View Portfolio</a>
   </div>
 </div>
