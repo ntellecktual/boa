@@ -254,6 +254,7 @@
     </header>
 
     {% else %}
+    {% block guest_topbar %}
     <!-- Guest: minimal top bar -->
     <header class="guest-topbar">
       <a href="{% url 'home' %}" class="guest-brand">
@@ -263,6 +264,7 @@
         <i class="fas fa-moon"></i>
       </button>
     </header>
+    {% endblock guest_topbar %}
     {% endif %}
 
     <main class="main-content">
