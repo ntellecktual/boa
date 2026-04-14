@@ -1,141 +1,293 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
 
-{% block title %}thenumerix | Register{% endblock %}
+{% block title %}thenumerix | Create Account{% endblock %}
+{% block container_class %}{% endblock %}
 
 {% block extra_head %}
 <style>
 /* ══════════════════════════════════════════════════════
-   REGISTER PAGE — Matches login card design
+   REGISTER PAGE — Split panel overhaul
    ══════════════════════════════════════════════════════ */
+*{box-sizing:border-box}
 :root{
-  --rg-blue:#3b82f6;
-  --rg-violet:#8b5cf6;
-  --rg-emerald:#10b981;
-  --rg-surface:#fff;
-  --rg-border:rgba(0,0,0,.07);
-  --rg-muted:#6b7280;
-  --rg-shadow-lg:0 8px 32px rgba(0,0,0,.10);
+  --rg2-left-bg:#ffffff;
+  --rg2-left-text:#0f172a;
+  --rg2-left-muted:#64748b;
+  --rg2-left-border:rgba(0,0,0,.08);
+  --rg2-input-bg:#f8fafc;
+  --rg2-input-focus-border:#10b981;
+  --rg2-shadow:0 0 0 3px rgba(16,185,129,.12);
 }
 [data-theme="dark"]{
-  --rg-surface:#1a1d2e;
-  --rg-border:rgba(255,255,255,.08);
-  --rg-muted:#94a3b8;
-  --rg-shadow-lg:0 8px 32px rgba(0,0,0,.4);
+  --rg2-left-bg:#0d0f1a;
+  --rg2-left-text:#f1f5f9;
+  --rg2-left-muted:#94a3b8;
+  --rg2-left-border:rgba(255,255,255,.08);
+  --rg2-input-bg:rgba(255,255,255,.05);
+  --rg2-input-focus-border:#34d399;
+  --rg2-shadow:0 0 0 3px rgba(52,211,153,.15);
 }
-@keyframes rgFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
-.rg-wrap{
-  min-height:100vh;display:flex;align-items:center;
-  justify-content:center;padding:2rem 1rem;
-}
-.rg-card{
-  width:100%;max-width:420px;border-radius:18px;
-  border:1px solid var(--rg-border);background:var(--rg-surface);
-  box-shadow:var(--rg-shadow-lg);
-  padding:2.2rem 2rem;position:relative;overflow:hidden;
-  animation:rgFadeUp .4s ease both;
-}
-.rg-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--rg-emerald),var(--rg-blue));
-}
-.rg-logo{text-align:center;margin-bottom:1.2rem}
-.rg-logo img{height:56px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.1))}
-.rg-title{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:.2rem}
-.rg-sub{font-size:.78rem;color:var(--rg-muted);text-align:center;margin-bottom:1.5rem}
+@keyframes rgFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes rgOrb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-35px,25px) scale(1.08)}66%{transform:translate(25px,-20px) scale(.94)}}
+@keyframes rgSlideIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes rgPulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-.rg-card .form-label{font-size:.78rem;font-weight:600;color:var(--rg-muted);margin-bottom:.25rem}
-.rg-card .form-control{
-  border-radius:10px;border:1px solid var(--rg-border);
-  font-size:.88rem;padding:.55rem .85rem;
-  transition:border-color .2s,box-shadow .2s;
-}
-[data-theme="dark"] .rg-card .form-control{background:rgba(255,255,255,.06);color:inherit}
-.rg-card .form-control:focus{
-  border-color:rgba(16,185,129,.5);
-  box-shadow:0 0 0 3px rgba(16,185,129,.12);outline:none;
-}
-.rg-card .form-text{font-size:.66rem;color:var(--rg-muted);opacity:.6;margin-top:.25rem;line-height:1.4}
-.rg-card .invalid-feedback{font-size:.72rem;color:#ef4444;margin-top:.2rem}
+/* ── Layout ── */
+.rg-wrap{display:flex;min-height:100vh;width:100%}
 
-.rg-alert{
-  border-radius:10px;padding:.65rem .9rem;margin-bottom:1rem;font-size:.8rem;
-  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#dc2626;
+/* ── Right Panel (visual) — comes first in DOM but right visually ── */
+.rg-right{
+  order:2;flex:1;position:relative;overflow:hidden;
+  background:#060c12;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;padding:3rem 2.5rem;
 }
+.rg-orb{position:absolute;border-radius:50%;filter:blur(110px);pointer-events:none;will-change:transform}
+.rg-orb--1{width:380px;height:380px;background:rgba(16,185,129,.22);top:-10%;right:-5%;animation:rgOrb 22s ease-in-out infinite}
+.rg-orb--2{width:280px;height:280px;background:rgba(6,182,212,.18);bottom:0%;left:-5%;animation:rgOrb 28s ease-in-out infinite reverse}
+.rg-orb--3{width:180px;height:180px;background:rgba(99,102,241,.2);top:50%;left:40%;animation:rgOrb 16s ease-in-out infinite 6s}
+#rgCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.35}
+
+.rg-right-content{position:relative;z-index:2;max-width:440px;width:100%;animation:rgSlideIn .5s ease both .15s;opacity:0;animation-fill-mode:both}
+
+.rg-right-tag{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .85rem;
+  border-radius:999px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.06);backdrop-filter:blur(8px);
+  font-size:.65rem;font-weight:700;color:rgba(255,255,255,.65);
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.4rem}
+.rg-live-dot{width:6px;height:6px;border-radius:50%;background:#10b981;animation:rgPulse 1.8s ease-in-out infinite}
+
+.rg-right-heading{font-size:clamp(1.3rem,2.2vw,1.85rem);font-weight:900;color:#fff;
+  line-height:1.2;margin:0 0 .65rem;letter-spacing:-.02em}
+.rg-right-heading span{
+  background:linear-gradient(135deg,#34d399,#06b6d4);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.rg-right-sub{font-size:.8rem;color:rgba(255,255,255,.45);margin:0 0 2rem;line-height:1.65}
+
+/* Feature list */
+.rg-features{display:flex;flex-direction:column;gap:.85rem;margin-bottom:2rem}
+.rg-feature{display:flex;align-items:flex-start;gap:.85rem;padding:1rem 1.1rem;
+  border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.rg-feature-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:.85rem;flex-shrink:0}
+.rg-feature-text strong{display:block;font-size:.8rem;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:.15rem}
+.rg-feature-text span{font-size:.7rem;color:rgba(255,255,255,.45);line-height:1.4}
+
+/* Bottom note */
+.rg-right-note{font-size:.65rem;color:rgba(255,255,255,.25);text-align:center;margin-top:1.5rem}
+
+/* ── Left Panel (form) ── */
+.rg-left{
+  order:1;flex:0 0 46%;width:46%;background:var(--rg2-left-bg);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:2.5rem 3.5rem;position:relative;z-index:2;
+}
+.rg-form-inner{width:100%;max-width:390px;animation:rgFadeUp .45s ease both}
+
+.rg-logo-wrap{display:flex;align-items:center;gap:.65rem;margin-bottom:1.8rem}
+.rg-logo-wrap img{height:38px;border-radius:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.12))}
+.rg-logo-wrap span{font-size:1rem;font-weight:800;color:var(--rg2-left-text);letter-spacing:-.01em}
+
+.rg-heading{font-size:1.65rem;font-weight:900;color:var(--rg2-left-text);margin:0 0 .3rem;letter-spacing:-.02em}
+.rg-sub{font-size:.8rem;color:var(--rg2-left-muted);margin:0 0 1.6rem;line-height:1.5}
+
+/* Fields */
+.rg-field{margin-bottom:.95rem}
+.rg-label{display:block;font-size:.73rem;font-weight:600;color:var(--rg2-left-muted);margin-bottom:.35rem}
+.rg-input{
+  width:100%;padding:.62rem .95rem;border-radius:10px;
+  border:1.5px solid var(--rg2-left-border);
+  background:var(--rg2-input-bg);
+  color:var(--rg2-left-text);font-size:.86rem;font-family:inherit;
+  transition:border-color .2s,box-shadow .2s;outline:none;
+}
+.rg-input::placeholder{color:var(--rg2-left-muted);opacity:.55}
+.rg-input:focus{border-color:var(--rg2-input-focus-border);box-shadow:var(--rg2-shadow)}
+[data-theme="dark"] .rg-input{color:#f1f5f9}
+.rg-input.is-invalid{border-color:#ef4444}
+
+.rg-help{font-size:.63rem;color:var(--rg2-left-muted);opacity:.6;margin-top:.25rem;line-height:1.4}
+.rg-error{font-size:.7rem;color:#ef4444;margin-top:.2rem}
+[data-theme="dark"] .rg-error{color:#fca5a5}
+
+/* Alert */
+.rg-alert{border-radius:8px;padding:.6rem .85rem;margin-bottom:1rem;font-size:.78rem;
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#dc2626}
 [data-theme="dark"] .rg-alert{background:rgba(239,68,68,.12);color:#fca5a5}
 
-.rg-card .rg-btn{
-  border-radius:10px;font-weight:700;padding:.62rem;font-size:.9rem;
-  background:linear-gradient(135deg,var(--rg-emerald),#059669);
-  border:none;box-shadow:0 4px 14px rgba(16,185,129,.32);color:#fff;
-  transition:opacity .2s,transform .2s;width:100%;cursor:pointer;
+/* Submit button */
+.rg-btn{
+  width:100%;padding:.72rem 1rem;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#059669,#10b981);
+  color:#fff!important;font-size:.9rem;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:opacity .2s,transform .2s,box-shadow .2s;
+  box-shadow:0 4px 18px rgba(16,185,129,.35);
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  margin-top:1.2rem;text-decoration:none!important;
 }
-.rg-card .rg-btn:hover{opacity:.9;transform:translateY(-1px)}
+.rg-btn:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 6px 24px rgba(16,185,129,.45)}
 
-.rg-footer{font-size:.76rem;text-align:center;color:var(--rg-muted);margin-top:1rem}
-.rg-footer a{font-weight:600}
+/* Footer */
+.rg-foot{font-size:.76rem;text-align:center;color:var(--rg2-left-muted);margin-top:1.4rem}
+.rg-foot a{color:#059669;font-weight:700;text-decoration:none}
+.rg-foot a:hover{text-decoration:underline}
+
+/* Responsive */
+@media(max-width:900px){
+  .rg-right{display:none}
+  .rg-left{flex:1;width:100%;padding:2.5rem 1.5rem}
+}
+@media(max-width:480px){
+  .rg-left{padding:2rem 1.2rem}
+  .rg-form-inner{max-width:100%}
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="rg-wrap">
-  <div class="rg-card">
-    <div class="rg-logo">
-      <img src="{% static 'logo.png' %}" alt="thenumerix Logo" />
-    </div>
-    <h1 class="rg-title">Create Account</h1>
-    <p class="rg-sub">Join the thenumerix community</p>
 
-    <form method="POST">
-      {% csrf_token %}
+  <!-- ══ Left: Form ══ -->
+  <div class="rg-left">
+    <div class="rg-form-inner">
+
+      <div class="rg-logo-wrap">
+        <img src="{% static 'logo.png' %}" alt="thenumerix" />
+        <span>thenumerix</span>
+      </div>
+
+      <h1 class="rg-heading">Create account</h1>
+      <p class="rg-sub">Join and explore 14+ live production demos.</p>
 
       {% if form.non_field_errors %}
       <div class="rg-alert" role="alert">
-        {% for error in form.non_field_errors %}<p class="mb-0">{{ error }}</p>{% endfor %}
+        {% for error in form.non_field_errors %}<p class="mb-0"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</p>{% endfor %}
       </div>
       {% endif %}
 
-      <div class="mb-3">
-        <label for="id_username" class="form-label">Username</label>
-        <input type="text" class="form-control{% if form.username.errors %} is-invalid{% endif %}"
-               id="id_username" name="username" autocomplete="username" placeholder="Choose a username"
-               value="{{ form.username.value|default:'' }}" maxlength="150" required />
-        {% if form.username.help_text %}<small class="form-text">{{ form.username.help_text }}</small>{% endif %}
-        {% for error in form.username.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
+      <form method="POST" autocomplete="on">
+        {% csrf_token %}
 
-      <div class="mb-3">
-        <label for="id_email" class="form-label">Email</label>
-        <input type="email" class="form-control{% if form.email.errors %} is-invalid{% endif %}"
-               id="id_email" name="email" autocomplete="email" placeholder="you@example.com"
-               value="{{ form.email.value|default:'' }}" required />
-        {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
+        <div class="rg-field">
+          <label for="id_username" class="rg-label">Username</label>
+          <input type="text" id="id_username" name="username"
+                 class="rg-input{% if form.username.errors %} is-invalid{% endif %}"
+                 autocomplete="username" placeholder="Choose a username"
+                 value="{{ form.username.value|default:'' }}" maxlength="150" required />
+          {% if form.username.help_text %}<small class="rg-help">{{ form.username.help_text }}</small>{% endif %}
+          {% for error in form.username.errors %}<div class="rg-error">{{ error }}</div>{% endfor %}
+        </div>
 
-      <div class="mb-3">
-        <label for="id_password1" class="form-label">Password</label>
-        <input type="password" class="form-control{% if form.password1.errors %} is-invalid{% endif %}"
-               id="id_password1" name="password1" autocomplete="new-password" placeholder="••••••••" required />
-        {% if form.password1.help_text %}<small class="form-text">{{ form.password1.help_text }}</small>{% endif %}
-        {% for error in form.password1.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
+        <div class="rg-field">
+          <label for="id_email" class="rg-label">Email</label>
+          <input type="email" id="id_email" name="email"
+                 class="rg-input{% if form.email.errors %} is-invalid{% endif %}"
+                 autocomplete="email" placeholder="you@example.com"
+                 value="{{ form.email.value|default:'' }}" required />
+          {% for error in form.email.errors %}<div class="rg-error">{{ error }}</div>{% endfor %}
+        </div>
 
-      <div class="mb-3">
-        <label for="id_password2" class="form-label">Confirm Password</label>
-        <input type="password" class="form-control{% if form.password2.errors %} is-invalid{% endif %}"
-               id="id_password2" name="password2" autocomplete="new-password" placeholder="••••••••" required />
-        {% for error in form.password2.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
+        <div class="rg-field">
+          <label for="id_password1" class="rg-label">Password</label>
+          <input type="password" id="id_password1" name="password1"
+                 class="rg-input{% if form.password1.errors %} is-invalid{% endif %}"
+                 autocomplete="new-password" placeholder="••••••••" required />
+          {% if form.password1.help_text %}<small class="rg-help">{{ form.password1.help_text }}</small>{% endif %}
+          {% for error in form.password1.errors %}<div class="rg-error">{{ error }}</div>{% endfor %}
+        </div>
 
-      <button type="submit" class="rg-btn">
-        <i class="fas fa-user-plus me-2"></i>Register
-      </button>
-    </form>
+        <div class="rg-field">
+          <label for="id_password2" class="rg-label">Confirm Password</label>
+          <input type="password" id="id_password2" name="password2"
+                 class="rg-input{% if form.password2.errors %} is-invalid{% endif %}"
+                 autocomplete="new-password" placeholder="••••••••" required />
+          {% for error in form.password2.errors %}<div class="rg-error">{{ error }}</div>{% endfor %}
+        </div>
 
-    <p class="rg-footer">
-      Already have an account? <a href="{% url 'login' %}">Sign in</a>
-    </p>
+        <button type="submit" class="rg-btn">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </form>
+
+      <p class="rg-foot">
+        Already have an account? <a href="{% url 'login' %}">Sign in &rarr;</a>
+      </p>
+    </div>
   </div>
+
+  <!-- ══ Right: Visual Panel ══ -->
+  <div class="rg-right">
+    <canvas id="rgCanvas"></canvas>
+    <div class="rg-orb rg-orb--1"></div>
+    <div class="rg-orb rg-orb--2"></div>
+    <div class="rg-orb rg-orb--3"></div>
+
+    <div class="rg-right-content">
+      <div class="rg-right-tag">
+        <span class="rg-live-dot"></span>
+        14+ live demos &nbsp;·&nbsp; Fortune 500 history
+      </div>
+
+      <h2 class="rg-right-heading">What you get<br/><span>inside thenumerix</span></h2>
+      <p class="rg-right-sub">Every system listed is deployed, interactive, and representative of enterprise-scale engineering.</p>
+
+      <div class="rg-features">
+        <div class="rg-feature">
+          <div class="rg-feature-icon" style="background:rgba(16,185,129,.15);color:#34d399"><i class="fas fa-flask"></i></div>
+          <div class="rg-feature-text">
+            <strong>14+ Interactive Live Demos</strong>
+            <span>Feature stores, streaming pipelines, MLOps, data quality, and more — all running in production.</span>
+          </div>
+        </div>
+        <div class="rg-feature">
+          <div class="rg-feature-icon" style="background:rgba(59,130,246,.15);color:#60a5fa"><i class="fas fa-building"></i></div>
+          <div class="rg-feature-text">
+            <strong>Fortune 500 Work History</strong>
+            <span>Real projects at American Express, Amazon FC, Omni Hotels, Oracle, and more.</span>
+          </div>
+        </div>
+        <div class="rg-feature">
+          <div class="rg-feature-icon" style="background:rgba(139,92,246,.15);color:#a78bfa"><i class="fas fa-brain"></i></div>
+          <div class="rg-feature-text">
+            <strong>AI &amp; MLOps Pipelines</strong>
+            <span>LLM-powered demos, multi-agent systems, NFL draft simulation, anomaly detection.</span>
+          </div>
+        </div>
+        <div class="rg-feature">
+          <div class="rg-feature-icon" style="background:rgba(245,158,11,.15);color:#fbbf24"><i class="fab fa-microsoft"></i></div>
+          <div class="rg-feature-text">
+            <strong>Azure Cloud Architecture</strong>
+            <span>Platform engineering, CI/CD pipelines, Databricks governance, Entra ID RBAC.</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="rg-right-note">Built with Django · Deployed on Render · No credit card required</p>
+    </div>
+  </div>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}{{ block.super }}
+<script>
+(function(){
+  var canvas=document.getElementById('rgCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var pts=[];var N=45;var MAX=120;var raf;
+  function resize(){canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;}
+  function init(){pts=[];for(var i=0;i<N;i++){pts.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.6+.7});}}
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;});
+    for(var i=0;i<pts.length;i++){for(var j=i+1;j<pts.length;j++){var dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<MAX){ctx.beginPath();ctx.strokeStyle='rgba(52,211,153,'+(1-d/MAX)*.3+')';ctx.lineWidth=.6;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}}}
+    pts.forEach(function(p){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(52,211,153,.55)';ctx.fill();});
+    raf=requestAnimationFrame(draw);
+  }
+  resize();init();draw();
+  window.addEventListener('resize',function(){cancelAnimationFrame(raf);resize();init();draw();});
+}());
+</script>
 {% endblock %}
