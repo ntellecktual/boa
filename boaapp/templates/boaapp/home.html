@@ -109,7 +109,7 @@
   <div class="dash-hero">
     <img src="{% static 'logo.png' %}" alt="thenumerix" class="dash-hero-logo" />
     <div class="dash-hero-text">
-      <h2>Welcome back, <span>{{ user.username }}</span></h2>
+      <h2>Welcome<span>{% if user.is_authenticated %} back, {{ user.username }}{% endif %}</span></h2>
       <p><span id="homeTyped"></span></p>
     </div>
   </div>

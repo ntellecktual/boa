@@ -9,7 +9,9 @@ from celery.result import AsyncResult
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+# TEMP: login disabled for public demo — re-enable by uncommenting the line below
+# from django.contrib.auth.decorators import login_required
+login_required = lambda f: f  # noqa: E731 — passthrough, no auth enforced
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import models, transaction
 from django.http import HttpResponse, JsonResponse
@@ -276,9 +278,11 @@ def health_check(request):
 
 def home_view(request):
     """Authenticated dashboard, or public landing page for guests."""
-    if request.user.is_authenticated:
-        return render(request, 'boaapp/home.html')
-    return render(request, 'boaapp/landing.html')
+    # TEMP: always show dashboard for public demo (login disabled)
+    # if request.user.is_authenticated:
+    #     return render(request, 'boaapp/home.html')
+    # return render(request, 'boaapp/landing.html')
+    return render(request, 'boaapp/home.html')
 
 
 @login_required

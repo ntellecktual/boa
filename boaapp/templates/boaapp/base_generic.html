@@ -223,17 +223,24 @@
       <!-- Footer -->
       <div class="sidebar-footer">
         <div class="sb-user" id="sbUser">
-          <div class="sb-avatar">{{ user.first_name|first|default:"K" }}</div>
+          <div class="sb-avatar">{% if user.is_authenticated %}{{ user.first_name|first|default:user.username|first|upper|default:"K" }}{% else %}<i class="fas fa-user"></i>{% endif %}</div>
           <div class="sb-user-info">
-            <span class="sb-user-name">{{ user.first_name|default:user.username }}</span>
+            <span class="sb-user-name">{% if user.is_authenticated %}{{ user.first_name|default:user.username }}{% else %}Guest{% endif %}</span>
             <span class="sb-user-role">Developer</span>
           </div>
         </div>
         <div class="sb-footer-actions">
+          {% if user.is_authenticated %}
           <a href="{% url 'logout' %}" class="sidebar-link sb-link--danger">
             <span class="sb-icon-wrap sb-icon--red"><i class="fas fa-sign-out-alt"></i></span>
             <span class="sidebar-text">Sign Out</span>
           </a>
+          {% else %}
+          <a href="{% url 'login' %}" class="sidebar-link">
+            <span class="sb-icon-wrap"><i class="fas fa-sign-in-alt"></i></span>
+            <span class="sidebar-text">Sign In</span>
+          </a>
+          {% endif %}
         </div>
       </div>
     </aside>
