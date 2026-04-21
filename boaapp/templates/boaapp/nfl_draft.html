@@ -289,6 +289,17 @@
 .dfr-action-btn:hover{border-color:var(--dfr-accent);background:rgba(59,130,246,.05)}
 .dfr-action-btn.primary{background:var(--dr-navy);color:#fff;border-color:var(--dr-navy)}
 .dfr-action-btn.primary:hover{background:#014a99}
+
+/* ── Design Decisions & Implementation ── */
+.dfr-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
+@media(max-width:700px){.dfr-decisions{grid-template-columns:1fr}}
+.dfr-impl{max-width:940px;margin:0 auto}
+.dfr-impl details{border-radius:14px;border:1px solid var(--dr-border);background:var(--dfr-card);margin-bottom:.8rem;overflow:hidden}
+.dfr-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
+.dfr-impl summary::-webkit-details-marker{display:none}
+.dfr-impl summary::before{content:'▶';font-size:.6rem;transition:transform .2s}
+.dfr-impl details[open] summary::before{transform:rotate(90deg)}
+.dfr-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--dr-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
 </style>
 
 <!-- ═══════════════════════════ PRE-DRAFT LOBBY ═══════════════════════════ -->
@@ -465,6 +476,262 @@
 <!-- ═══════════════════════════ POST-DRAFT ═══════════════════════════ -->
 <div id="drPost" style="display:none">
   <div class="dfr-post" id="dfrPostContent"></div>
+</div>
+
+<!-- ═══════════════════════════ DESIGN DECISIONS & TRADEOFFS ═══════════════════════════ -->
+<div style="max-width:940px;margin:2.5rem auto 0;padding:0 1rem">
+  <h3 style="font-size:1.15rem;font-weight:900;margin-bottom:.25rem">Design Decisions &amp; Tradeoffs</h3>
+  <p style="font-size:.78rem;color:var(--dfr-muted);margin-bottom:1.2rem">Why the draft simulator works the way it does — each choice reflects a real fantasy football principle.</p>
+  <div class="dfr-decisions">
+
+    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
+      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">RANKING METHODOLOGY</div>
+      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why VOR (Value Over Replacement) Instead of Raw Points?</h4>
+      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">A QB scoring 350 points and a RB scoring 250 points aren't directly comparable. VOR normalizes by subtracting the replacement-level baseline for each position (QB12, RB24, WR24, TE12 in a 12-team league). After VOR adjustment, the RB may have <b>more</b> value because the drop-off from RB1→RB25 is steeper than QB1→QB13. This is why elite RBs go before elite QBs in real drafts.</p>
+    </div>
+
+    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
+      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">AI DESIGN</div>
+      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why 9 AI Archetypes Instead of One Optimal Strategy?</h4>
+      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">Real drafts have diverse strategies. Zero RB (punt RB, stack WR early) exploits the waiver wire for RB value. Robust RB (heavy RB early) locks in scarce positional value. Hero RB (1 elite RB + WRs) is a hybrid. By modeling 9 real strategies, the draft creates realistic positional runs, reaches, and value falls that a single-strategy AI wouldn't produce.</p>
+    </div>
+
+    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
+      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">DRAFT FORMAT</div>
+      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why Snake Draft Instead of Auction?</h4>
+      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">Snake enforces strategic scarcity: if you pick 1st, you wait 23 picks before your next selection. This creates genuine positional tradeoffs — do you take the best player available or fill a positional need? Auction formats let every team bid on every player, which is more "fair" but removes the strategic depth of pick positioning.</p>
+    </div>
+
+    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
+      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">BEHAVIORAL REALISM</div>
+      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why ±8% Randomization on AI Picks?</h4>
+      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">Perfect AI play is boring and unrealistic. Real drafters have biases, sleeper picks, and team preferences. The ±8% jitter on VOR values (<code style="font-size:.65rem;background:rgba(59,130,246,.08);padding:.1rem .3rem;border-radius:4px">val *= (0.92 + Math.random() * 0.16)</code>) causes occasional "reaches" (taking a player 3-5 picks early) and "steals" (letting a player fall), creating realistic draft variance without making AI picks nonsensical.</p>
+    </div>
+
+    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card);grid-column:1 / -1">
+      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">GAME THEORY</div>
+      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why Positional Scarcity Drives Strategy?</h4>
+      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">There are only ~12 elite RBs but ~30 viable WRs in fantasy. This scarcity curve means missing the RB window is catastrophic (replacement RBs score 40% less), while WR depth lets you wait (WR15 scores only 18% less than WR1). Every AI archetype is essentially a different bet on <em>when</em> positional scarcity becomes binding. Robust RB bets it binds immediately; Zero RB bets the waiver wire provides adequate RB value later.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PRODUCTION IMPLEMENTATION ═══════════════════════════ -->
+<div style="max-width:940px;margin:2.5rem auto 0;padding:0 1rem">
+  <h3 style="font-size:1.15rem;font-weight:900;margin-bottom:.25rem">Production Implementation</h3>
+  <p style="font-size:.78rem;color:var(--dfr-muted);margin-bottom:1.2rem">Core algorithms behind the draft engine — VOR ranking, AI strategy weighting, and post-draft grading.</p>
+  <div class="dfr-impl">
+
+    <details>
+      <summary>🧮 VOR Calculation Engine (Python)</summary>
+      <pre><code># ── Value Over Replacement (VOR) Calculation ──────────────────────
+# VOR normalizes fantasy points across positions by subtracting
+# the "replacement level" — the best player available on waivers.
+
+def compute_vor(players: list[dict], league_size: int = 12) -> list[dict]:
+    """
+    Compute VOR for each player.
+    Replacement level = the (N+1)th player at each position,
+    where N = starting slots × league_size.
+    """
+    # Replacement thresholds: how many starters exist league-wide
+    # QB1 × 12 = 12 starters → replacement = QB13
+    # RB1-RB2 × 12 = 24 starters → replacement = RB25
+    # WR1-WR2 × 12 = 24 starters → replacement = WR25 (approx)
+    starters_per_team = {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "K": 1, "DST": 1}
+    replacement_rank = {
+        pos: (slots * league_size) + 1
+        for pos, slots in starters_per_team.items()
+    }
+    # e.g. {"QB": 13, "RB": 25, "WR": 25, "TE": 13, "K": 13, "DST": 13}
+
+    # Group by position, sort descending by projected points
+    from collections import defaultdict
+    by_pos = defaultdict(list)
+    for p in players:
+        by_pos[p["pos"]].append(p)
+    for pos in by_pos:
+        by_pos[pos].sort(key=lambda x: x["projected_pts"], reverse=True)
+
+    # Find replacement-level points for each position
+    replacement_pts = {}
+    for pos, rank in replacement_rank.items():
+        idx = min(rank - 1, len(by_pos[pos]) - 1)
+        replacement_pts[pos] = by_pos[pos][idx]["projected_pts"] if idx >= 0 else 0
+
+    # Calculate VOR: player_pts - replacement_pts[position]
+    for p in players:
+        p["vor"] = round(p["projected_pts"] - replacement_pts[p["pos"]], 1)
+
+    # Sort cross-positionally by VOR (this IS the draft ranking)
+    players.sort(key=lambda x: x["vor"], reverse=True)
+    return players
+
+# Example: QB with 350 pts, replacement QB13 scores 260 pts → VOR = 90
+#          RB with 280 pts, replacement RB25 scores 120 pts → VOR = 160
+#          The RB ranks HIGHER despite fewer raw points — scarcity wins.</code></pre>
+    </details>
+
+    <details>
+      <summary>🤖 AI Draft Strategy Engine (Python)</summary>
+      <pre><code># ── AI Draft Strategy: Weighted VOR with Archetype Biases ─────────
+# Each AI team has a strategy archetype that applies positional
+# weight multipliers to VOR, simulating real draft tendencies.
+
+STRATEGIES = {
+    "Robust RB":    {"QB": 0.50, "RB": 1.55, "WR": 0.85, "TE": 0.60, "K": 0.30, "DST": 0.30},
+    "Zero RB":      {"QB": 0.70, "RB": 0.45, "WR": 1.50, "TE": 1.15, "K": 0.30, "DST": 0.30},
+    "Hero RB":      {"QB": 0.60, "RB": 1.10, "WR": 1.35, "TE": 0.75, "K": 0.30, "DST": 0.30},
+    "TE Premium":   {"QB": 0.65, "RB": 1.00, "WR": 1.00, "TE": 1.70, "K": 0.30, "DST": 0.30},
+    "Late QB":      {"QB": 0.25, "RB": 1.25, "WR": 1.25, "TE": 0.90, "K": 0.30, "DST": 0.30},
+    "Balanced BPA": {"QB": 1.00, "RB": 1.00, "WR": 1.00, "TE": 1.00, "K": 0.50, "DST": 0.50},
+}
+# Robust RB weights RB at 1.55× → a RB with VOR 80 scores 124 composite
+# Zero RB weights RB at 0.45× → same RB scores only 36 composite
+# This is why the same player falls to round 3 in one draft but goes pick 8 in another
+
+def ai_pick(available: list, team_roster: list, strategy: dict) -> dict:
+    """Select the best player using strategy-weighted VOR."""
+    weights = strategy
+    pos_counts = {}
+    for p in team_roster:
+        pos_counts[p["pos"]] = pos_counts.get(p["pos"], 0) + 1
+
+    pos_needs = {"QB": 3, "RB": 5, "WR": 5, "TE": 2, "K": 2, "DST": 2}
+    best, best_score = None, float("-inf")
+
+    for player in available[:60]:  # scan top 60 by VOR
+        # Base: VOR × strategy weight
+        score = player["vor"] * weights.get(player["pos"], 1.0)
+
+        # Need bonus: +15% if roster slot still open
+        filled = pos_counts.get(player["pos"], 0)
+        if filled < pos_needs[player["pos"]]:
+            score *= 1.15
+        else:
+            score *= 0.45  # heavy penalty if position full
+
+        # Scarcity check: how many of this position remain?
+        remaining = sum(1 for p in available[:40] if p["pos"] == player["pos"])
+        if remaining <= 3:
+            score *= 1.35  # urgency — "run" on position
+        elif remaining <= 6:
+            score *= 1.12
+
+        # ADP sanity: don't reach more than 30 picks early
+        if player["adp"] > (current_pick + 30):
+            score *= 0.70
+
+        # Behavioral jitter: ±8% randomization
+        import random
+        score *= (0.92 + random.random() * 0.16)
+
+        if score > best_score:
+            best, best_score = player, score
+
+    return best</code></pre>
+    </details>
+
+    <details>
+      <summary>📊 Post-Draft Grade Analysis (Python)</summary>
+      <pre><code># ── Post-Draft Grading Algorithm ──────────────────────────────────
+# Grades each team on four dimensions:
+#   1. Total VOR captured (how much value above replacement)
+#   2. Starter quality (projected points from starting lineup)
+#   3. Bye week concentration (penalty for 3+ starters on same bye)
+#   4. Positional balance (did you cover all positions?)
+
+def grade_team(roster: list, all_teams: list, league_size: int = 12) -> dict:
+    """Compute composite draft grade for a team's roster."""
+    # ── 1. Total VOR Captured ──
+    total_vor = sum(p["vor"] for p in roster)
+
+    # ── 2. Starter Projected Points ──
+    by_pos = {}
+    for p in roster:
+        by_pos.setdefault(p["pos"], []).append(p)
+    for pos in by_pos:
+        by_pos[pos].sort(key=lambda x: x["projected_pts"], reverse=True)
+
+    starter_pts = 0
+    # QB1
+    if by_pos.get("QB"): starter_pts += by_pos["QB"][0]["projected_pts"]
+    # RB1, RB2
+    for i in range(min(2, len(by_pos.get("RB", [])))):
+        starter_pts += by_pos["RB"][i]["projected_pts"]
+    # WR1, WR2
+    for i in range(min(2, len(by_pos.get("WR", [])))):
+        starter_pts += by_pos["WR"][i]["projected_pts"]
+    # TE1
+    if by_pos.get("TE"): starter_pts += by_pos["TE"][0]["projected_pts"]
+    # FLEX (best remaining RB/WR/TE)
+    flex_candidates = []
+    if len(by_pos.get("RB", [])) > 2: flex_candidates.append(by_pos["RB"][2])
+    if len(by_pos.get("WR", [])) > 2: flex_candidates.append(by_pos["WR"][2])
+    if len(by_pos.get("TE", [])) > 1: flex_candidates.append(by_pos["TE"][1])
+    flex_candidates.sort(key=lambda x: x["projected_pts"], reverse=True)
+    if flex_candidates: starter_pts += flex_candidates[0]["projected_pts"]
+    # K1, DST1
+    if by_pos.get("K"): starter_pts += by_pos["K"][0]["projected_pts"]
+    if by_pos.get("DST"): starter_pts += by_pos["DST"][0]["projected_pts"]
+
+    # ── 3. Bye Week Concentration Penalty ──
+    bye_counts = {}
+    for p in roster:
+        bye_counts[p["bye"]] = bye_counts.get(p["bye"], 0) + 1
+    bye_penalty = sum(1 for count in bye_counts.values() if count >= 3)
+    # Each 3+ concentration = one grade tier penalty
+
+    # ── 4. Starter-to-Bench Quality Ratio ──
+    bench_pts = sum(p["projected_pts"] for p in roster) - starter_pts
+    bench_count = len(roster) - 9  # 9 starters
+    depth_ratio = (bench_pts / bench_count) if bench_count > 0 else 0
+
+    # ── Composite: rank all teams by starter_pts, assign letter grade ──
+    all_starter_pts = []
+    for team_roster in all_teams:
+        # (compute starter_pts for each team using same logic above)
+        all_starter_pts.append(compute_starter_pts(team_roster))
+    all_starter_pts.sort(reverse=True)
+
+    rank = all_starter_pts.index(starter_pts) + 1
+    grade_map = ["A+","A","A","A-","B+","B","B","B-","C+","C","C-","D"]
+    base_grade_idx = rank - 1
+    final_grade_idx = min(base_grade_idx + bye_penalty, len(grade_map) - 1)
+
+    return {
+        "grade": grade_map[final_grade_idx],
+        "rank": rank,
+        "total_vor": round(total_vor),
+        "starter_pts": round(starter_pts),
+        "bye_conflicts": bye_penalty,
+        "bench_depth": round(depth_ratio, 1),
+    }</code></pre>
+    </details>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════ INNOVATION SPOTLIGHT ═══════════════════════════ -->
+<div style="max-width:940px;margin:2.5rem auto 2rem;padding:0 1rem">
+  <h3 style="font-size:1.15rem;font-weight:900;margin-bottom:.25rem">Innovation Spotlight</h3>
+  <p style="font-size:.78rem;color:var(--dfr-muted);margin-bottom:1.2rem">Advanced techniques that push beyond standard draft simulators.</p>
+  <div class="dfr-decisions">
+
+    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
+      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#8b5cf6;margin-bottom:.35rem">REAL-TIME ADAPTATION</div>
+      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">🔥 Dynamic Positional Run Detection</h4>
+      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">The AI tracks when 3+ players at a position are drafted in a 6-pick window and adjusts urgency weights upward for remaining players at that position, simulating real "run" behavior. This creates cascading effects — one team reaching for a RB can trigger a run that forces three other teams to adjust, mirroring the panic-driven runs seen in real draft rooms.</p>
+    </div>
+
+    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
+      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#8b5cf6;margin-bottom:.35rem">DRAFT CAPITAL THEORY</div>
+      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">📈 Bayesian Draft Pick Valuation</h4>
+      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">Using the Jimmy Johnson draft value chart adapted for fantasy, each pick position has a calculated trade value. The system could compute "draft capital efficiency" — how much VOR you captured per unit of draft capital. Pick 1 (worth 3,000 JJ points) drafting a player with VOR 120 yields 0.04 VOR/point, while pick 24 (worth 700 JJ points) with VOR 85 yields 0.12 VOR/point — quantifying which picks truly delivered value.</p>
+    </div>
+
+  </div>
 </div>
 
 {% endblock content %}

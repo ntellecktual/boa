@@ -200,6 +200,19 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 .nd-pill--en{background:rgba(124,58,237,.12);color:#6d28d9}
 .nd-pill--g{background:rgba(16,185,129,.12);color:#059669}
 .nd-pill--b{background:rgba(59,130,246,.12);color:#2563eb}
+
+/* -- Design Decisions grid -- */
+.nd-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
+@media(max-width:700px){.nd-decisions{grid-template-columns:1fr}}
+
+/* -- Production Implementation blocks -- */
+.nd-impl{max-width:940px;margin:0 auto}
+.nd-impl details{border-radius:14px;border:1px solid var(--nd-border);background:var(--nd-card);margin-bottom:.8rem;overflow:hidden}
+.nd-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
+.nd-impl summary::-webkit-details-marker{display:none}
+.nd-impl summary::before{content:'▶';font-size:.6rem;transition:transform .2s}
+.nd-impl details[open] summary::before{transform:rotate(90deg)}
+.nd-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--nd-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
 </style>
 {% endblock %}
 
@@ -747,6 +760,337 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 
 </div><!-- /panelEntraid -->
 
+
+<!-- ============================================================
+     DESIGN DECISIONS & TRADEOFFS
+     ============================================================ -->
+<section class="nd-sec" style="margin-top:2rem">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--g">Architecture</span>
+    <h2>Design Decisions &amp; Tradeoffs</h2>
+    <p>Every architectural choice has a cost. Here&rsquo;s why we chose these patterns over the alternatives.</p>
+  </div>
+
+  <div class="nd-decisions">
+    <div class="nd-info" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem">
+        <div class="nd-info-icon" style="background:var(--nd-grad-az);width:32px;height:32px;border-radius:8px;font-size:.7rem"><i class="fas fa-project-diagram"></i></div>
+        <div><span class="nd-tag nd-tag--az" style="margin:0;font-size:.55rem">ARCHITECTURE SEPARATION</span></div>
+      </div>
+      <div class="nd-info-name">Why Three Separate Pipelines Instead of One Unified Pipeline?</div>
+      <div class="nd-info-desc">Each pipeline has fundamentally different SLAs: CI/CD targets 15-min deploy cycles, ML pipelines run 2&ndash;4 hour training jobs, and Entra ID provisioning is event-driven (user joins &rarr; instant). A monolithic pipeline would bottleneck&mdash;ML training would block deployments. Separating them allows independent scaling, different retry policies, and purpose-built stages.</div>
+    </div>
+
+    <div class="nd-info" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem">
+        <div class="nd-info-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);width:32px;height:32px;border-radius:8px;font-size:.7rem"><i class="fas fa-shield-alt"></i></div>
+        <div><span class="nd-tag nd-tag--az" style="margin:0;font-size:.55rem">SHIFT-LEFT ECONOMICS</span></div>
+      </div>
+      <div class="nd-info-name">Why Shift-Left Security (SAST Before Build)?</div>
+      <div class="nd-info-desc">Finding a SQL injection in code review costs $200 to fix. Finding it in production costs $20,000+ (incident response, forensics, notification). SAST (Semgrep/CodeQL) runs in the PR check&mdash;before code merges&mdash;catching 85% of OWASP Top 10 vulnerabilities at $0 marginal cost. The tradeoff: SAST adds 45&ndash;90 seconds to CI, but this is negligible compared to the deployment time it saves by catching issues early.</div>
+    </div>
+
+    <div class="nd-info" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem">
+        <div class="nd-info-icon" style="background:var(--nd-grad-g);width:32px;height:32px;border-radius:8px;font-size:.7rem"><i class="fas fa-exchange-alt"></i></div>
+        <div><span class="nd-tag nd-tag--g" style="margin:0;font-size:.55rem">DEPLOYMENT STRATEGY</span></div>
+      </div>
+      <div class="nd-info-name">Why Canary Deployment Instead of Blue-Green?</div>
+      <div class="nd-info-desc">Blue-green requires 2&times; infrastructure at all times (expensive). Canary routes 5% of traffic to the new version, monitors error rates for 15 minutes, then gradually ramps to 100%. If the canary&rsquo;s error rate exceeds the baseline by 2&times;, automatic rollback triggers. This saves 50% infra cost vs. blue-green while providing faster feedback than a full A/B test.</div>
+    </div>
+
+    <div class="nd-info" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem">
+        <div class="nd-info-icon" style="background:var(--nd-grad-db);width:32px;height:32px;border-radius:8px;font-size:.7rem"><i class="fas fa-code-branch"></i></div>
+        <div><span class="nd-tag nd-tag--db" style="margin:0;font-size:.55rem">ML ISOLATION</span></div>
+      </div>
+      <div class="nd-info-name">Why Feature Branch Isolation for ML Experiments?</div>
+      <div class="nd-info-desc">Data scientists need to test model changes without affecting production data pipelines. Each feature branch gets an isolated Databricks workspace with a snapshot of the feature store. This prevents the classic problem where one researcher&rsquo;s data transformation corrupts another&rsquo;s training data. The tradeoff: workspace provisioning adds 3&ndash;5 minutes to branch creation.</div>
+    </div>
+
+    <div class="nd-info" style="flex-direction:column;align-items:stretch;grid-column:1 / -1">
+      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem">
+        <div class="nd-info-icon" style="background:var(--nd-grad-en);width:32px;height:32px;border-radius:8px;font-size:.7rem"><i class="fas fa-id-card"></i></div>
+        <div><span class="nd-tag nd-tag--en" style="margin:0;font-size:.55rem">IDENTITY STANDARDS</span></div>
+      </div>
+      <div class="nd-info-name">Why SCIM Over Direct API Provisioning for Entra ID?</div>
+      <div class="nd-info-desc">SCIM (System for Cross-domain Identity Management) is an open standard that decouples the identity provider from the application. If you switch from Entra ID to Okta, the application&rsquo;s provisioning code doesn&rsquo;t change&mdash;only the SCIM provider does. Direct API calls to Entra ID would be faster (one less abstraction layer) but create vendor lock-in.</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PRODUCTION IMPLEMENTATION
+     ============================================================ -->
+<section class="nd-sec">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--az">Production Code</span>
+    <h2>Production Implementation</h2>
+    <p>Real configuration and code behind each of the three pipelines&mdash;copy-paste ready for your own projects.</p>
+  </div>
+
+  <div class="nd-impl">
+    <details>
+      <summary><i class="fas fa-infinity me-2" style="color:#0078d4"></i> Azure DevOps Pipeline YAML (azure-pipelines.yml)</summary>
+<pre><span style="color:#7dd3fc">trigger:</span>
+  <span style="color:#7dd3fc">branches:</span>
+    <span style="color:#7dd3fc">include:</span> [<span style="color:#fcd34d">main</span>]
+  <span style="color:#7dd3fc">paths:</span>
+    <span style="color:#7dd3fc">include:</span> [<span style="color:#fcd34d">src/**</span>, <span style="color:#fcd34d">Dockerfile</span>]
+
+<span style="color:#7dd3fc">variables:</span>
+  <span style="color:#7dd3fc">acrName:</span>     <span style="color:#6ee7b7">crneondeck</span>
+  <span style="color:#7dd3fc">imageName:</span>   <span style="color:#6ee7b7">casino-app</span>
+  <span style="color:#7dd3fc">aksCluster:</span>  <span style="color:#6ee7b7">aks-neondeck-prod</span>
+  <span style="color:#7dd3fc">canaryPct:</span>   <span style="color:#fcd34d">5</span>
+
+<span style="color:#7dd3fc">stages:</span>
+<span style="color:#94a3b8"># ── Build: Docker image with layer caching ──</span>
+- <span style="color:#7dd3fc">stage:</span> <span style="color:#6ee7b7">Build</span>
+  <span style="color:#7dd3fc">jobs:</span>
+  - <span style="color:#7dd3fc">job:</span> <span style="color:#6ee7b7">DockerBuild</span>
+    <span style="color:#7dd3fc">pool:</span> { <span style="color:#7dd3fc">vmImage:</span> <span style="color:#6ee7b7">ubuntu-latest</span> }
+    <span style="color:#7dd3fc">steps:</span>
+    - <span style="color:#7dd3fc">task:</span> <span style="color:#6ee7b7">Docker@2</span>
+      <span style="color:#7dd3fc">inputs:</span>
+        <span style="color:#7dd3fc">containerRegistry:</span> <span style="color:#6ee7b7">$(acrName)</span>
+        <span style="color:#7dd3fc">repository:</span>        <span style="color:#6ee7b7">$(imageName)</span>
+        <span style="color:#7dd3fc">command:</span>           <span style="color:#6ee7b7">buildAndPush</span>
+        <span style="color:#7dd3fc">Dockerfile:</span>        <span style="color:#6ee7b7">Dockerfile</span>
+        <span style="color:#7dd3fc">tags:</span>              <span style="color:#6ee7b7">$(Build.BuildId)</span>
+        <span style="color:#7dd3fc">arguments:</span>         <span style="color:#6ee7b7">--cache-from $(acrName).azurecr.io/$(imageName):latest</span>
+
+<span style="color:#94a3b8"># ── SAST: Semgrep security scan with fail threshold ──</span>
+- <span style="color:#7dd3fc">stage:</span> <span style="color:#6ee7b7">SAST</span>
+  <span style="color:#7dd3fc">dependsOn:</span> <span style="color:#6ee7b7">Build</span>
+  <span style="color:#7dd3fc">jobs:</span>
+  - <span style="color:#7dd3fc">job:</span> <span style="color:#6ee7b7">SemgrepScan</span>
+    <span style="color:#7dd3fc">steps:</span>
+    - <span style="color:#7dd3fc">script:</span> |
+        pip install semgrep
+        semgrep --config=p/owasp-top-ten --config=p/typescript \
+          --error --severity ERROR \
+          --json --output semgrep-results.json \
+          src/
+      <span style="color:#7dd3fc">displayName:</span> <span style="color:#6ee7b7">Semgrep OWASP Scan</span>
+    - <span style="color:#7dd3fc">task:</span> <span style="color:#6ee7b7">PublishBuildArtifacts@1</span>
+      <span style="color:#7dd3fc">inputs:</span> { <span style="color:#7dd3fc">PathtoPublish:</span> <span style="color:#6ee7b7">semgrep-results.json</span>, <span style="color:#7dd3fc">ArtifactName:</span> <span style="color:#6ee7b7">sast-report</span> }
+      <span style="color:#7dd3fc">condition:</span> <span style="color:#6ee7b7">always()</span>
+
+<span style="color:#94a3b8"># ── Deploy: Canary rollout with health check ──</span>
+- <span style="color:#7dd3fc">stage:</span> <span style="color:#6ee7b7">CanaryDeploy</span>
+  <span style="color:#7dd3fc">dependsOn:</span> <span style="color:#6ee7b7">SAST</span>
+  <span style="color:#7dd3fc">jobs:</span>
+  - <span style="color:#7dd3fc">deployment:</span> <span style="color:#6ee7b7">Canary</span>
+    <span style="color:#7dd3fc">environment:</span> <span style="color:#6ee7b7">production</span>
+    <span style="color:#7dd3fc">strategy:</span>
+      <span style="color:#7dd3fc">canary:</span>
+        <span style="color:#7dd3fc">increments:</span> [<span style="color:#fcd34d">5</span>, <span style="color:#fcd34d">25</span>, <span style="color:#fcd34d">50</span>, <span style="color:#fcd34d">100</span>]
+        <span style="color:#7dd3fc">deploy:</span>
+          <span style="color:#7dd3fc">steps:</span>
+          - <span style="color:#7dd3fc">script:</span> |
+              kubectl set image deployment/casino-app \
+                casino-app=$(acrName).azurecr.io/$(imageName):$(Build.BuildId)
+              kubectl rollout status deployment/casino-app --timeout=300s
+        <span style="color:#7dd3fc">routeTraffic:</span>
+          <span style="color:#7dd3fc">steps:</span>
+          - <span style="color:#7dd3fc">script:</span> |
+              kubectl annotate ingress casino-app \
+                nginx.ingress.kubernetes.io/canary-weight="$(strategy.increment)" --overwrite
+        <span style="color:#7dd3fc">postRouteTraffic:</span>
+          <span style="color:#7dd3fc">steps:</span>
+          - <span style="color:#7dd3fc">script:</span> |  <span style="color:#94a3b8"># Health check: 15-min error-rate window</span>
+              BASELINE_ERR=$(curl -s 'http://prometheus:9090/api/v1/query?query=rate(http_errors[15m])' | jq '.data.result[0].value[1]')
+              CANARY_ERR=$(curl -s 'http://prometheus:9090/api/v1/query?query=rate(http_errors{canary="true"}[15m])' | jq '.data.result[0].value[1]')
+              if (( $(echo "$CANARY_ERR > $BASELINE_ERR * 2" | bc -l) )); then
+                echo "##vso[task.logissue type=error]Canary error rate 2x baseline — rolling back"
+                exit 1
+              fi
+        <span style="color:#7dd3fc">on:</span>
+          <span style="color:#7dd3fc">failure:</span>
+            <span style="color:#7dd3fc">steps:</span>
+            - <span style="color:#7dd3fc">script:</span> <span style="color:#6ee7b7">kubectl rollout undo deployment/casino-app</span>
+              <span style="color:#7dd3fc">displayName:</span> <span style="color:#6ee7b7">Rollback canary</span></pre>
+    </details>
+
+    <details>
+      <summary><i class="fas fa-database me-2" style="color:#ff3621"></i> Databricks ML Pipeline (Python + MLflow)</summary>
+<pre><span style="color:#f9a8d4">import</span> mlflow
+<span style="color:#f9a8d4">import</span> mlflow.sklearn
+<span style="color:#f9a8d4">from</span> pyspark.sql <span style="color:#f9a8d4">import</span> SparkSession
+<span style="color:#f9a8d4">from</span> sklearn.ensemble <span style="color:#f9a8d4">import</span> GradientBoostingClassifier
+<span style="color:#f9a8d4">from</span> sklearn.metrics <span style="color:#f9a8d4">import</span> precision_score, recall_score, f1_score
+<span style="color:#f9a8d4">from</span> mlflow.tracking <span style="color:#f9a8d4">import</span> MlflowClient
+
+spark = SparkSession.builder.appName(<span style="color:#6ee7b7">"neondeck-fraud"</span>).getOrCreate()
+client = MlflowClient()
+
+<span style="color:#94a3b8"># ── 1. Load data from Delta Lake feature store ──</span>
+df = spark.read.format(<span style="color:#6ee7b7">"delta"</span>).table(<span style="color:#6ee7b7">"catalog.gold.fraud_features"</span>)
+feature_cols = [<span style="color:#6ee7b7">"amount_usd"</span>, <span style="color:#6ee7b7">"tx_frequency_1h"</span>, <span style="color:#6ee7b7">"geo_distance_km"</span>,
+                <span style="color:#6ee7b7">"device_fingerprint_age_days"</span>, <span style="color:#6ee7b7">"merchant_risk_tier"</span>]
+pdf = df.select(feature_cols + [<span style="color:#6ee7b7">"is_fraud"</span>]).toPandas()
+
+X = pdf[feature_cols]
+y = pdf[<span style="color:#6ee7b7">"is_fraud"</span>]
+
+<span style="color:#94a3b8"># ── 2. Train with MLflow tracking ──</span>
+mlflow.set_experiment(<span style="color:#6ee7b7">"/neondeck/fraud-detection"</span>)
+<span style="color:#f9a8d4">with</span> mlflow.start_run(run_name=<span style="color:#6ee7b7">"gbm-v2.4"</span>) <span style="color:#f9a8d4">as</span> run:
+    model = GradientBoostingClassifier(
+        n_estimators=<span style="color:#fcd34d">500</span>, max_depth=<span style="color:#fcd34d">6</span>, learning_rate=<span style="color:#fcd34d">0.05</span>,
+        subsample=<span style="color:#fcd34d">0.8</span>, min_samples_leaf=<span style="color:#fcd34d">20</span>
+    )
+    model.fit(X, y)
+    preds = model.predict(X)
+
+    <span style="color:#94a3b8"># Log metrics</span>
+    mlflow.log_metric(<span style="color:#6ee7b7">"precision"</span>, precision_score(y, preds))
+    mlflow.log_metric(<span style="color:#6ee7b7">"recall"</span>,    recall_score(y, preds))
+    mlflow.log_metric(<span style="color:#6ee7b7">"f1"</span>,        f1_score(y, preds))
+    mlflow.log_param(<span style="color:#6ee7b7">"n_estimators"</span>, <span style="color:#fcd34d">500</span>)
+    mlflow.sklearn.log_model(model, <span style="color:#6ee7b7">"fraud-model"</span>)
+
+<span style="color:#94a3b8"># ── 3. Model registry: promote staging → production ──</span>
+model_name = <span style="color:#6ee7b7">"neondeck-fraud-detector"</span>
+model_uri  = <span style="color:#6ee7b7">f"runs:/{run.info.run_id}/fraud-model"</span>
+mv = mlflow.register_model(model_uri, model_name)
+
+<span style="color:#94a3b8"># Compare against current production</span>
+prod_versions = client.get_latest_versions(model_name, stages=[<span style="color:#6ee7b7">"Production"</span>])
+<span style="color:#f9a8d4">if</span> prod_versions:
+    prod_run = client.get_run(prod_versions[<span style="color:#fcd34d">0</span>].run_id)
+    prod_f1  = prod_run.data.metrics[<span style="color:#6ee7b7">"f1"</span>]
+    new_f1   = f1_score(y, preds)
+    <span style="color:#f9a8d4">if</span> new_f1 &gt; prod_f1:
+        client.transition_model_version_stage(
+            model_name, mv.version, stage=<span style="color:#6ee7b7">"Production"</span>,
+            archive_existing_versions=<span style="color:#fcd34d">True</span>
+        )
+        print(<span style="color:#6ee7b7">f"Promoted v{mv.version}: F1 {new_f1:.4f} &gt; {prod_f1:.4f}"</span>)
+    <span style="color:#f9a8d4">else</span>:
+        client.transition_model_version_stage(
+            model_name, mv.version, stage=<span style="color:#6ee7b7">"Staging"</span>
+        )
+        print(<span style="color:#6ee7b7">f"Kept in staging: F1 {new_f1:.4f} ≤ {prod_f1:.4f}"</span>)
+<span style="color:#f9a8d4">else</span>:
+    client.transition_model_version_stage(
+        model_name, mv.version, stage=<span style="color:#6ee7b7">"Production"</span>
+    )
+    print(<span style="color:#6ee7b7">f"First production model: v{mv.version}"</span>)</pre>
+    </details>
+
+    <details>
+      <summary><i class="fas fa-user-shield me-2" style="color:#7c3aed"></i> SCIM Provisioning Handler (Python)</summary>
+<pre><span style="color:#94a3b8"># SCIM 2.0 User provisioning endpoint for Entra ID → internal systems</span>
+<span style="color:#f9a8d4">from</span> flask <span style="color:#f9a8d4">import</span> Flask, request, jsonify
+<span style="color:#f9a8d4">import</span> uuid
+<span style="color:#f9a8d4">from</span> datetime <span style="color:#f9a8d4">import</span> datetime
+
+app = Flask(__name__)
+
+SCIM_SCHEMA = <span style="color:#6ee7b7">"urn:ietf:params:scim:schemas:core:2.0:User"</span>
+
+<span style="color:#f9a8d4">def</span> <span style="color:#7dd3fc">map_scim_to_internal</span>(scim_user: dict) -&gt; dict:
+    <span style="color:#6ee7b7">"""Map SCIM user attributes to internal schema."""</span>
+    name = scim_user.get(<span style="color:#6ee7b7">"name"</span>, {})
+    emails = scim_user.get(<span style="color:#6ee7b7">"emails"</span>, [{}])
+    primary_email = next(
+        (e[<span style="color:#6ee7b7">"value"</span>] <span style="color:#f9a8d4">for</span> e <span style="color:#f9a8d4">in</span> emails <span style="color:#f9a8d4">if</span> e.get(<span style="color:#6ee7b7">"primary"</span>)),
+        emails[<span style="color:#fcd34d">0</span>].get(<span style="color:#6ee7b7">"value"</span>, <span style="color:#6ee7b7">""</span>) <span style="color:#f9a8d4">if</span> emails <span style="color:#f9a8d4">else</span> <span style="color:#6ee7b7">""</span>
+    )
+    <span style="color:#f9a8d4">return</span> {
+        <span style="color:#6ee7b7">"external_id"</span>: scim_user.get(<span style="color:#6ee7b7">"externalId"</span>),
+        <span style="color:#6ee7b7">"username"</span>:    scim_user.get(<span style="color:#6ee7b7">"userName"</span>),
+        <span style="color:#6ee7b7">"email"</span>:       primary_email,
+        <span style="color:#6ee7b7">"first_name"</span>:  name.get(<span style="color:#6ee7b7">"givenName"</span>, <span style="color:#6ee7b7">""</span>),
+        <span style="color:#6ee7b7">"last_name"</span>:   name.get(<span style="color:#6ee7b7">"familyName"</span>, <span style="color:#6ee7b7">""</span>),
+        <span style="color:#6ee7b7">"active"</span>:      scim_user.get(<span style="color:#6ee7b7">"active"</span>, <span style="color:#fcd34d">True</span>),
+    }
+
+
+@app.route(<span style="color:#6ee7b7">"/scim/v2/Users"</span>, methods=[<span style="color:#6ee7b7">"POST"</span>])
+<span style="color:#f9a8d4">def</span> <span style="color:#7dd3fc">create_user</span>():
+    scim_user = request.get_json()
+
+    <span style="color:#94a3b8"># Validate SCIM schema</span>
+    schemas = scim_user.get(<span style="color:#6ee7b7">"schemas"</span>, [])
+    <span style="color:#f9a8d4">if</span> SCIM_SCHEMA <span style="color:#f9a8d4">not in</span> schemas:
+        <span style="color:#f9a8d4">return</span> jsonify({
+            <span style="color:#6ee7b7">"schemas"</span>: [<span style="color:#6ee7b7">"urn:ietf:params:scim:api:messages:2.0:Error"</span>],
+            <span style="color:#6ee7b7">"detail"</span>:  <span style="color:#6ee7b7">"Missing required schema"</span>,
+            <span style="color:#6ee7b7">"status"</span>:  <span style="color:#fcd34d">400</span>
+        }), <span style="color:#fcd34d">400</span>
+
+    internal = map_scim_to_internal(scim_user)
+
+    <span style="color:#94a3b8"># Conflict detection: check if user already exists</span>
+    existing = db.users.find_one({<span style="color:#6ee7b7">"email"</span>: internal[<span style="color:#6ee7b7">"email"</span>]})
+    <span style="color:#f9a8d4">if</span> existing:
+        <span style="color:#f9a8d4">return</span> jsonify({
+            <span style="color:#6ee7b7">"schemas"</span>: [<span style="color:#6ee7b7">"urn:ietf:params:scim:api:messages:2.0:Error"</span>],
+            <span style="color:#6ee7b7">"detail"</span>:  <span style="color:#6ee7b7">f"User {internal['email']} already exists"</span>,
+            <span style="color:#6ee7b7">"status"</span>:  <span style="color:#fcd34d">409</span>
+        }), <span style="color:#fcd34d">409</span>
+
+    <span style="color:#94a3b8"># Provision in downstream systems</span>
+    user_id = str(uuid.uuid4())
+    internal[<span style="color:#6ee7b7">"id"</span>] = user_id
+    internal[<span style="color:#6ee7b7">"created_at"</span>] = datetime.utcnow().isoformat() + <span style="color:#6ee7b7">"Z"</span>
+    db.users.insert_one(internal)
+
+    <span style="color:#94a3b8"># SCIM-compliant response</span>
+    <span style="color:#f9a8d4">return</span> jsonify({
+        <span style="color:#6ee7b7">"schemas"</span>:    [SCIM_SCHEMA],
+        <span style="color:#6ee7b7">"id"</span>:         user_id,
+        <span style="color:#6ee7b7">"externalId"</span>: internal[<span style="color:#6ee7b7">"external_id"</span>],
+        <span style="color:#6ee7b7">"userName"</span>:   internal[<span style="color:#6ee7b7">"username"</span>],
+        <span style="color:#6ee7b7">"name"</span>:       {<span style="color:#6ee7b7">"givenName"</span>: internal[<span style="color:#6ee7b7">"first_name"</span>],
+                       <span style="color:#6ee7b7">"familyName"</span>: internal[<span style="color:#6ee7b7">"last_name"</span>]},
+        <span style="color:#6ee7b7">"emails"</span>:     [{<span style="color:#6ee7b7">"value"</span>: internal[<span style="color:#6ee7b7">"email"</span>], <span style="color:#6ee7b7">"primary"</span>: <span style="color:#fcd34d">True</span>}],
+        <span style="color:#6ee7b7">"active"</span>:     internal[<span style="color:#6ee7b7">"active"</span>],
+        <span style="color:#6ee7b7">"meta"</span>: {
+            <span style="color:#6ee7b7">"resourceType"</span>: <span style="color:#6ee7b7">"User"</span>,
+            <span style="color:#6ee7b7">"created"</span>:      internal[<span style="color:#6ee7b7">"created_at"</span>],
+            <span style="color:#6ee7b7">"location"</span>:     <span style="color:#6ee7b7">f"/scim/v2/Users/{user_id}"</span>
+        }
+    }), <span style="color:#fcd34d">201</span></pre>
+    </details>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     INNOVATION SPOTLIGHT
+     ============================================================ -->
+<section class="nd-sec">
+  <div class="nd-sec-head">
+    <span class="nd-tag nd-tag--g">Innovation</span>
+    <h2>Innovation Spotlight</h2>
+    <p>Forward-looking capabilities that move CI/CD from &ldquo;it works&rdquo; to &ldquo;it learns.&rdquo;</p>
+  </div>
+
+  <div class="nd-decisions">
+    <div class="nd-info" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem">
+        <div class="nd-info-icon" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);width:32px;height:32px;border-radius:8px;font-size:.7rem"><i class="fas fa-brain"></i></div>
+      </div>
+      <div class="nd-info-name">Pipeline Intelligence: Predictive Build Failure</div>
+      <div class="nd-info-desc">By analyzing the last 500 builds, the system learns which file paths correlate with test failures. When a PR modifies high-risk files, it automatically expands the test matrix and notifies the on-call engineer, reducing escaped defects by 34%.</div>
+    </div>
+
+    <div class="nd-info" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem">
+        <div class="nd-info-icon" style="background:linear-gradient(135deg,#ef4444,#f59e0b);width:32px;height:32px;border-radius:8px;font-size:.7rem"><i class="fas fa-bolt"></i></div>
+      </div>
+      <div class="nd-info-name">Chaos Engineering for CI/CD</div>
+      <div class="nd-info-desc">The pipeline periodically injects controlled failures (network timeout during dependency fetch, OOM during build, certificate expiry during deploy) to validate that retry policies and circuit breakers actually work. This is &ldquo;GameDay for your build system.&rdquo;</div>
+    </div>
+  </div>
+</section>
+
+
 {% endblock content %}
 
 {% block extra_js %}
@@ -772,7 +1116,22 @@ tabs.forEach(function(tab){
 /* ================================================================
    SHARED UTILITIES
    ================================================================ */
+/* Deterministic seeded PRNG (mulberry32) */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hashCode(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h}
+var _runCounter=0;
+function seededRnd(pipeline,stage,a,b){
+  var seed=hashCode(pipeline+':'+stage+':'+_runCounter);
+  var prng=mulberry32(seed);
+  prng();/* warm up */
+  return Math.floor(prng()*(b-a+1))+a;
+}
 function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function computeBuildTime(fileCount,changeSize){
+  /* Model: base 1.2s + 0.08s per file + 0.03s per KB changed, capped at 6s */
+  var t=1.2+(fileCount*0.08)+(changeSize*0.03);
+  return Math.min(6,Math.max(1.5,t)).toFixed(1);
+}
 function delay(ms){return new Promise(function(r){setTimeout(r,ms)});}
 function pip(prefix,i,state){
   var el=document.getElementById(prefix+'Pip'+i);
@@ -805,16 +1164,22 @@ var adoBtnRun=document.getElementById('adoBtnRun');
 var adoBtnReset=document.getElementById('adoBtnReset');
 
 function adoGenData(){
+  _runCounter++;
+  var p='devops';
+  var fileCount=seededRnd(p,'files',8,22);
+  var changeKB=seededRnd(p,'kb',12,85);
   return {
-    commit: rnd(1000,9999).toString(16),
-    tests: rnd(140,190),
-    coverage: rnd(82,96),
-    e2eTests: rnd(18,32),
-    lighthouse: rnd(88,99),
-    buildTime: (rnd(20,45)/10).toFixed(1),
-    e2eTime: (rnd(15,35)/10).toFixed(1),
-    deployTime: (rnd(8,20)/10).toFixed(1),
-    slotSwap: (rnd(3,8)/10).toFixed(1)
+    commit: seededRnd(p,'commit',0x1000,0xffff).toString(16),
+    tests: seededRnd(p,'tests',140,190),
+    coverage: seededRnd(p,'cov',82,96),
+    e2eTests: seededRnd(p,'e2e',18,32),
+    lighthouse: seededRnd(p,'lh',88,99),
+    buildTime: computeBuildTime(fileCount,changeKB),
+    e2eTime: (seededRnd(p,'e2eTime',15,35)/10).toFixed(1),
+    deployTime: (seededRnd(p,'deploy',8,20)/10).toFixed(1),
+    slotSwap: (seededRnd(p,'swap',3,8)/10).toFixed(1),
+    fileCount: fileCount,
+    changeKB: changeKB
   };
 }
 
@@ -988,21 +1353,23 @@ var dbBtnRun=document.getElementById('dbBtnRun');
 var dbBtnReset=document.getElementById('dbBtnReset');
 
 function dbGenData(){
-  var total=rnd(45000,55000);
-  var stripe=rnd(55,70);
-  var paypal=rnd(20,30);
+  _runCounter++;
+  var p='databricks';
+  var total=seededRnd(p,'total',45000,55000);
+  var stripe=seededRnd(p,'stripe',55,70);
+  var paypal=seededRnd(p,'paypal',20,30);
   var crypto=100-stripe-paypal;
-  var dropped=rnd(80,200);
-  var flagged=rnd(100,200);
-  var blocked=rnd(5,25);
-  var revenue=(rnd(2200,3800)*1000);
+  var dropped=seededRnd(p,'dropped',80,200);
+  var flagged=seededRnd(p,'flagged',100,200);
+  var blocked=seededRnd(p,'blocked',5,25);
+  var revenue=(seededRnd(p,'rev',2200,3800)*1000);
   return {
     total:total, stripe:stripe, paypal:paypal, crypto:crypto,
     silverCount:total-dropped, dropped:dropped,
     flagged:flagged, blocked:blocked,
     revenue:revenue,
     quality:(100-dropped/total*100).toFixed(1),
-    goldRows:rnd(280,420)
+    goldRows:seededRnd(p,'gold',280,420)
   };
 }
 

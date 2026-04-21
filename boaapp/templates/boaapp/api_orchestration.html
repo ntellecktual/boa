@@ -175,6 +175,37 @@
 .ao-ds.completed{background:#d1fae5;color:#065f46}.ao-ds.compensated{background:#fef3c7;color:#92400e}
 @keyframes aoFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes aoSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.ao-step-card--fail{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05)}
+.ao-ds.failed{background:#fee2e2;color:#991b1b}
+/* ── Design Decisions ── */
+.ao-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
+@media(max-width:700px){.ao-decisions{grid-template-columns:1fr}}
+.ao-dec-card{border-radius:18px;border:1px solid var(--ao-border);background:var(--ao-surface);backdrop-filter:blur(10px);padding:1.2rem 1.3rem;box-shadow:var(--ao-shadow);transition:transform .25s,box-shadow .25s}
+.ao-dec-card:hover{transform:translateY(-3px);box-shadow:var(--ao-shadow-lg)}
+.ao-dec-card h4{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
+.ao-dec-card p{font-size:.76rem;opacity:.72;line-height:1.55;margin:0}
+.ao-dec-cat{display:inline-block;padding:.15rem .5rem;border-radius:6px;font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:.55rem}
+.ao-dec-cat--b{background:rgba(59,130,246,.11);color:#2563eb}
+.ao-dec-cat--v{background:rgba(139,92,246,.11);color:#7c3aed}
+.ao-dec-cat--g{background:rgba(16,185,129,.11);color:#059669}
+.ao-dec-cat--a{background:rgba(245,158,11,.11);color:#b45309}
+.ao-dec-cat--i{background:rgba(99,102,241,.11);color:#4f46e5}
+/* ── Production Implementation ── */
+.ao-impl{max-width:940px;margin:0 auto}
+.ao-impl details{border-radius:14px;border:1px solid var(--ao-border);background:var(--ao-surface);margin-bottom:.8rem;overflow:hidden}
+.ao-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
+.ao-impl summary::-webkit-details-marker{display:none}
+.ao-impl summary::before{content:'\25B6';font-size:.6rem;transition:transform .2s}
+.ao-impl details[open] summary::before{transform:rotate(90deg)}
+.ao-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--ao-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
+/* ── Innovation Spotlight ── */
+.ao-innov{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
+@media(max-width:700px){.ao-innov{grid-template-columns:1fr}}
+.ao-innov-card{border-radius:18px;border:1px solid var(--ao-border);background:var(--ao-surface);backdrop-filter:blur(10px);padding:1.2rem 1.3rem;box-shadow:var(--ao-shadow);position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.ao-innov-card:hover{transform:translateY(-3px);box-shadow:var(--ao-shadow-lg)}
+.ao-innov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.ao-innov-card h4{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
+.ao-innov-card p{font-size:.76rem;opacity:.72;line-height:1.55;margin:0}
 </style>
 
 <!-- ═════════════════════ HERO ═════════════════════ -->
@@ -402,6 +433,277 @@
   </div>
 </section>
 
+<!-- ═════════════════════ DESIGN DECISIONS ═════════════════════ -->
+<section class="ao-sec">
+  <div class="ao-sec-head">
+    <span class="ao-tag ao-tag--v">Architecture</span>
+    <h2>Design Decisions &amp; Tradeoffs</h2>
+    <p>Every architectural choice has a cost — here's why we chose this path.</p>
+  </div>
+  <div class="ao-decisions">
+
+    <div class="ao-dec-card">
+      <h4><i class="fas fa-exchange-alt me-2" style="color:var(--ao-indigo)"></i>Why Saga Instead of 2PC?</h4>
+      <p>Two-Phase Commit provides ACID across services but requires all participants to hold locks until the coordinator commits — one slow service blocks everything. In microservices each service owns its database; cross-database locking defeats service isolation. Sagas achieve eventual consistency through local transactions with compensating actions. The tradeoff: intermediate states are visible (lost isolation), and compensation must be carefully designed — but sagas scale horizontally and tolerate partial failures.</p>
+      <span class="ao-dec-cat ao-dec-cat--b">Consistency vs Availability</span>
+    </div>
+
+    <div class="ao-dec-card">
+      <h4><i class="fas fa-sitemap me-2" style="color:var(--ao-violet)"></i>Why Orchestration Over Choreography?</h4>
+      <p>In choreography each service publishes events and listens for others — no coordinator. This works for 2–3 services but creates "event spaghetti" in complex flows: debugging requires tracing events across N services. Orchestration uses a central coordinator that sequences steps and handles failures. The tradeoff: the orchestrator is a single point of failure and coupling point, but provides one place to observe, debug, and modify the entire workflow.</p>
+      <span class="ao-dec-cat ao-dec-cat--v">Observability vs Coupling</span>
+    </div>
+
+    <div class="ao-dec-card">
+      <h4><i class="fas fa-undo-alt me-2" style="color:var(--ao-emerald)"></i>Why Compensating Transactions?</h4>
+      <p>In distributed systems you can't "undo" a payment or "un-ship" a package. Compensating transactions are forward actions that semantically reverse the effect: refund payment, cancel shipment, release inventory. Each must be idempotent — running twice is safe because network failures may cause duplicates. Unlike database rollback, compensations have side effects (refund emails) that can't be undone.</p>
+      <span class="ao-dec-cat ao-dec-cat--g">Forward Recovery</span>
+    </div>
+
+    <div class="ao-dec-card">
+      <h4><i class="fas fa-random me-2" style="color:var(--ao-amber)"></i>Why Exponential Backoff with Jitter?</h4>
+      <p>Fixed retry intervals cause thundering herd: 1,000 simultaneous failures all retry at the same moment, overwhelming the recovering service. Exponential backoff (5s, 10s, 20s, 40s) spreads retries. Adding random jitter (&plusmn;30%) prevents synchronized retries from correlated failures. Formula: <code>delay = min(base &times; 2^attempt &times; (0.7 + random&times;0.6), max_delay)</code>. After max retries, the saga compensates rather than retrying indefinitely.</p>
+      <span class="ao-dec-cat ao-dec-cat--a">Failure Handling</span>
+    </div>
+
+    <div class="ao-dec-card">
+      <h4><i class="fas fa-fingerprint me-2" style="color:var(--ao-indigo)"></i>Why Idempotency Keys on Every Call?</h4>
+      <p>Network failures create ambiguity: did the payment go through? Without idempotency, retrying charges the customer twice. Every saga step sends an idempotency key (<code>order_id + step + attempt</code>). The receiving service checks: if already processed, return the cached result. This enables at-least-once delivery without double-processing. The tradeoff: services must maintain an idempotency store (Redis/DynamoDB) adding latency and operational overhead.</p>
+      <span class="ao-dec-cat ao-dec-cat--i">Exactly-Once Semantics</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═════════════════════ PRODUCTION IMPLEMENTATION ═════════════════════ -->
+<section class="ao-sec">
+  <div class="ao-sec-head">
+    <span class="ao-tag ao-tag--g">Production Code</span>
+    <h2>Production Implementation</h2>
+    <p>Real-world saga patterns with state machines, compensation chains, and distributed tracing.</p>
+  </div>
+  <div class="ao-impl">
+
+    <details>
+      <summary><i class="fas fa-cogs me-2" style="color:var(--ao-indigo)"></i>Saga Orchestrator with State Machine (Python)</summary>
+      <pre>import enum
+from dataclasses import dataclass, field
+
+class SagaState(enum.Enum):
+    STARTED = "STARTED"
+    PAYMENT_PENDING = "PAYMENT_PENDING"
+    PAYMENT_CONFIRMED = "PAYMENT_CONFIRMED"
+    INVENTORY_RESERVED = "INVENTORY_RESERVED"
+    SHIPPING_INITIATED = "SHIPPING_INITIATED"
+    COMPLETED = "COMPLETED"
+    COMPENSATING = "COMPENSATING"
+    FAILED = "FAILED"
+
+@dataclass
+class SagaExecution:
+    saga_id: str
+    order_id: str
+    state: SagaState = SagaState.STARTED
+    completed_steps: list = field(default_factory=list)
+
+    def persist(self, store):
+        """Persist to DB — survives orchestrator crashes."""
+        store.save(self.saga_id, {
+            "state": self.state.value,
+            "completed_steps": self.completed_steps
+        })
+
+class SagaOrchestrator:
+    TRANSITIONS = {
+        SagaState.STARTED:            ("process_payment",    SagaState.PAYMENT_PENDING),
+        SagaState.PAYMENT_PENDING:    ("confirm_payment",    SagaState.PAYMENT_CONFIRMED),
+        SagaState.PAYMENT_CONFIRMED:  ("reserve_inventory",  SagaState.INVENTORY_RESERVED),
+        SagaState.INVENTORY_RESERVED: ("initiate_shipping",  SagaState.SHIPPING_INITIATED),
+        SagaState.SHIPPING_INITIATED: ("finalize",           SagaState.COMPLETED),
+    }
+
+    COMPENSATIONS = {
+        "initiate_shipping": "cancel_shipment",
+        "reserve_inventory": "release_inventory",
+        "confirm_payment":   "refund_payment",
+        "process_payment":   "void_authorization",
+    }
+
+    async def execute(self, saga: SagaExecution):
+        while saga.state in self.TRANSITIONS:
+            action, next_state = self.TRANSITIONS[saga.state]
+            try:
+                await getattr(self.services, action)(
+                    saga.order_id,
+                    idempotency_key=f"{saga.saga_id}:{action}"
+                )
+                saga.completed_steps.append(action)
+                saga.state = next_state
+                saga.persist(self.store)
+            except Exception as e:
+                saga.state = SagaState.COMPENSATING
+                saga.persist(self.store)
+                await self._compensate(saga)
+                return saga
+        return saga
+
+    async def _compensate(self, saga: SagaExecution):
+        """Walk backward through completed steps."""
+        for step in reversed(saga.completed_steps):
+            comp = self.COMPENSATIONS.get(step)
+            if comp:
+                try:
+                    await getattr(self.services, comp)(
+                        saga.order_id,
+                        idempotency_key=f"{saga.saga_id}:{comp}"
+                    )
+                except Exception:
+                    await self.store.send_to_dlq(saga.saga_id, comp)
+        saga.state = SagaState.FAILED
+        saga.persist(self.store)</pre>
+    </details>
+
+    <details>
+      <summary><i class="fas fa-undo-alt me-2" style="color:var(--ao-emerald)"></i>Compensating Transaction Handler (Python)</summary>
+      <pre>import asyncio, logging, time
+from dataclasses import dataclass
+from typing import Callable, Awaitable
+
+@dataclass
+class CompensationStep:
+    name: str
+    execute: Callable[..., Awaitable]
+    max_retries: int = 3
+    base_delay: float = 1.0
+
+class CompensationChain:
+    def __init__(self, dlq_client):
+        self.steps = []
+        self.dlq = dlq_client
+        self.log = logging.getLogger("compensation")
+
+    def add(self, name, handler, max_retries=3):
+        self.steps.append(CompensationStep(name, handler, max_retries))
+        return self
+
+    async def execute(self, saga_id: str, context: dict):
+        for step in reversed(self.steps):
+            await self._retry_step(saga_id, step, context)
+
+    async def _retry_step(self, saga_id, step, context):
+        for attempt in range(step.max_retries):
+            try:
+                idem_key = f"{saga_id}:comp:{step.name}:{attempt}"
+                await step.execute(context=context, idempotency_key=idem_key)
+                self.log.info(f"[{saga_id}] {step.name} compensated")
+                return
+            except Exception as e:
+                # Exponential backoff with jitter
+                jitter = 0.7 + 0.6 * (hash(idem_key) % 100) / 100
+                delay = min(step.base_delay * (2 ** attempt) * jitter, 30.0)
+                self.log.warning(f"[{saga_id}] {step.name} retry {attempt+1}: {e}")
+                await asyncio.sleep(delay)
+
+        # Exhausted retries -- dead letter queue
+        self.log.critical(f"[{saga_id}] {step.name} -&gt; DLQ")
+        await self.dlq.publish({
+            "saga_id": saga_id, "step": step.name,
+            "context": context, "failed_at": time.time()
+        })
+
+# Usage
+chain = CompensationChain(dlq_client=redis_dlq)
+chain.add("cancel_shipment",   shipping_svc.cancel)
+chain.add("release_inventory", inventory_svc.release)
+chain.add("refund_payment",    payment_svc.refund)
+await chain.execute("SAGA-12345", {"order_id": "ORD-2024-56789"})</pre>
+    </details>
+
+    <details>
+      <summary><i class="fas fa-project-diagram me-2" style="color:var(--ao-violet)"></i>Distributed Tracing with OpenTelemetry (Python)</summary>
+      <pre>from opentelemetry import trace
+from opentelemetry.trace import StatusCode
+from opentelemetry.propagate import inject
+import time
+
+tracer = trace.get_tracer("saga.orchestrator")
+
+class TracedSagaOrchestrator:
+    async def execute_saga(self, order_id, steps):
+        with tracer.start_as_current_span(
+            "saga.execute",
+            attributes={"saga.order_id": order_id, "saga.steps": len(steps)}
+        ) as parent:
+            trace_id = format(parent.get_span_context().trace_id, '032x')
+            completed = []
+
+            for step in steps:
+                try:
+                    await self._traced_step(step, order_id)
+                    completed.append(step)
+                except Exception as e:
+                    parent.set_status(StatusCode.ERROR, str(e))
+                    parent.set_attribute("saga.failed_at", step["name"])
+                    await self._compensate_traced(completed, order_id)
+                    return {"status": "compensated", "trace_id": trace_id}
+
+            parent.set_attribute("saga.status", "completed")
+            return {"status": "completed", "trace_id": trace_id}
+
+    async def _traced_step(self, step, order_id):
+        with tracer.start_as_current_span(
+            f"saga.step.{step['name']}",
+            attributes={"service.name": step["service"]}
+        ) as span:
+            headers = {}
+            inject(headers)  # propagate trace context across boundary
+            start = time.monotonic()
+            result = await step["handler"](
+                order_id=order_id, headers=headers,
+                deadline_ms=step.get("deadline_ms")
+            )
+            span.set_attribute("duration_ms", (time.monotonic() - start) * 1000)
+            return result
+
+    async def _compensate_traced(self, completed, order_id):
+        with tracer.start_as_current_span("saga.compensate"):
+            for step in reversed(completed):
+                with tracer.start_as_current_span(
+                    f"saga.compensate.{step['name']}"
+                ) as comp_span:
+                    try:
+                        await step["compensate"](order_id=order_id)
+                        comp_span.set_attribute("status", "success")
+                    except Exception as e:
+                        comp_span.set_status(StatusCode.ERROR, str(e))
+                        comp_span.set_attribute("status", "dlq")</pre>
+    </details>
+
+  </div>
+</section>
+
+<!-- ═════════════════════ INNOVATION SPOTLIGHT ═════════════════════ -->
+<section class="ao-sec">
+  <div class="ao-sec-head">
+    <span class="ao-tag ao-tag--a">Innovation</span>
+    <h2>Innovation Spotlight</h2>
+    <p>Novel techniques that push beyond standard saga implementations.</p>
+  </div>
+  <div class="ao-innov">
+
+    <div class="ao-innov-card">
+      <h4><i class="fas fa-hourglass-half me-2" style="color:var(--ao-amber)"></i>Saga Timeout with Deadline Propagation</h4>
+      <p>Each saga step inherits a shrinking deadline: if the overall saga must complete in 30 seconds and payment took 8 seconds, inventory gets 22 seconds. This prevents slow downstream services from consuming the entire timeout budget. If a service receives a request with &lt;2 seconds remaining, it immediately returns a timeout error rather than starting work it can't complete — failing fast instead of wasting resources on doomed operations.</p>
+    </div>
+
+    <div class="ao-innov-card">
+      <h4><i class="fas fa-history me-2" style="color:var(--ao-rose)"></i>Saga Replay for Debugging</h4>
+      <p>Every saga execution is logged as a sequence of events: step started, completed, failed, compensation triggered. Engineers can replay any saga in a sandbox environment, injecting failures at specific steps to test compensation logic. This turns production incidents into reproducible test cases — "Saga #12345 failed at shipping, replay it locally with the same inputs" — eliminating guesswork from post-mortems.</p>
+    </div>
+
+  </div>
+</section>
+
 {% endblock content %}
 
 {% block extra_js %}
@@ -425,14 +727,22 @@ var skus=['SKU-1847','SKU-2293','SKU-3014','SKU-4521','SKU-5678','SKU-6102'];
 var carriers=['FedEx 2-Day','UPS Ground','DHL Express','USPS Priority'];
 var processors=['Stripe','Adyen','Braintree','Square'];
 var emails=['alex@corp.io','jordan@startup.com','taylor@dev.co','morgan@tech.io'];
-function rand(a){return a[Math.floor(Math.random()*a.length)]}
-function rn(a,b){return Math.floor(Math.random()*(b-a)+a)}
+/* Deterministic seeded PRNG (mulberry32) — same order ID always produces same failure pattern */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hashStr(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h>>>0}
+var prng=mulberry32(Date.now());
+function rand(a){return a[Math.floor(prng()*a.length)]}
+function rn(a,b){return Math.floor(prng()*(b-a)+a)}
 
-function gen(){var idx=rn(0,products.length),qty=rn(1,4),price=rn(29,1499);
-  return{orderId:'ORD-2024-'+rn(10000,99999),corrId:Math.random().toString(16).substr(2,8),
+function gen(){prng=mulberry32((Date.now()^(performance.now()*1000))>>>0);
+  var idx=rn(0,products.length),qty=rn(1,4),price=rn(29,1499);
+  var oid='ORD-2024-'+rn(10000,99999);
+  var fprng=mulberry32(hashStr(oid)),roll=fprng();
+  var failAt=roll<0.30?(roll<0.10?2:roll<0.20?3:4):0;
+  return{orderId:oid,corrId:prng().toString(16).substr(2,8),
     product:products[idx],sku:skus[idx],qty:qty,price:price,total:price*qty,
     processor:rand(processors),carrier:rand(carriers),email:rand(emails),
-    rateUsed:rn(80,400),rateLimit:1000,spans:rn(6,12),services:4}}
+    rateUsed:rn(80,400),rateLimit:1000,spans:rn(6,12),services:4,failAt:failAt}}
 
 function s1(r){pip(0,'active');log('\ud83d\udee1\ufe0f Gateway: POST /api/v2/orders');
   var oc=document.getElementById('aoOrdCard');
@@ -491,7 +801,8 @@ function s6(r,elapsed){pip(5,'active');sagas.push(r);totalSpans+=r.spans;totalLa
   document.getElementById('aoKpiSagas').textContent=sagas.length;
   document.getElementById('aoKpiSpans').textContent=totalSpans;
   document.getElementById('aoKpiLatency').textContent=(totalLat/sagas.length*1000).toFixed(0)+'ms';
-  document.getElementById('aoKpiRate').textContent='0.0%';
+  var errC=sagas.filter(function(x){return x.failAt>0}).length;
+  document.getElementById('aoKpiRate').textContent=(errC/sagas.length*100).toFixed(1)+'%';
   document.getElementById('aoDashTable').insertAdjacentHTML('afterbegin',
     '<tr style="animation:aoFadeUp .35s ease both"><td><b>'+r.orderId+'</b></td>'+
     '<td>'+money(r.total)+'</td><td>'+r.services+'</td><td>'+r.spans+'</td>'+
@@ -504,13 +815,69 @@ function s6(r,elapsed){pip(5,'active');sagas.push(r);totalSpans+=r.spans;totalLa
     r.product+' \u00d7 '+r.qty+' \u2014 '+money(r.total)+' via '+r.processor+' \u2192 '+r.carrier+'</p></div>');
   pip(5,'done');log('\u2705 Saga committed');return wait(600)}
 
+/* \u2500\u2500 Compensation chain \u2500\u2500 */
+function showFail(r,step){
+  var nm=['','',r.processor+' Payment',r.sku+' Inventory',r.carrier+' Shipping'];
+  var ic=['','','\ud83d\udcb3','\ud83d\udce6','\ud83d\ude9a'];
+  pip(step-1,'active');
+  log('\u274c '+nm[step]+' FAILED \u2014 initiating compensation');
+  app('<div class="ao-step-card ao-step-card--fail"><h6>'+ic[step]+' Step '+step+' \u2014 '+nm[step]+' <span style="color:#ef4444">FAILED</span></h6>'+
+    '<div class="ao-json"><span class="key">"error"</span>: <span style="color:#fca5a5">"Service unavailable: timeout after 5000ms"</span>,\n'+
+    '<span class="key">"retry_attempts"</span>: <span class="num">3</span>,\n'+
+    '<span class="key">"backoff"</span>: <span class="str">"exponential + jitter"</span>,\n'+
+    '<span class="key">"circuit_breaker"</span>: <span style="color:#fca5a5">"OPEN"</span>,\n'+
+    '<span class="key">"action"</span>: <span class="str">"COMPENSATE"</span></div></div>');
+  return wait(800)}
+
+function compensate(r,step){
+  var comps=[null,null,
+    {name:'Refund Payment',icon:'\ud83d\udcb3',d:function(){return '<span class="key">"action"</span>: <span class="str">"REFUND"</span>,\n<span class="key">"amount"</span>: <span class="num">'+money(r.total)+'</span>,\n<span class="key">"processor"</span>: <span class="str">"'+r.processor+'"</span>,\n<span class="key">"idempotency_key"</span>: <span class="str">"'+r.corrId+'-comp-pay"</span>,\n<span class="key">"status"</span>: <span class="str">"REFUNDED"</span>'}},
+    {name:'Release Inventory',icon:'\ud83d\udce6',d:function(){return '<span class="key">"action"</span>: <span class="str">"RELEASE"</span>,\n<span class="key">"sku"</span>: <span class="str">"'+r.sku+'"</span>,\n<span class="key">"qty"</span>: <span class="num">'+r.qty+'</span>,\n<span class="key">"idempotency_key"</span>: <span class="str">"'+r.corrId+'-comp-inv"</span>,\n<span class="key">"status"</span>: <span class="str">"RELEASED"</span>'}},
+    {name:'Cancel Shipment',icon:'\ud83d\ude9a',d:function(){return '<span class="key">"action"</span>: <span class="str">"CANCEL"</span>,\n<span class="key">"carrier"</span>: <span class="str">"'+r.carrier+'"</span>,\n<span class="key">"idempotency_key"</span>: <span class="str">"'+r.corrId+'-comp-ship"</span>,\n<span class="key">"status"</span>: <span class="str">"CANCELLED"</span>'}}];
+  var chain=[];for(var i=step-1;i>=2;i--)chain.push(comps[i]);
+  var p=Promise.resolve();
+  if(chain.length===0){p=p.then(function(){log('\u2139\ufe0f No forward steps to compensate \u2014 authorization was not completed')})}
+  chain.forEach(function(c){p=p.then(function(){
+    log('\u21a9\ufe0f Compensating: '+c.name);
+    app('<div class="ao-step-card" style="border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05)"><h6>'+c.icon+' Compensate \u2014 '+c.name+'</h6>'+
+      '<div class="ao-json">'+c.d()+'</div></div>');
+    return wait(900)}).then(function(){log('\u2705 '+c.name+' compensated')})});
+  return p}
+
+function sagaFailed(r,step,start){
+  var elapsed=(performance.now()-start)/1000;sagas.push(r);totalSpans+=r.spans;totalLat+=elapsed;
+  dashWrap.style.display='block';
+  var ec=sagas.filter(function(x){return x.failAt>0}).length;
+  document.getElementById('aoKpiSagas').textContent=sagas.length;
+  document.getElementById('aoKpiSpans').textContent=totalSpans;
+  document.getElementById('aoKpiLatency').textContent=(totalLat/sagas.length*1000).toFixed(0)+'ms';
+  document.getElementById('aoKpiRate').textContent=(ec/sagas.length*100).toFixed(1)+'%';
+  document.getElementById('aoDashTable').insertAdjacentHTML('afterbegin',
+    '<tr style="animation:aoFadeUp .35s ease both"><td><b>'+r.orderId+'</b></td>'+
+    '<td>'+money(r.total)+'</td><td>'+r.services+'</td><td>'+r.spans+'</td>'+
+    '<td>'+(elapsed*1000).toFixed(0)+'ms</td>'+
+    '<td><span class="ao-ds compensated">\u21a9 Compensated</span></td></tr>');
+  app('<div class="ao-step-card" style="border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05)"><h6>\u21a9\ufe0f Saga Compensated</h6>'+
+    '<p style="text-align:center;font-size:.82rem;color:#f59e0b;font-weight:700;margin:0">'+
+    r.orderId+' \u2014 failed at step '+step+', all changes rolled back</p></div>');
+  for(var i=0;i<6;i++)document.getElementById('aoPip'+i).classList.remove('active','done');
+  log('\u21a9\ufe0f Saga fully compensated \u2014 no side effects remain')}
+
 function runDemo(){if(running)return;running=true;btnRun.disabled=true;
   btnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Orchestrating\u2026';btnReset.style.display='none';
-  var r=gen(),start=performance.now();
-  s1(r).then(function(){return s2(r)}).then(function(){return s3(r)})
-  .then(function(){return s4(r)}).then(function(){return s5(r)})
-  .then(function(){return s6(r,(performance.now()-start)/1000)})
-  .then(function(){running=false;btnRun.disabled=false;
+  var r=gen(),start=performance.now(),fail=r.failAt;
+  s1(r).then(function(){
+    if(fail===2)return showFail(r,2).then(function(){return compensate(r,2)}).then(function(){sagaFailed(r,2,start);return false});
+    return s2(r)
+  }).then(function(v){if(v===false)return false;
+    if(fail===3)return showFail(r,3).then(function(){return compensate(r,3)}).then(function(){sagaFailed(r,3,start);return false});
+    return s3(r)
+  }).then(function(v){if(v===false)return false;
+    if(fail===4)return showFail(r,4).then(function(){return compensate(r,4)}).then(function(){sagaFailed(r,4,start);return false});
+    return s4(r)
+  }).then(function(v){if(v===false)return false;return s5(r)
+  }).then(function(v){if(v===false)return;return s6(r,(performance.now()-start)/1000)
+  }).then(function(){running=false;btnRun.disabled=false;
     btnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Another Order';btnReset.style.display='';
     document.getElementById('aoDashboard').scrollIntoView({behavior:'smooth',block:'nearest'})})}
 

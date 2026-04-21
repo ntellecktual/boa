@@ -76,6 +76,32 @@
 .sreg-diff-hint{font-size:.65rem;color:var(--sreg-muted);margin-top:.5rem;display:flex;gap:1rem;flex-wrap:wrap}
 .sreg-diff-hint span{display:inline-flex;align-items:center;gap:.3rem}
 .sreg-diff-swatch{width:10px;height:10px;border-radius:2px}
+/* ── Section wrappers ── */
+.sreg-sec{padding:1.8rem 0;animation:sregUp .6s ease both}
+.sreg-sec-head{text-align:center;margin-bottom:1.4rem}
+.sreg-sec-head h2{font-size:1.55rem;font-weight:800;margin-bottom:.25rem}
+.sreg-sec-head p{font-size:.88rem;opacity:.65;max-width:540px;margin:0 auto}
+.sreg-stag{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem}
+.sreg-stag--r{background:rgba(244,63,94,.11);color:#e11d48}
+.sreg-stag--b{background:rgba(59,130,246,.11);color:#2563eb}
+.sreg-stag--g{background:rgba(16,185,129,.11);color:#059669}
+.sreg-stag--a{background:rgba(245,158,11,.11);color:#b45309}
+/* ── Callout cards ── */
+.sreg-callout{border-radius:16px;padding:1.1rem 1.4rem;border:1px solid var(--sreg-border);background:var(--sreg-surface);box-shadow:var(--sreg-shadow)}
+.sreg-callout--r{border-color:rgba(244,63,94,.22);background:rgba(244,63,94,.04)}
+.sreg-callout h5{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
+.sreg-callout p{font-size:.81rem;opacity:.75;margin:0;line-height:1.55}
+/* ── Design Decisions Grid ── */
+.sreg-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
+@media(max-width:700px){.sreg-decisions{grid-template-columns:1fr}}
+.sreg-impl{max-width:940px;margin:0 auto}
+.sreg-impl details{border-radius:14px;border:1px solid var(--sreg-border);background:var(--sreg-surface);margin-bottom:.8rem;overflow:hidden}
+.sreg-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
+.sreg-impl summary::-webkit-details-marker{display:none}
+.sreg-impl summary::before{content:'▶';font-size:.6rem;transition:transform .2s}
+.sreg-impl details[open] summary::before{transform:rotate(90deg)}
+.sreg-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--sreg-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
+.sreg-impl .kw{color:#c4b5fd}.sreg-impl .fn{color:#6ee7b7}.sreg-impl .str{color:#fcd34d}.sreg-impl .cm{color:#64748b;font-style:italic}.sreg-impl .num{color:#f97316}
 </style>
 
 <div class="sreg-wrap">
@@ -143,6 +169,266 @@
       <div id="sregResult" style="display:none"></div>
     </div>
   </div>
+
+<!-- ═════════════════════ DESIGN DECISIONS & TRADEOFFS ═════════════════════ -->
+<section class="sreg-sec">
+  <div class="sreg-sec-head">
+    <span class="sreg-stag sreg-stag--r">Rationale</span>
+    <h2>Design Decisions &amp; Tradeoffs</h2>
+    <p>Every compatibility strategy has a reason — here's the "why" behind schema evolution architecture.</p>
+  </div>
+  <div class="sreg-decisions">
+
+    <div class="sreg-callout sreg-callout--r">
+      <h5><i class="fas fa-shield-halved" style="color:var(--sreg-accent)"></i> Why Backward Compatibility as the Default?</h5>
+      <p>In event-driven systems, consumers deploy independently from producers. When a producer adds a field, <b>old consumers must still read the new schema</b> (backward compatibility). Making backward compatibility the default ensures zero-downtime deployments: producers upgrade first, and consumers catch up on their own schedule. The tradeoff: backward compatibility <b>forbids removing fields or changing types</b>, which limits schema evolution flexibility.</p>
+      <span class="sreg-stag sreg-stag--b">COMPATIBILITY DEFAULT</span>
+    </div>
+
+    <div class="sreg-callout sreg-callout--r">
+      <h5><i class="fas fa-file-code" style="color:#3b82f6"></i> Why Avro Over Protobuf for Schema Evolution?</h5>
+      <p>Avro schemas are stored separately from data (in the registry), enabling <b>schema evolution without recompiling consumers</b>. Protobuf embeds field numbers in the wire format, which is more efficient but requires recompilation when schemas change. For high-evolution environments (20+ schema changes/quarter), Avro's runtime schema resolution saves significant operational overhead. The tradeoff: Avro's wire format is <b>larger than Protobuf's</b> (no field number compression).</p>
+      <span class="sreg-stag sreg-stag--a">SERIALIZATION FORMAT</span>
+    </div>
+
+    <div class="sreg-callout sreg-callout--r">
+      <h5><i class="fas fa-database" style="color:#10b981"></i> Why Schema Registry Instead of Embedded Schemas?</h5>
+      <p>Without a registry, every message carries its schema (bloating payloads) or consumers must know schemas in advance (tight coupling). The registry acts as a <b>single source of truth</b>: producers register schemas, consumers look them up by ID. This decouples producer/consumer deployment cycles. The tradeoff: the registry becomes a <b>single point of failure</b> — if it's down, new schemas can't be registered and unknown schema IDs can't be resolved.</p>
+      <span class="sreg-stag sreg-stag--g">CENTRALIZED GOVERNANCE</span>
+    </div>
+
+    <div class="sreg-callout sreg-callout--r">
+      <h5><i class="fas fa-landmark" style="color:#f59e0b"></i> Why Full Compatibility for Financial Events?</h5>
+      <p>Financial events (payments, settlements) have regulatory requirements for data retention and replay. <b>Full compatibility</b> (both backward AND forward) ensures that any consumer version can read any producer version — critical when replaying 7-year-old events for audit. The tradeoff: full compatibility is the <b>most restrictive mode</b> — you can only add optional fields with defaults. No field removal, no type changes.</p>
+      <span class="sreg-stag sreg-stag--r">REGULATORY COMPLIANCE</span>
+    </div>
+
+    <div class="sreg-callout sreg-callout--r">
+      <h5><i class="fas fa-code-branch" style="color:var(--sreg-accent)"></i> Why Semantic Versioning for Schemas?</h5>
+      <p>SemVer (MAJOR.MINOR.PATCH) communicates the <b>impact of schema changes</b>: PATCH = documentation/metadata only, MINOR = backward-compatible additions, MAJOR = breaking changes requiring consumer updates. This lets operations teams <b>automate deployment decisions</b>: auto-deploy MINOR/PATCH, require manual approval for MAJOR. Without SemVer, every schema change requires human review.</p>
+      <span class="sreg-stag sreg-stag--b">CHANGE COMMUNICATION</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═════════════════════ PRODUCTION IMPLEMENTATION ═════════════════════ -->
+<section class="sreg-sec">
+  <div class="sreg-sec-head">
+    <span class="sreg-stag sreg-stag--b">Code</span>
+    <h2>Production Implementation</h2>
+    <p>Real Python code powering schema registration, compatibility checking, and migration orchestration.</p>
+  </div>
+  <div class="sreg-impl">
+
+    <details>
+      <summary><i class="fas fa-server" style="color:#3b82f6"></i> Confluent Schema Registry Integration (Python)</summary>
+      <pre><span class="kw">from</span> confluent_kafka.schema_registry <span class="kw">import</span> SchemaRegistryClient, Schema
+<span class="kw">from</span> confluent_kafka.schema_registry.avro <span class="kw">import</span> AvroSerializer, AvroDeserializer
+<span class="kw">import</span> json, logging
+
+logger = logging.getLogger(<span class="str">"schema_registry"</span>)
+
+<span class="kw">class</span> <span class="fn">SchemaManager</span>:
+    <span class="cm">"""Manages Avro schema lifecycle against Confluent Schema Registry."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, registry_url: <span class="kw">str</span>, auth: <span class="kw">tuple</span> = <span class="kw">None</span>):
+        conf = {<span class="str">'url'</span>: registry_url}
+        <span class="kw">if</span> auth:
+            conf[<span class="str">'basic.auth.user.info'</span>] = <span class="str">f"{auth[0]}:{auth[1]}"</span>
+        self.client = SchemaRegistryClient(conf)
+
+    <span class="kw">def</span> <span class="fn">register_with_compat_check</span>(self, subject: <span class="kw">str</span>,
+                                    schema_str: <span class="kw">str</span>) -> <span class="kw">int</span>:
+        <span class="cm">"""Register schema only if it passes compatibility check."""</span>
+        schema = Schema(schema_str, <span class="str">'AVRO'</span>)
+        <span class="cm"># Pre-flight compatibility test before registration</span>
+        <span class="kw">try</span>:
+            is_compat = self.client.test_compatibility(
+                subject, schema
+            )
+            <span class="kw">if not</span> is_compat:
+                logger.error(<span class="str">f"Schema incompatible with {subject}"</span>)
+                <span class="kw">raise</span> <span class="fn">ValueError</span>(
+                    <span class="str">f"Schema breaks {subject} compatibility"</span>
+                )
+        <span class="kw">except</span> Exception <span class="kw">as</span> e:
+            <span class="kw">if</span> <span class="str">'40401'</span> <span class="kw">not in</span> <span class="kw">str</span>(e):  <span class="cm"># First schema — no prior version</span>
+                <span class="kw">raise</span>
+        schema_id = self.client.register_schema(subject, schema)
+        logger.info(<span class="str">f"Registered {subject} v{schema_id}"</span>)
+        <span class="kw">return</span> schema_id
+
+    <span class="kw">def</span> <span class="fn">resolve_for_consumer</span>(self, schema_id: <span class="kw">int</span>) -> <span class="kw">dict</span>:
+        <span class="cm">"""Resolve schema by ID during consumption (cached)."""</span>
+        schema = self.client.get_schema(schema_id)
+        <span class="kw">return</span> json.loads(schema.schema_str)
+
+    <span class="kw">def</span> <span class="fn">set_compatibility</span>(self, subject: <span class="kw">str</span>,
+                          level: <span class="kw">str</span> = <span class="str">'BACKWARD'</span>) -> <span class="kw">None</span>:
+        <span class="cm">"""Set subject-level compatibility (overrides global)."""</span>
+        self.client.set_compatibility(subject, level)
+        logger.info(<span class="str">f"{subject} compatibility → {level}"</span>)</pre>
+    </details>
+
+    <details>
+      <summary><i class="fas fa-shield-halved" style="color:var(--sreg-accent)"></i> Schema Compatibility Checker (Python)</summary>
+      <pre><span class="kw">from</span> typing <span class="kw">import</span> List, Dict, Optional
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="fn">CompatIssue</span>:
+    field: <span class="kw">str</span>
+    issue_type: <span class="kw">str</span>   <span class="cm"># 'REMOVED' | 'TYPE_CHANGED' | 'MISSING_DEFAULT'</span>
+    message: <span class="kw">str</span>
+    breaking: <span class="kw">bool</span> = <span class="kw">True</span>
+
+<span class="kw">def</span> <span class="fn">check_backward</span>(writer: <span class="kw">dict</span>, reader: <span class="kw">dict</span>) -> List[CompatIssue]:
+    <span class="cm">"""Backward: can NEW reader read OLD writer data?
+    All writer fields must exist in reader OR have defaults."""</span>
+    issues = []
+    reader_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> reader[<span class="str">'fields'</span>]}
+    writer_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> writer[<span class="str">'fields'</span>]}
+    <span class="cm"># Writer field removed from reader → break</span>
+    <span class="kw">for</span> name, wf <span class="kw">in</span> writer_fields.items():
+        <span class="kw">if</span> name <span class="kw">not in</span> reader_fields:
+            issues.append(CompatIssue(name, <span class="str">'REMOVED'</span>,
+                <span class="str">f'Field "{name}" in writer but missing from reader'</span>))
+        <span class="kw">elif</span> reader_fields[name][<span class="str">'type'</span>] != wf[<span class="str">'type'</span>]:
+            <span class="cm"># Handle union promotion: ["null", "string"] compat with "string"</span>
+            <span class="kw">if not</span> _union_compatible(wf[<span class="str">'type'</span>], reader_fields[name][<span class="str">'type'</span>]):
+                issues.append(CompatIssue(name, <span class="str">'TYPE_CHANGED'</span>,
+                    <span class="str">f'"{name}": {wf["type"]} → {reader_fields[name]["type"]}'</span>))
+    <span class="cm"># New reader fields without defaults → break on old data</span>
+    <span class="kw">for</span> name, rf <span class="kw">in</span> reader_fields.items():
+        <span class="kw">if</span> name <span class="kw">not in</span> writer_fields <span class="kw">and</span> <span class="str">'default'</span> <span class="kw">not in</span> rf:
+            issues.append(CompatIssue(name, <span class="str">'MISSING_DEFAULT'</span>,
+                <span class="str">f'New field "{name}" has no default — old data breaks'</span>))
+    <span class="kw">return</span> issues
+
+<span class="kw">def</span> <span class="fn">check_forward</span>(writer: <span class="kw">dict</span>, reader: <span class="kw">dict</span>) -> List[CompatIssue]:
+    <span class="cm">"""Forward: can OLD reader read NEW writer data?
+    Symmetric of backward — old consumers must handle new fields."""</span>
+    issues = []
+    reader_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> reader[<span class="str">'fields'</span>]}
+    writer_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> writer[<span class="str">'fields'</span>]}
+    <span class="kw">for</span> name, wf <span class="kw">in</span> writer_fields.items():
+        <span class="kw">if</span> name <span class="kw">not in</span> reader_fields <span class="kw">and</span> <span class="str">'default'</span> <span class="kw">not in</span> wf:
+            issues.append(CompatIssue(name, <span class="str">'MISSING_DEFAULT'</span>,
+                <span class="str">f'New field "{name}" required — old reader can\'t parse'</span>))
+        <span class="kw">elif</span> name <span class="kw">in</span> reader_fields:
+            <span class="kw">if</span> reader_fields[name][<span class="str">'type'</span>] != wf[<span class="str">'type'</span>]:
+                <span class="kw">if not</span> _union_compatible(wf[<span class="str">'type'</span>], reader_fields[name][<span class="str">'type'</span>]):
+                    issues.append(CompatIssue(name, <span class="str">'TYPE_CHANGED'</span>,
+                        <span class="str">f'Type change on "{name}" — forward readers fail'</span>))
+    <span class="kw">return</span> issues
+
+<span class="kw">def</span> <span class="fn">check_full</span>(writer: <span class="kw">dict</span>, reader: <span class="kw">dict</span>) -> List[CompatIssue]:
+    <span class="cm">"""Full: backward + forward — most restrictive mode."""</span>
+    <span class="kw">return</span> check_backward(writer, reader) + check_forward(writer, reader)
+
+<span class="kw">def</span> <span class="fn">_union_compatible</span>(t1, t2) -> <span class="kw">bool</span>:
+    <span class="cm">"""Check if types are union-compatible (Avro union promotion)."""</span>
+    <span class="kw">if</span> <span class="kw">isinstance</span>(t1, <span class="kw">list</span>) <span class="kw">and not</span> <span class="kw">isinstance</span>(t2, <span class="kw">list</span>):
+        <span class="kw">return</span> t2 <span class="kw">in</span> t1
+    <span class="kw">if</span> <span class="kw">isinstance</span>(t2, <span class="kw">list</span>) <span class="kw">and not</span> <span class="kw">isinstance</span>(t1, <span class="kw">list</span>):
+        <span class="kw">return</span> t1 <span class="kw">in</span> t2
+    <span class="kw">return</span> <span class="kw">False</span></pre>
+    </details>
+
+    <details>
+      <summary><i class="fas fa-rocket" style="color:#f59e0b"></i> Schema Migration Orchestrator (Python)</summary>
+      <pre><span class="kw">import</span> time, logging
+<span class="kw">from</span> typing <span class="kw">import</span> List
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> confluent_kafka.admin <span class="kw">import</span> AdminClient
+
+logger = logging.getLogger(<span class="str">"migration"</span>)
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="fn">MigrationPlan</span>:
+    subject: <span class="kw">str</span>
+    old_version: <span class="kw">int</span>
+    new_version: <span class="kw">int</span>
+    canary_pct: <span class="kw">float</span> = <span class="num">0.05</span>
+    error_threshold: <span class="kw">float</span> = <span class="num">0.001</span>  <span class="cm"># 0.1% deser error rate</span>
+    monitor_window_sec: <span class="kw">int</span> = <span class="num">900</span>     <span class="cm"># 15 min observation</span>
+
+<span class="kw">class</span> <span class="fn">MigrationOrchestrator</span>:
+    <span class="cm">"""Orchestrates safe schema rollout with canary + rollback."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, schema_mgr, metrics_client):
+        self.schema_mgr = schema_mgr
+        self.metrics = metrics_client
+
+    <span class="kw">def</span> <span class="fn">execute</span>(self, plan: MigrationPlan) -> <span class="kw">bool</span>:
+        <span class="cm">"""Run full migration: validate → canary → monitor → promote/rollback."""</span>
+
+        <span class="cm"># Step 1: Validate against ALL active consumer versions</span>
+        consumer_versions = self.schema_mgr.get_active_versions(
+            plan.subject
+        )
+        <span class="kw">for</span> cv <span class="kw">in</span> consumer_versions:
+            issues = check_full(cv, plan.new_schema)
+            <span class="kw">if</span> issues:
+                logger.error(
+                    <span class="str">f"Incompatible with consumer v{cv['version']}: "</span>
+                    <span class="str">f"{[i.message for i in issues]}"</span>
+                )
+                <span class="kw">return False</span>
+
+        <span class="cm"># Step 2: Deploy canary (5% traffic gets new schema)</span>
+        logger.info(<span class="str">f"Canary deploy: {plan.canary_pct*100}% traffic"</span>)
+        self._set_canary_routing(plan.subject, plan.canary_pct)
+
+        <span class="cm"># Step 3: Monitor deserialization error rates</span>
+        start = time.time()
+        <span class="kw">while</span> time.time() - start < plan.monitor_window_sec:
+            error_rate = self.metrics.query(
+                <span class="str">f'rate(kafka_consumer_deser_errors_total'</span>
+                <span class="str">f'{{subject="{plan.subject}"}}[5m])'</span>
+            )
+            <span class="kw">if</span> error_rate > plan.error_threshold:
+                logger.error(
+                    <span class="str">f"Error rate {error_rate:.4f} > threshold"</span>
+                )
+                self._rollback(plan)
+                <span class="kw">return False</span>
+            time.sleep(<span class="num">30</span>)
+
+        <span class="cm"># Step 4: Promote — route 100% to new schema</span>
+        logger.info(<span class="str">"Canary passed — promoting to 100%"</span>)
+        self._set_canary_routing(plan.subject, <span class="num">1.0</span>)
+        <span class="kw">return True</span>
+
+    <span class="kw">def</span> <span class="fn">_rollback</span>(self, plan: MigrationPlan):
+        logger.warning(<span class="str">f"Rolling back {plan.subject} to v{plan.old_version}"</span>)
+        self._set_canary_routing(plan.subject, <span class="num">0.0</span>)
+
+    <span class="kw">def</span> <span class="fn">_set_canary_routing</span>(self, subject: <span class="kw">str</span>, pct: <span class="kw">float</span>):
+        <span class="cm">"""Configure weighted routing in the schema-aware producer."""</span>
+        self.metrics.set_gauge(
+            <span class="str">f'schema_canary_weight{{subject="{subject}"}}'</span>, pct
+        )</pre>
+    </details>
+
+  </div>
+</section>
+
+<!-- ═════════════════════ INNOVATION SPOTLIGHT ═════════════════════ -->
+<section class="sreg-sec">
+  <div class="sreg-sec-head">
+    <span class="sreg-stag sreg-stag--a">Innovation</span>
+    <h2>Innovation Spotlight</h2>
+    <p>Novel techniques that go beyond standard schema registry patterns.</p>
+  </div>
+  <div class="sreg-callout sreg-callout--r" style="max-width:940px;margin:0 auto">
+    <h5><i class="fas fa-bolt" style="color:#f59e0b"></i> Schema Compatibility Graph</h5>
+    <p style="margin-bottom:.6rem">Instead of checking compatibility only between adjacent versions (v3 vs v4), build a <b>full compatibility graph</b> checking every version pair. This catches "compatibility chains" where v1→v2 is compatible and v2→v3 is compatible, but <b>v1→v3 is NOT compatible</b> — a real problem when consumers skip versions during upgrades. The graph enables automated detection of transitive incompatibility, letting operations teams identify which consumer versions require mandatory upgrades before a new schema can ship.</p>
+    <p><b>Dead Field Detection</b> — By analyzing the last 30 days of Kafka consumer group offsets and schema usage, the system identifies fields that <b>no active consumer reads</b>. These "dead fields" can be safely deprecated in the next MAJOR version, preventing schema bloat that accumulates over years of evolution. The detector correlates field-level access patterns from the Avro deserializer with consumer lag metrics, producing a confidence score for each field's liveness.</p>
+  </div>
+</section>
+
 </div>
 
 <script>
