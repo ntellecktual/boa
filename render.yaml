@@ -5,7 +5,7 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     plan: free
-    healthCheckPath: /login/
+    healthCheckPath: /health/
     envVars:
       - key: DJANGO_DEBUG
         value: "False"
