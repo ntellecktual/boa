@@ -52,9 +52,8 @@
     />
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
   </head>
-  <body class="{% if user.is_authenticated %}has-sidebar{% endif %} {% if page_id %}{{ page_id }}{% endif %} {% if current_step_number %}step-{{ current_step_number }}-active{% endif %} {% block body_class %}{% endblock %}">
+  <body class="has-sidebar {% if page_id %}{{ page_id }}{% endif %} {% if current_step_number %}step-{{ current_step_number }}-active{% endif %} {% block body_class %}{% endblock %}">
 
-    {% if user.is_authenticated %}
     <!-- ── Sidebar Navigation ── -->
     <aside class="sidebar" id="mainSidebar">
       <div class="sidebar-header">
@@ -260,19 +259,7 @@
       </a>
     </header>
 
-    {% else %}
-    {% block guest_topbar %}
-    <!-- Guest: minimal top bar -->
-    <header class="guest-topbar">
-      <a href="{% url 'home' %}" class="guest-brand">
-        <img src="{% static 'logo.png' %}" alt="Logo" height="32" />
-      </a>
-      <button class="sidebar-link" id="theme-toggle-btn" type="button" style="width:auto;padding:0.4rem 0.8rem;border:1px solid var(--border-color);border-radius:var(--radius-sm)">
-        <i class="fas fa-moon"></i>
-      </button>
-    </header>
-    {% endblock guest_topbar %}
-    {% endif %}
+    {% block guest_topbar %}{% endblock %}
 
     <main class="main-content">
       <div class="{% block container_class %}container{% endblock %}">
