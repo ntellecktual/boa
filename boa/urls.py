@@ -81,6 +81,7 @@ urlpatterns = [
     path('live_demos/', boaapp_views.live_demos, name='live_demos'),
     # Demo Showcase Pages
     path('platform_engineering/', boaapp_views.platform_engineering, name='platform_engineering'),
+    path('humana_mdm/', boaapp_views.humana_mdm, name='humana_mdm'),
     path('mlops_lifecycle/', boaapp_views.mlops_lifecycle, name='mlops_lifecycle'),
     path('streaming_architecture/', boaapp_views.streaming_architecture, name='streaming_architecture'),
     path('nfl_draft/', boaapp_views.nfl_draft, name='nfl_draft'),

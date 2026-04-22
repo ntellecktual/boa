@@ -516,6 +516,10 @@ def platform_engineering(request):
     return render(request, 'boaapp/platform_engineering.html')
 
 
+def humana_mdm(request):
+    return render(request, 'boaapp/humana_mdm.html')
+
+
 def mlops_lifecycle(request):
     return render(request, 'boaapp/mlops_lifecycle.html')
 
