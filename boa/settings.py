@@ -28,6 +28,11 @@ environ.Env.read_env(BASE_DIR / '.env', overwrite=False)
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env('DJANGO_DEBUG')
 ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS')
+# Always include the production domain regardless of env var configuration
+_REQUIRED_HOSTS = ['thenumerix.dev', 'thenumerix.onrender.com']
+for _h in _REQUIRED_HOSTS:
+    if _h not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(_h)
 
 # Trust Render's HTTPS reverse proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
