@@ -80,6 +80,12 @@
 /* ── Innovation grid ── */
 .anom-innov-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
 @media(max-width:700px){.anom-innov-grid{grid-template-columns:1fr}}
+/* ── Demo column layout ── */
+.anom-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-top:1rem}
+.anom-col-left{grid-column:1;min-width:0}
+.anom-col-demo{grid-column:2;position:sticky;top:1.5rem;align-self:start}
+.anom-col-demo .anom-body{grid-template-columns:1fr}
+@media(max-width:1099px){.anom-page-body{grid-template-columns:1fr}.anom-col-demo{grid-column:1;position:static}}
 </style>
 
 <div class="anom-wrap">
@@ -89,6 +95,8 @@
     <p>Live sensor stream with Z-score, EWMA, and CUSUM detection algorithms. Inject spikes and drift — watch each algorithm detect differently in real time.</p>
   </div>
 
+  <div class="anom-page-body">
+  <div class="anom-col-demo">
   <div class="anom-status-grid">
     <div class="anom-stat" id="sValBox"><div class="anom-stat-val" id="sVal">—</div><div class="anom-stat-lbl">Current Value</div></div>
     <div class="anom-stat" id="sZBox"><div class="anom-stat-val" id="sZ">—</div><div class="anom-stat-lbl">Z-Score</div></div>
@@ -134,6 +142,8 @@
       </div>
     </div>
   </div>
+  </div><!-- /anom-col-demo -->
+  <div class="anom-col-left">
 
   <!-- ═══ Design Decisions & Tradeoffs ═══ -->
   <div class="anom-section-hd">
@@ -412,6 +422,8 @@ class SelfStartingCUSUM:
       <span class="anom-decision-cat">Seasonal Adaptation</span>
     </div>
   </div>
+  </div><!-- /anom-col-left -->
+  </div><!-- /anom-page-body -->
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>

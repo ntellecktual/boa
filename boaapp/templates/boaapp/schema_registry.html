@@ -102,6 +102,11 @@
 .sreg-impl details[open] summary::before{transform:rotate(90deg)}
 .sreg-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--sreg-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
 .sreg-impl .kw{color:#c4b5fd}.sreg-impl .fn{color:#6ee7b7}.sreg-impl .str{color:#fcd34d}.sreg-impl .cm{color:#64748b;font-style:italic}.sreg-impl .num{color:#f97316}
+/* ── Demo column layout ── */
+.sreg-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.sreg-page-body>.sreg-sec{grid-column:1;min-width:0}
+.sreg-page-body>.sreg-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
+@media(max-width:1099px){.sreg-page-body{grid-template-columns:1fr}.sreg-page-body>.sreg-sec--demo{grid-column:1;grid-row:auto;position:static}}
 </style>
 
 <div class="sreg-wrap">
@@ -111,6 +116,8 @@
     <p>Manage event schema evolution with strict backward/forward compatibility checking. Apply field changes and immediately see which breaks your consumers — before it hits production.</p>
   </div>
 
+  <div class="sreg-page-body">
+  <section class="sreg-sec sreg-sec--demo">
   <div class="sreg-body">
     <!-- Version sidebar -->
     <div class="sreg-panel">
@@ -169,6 +176,7 @@
       <div id="sregResult" style="display:none"></div>
     </div>
   </div>
+  </section><!-- /sreg-sec--demo -->
 
 <!-- ═════════════════════ DESIGN DECISIONS & TRADEOFFS ═════════════════════ -->
 <section class="sreg-sec">
@@ -428,6 +436,7 @@ logger = logging.getLogger(<span class="str">"migration"</span>)
     <p><b>Dead Field Detection</b> — By analyzing the last 30 days of Kafka consumer group offsets and schema usage, the system identifies fields that <b>no active consumer reads</b>. These "dead fields" can be safely deprecated in the next MAJOR version, preventing schema bloat that accumulates over years of evolution. The detector correlates field-level access patterns from the Avro deserializer with consumer lag metrics, producing a confidence score for each field's liveness.</p>
   </div>
 </section>
+</div><!-- /sreg-page-body -->
 
 </div>
 

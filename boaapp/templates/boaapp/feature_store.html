@@ -104,6 +104,12 @@
 .fs-impl summary::before{content:'▶';font-size:.6rem;transition:transform .2s}
 .fs-impl details[open] summary::before{transform:rotate(90deg)}
 .fs-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--fst-border,rgba(0,0,0,.07));font-family:'Cascadia Code','JetBrains Mono',monospace}
+/* ── Demo column layout ── */
+.fst-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-top:1rem}
+.fst-col-left{grid-column:1;min-width:0}
+.fst-col-demo{grid-column:2;position:sticky;top:1.5rem;align-self:start}
+.fst-col-demo .fst-grid{grid-template-columns:1fr}
+@media(max-width:1099px){.fst-page-body{grid-template-columns:1fr}.fst-col-demo{grid-column:1;position:static}}
 </style>
 
 <div class="fst-wrap">
@@ -120,6 +126,8 @@
     </div>
   </div>
 
+  <div class="fst-page-body">
+  <div class="fst-col-demo">
   <div class="fst-grid">
 
     <!-- Panel 1: Raw Authorization Stream -->
@@ -189,6 +197,8 @@
     </div>
 
   </div>
+  </div><!-- /fst-col-demo -->
+  <div class="fst-col-left">
 
   <!-- ═══════════════════════════════════════════════════════════
        DESIGN DECISIONS & TRADEOFFS
@@ -418,7 +428,8 @@ fraud_feature_view = FeatureView(
       </div>
     </div>
   </div>
-
+  </div><!-- /fst-col-left -->
+  </div><!-- /fst-page-body -->
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
