@@ -212,6 +212,11 @@
 .id-spotlight-item:last-child{margin-bottom:0}
 .id-spotlight-item b{font-size:.82rem}
 .id-spotlight-item p{font-size:.78rem;opacity:.72;margin:.15rem 0 0;line-height:1.5}
+/* ── Demo column layout ── */
+.id-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.id-page-body>.id-sec{grid-column:1;min-width:0}
+.id-page-body>.id-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
+@media(max-width:1099px){.id-page-body{grid-template-columns:1fr}.id-page-body>.id-sec--demo{grid-column:1;grid-row:auto;position:static}}
 </style>
 
 <!-- ═════════════════════ HERO ═════════════════════ -->
@@ -226,6 +231,7 @@
     <div class="id-kpi"><div><div class="id-kpi-val">12</div><div class="id-kpi-lbl">Doc Types</div></div></div>
   </div>
 </section>
+<div class="id-page-body">
 
 <!-- ═════════════════════ PIPELINE FLOW ═════════════════════ -->
 <section class="id-sec">
@@ -399,7 +405,7 @@
 </section>
 
 <!-- ═════════════════════ LIVE IDP DEMO ═════════════════════ -->
-<section class="id-sec">
+<section class="id-sec id-sec--demo">
   <div class="id-sec-head">
     <span class="id-tag id-tag--t">Live Demo</span>
     <h2>Invoice Processing Run</h2>
@@ -775,6 +781,8 @@ class ThreeWayMatcher:
     </div>
   </div>
 </section>
+
+</div><!-- /id-page-body -->
 
 {% endblock content %}
 

@@ -205,6 +205,11 @@
 .st-innov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#8b5cf6,#06b6d4)}
 .st-innov-card h4{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
 .st-innov-card p{font-size:.76rem;opacity:.7;line-height:1.55;margin:0}
+/* ── Demo column layout ── */
+.st-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.st-page-body>.st-sec{grid-column:1;min-width:0}
+.st-page-body>.st-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
+@media(max-width:1099px){.st-page-body{grid-template-columns:1fr}.st-page-body>.st-sec--demo{grid-column:1;grid-row:auto;position:static}}
 </style>
 
 <!-- ═════════════════════ HERO ═════════════════════ -->
@@ -219,6 +224,7 @@
     <div class="st-kpi"><div><div class="st-kpi-val">24/7</div><div class="st-kpi-lbl">Always-On</div></div></div>
   </div>
 </section>
+<div class="st-page-body">
 
 <!-- ═════════════════════ STREAM FLOW ═════════════════════ -->
 <section class="st-sec">
@@ -400,7 +406,7 @@
 </section>
 
 <!-- ═════════════════════ LIVE STREAMING DEMO ═════════════════════ -->
-<section class="st-sec">
+<section class="st-sec st-sec--demo">
   <div class="st-sec-head">
     <span class="st-tag st-tag--c">Live Demo</span>
     <h2>Netflix Recommendation Pipeline</h2>
@@ -684,6 +690,8 @@ async def recommend(user_id: str, n: int = 10):
     </div>
   </div>
 </section>
+
+</div><!-- /st-page-body -->
 
 {% endblock content %}
 

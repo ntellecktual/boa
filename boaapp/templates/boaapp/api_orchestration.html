@@ -206,6 +206,11 @@
 .ao-innov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(135deg,#f59e0b,#ef4444)}
 .ao-innov-card h4{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
 .ao-innov-card p{font-size:.76rem;opacity:.72;line-height:1.55;margin:0}
+/* ── Demo column layout ── */
+.ao-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.ao-page-body>.ao-sec{grid-column:1;min-width:0}
+.ao-page-body>.ao-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
+@media(max-width:1099px){.ao-page-body{grid-template-columns:1fr}.ao-page-body>.ao-sec--demo{grid-column:1;grid-row:auto;position:static}}
 </style>
 
 <!-- ═════════════════════ HERO ═════════════════════ -->
@@ -220,6 +225,7 @@
     <div class="ao-kpi"><div><div class="ao-kpi-val">3.2M</div><div class="ao-kpi-lbl">Calls / Day</div></div></div>
   </div>
 </section>
+<div class="ao-page-body">
 
 <!-- ═════════════════════ GATEWAY FLOW ═════════════════════ -->
 <section class="ao-sec">
@@ -351,7 +357,7 @@
 </section>
 
 <!-- ═════════════════════ LIVE ORCHESTRATION DEMO ═════════════════════ -->
-<section class="ao-sec">
+<section class="ao-sec ao-sec--demo">
   <div class="ao-sec-head">
     <span class="ao-tag ao-tag--i">Live Demo</span>
     <h2>Saga Orchestration Run</h2>
@@ -703,6 +709,8 @@ class TracedSagaOrchestrator:
 
   </div>
 </section>
+
+</div><!-- /ao-page-body -->
 
 {% endblock content %}
 

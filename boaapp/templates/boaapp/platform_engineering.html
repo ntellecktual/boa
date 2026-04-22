@@ -60,7 +60,11 @@
 
 /* -- Section Container -- */
 .nd-panel{display:none;animation:ndFadeUp .45s ease both}
-.nd-panel.active{display:block}
+.nd-panel.active{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.nd-panel>.nd-sec{grid-column:1;min-width:0}
+.nd-panel>.nd-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
+.nd-panel>.nd-callout{grid-column:1/-1}
+@media(max-width:1099px){.nd-panel.active{grid-template-columns:1fr}.nd-panel>.nd-sec--demo{grid-column:1;grid-row:auto;position:static}.nd-panel>.nd-callout{grid-column:1}}
 
 /* -- Common section styles -- */
 .nd-sec{padding:1rem 0;animation:ndFadeUp .5s ease both}
@@ -336,7 +340,7 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 </section>
 
 <!-- Azure DevOps Interactive Demo -->
-<section class="nd-sec">
+<section class="nd-sec nd-sec--demo">
   <div class="nd-sec-head">
     <span class="nd-tag nd-tag--az">Live Demo</span>
     <h2>Pipeline Simulator</h2>
@@ -506,7 +510,7 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 </section>
 
 <!-- Databricks Interactive Demo -->
-<section class="nd-sec">
+<section class="nd-sec nd-sec--demo">
   <div class="nd-sec-head">
     <span class="nd-tag nd-tag--db">Live Demo</span>
     <h2>Transaction Pipeline Simulator</h2>
@@ -690,7 +694,7 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 </section>
 
 <!-- Entra ID Interactive Demo -->
-<section class="nd-sec">
+<section class="nd-sec nd-sec--demo">
   <div class="nd-sec-head">
     <span class="nd-tag nd-tag--en">Live Demo</span>
     <h2>Developer Access Simulator</h2>

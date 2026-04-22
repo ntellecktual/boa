@@ -1,0 +1,1332 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+{% block title %}thenumerix | Healthcare MDM Platform &mdash; Azure Databricks{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ================================================================
+   HUMANA MDM PLATFORM — Azure Databricks + PySpark + Kafka
+   Enterprise Member Data Management Demo
+   ================================================================ */
+:root {
+  --hm-blue: #0078d4;
+  --hm-spark: #e8590c;
+  --hm-kafka: #231f20;
+  --hm-emerald: #10b981;
+  --hm-amber: #f59e0b;
+  --hm-violet: #7c3aed;
+  --hm-rose: #ef4444;
+  --hm-teal: #0d9488;
+  --hm-grad-main: linear-gradient(135deg, #0078d4 0%, #005a9e 50%, #003e6e 100%);
+  --hm-grad-spark: linear-gradient(135deg, #e8590c, #b94400);
+  --hm-grad-gold: linear-gradient(135deg, #f59e0b, #b45309);
+  --hm-grad-silver: linear-gradient(135deg, #64748b, #334155);
+  --hm-grad-bronze: linear-gradient(135deg, #92400e, #78350f);
+  --hm-surface: rgba(255, 255, 255, .78);
+  --hm-border: rgba(0, 0, 0, .08);
+  --hm-shadow: 0 4px 24px rgba(0, 0, 0, .07);
+  --hm-shadow-lg: 0 12px 48px rgba(0, 0, 0, .13);
+  --hm-radius: 18px;
+}
+[data-theme="dark"] {
+  --hm-surface: rgba(15, 23, 42, .82);
+  --hm-border: rgba(255, 255, 255, .08);
+  --hm-shadow: 0 4px 24px rgba(0, 0, 0, .45);
+  --hm-shadow-lg: 0 12px 48px rgba(0, 0, 0, .6);
+}
+@keyframes hmFadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes hmPulse  { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+@keyframes hmFlow   { 0% { stroke-dashoffset: 200; } 100% { stroke-dashoffset: 0; } }
+@keyframes hmGlow   { 0%, 100% { box-shadow: 0 0 8px rgba(0, 120, 212, .25); } 50% { box-shadow: 0 0 22px rgba(0, 120, 212, .55); } }
+
+/* ── Hero ── */
+.hm-hero {
+  text-align: center;
+  padding: 3.5rem 0 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hm-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 85% 50% at 50% -10%, rgba(0, 120, 212, .13) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 90% 110%, rgba(232, 89, 12, .08) 0%, transparent 60%);
+}
+.hm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .28rem .9rem;
+  border-radius: 999px;
+  background: rgba(0, 120, 212, .1);
+  border: 1px solid rgba(0, 120, 212, .22);
+  font-size: .7rem;
+  font-weight: 700;
+  color: #0078d4;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: .9rem;
+}
+.hm-hero h1 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: .7rem;
+  background: linear-gradient(135deg, #1e3a5f 0%, #0078d4 40%, #e8590c 70%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+[data-theme="dark"] .hm-hero h1 {
+  background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 40%, #fb923c 70%, #fcd34d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.hm-hero .lead { font-size: .96rem; opacity: .68; max-width: 640px; margin: 0 auto 2rem; }
+
+/* ── KPI row ── */
+.hm-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .85rem;
+  max-width: 860px;
+  margin: 0 auto 2.5rem;
+}
+@media (max-width: 600px) { .hm-kpis { grid-template-columns: repeat(2, 1fr); } }
+.hm-kpi {
+  border-radius: 16px;
+  border: 1px solid var(--hm-border);
+  background: var(--hm-surface);
+  backdrop-filter: blur(10px);
+  padding: .9rem .6rem;
+  text-align: center;
+  box-shadow: var(--hm-shadow);
+  animation: hmFadeUp .5s ease both;
+}
+.hm-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  background: var(--hm-grad-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hm-kpi-val.spark { background: var(--hm-grad-spark); -webkit-background-clip: text; background-clip: text; }
+.hm-kpi-val.gold  { background: var(--hm-grad-gold); -webkit-background-clip: text; background-clip: text; }
+.hm-kpi-lbl { font-size: .58rem; opacity: .52; margin-top: .2rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+
+/* ── Section layout ── */
+.hm-sec { padding: 1.2rem 0; animation: hmFadeUp .5s ease both; }
+.hm-sec-head { text-align: center; margin-bottom: 1.4rem; }
+.hm-sec-head h2 { font-size: 1.45rem; font-weight: 800; margin-bottom: .3rem; }
+.hm-sec-head p { font-size: .87rem; opacity: .65; max-width: 600px; margin: 0 auto; }
+.hm-tag {
+  display: inline-block;
+  padding: .22rem .72rem;
+  border-radius: 999px;
+  font-size: .63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: .5rem;
+}
+.hm-tag--az  { background: rgba(0, 120, 212, .1); color: #0078d4; }
+.hm-tag--db  { background: rgba(232, 89, 12, .1); color: #b94400; }
+.hm-tag--kf  { background: rgba(30, 30, 30, .1); color: #334155; }
+.hm-tag--g   { background: rgba(16, 185, 129, .1); color: #059669; }
+.hm-tag--mdm { background: rgba(124, 58, 237, .1); color: #6d28d9; }
+[data-theme="dark"] .hm-tag--kf { color: #94a3b8; }
+
+/* ── Architecture flow ── */
+.hm-arch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  max-width: 1000px;
+  margin: 0 auto 1.5rem;
+}
+.hm-arch-box {
+  border-radius: 14px;
+  padding: .65rem 1rem;
+  text-align: center;
+  min-width: 100px;
+  border: 1px solid var(--hm-border);
+}
+.hm-arch-box .box-label { font-size: .55rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; opacity: .6; margin-bottom: .15rem; }
+.hm-arch-box .box-name  { font-size: .78rem; font-weight: 700; }
+.hm-arch-box .box-sub   { font-size: .58rem; opacity: .52; }
+.hm-arch-arrow { opacity: .35; font-size: .85rem; flex-shrink: 0; }
+.src-box  { background: rgba(124, 58, 237, .07); border-color: rgba(124, 58, 237, .2); }
+.kfk-box  { background: rgba(30, 30, 30, .05); border-color: rgba(30, 30, 30, .15); }
+[data-theme="dark"] .kfk-box { border-color: rgba(255, 255, 255, .12); }
+.brz-box  { background: rgba(146, 64, 14, .07); border-color: rgba(146, 64, 14, .2); }
+.slv-box  { background: rgba(100, 116, 139, .07); border-color: rgba(100, 116, 139, .2); }
+.gld-box  { background: rgba(245, 158, 11, .08); border-color: rgba(245, 158, 11, .25); }
+.mdm-box  { background: rgba(0, 120, 212, .07); border-color: rgba(0, 120, 212, .22); }
+.egr-box  { background: rgba(16, 185, 129, .07); border-color: rgba(16, 185, 129, .22); }
+
+/* ── Phase cards ── */
+.hm-phases {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.hm-phase {
+  border-radius: 16px;
+  border: 1px solid var(--hm-border);
+  background: var(--hm-surface);
+  backdrop-filter: blur(8px);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--hm-shadow);
+  transition: transform .2s, box-shadow .2s;
+}
+.hm-phase:hover { transform: translateY(-3px); box-shadow: var(--hm-shadow-lg); }
+.hm-phase-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .9rem;
+  color: #fff;
+  margin-bottom: .7rem;
+}
+.hm-phase h5 { font-size: .84rem; font-weight: 800; margin-bottom: .3rem; }
+.hm-phase p  { font-size: .73rem; opacity: .65; margin: 0; line-height: 1.45; }
+.hm-phase ul { font-size: .71rem; opacity: .7; margin: .4rem 0 0; padding-left: 1rem; line-height: 1.55; }
+
+/* ── Code block ── */
+.hm-code-wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--hm-border);
+  box-shadow: var(--hm-shadow);
+}
+.hm-code-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .65rem 1.1rem;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+.hm-code-hdr span { font-size: .72rem; color: #7dd3fc; font-weight: 700; font-family: monospace; }
+.hm-code-hdr .dots { display: flex; gap: .3rem; }
+.hm-code-hdr .dot  { width: 10px; height: 10px; border-radius: 50%; }
+.hm-code-body { background: #0f172a; padding: 1rem 1.3rem; overflow-x: auto; }
+pre.hm-code {
+  margin: 0;
+  font-family: 'Cascadia Code', 'JetBrains Mono', 'Courier New', monospace;
+  font-size: .72rem;
+  line-height: 1.65;
+  color: #e2e8f0;
+  white-space: pre;
+}
+.ck { color: #7dd3fc; }   /* keyword / key */
+.cv { color: #6ee7b7; }   /* value / name */
+.cs { color: #fcd34d; }   /* string */
+.cc { color: #64748b; font-style: italic; } /* comment */
+.cn { color: #f9a8d4; }   /* decorator/special */
+.cm { color: #fb923c; }   /* module/class */
+
+/* ── Interactive Demo ── */
+.hm-demo {
+  border-radius: 22px;
+  border: 1px solid var(--hm-border);
+  background: var(--hm-surface);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--hm-shadow-lg);
+  overflow: hidden;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.hm-demo-bar {
+  padding: .85rem 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hm-border);
+  gap: .8rem;
+  flex-wrap: wrap;
+  background: rgba(0, 120, 212, .04);
+}
+.hm-demo-bar h4 { font-size: .88rem; font-weight: 800; margin: 0; flex: 1; }
+.hm-dots { display: flex; gap: .35rem; }
+.hm-dot  { width: 11px; height: 11px; border-radius: 50%; }
+
+/* pipeline progress */
+.hm-pip-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--hm-border);
+  flex-wrap: wrap;
+}
+.hm-pip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  position: relative;
+  padding: 0 .65rem;
+}
+.hm-pip::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: calc(50% + 18px);
+  width: calc(100% - 12px);
+  height: 2px;
+  background: var(--hm-border);
+}
+.hm-pip:last-child::after { display: none; }
+.hm-pip-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .65rem;
+  background: var(--hm-surface);
+  border: 2px solid var(--hm-border);
+  color: #94a3b8;
+  transition: all .35s;
+  position: relative;
+  z-index: 1;
+}
+.hm-pip-lbl { font-size: .56rem; font-weight: 700; opacity: .5; white-space: nowrap; }
+.hm-pip.active .hm-pip-dot {
+  border-color: #0078d4;
+  background: rgba(0, 120, 212, .12);
+  color: #0078d4;
+  box-shadow: 0 0 0 4px rgba(0, 120, 212, .12);
+  animation: hmPulse 1.2s ease-in-out infinite;
+}
+.hm-pip.done .hm-pip-dot {
+  border-color: #10b981;
+  background: #10b981;
+  color: #fff;
+}
+.hm-pip.done .hm-pip-lbl,
+.hm-pip.active .hm-pip-lbl { opacity: 1; }
+
+/* split layout */
+.hm-split {
+  display: grid;
+  grid-template-columns: 215px 1fr;
+  gap: 0;
+  min-height: 260px;
+}
+@media (max-width: 680px) { .hm-split { grid-template-columns: 1fr; } }
+.hm-side {
+  border-right: 1px solid var(--hm-border);
+  padding: .75rem;
+  font-size: .72rem;
+  overflow-y: auto;
+  max-height: 480px;
+}
+.hm-side-lbl { font-size: .56rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; opacity: .42; margin-bottom: .3rem; }
+.hm-ctx-card {
+  border-radius: 10px;
+  border: 1px solid var(--hm-border);
+  padding: .5rem .65rem;
+  margin-bottom: .38rem;
+  font-size: .68rem;
+  opacity: 0;
+  transition: opacity .35s;
+}
+.hm-ctx-card.vis { opacity: 1; }
+.hm-ctx-row { display: flex; justify-content: space-between; font-size: .64rem; padding: .08rem 0; }
+.hm-ctx-row .lbl { opacity: .55; }
+.hm-ctx-row .val { font-weight: 600; }
+.hm-dbody { padding: .8rem; overflow-y: auto; max-height: 480px; }
+.hm-step {
+  border-radius: 14px;
+  border: 1px solid var(--hm-border);
+  background: rgba(255, 255, 255, .55);
+  padding: .85rem 1rem;
+  margin-bottom: .6rem;
+  animation: hmFadeUp .35s ease both;
+}
+[data-theme="dark"] .hm-step { background: rgba(255, 255, 255, .04); }
+.hm-step--ok { border-color: rgba(16, 185, 129, .3); background: rgba(16, 185, 129, .05); }
+.hm-step h6 { font-size: .82rem; font-weight: 800; margin-bottom: .4rem; }
+.hm-chk { display: flex; align-items: center; gap: .4rem; font-size: .75rem; margin-bottom: .28rem; opacity: 0; transition: opacity .3s; }
+.hm-chk.show { opacity: 1; }
+.hm-chk .pass    { color: #10b981; font-size: .7rem; }
+.hm-chk .pending { color: #0078d4; font-size: .68rem; }
+.hm-log {
+  font-family: monospace;
+  font-size: .64rem;
+  line-height: 1.5;
+  max-height: 110px;
+  overflow-y: auto;
+  padding: .35rem;
+  background: rgba(0, 0, 0, .03);
+  border-radius: 8px;
+  margin: .4rem .8rem .8rem;
+}
+[data-theme="dark"] .hm-log { background: rgba(255, 255, 255, .03); }
+.hm-json {
+  font-family: 'Courier New', monospace;
+  font-size: .7rem;
+  background: #0f172a;
+  color: #94a3b8;
+  border-radius: 10px;
+  padding: .6rem .8rem;
+  line-height: 1.55;
+  margin-top: .4rem;
+  overflow-x: auto;
+  white-space: pre;
+}
+.hm-json .jk { color: #7dd3fc; }
+.hm-json .jv { color: #6ee7b7; }
+.hm-json .jn { color: #fcd34d; }
+
+/* ── Dashboard ── */
+.hm-dash {
+  border-radius: 16px;
+  border: 1px solid var(--hm-border);
+  background: var(--hm-surface);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--hm-shadow);
+  padding: 1rem 1.3rem;
+  max-width: 980px;
+  margin: 1rem auto 0;
+  display: none;
+}
+.hm-dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .65rem;
+  margin-bottom: .75rem;
+}
+@media (max-width: 560px) { .hm-dash-kpis { grid-template-columns: repeat(2, 1fr); } }
+.hm-dkpi { text-align: center; padding: .5rem; border-radius: 12px; border: 1px solid var(--hm-border); }
+.hm-dkpi-val { font-size: 1.05rem; font-weight: 800; background: var(--hm-grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hm-dkpi-val.spark { background: var(--hm-grad-spark); -webkit-background-clip: text; background-clip: text; }
+.hm-dkpi-val.gold  { background: var(--hm-grad-gold); -webkit-background-clip: text; background-clip: text; }
+.hm-dkpi-lbl { font-size: .56rem; opacity: .52; margin-top: .06rem; }
+
+/* ── MDM golden record card ── */
+.hm-golden {
+  border-radius: 18px;
+  border: 2px solid rgba(245, 158, 11, .3);
+  background: linear-gradient(135deg, rgba(245, 158, 11, .05) 0%, rgba(0, 120, 212, .05) 100%);
+  padding: 1.1rem 1.3rem;
+  max-width: 980px;
+  margin: 1rem auto 0;
+}
+.hm-golden h5 { font-size: .88rem; font-weight: 800; margin-bottom: .7rem; }
+.hm-source-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .9rem; }
+.hm-chip {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem .75rem;
+  border-radius: 10px;
+  font-size: .72rem;
+  font-weight: 700;
+  border: 1px solid var(--hm-border);
+  background: var(--hm-surface);
+}
+.hm-chip-arrow { font-size: .7rem; opacity: .4; }
+.hm-record {
+  border-radius: 12px;
+  border: 2px solid rgba(245, 158, 11, .4);
+  background: rgba(245, 158, 11, .04);
+  padding: .7rem 1rem;
+  font-size: .72rem;
+}
+.hm-record-hdr { font-size: .7rem; font-weight: 800; color: #b45309; margin-bottom: .4rem; }
+[data-theme="dark"] .hm-record-hdr { color: #fcd34d; }
+.hm-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .35rem; }
+.hm-field { padding: .28rem .5rem; border-radius: 7px; background: rgba(0, 0, 0, .03); }
+[data-theme="dark"] .hm-field { background: rgba(255, 255, 255, .04); }
+.hm-field .fname { font-size: .6rem; opacity: .5; font-weight: 700; }
+.hm-field .fval  { font-size: .73rem; font-weight: 600; }
+
+/* ── Design decisions ── */
+.hm-decisions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+@media (max-width: 680px) { .hm-decisions { grid-template-columns: 1fr; } }
+.hm-decision {
+  border-radius: 16px;
+  border: 1px solid var(--hm-border);
+  background: var(--hm-surface);
+  backdrop-filter: blur(8px);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--hm-shadow);
+}
+.hm-decision h6 { font-size: .8rem; font-weight: 800; margin-bottom: .4rem; }
+.hm-decision p  { font-size: .73rem; opacity: .68; margin: 0; line-height: 1.5; }
+.hm-vs { display: flex; align-items: center; gap: .4rem; font-size: .68rem; margin-top: .5rem; flex-wrap: wrap; }
+.hm-vs-pill {
+  padding: .18rem .5rem;
+  border-radius: 6px;
+  font-size: .64rem;
+  font-weight: 700;
+}
+.hm-vs-pill--win  { background: rgba(16, 185, 129, .12); color: #059669; }
+.hm-vs-pill--lose { background: rgba(100, 116, 139, .12); color: #64748b; }
+.hm-vs-sep { opacity: .35; font-weight: 800; }
+
+/* ── Callout ── */
+.hm-callout {
+  border-radius: 18px;
+  padding: 1.2rem 1.5rem;
+  border: 1px solid rgba(0, 120, 212, .22);
+  background: rgba(0, 120, 212, .04);
+  max-width: 900px;
+  margin: 1.5rem auto 0;
+}
+.hm-callout h5 { font-size: .88rem; font-weight: 800; margin-bottom: .4rem; }
+.hm-callout p  { font-size: .79rem; opacity: .75; margin: 0; line-height: 1.6; }
+
+/* ── Tech pills ── */
+.hm-pills { display: flex; flex-wrap: wrap; gap: .45rem; justify-content: center; max-width: 880px; margin: .9rem auto 0; }
+.hm-pill { padding: .22rem .65rem; border-radius: 999px; font-size: .7rem; font-weight: 700; }
+.hm-pill--az { background: rgba(0, 120, 212, .1); color: #0078d4; }
+.hm-pill--db { background: rgba(232, 89, 12, .1); color: #b94400; }
+.hm-pill--kf { background: rgba(30, 30, 30, .08); color: #334155; }
+[data-theme="dark"] .hm-pill--kf { color: #94a3b8; }
+.hm-pill--g  { background: rgba(16, 185, 129, .1); color: #059669; }
+.hm-pill--v  { background: rgba(124, 58, 237, .1); color: #6d28d9; }
+.hm-pill--t  { background: rgba(13, 148, 136, .1); color: #0d9488; }
+
+/* ── Production Impl ── */
+.hm-impl { max-width: 960px; margin: 0 auto; }
+.hm-impl details {
+  border-radius: 14px;
+  border: 1px solid var(--hm-border);
+  background: var(--hm-surface);
+  margin-bottom: .8rem;
+  overflow: hidden;
+}
+.hm-impl summary {
+  padding: .75rem 1.1rem;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  list-style: none;
+}
+.hm-impl summary::-webkit-details-marker { display: none; }
+.hm-impl summary::before { content: '▶'; font-size: .6rem; transition: transform .2s; }
+.hm-impl details[open] summary::before { transform: rotate(90deg); }
+.hm-impl pre {
+  margin: 0;
+  padding: 1rem 1.2rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: .68rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  border-top: 1px solid var(--hm-border);
+  font-family: 'Cascadia Code', 'JetBrains Mono', monospace;
+}
+/* ── Demo column layout ── */
+.hm-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.hm-page-body>.hm-sec{grid-column:1;min-width:0}
+.hm-page-body>.hm-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
+@media(max-width:1099px){.hm-page-body{grid-template-columns:1fr}.hm-page-body>.hm-sec--demo{grid-column:1;grid-row:auto;position:static}}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ==================== HERO ==================== -->
+<section class="hm-hero">
+  <div class="hm-badge"><i class="fas fa-database me-1"></i> Azure Databricks &middot; MDM Platform &middot; Healthcare</div>
+  <h1>Enterprise Member<br>Data Management</h1>
+  <p class="lead">High-performance data ingestion pipelines on Azure Databricks &mdash; unifying millions of member records across CRM, EHR, billing, and enrollment systems into a single golden record using PySpark, Delta Lake, and Apache Kafka.</p>
+
+  <div class="hm-kpis">
+    <div class="hm-kpi"><div class="hm-kpi-val">8.4M</div><div class="hm-kpi-lbl">Member Records</div></div>
+    <div class="hm-kpi"><div class="hm-kpi-val spark">99.7%</div><div class="hm-kpi-lbl">Golden Record Accuracy</div></div>
+    <div class="hm-kpi"><div class="hm-kpi-val gold">11</div><div class="hm-kpi-lbl">Source Systems</div></div>
+    <div class="hm-kpi"><div class="hm-kpi-val">340ms</div><div class="hm-kpi-lbl">Avg Ingestion Latency</div></div>
+  </div>
+</section>
+<div class="hm-page-body">
+
+<!-- ==================== ARCHITECTURE ==================== -->
+<section class="hm-sec">
+  <div class="hm-sec-head">
+    <span class="hm-tag hm-tag--az">Architecture</span>
+    <h2>End-to-End MDM Pipeline</h2>
+    <p>Eleven source systems feed member events through Kafka into Azure Databricks. The medallion architecture cleans, deduplicates, and resolves identity &mdash; producing a golden record distributed to downstream consumers via API.</p>
+  </div>
+
+  <div class="hm-arch">
+    <div class="hm-arch-box src-box">
+      <div class="box-label">Sources</div>
+      <div class="box-name">11 Systems</div>
+      <div class="box-sub">CRM &middot; EHR &middot; Claims &middot; Enroll</div>
+    </div>
+    <div class="hm-arch-arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="hm-arch-box kfk-box">
+      <div class="box-label">Ingestion</div>
+      <div class="box-name">Apache Kafka</div>
+      <div class="box-sub">Azure Event Hubs &middot; Schema Registry</div>
+    </div>
+    <div class="hm-arch-arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="hm-arch-box brz-box">
+      <div class="box-label">Bronze</div>
+      <div class="box-name">Raw Ingest</div>
+      <div class="box-sub">Auto Loader &middot; ADLS Gen2</div>
+    </div>
+    <div class="hm-arch-arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="hm-arch-box slv-box">
+      <div class="box-label">Silver</div>
+      <div class="box-name">Cleansed + Linked</div>
+      <div class="box-sub">DQ rules &middot; Entity resolution</div>
+    </div>
+    <div class="hm-arch-arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="hm-arch-box gld-box">
+      <div class="box-label">Gold</div>
+      <div class="box-name">Golden Record</div>
+      <div class="box-sub">Survivorship &middot; SOR</div>
+    </div>
+    <div class="hm-arch-arrow"><i class="fas fa-arrow-right"></i></div>
+    <div class="hm-arch-box egr-box">
+      <div class="box-label">Egress</div>
+      <div class="box-name">API / Publish</div>
+      <div class="box-sub">REST &middot; Kafka &middot; Delta Share</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PHASE CARDS ==================== -->
+<section class="hm-sec">
+  <div class="hm-sec-head">
+    <span class="hm-tag hm-tag--db">Pipeline Phases</span>
+    <h2>Six-Phase MDM Architecture</h2>
+    <p>Each phase is an independently deployable Databricks Job Cluster. Unity Catalog enforces row-level security on PII columns at every layer.</p>
+  </div>
+
+  <div class="hm-phases">
+    <div class="hm-phase">
+      <div class="hm-phase-icon" style="background: linear-gradient(135deg,#6d28d9,#4c1d95)"><i class="fas fa-sitemap"></i></div>
+      <h5>Multi-Source Ingestion</h5>
+      <p>Kafka consumers pull member events from 11 upstream systems &mdash; CRM, EHR, enrollment, claims, and provider directories &mdash; with Avro schema validation at the topic boundary.</p>
+      <ul>
+        <li>Apache Kafka + Azure Event Hubs</li>
+        <li>Schema Registry / Avro contracts</li>
+        <li>Dead-letter queue for schema violations</li>
+      </ul>
+    </div>
+    <div class="hm-phase">
+      <div class="hm-phase-icon" style="background: linear-gradient(135deg,#92400e,#78350f)"><i class="fas fa-layer-group"></i></div>
+      <h5>Bronze Layer &mdash; Raw Capture</h5>
+      <p>Auto Loader streams raw JSON/Avro events from ADLS Gen2 into Delta tables with full schema evolution. No records are dropped &mdash; every byte is immutably stored for replay.</p>
+      <ul>
+        <li>Databricks Auto Loader (cloudFiles)</li>
+        <li>Delta Lake append-only mode</li>
+        <li>Change Data Feed enabled</li>
+      </ul>
+    </div>
+    <div class="hm-phase">
+      <div class="hm-phase-icon" style="background: linear-gradient(135deg,#1e40af,#1e3a8a)"><i class="fas fa-filter"></i></div>
+      <h5>Silver Layer &mdash; Cleanse &amp; Link</h5>
+      <p>PySpark jobs apply 47 DQ rules, standardize addresses and phone numbers via USPS CASS and geospatial lookup, then run probabilistic entity matching to link records across sources.</p>
+      <ul>
+        <li>PySpark + Delta Live Tables</li>
+        <li>USPS CASS + geospatial enrichment</li>
+        <li>Probabilistic entity resolution (splink)</li>
+      </ul>
+    </div>
+    <div class="hm-phase">
+      <div class="hm-phase-icon" style="background: linear-gradient(135deg,#b45309,#92400e)"><i class="fas fa-trophy"></i></div>
+      <h5>Gold Layer &mdash; Golden Record</h5>
+      <p>Survivorship rules elect the most authoritative value for each attribute across matched records. Confidence scores, source lineage, and timestamps are preserved on every field.</p>
+      <ul>
+        <li>Attribute-level survivorship rules</li>
+        <li>Source trust scoring framework</li>
+        <li>Full lineage in Unity Catalog</li>
+      </ul>
+    </div>
+    <div class="hm-phase">
+      <div class="hm-phase-icon" style="background: linear-gradient(135deg,#0078d4,#005a9e)"><i class="fas fa-project-diagram"></i></div>
+      <h5>API Egress &amp; Integration</h5>
+      <p>FastAPI microservices expose golden records via REST. Downstream systems subscribe via Kafka topics or pull via Delta Sharing. C# .NET consumers integrate via the member profile SDK.</p>
+      <ul>
+        <li>FastAPI REST + OpenAPI 3.0</li>
+        <li>Kafka publish for real-time consumers</li>
+        <li>C# / .NET SDK for enterprise consumers</li>
+      </ul>
+    </div>
+    <div class="hm-phase">
+      <div class="hm-phase-icon" style="background: linear-gradient(135deg,#0d9488,#0f766e)"><i class="fas fa-brain"></i></div>
+      <h5>AI-Assisted Data Quality</h5>
+      <p>ML models flag anomalous ingestion patterns, predict match confidence, and surface stewardship queues. Automated remediation handles 91% of DQ exceptions without human intervention.</p>
+      <ul>
+        <li>Isolation Forest for anomaly detection</li>
+        <li>Active-learning match review loop</li>
+        <li>91% auto-remediation rate</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PYSPARK CODE ==================== -->
+<section class="hm-sec">
+  <div class="hm-sec-head">
+    <span class="hm-tag hm-tag--db">PySpark</span>
+    <h2>Medallion Pipeline Code</h2>
+    <p>Delta Live Tables pipeline with data quality expectations, entity resolution, and golden record survivorship.</p>
+  </div>
+
+  <div class="hm-code-wrap">
+    <div class="hm-code-hdr">
+      <div class="dots"><div class="dot" style="background:#ef4444"></div><div class="dot" style="background:#f59e0b"></div><div class="dot" style="background:#10b981"></div></div>
+      <span>member_mdm_pipeline.py &middot; Delta Live Tables &middot; Azure Databricks</span>
+    </div>
+    <div class="hm-code-body"><pre class="hm-code"><span class="cc"># ============================================================</span>
+<span class="cc"># Enterprise Member MDM &mdash; Delta Live Tables Pipeline</span>
+<span class="cc"># Medallion: Bronze &rarr; Silver &rarr; Gold (Golden Record)</span>
+<span class="cc"># ============================================================</span>
+<span class="ck">import</span> <span class="cm">dlt</span>
+<span class="ck">from</span> <span class="cm">pyspark.sql</span> <span class="ck">import</span> functions <span class="ck">as</span> F
+<span class="ck">from</span> <span class="cm">pyspark.sql.types</span> <span class="ck">import</span> StringType, DoubleType
+<span class="ck">from</span> <span class="cm">pyspark.sql.window</span> <span class="ck">import</span> Window
+
+<span class="cc"># ── Source trust scores for survivorship ──────────────────</span>
+SOURCE_TRUST = {
+    <span class="cs">"salesforce_crm"</span>:   <span class="cn">0.92</span>,
+    <span class="cs">"epic_ehr"</span>:         <span class="cn">0.97</span>,   <span class="cc"># clinical system = highest trust</span>
+    <span class="cs">"enrollment_svc"</span>:   <span class="cn">0.95</span>,
+    <span class="cs">"claims_adjudicate"</span>:<span class="cn">0.88</span>,
+    <span class="cs">"provider_dir"</span>:     <span class="cn">0.80</span>,
+    <span class="cs">"legacy_mainframe"</span>: <span class="cn">0.60</span>,
+}
+
+<span class="cc"># ── BRONZE: Raw member events from Kafka / ADLS Gen2 ─────</span>
+<span class="cn">@dlt.table</span>(
+    name=<span class="cs">"bronze_member_events"</span>,
+    comment=<span class="cs">"Raw member events from all 11 source systems"</span>,
+    table_properties={<span class="cs">"delta.enableChangeDataFeed"</span>: <span class="cs">"true"</span>}
+)
+<span class="ck">def</span> <span class="cv">bronze_member_events</span>():
+    <span class="ck">return</span> (
+        spark.readStream
+        .format(<span class="cs">"cloudFiles"</span>)
+        .option(<span class="cs">"cloudFiles.format"</span>, <span class="cs">"avro"</span>)
+        .option(<span class="cs">"cloudFiles.schemaLocation"</span>, <span class="cs">"abfss://schemas@mdmstorage.dfs.core.windows.net/member"</span>)
+        .option(<span class="cs">"cloudFiles.schemaEvolutionMode"</span>, <span class="cs">"addNewColumns"</span>)
+        .load(<span class="cs">"abfss://raw@mdmstorage.dfs.core.windows.net/member-events/"</span>)
+        .withColumn(<span class="cs">"_ingest_ts"</span>, F.current_timestamp())
+        .withColumn(<span class="cs">"_source_file"</span>, F.input_file_name())
+    )
+
+<span class="cc"># ── SILVER: Cleansed, validated, geo-enriched ─────────────</span>
+<span class="cn">@dlt.table</span>(name=<span class="cs">"silver_members"</span>)
+<span class="cn">@dlt.expect_or_drop</span>(<span class="cs">"valid_member_id"</span>,    <span class="cs">"member_id IS NOT NULL"</span>)
+<span class="cn">@dlt.expect_or_drop</span>(<span class="cs">"valid_dob"</span>,         <span class="cs">"date_of_birth > '1900-01-01'"</span>)
+<span class="cn">@dlt.expect_or_quarantine</span>(<span class="cs">"valid_zip"</span>,    <span class="cs">"LENGTH(zip_code) IN (5, 9)"</span>)
+<span class="cn">@dlt.expect_or_quarantine</span>(<span class="cs">"valid_phone"</span>,  <span class="cs">"phone_number RLIKE '^[0-9]{10}$'"</span>)
+<span class="ck">def</span> <span class="cv">silver_members</span>():
+    <span class="cc"># Read from bronze with CDF for incremental processing</span>
+    df = dlt.read_stream(<span class="cs">"bronze_member_events"</span>)
+
+    <span class="cc"># Standardise &amp; normalise</span>
+    df = (df
+        .withColumn(<span class="cs">"first_name"</span>, F.initcap(F.trim(F.col(<span class="cs">"first_name"</span>))))
+        .withColumn(<span class="cs">"last_name"</span>,  F.initcap(F.trim(F.col(<span class="cs">"last_name"</span>))))
+        .withColumn(<span class="cs">"email"</span>,       F.lower(F.trim(F.col(<span class="cs">"email"</span>))))
+        .withColumn(<span class="cs">"zip_code"</span>,    F.col(<span class="cs">"zip_code"</span>).substr(<span class="cn">1</span>, <span class="cn">5</span>))
+        .withColumn(<span class="cs">"phone_e164"</span>,  F.regexp_replace(F.col(<span class="cs">"phone_number"</span>), <span class="cs">"[^0-9]"</span>, <span class="cs">""</span>))
+    )
+
+    <span class="cc"># Geospatial enrichment: zip &rarr; lat/lon, county, FIPS</span>
+    geo_ref = spark.table(<span class="cs">"catalog.reference.zip_geospatial"</span>)
+    df = df.join(F.broadcast(geo_ref), <span class="cs">"zip_code"</span>, <span class="cs">"left"</span>)
+
+    <span class="cc"># Source trust score for survivorship downstream</span>
+    trust_map = F.create_map([F.lit(x) <span class="ck">for</span> pair <span class="ck">in</span> SOURCE_TRUST.items() <span class="ck">for</span> x <span class="ck">in</span> pair])
+    df = df.withColumn(<span class="cs">"_source_trust"</span>, trust_map[F.col(<span class="cs">"source_system"</span>)])
+
+    <span class="ck">return</span> df
+
+<span class="cc"># ── GOLD: Golden record via survivorship ──────────────────</span>
+<span class="cn">@dlt.table</span>(
+    name=<span class="cs">"gold_member_golden_record"</span>,
+    comment=<span class="cs">"System of Record &mdash; highest-trust attribute per member"</span>
+)
+<span class="ck">def</span> <span class="cv">gold_member_golden_record</span>():
+    <span class="cc"># Window: per enterprise_member_id, ranked by source trust desc</span>
+    w = Window.partitionBy(<span class="cs">"enterprise_member_id"</span>).orderBy(F.col(<span class="cs">"_source_trust"</span>).desc())
+
+    <span class="ck">return</span> (
+        dlt.read(<span class="cs">"silver_members"</span>)
+        .withColumn(<span class="cs">"_rank"</span>, F.rank().over(w))
+        .filter(F.col(<span class="cs">"_rank"</span>) == <span class="cn">1</span>)        <span class="cc"># elect highest-trust record per member</span>
+        .withColumn(<span class="cs">"golden_record_ts"</span>, F.current_timestamp())
+        .withColumn(<span class="cs">"record_version"</span>, F.expr(<span class="cs">"uuid()"</span>))
+        .drop(<span class="cs">"_rank"</span>, <span class="cs">"_ingest_ts"</span>, <span class="cs">"_source_file"</span>)
+    )</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== INTERACTIVE DEMO ==================== -->
+<section class="hm-sec hm-sec--demo">
+  <div class="hm-sec-head">
+    <span class="hm-tag hm-tag--db">Live Demo</span>
+    <h2>MDM Pipeline Simulator</h2>
+    <p>Simulate ingesting a batch of member update events from five source systems, resolving duplicates, and producing a unified golden record.</p>
+  </div>
+
+  <div class="hm-demo" id="hmDemo">
+    <div class="hm-demo-bar">
+      <div class="hm-dots">
+        <div class="hm-dot" style="background:#ef4444"></div>
+        <div class="hm-dot" style="background:#f59e0b"></div>
+        <div class="hm-dot" style="background:#10b981"></div>
+      </div>
+      <h4><i class="fas fa-database me-2" style="color:#0078d4"></i>Member MDM Pipeline &middot; Azure Databricks &middot; Delta Live Tables</h4>
+      <div style="display:flex;gap:.4rem;flex-shrink:0">
+        <button class="btn btn-primary btn-sm" id="hmBtnRun" style="border-radius:8px;font-size:.78rem;background:#0078d4;border-color:#0078d4"><i class="fas fa-play me-1"></i> Run Pipeline</button>
+        <button class="btn btn-outline-secondary btn-sm" id="hmBtnReset" style="border-radius:8px;font-size:.78rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
+      </div>
+    </div>
+
+    <div class="hm-pip-bar" id="hmPipBar">
+      <div class="hm-pip" id="hmPip0"><div class="hm-pip-dot"><i class="fas fa-rss"></i></div><div class="hm-pip-lbl">Kafka Ingest</div></div>
+      <div class="hm-pip" id="hmPip1"><div class="hm-pip-dot"><i class="fas fa-layer-group"></i></div><div class="hm-pip-lbl">Bronze</div></div>
+      <div class="hm-pip" id="hmPip2"><div class="hm-pip-dot"><i class="fas fa-filter"></i></div><div class="hm-pip-lbl">Silver / DQ</div></div>
+      <div class="hm-pip" id="hmPip3"><div class="hm-pip-dot"><i class="fas fa-link"></i></div><div class="hm-pip-lbl">Entity Link</div></div>
+      <div class="hm-pip" id="hmPip4"><div class="hm-pip-dot"><i class="fas fa-trophy"></i></div><div class="hm-pip-lbl">Golden Record</div></div>
+      <div class="hm-pip" id="hmPip5"><div class="hm-pip-dot"><i class="fas fa-share-alt"></i></div><div class="hm-pip-lbl">API Egress</div></div>
+    </div>
+
+    <div class="hm-split">
+      <div class="hm-side">
+        <div class="hm-side-lbl">Pipeline Context</div>
+        <div class="hm-ctx-card" id="hmCtx0">
+          <div style="font-weight:700;margin-bottom:.25rem"><i class="fas fa-rss me-1" style="color:#0078d4"></i>Kafka Batch</div>
+          <div class="hm-ctx-row"><span class="lbl">Events</span><span class="val">2,847</span></div>
+          <div class="hm-ctx-row"><span class="lbl">Topics</span><span class="val">5 sources</span></div>
+          <div class="hm-ctx-row"><span class="lbl">Format</span><span class="val">Avro</span></div>
+        </div>
+        <div class="hm-ctx-card" id="hmCtx1">
+          <div style="font-weight:700;margin-bottom:.25rem"><i class="fas fa-hospital me-1" style="color:#7c3aed"></i>Source Mix</div>
+          <div class="hm-ctx-row"><span class="lbl">Epic EHR</span><span class="val" id="hmSrcEhr">&mdash;</span></div>
+          <div class="hm-ctx-row"><span class="lbl">Salesforce</span><span class="val" id="hmSrcCrm">&mdash;</span></div>
+          <div class="hm-ctx-row"><span class="lbl">Enrollment</span><span class="val" id="hmSrcEnr">&mdash;</span></div>
+          <div class="hm-ctx-row"><span class="lbl">Claims</span><span class="val" id="hmSrcClm">&mdash;</span></div>
+        </div>
+        <div class="hm-ctx-card" id="hmCtx2">
+          <div style="font-weight:700;margin-bottom:.25rem"><i class="fas fa-check-circle me-1" style="color:#10b981"></i>DQ Summary</div>
+          <div class="hm-ctx-row"><span class="lbl">Passed</span><span class="val" id="hmDqPass">&mdash;</span></div>
+          <div class="hm-ctx-row"><span class="lbl">Quarantined</span><span class="val" id="hmDqQuar">&mdash;</span></div>
+          <div class="hm-ctx-row"><span class="lbl">Rejected</span><span class="val" id="hmDqFail">&mdash;</span></div>
+        </div>
+        <div class="hm-ctx-card" id="hmCtx3">
+          <div style="font-weight:700;margin-bottom:.25rem"><i class="fas fa-link me-1" style="color:#f59e0b"></i>Entity Resolution</div>
+          <div class="hm-ctx-row"><span class="lbl">Matched</span><span class="val" id="hmMatched">&mdash;</span></div>
+          <div class="hm-ctx-row"><span class="lbl">New Members</span><span class="val" id="hmNew">&mdash;</span></div>
+          <div class="hm-ctx-row"><span class="lbl">Conflicts</span><span class="val" id="hmConflict">&mdash;</span></div>
+        </div>
+      </div>
+      <div class="hm-dbody" id="hmStage"></div>
+    </div>
+    <div class="hm-log" id="hmLog"></div>
+  </div>
+
+  <div class="hm-dash" id="hmDash">
+    <div style="font-size:.82rem;font-weight:800;margin-bottom:.7rem"><i class="fas fa-chart-bar me-2" style="color:#0078d4"></i>Pipeline Metrics</div>
+    <div class="hm-dash-kpis">
+      <div class="hm-dkpi"><div class="hm-dkpi-val" id="hmKpiRows">0</div><div class="hm-dkpi-lbl">Records Processed</div></div>
+      <div class="hm-dkpi"><div class="hm-dkpi-val spark" id="hmKpiGolden">&mdash;</div><div class="hm-dkpi-lbl">Golden Records</div></div>
+      <div class="hm-dkpi"><div class="hm-dkpi-val gold" id="hmKpiDq">&mdash;</div><div class="hm-dkpi-lbl">DQ Pass Rate</div></div>
+      <div class="hm-dkpi"><div class="hm-dkpi-val" id="hmKpiTime">&mdash;</div><div class="hm-dkpi-lbl">Pipeline Time</div></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table table-sm" style="font-size:.73rem;margin:0">
+        <thead><tr style="opacity:.55"><th>Run</th><th>Source</th><th>Events</th><th>DQ Pass</th><th>Golden</th><th>Matched</th><th>Time</th></tr></thead>
+        <tbody id="hmRunTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== GOLDEN RECORD SAMPLE ==================== -->
+<section class="hm-sec">
+  <div class="hm-sec-head">
+    <span class="hm-tag hm-tag--mdm">MDM Output</span>
+    <h2>Golden Record Structure</h2>
+    <p>Five upstream systems each hold a fragment of the truth. Survivorship rules elect the highest-trust value per attribute, resulting in a single authoritative member profile.</p>
+  </div>
+
+  <div class="hm-golden">
+    <h5><i class="fas fa-trophy me-2" style="color:#b45309"></i>Source Systems &rarr; Unified Golden Record</h5>
+    <div class="hm-source-chips">
+      <div class="hm-chip" style="border-color:rgba(124,58,237,.2)"><i class="fas fa-hospital" style="color:#7c3aed"></i> Epic EHR <span style="font-size:.6rem;opacity:.5;font-weight:400">trust: 0.97</span></div>
+      <div class="hm-chip-arrow"><i class="fas fa-arrow-right"></i></div>
+      <div class="hm-chip" style="border-color:rgba(0,120,212,.2)"><i class="fas fa-users" style="color:#0078d4"></i> Salesforce CRM <span style="font-size:.6rem;opacity:.5;font-weight:400">trust: 0.92</span></div>
+      <div class="hm-chip-arrow"><i class="fas fa-arrow-right"></i></div>
+      <div class="hm-chip" style="border-color:rgba(16,185,129,.2)"><i class="fas fa-clipboard-list" style="color:#059669"></i> Enrollment Svc <span style="font-size:.6rem;opacity:.5;font-weight:400">trust: 0.95</span></div>
+      <div class="hm-chip-arrow"><i class="fas fa-arrow-right"></i></div>
+      <div class="hm-chip" style="border-color:rgba(245,158,11,.2)"><i class="fas fa-file-invoice-dollar" style="color:#b45309"></i> Claims <span style="font-size:.6rem;opacity:.5;font-weight:400">trust: 0.88</span></div>
+      <div class="hm-chip-arrow"><i class="fas fa-long-arrow-alt-right" style="font-size:1.2rem;color:#f59e0b"></i></div>
+      <div class="hm-chip" style="border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.06)"><i class="fas fa-trophy" style="color:#b45309"></i> <strong>Golden Record</strong></div>
+    </div>
+    <div class="hm-record">
+      <div class="hm-record-hdr"><i class="fas fa-star me-1"></i>GOLD: member_golden_record &middot; enterprise_id: HMN-8847201</div>
+      <div class="hm-fields">
+        <div class="hm-field"><div class="fname">First Name</div><div class="fval">James <span style="font-size:.58rem;opacity:.45">[epic_ehr]</span></div></div>
+        <div class="hm-field"><div class="fname">Last Name</div><div class="fval">Worthington <span style="font-size:.58rem;opacity:.45">[epic_ehr]</span></div></div>
+        <div class="hm-field"><div class="fname">Date of Birth</div><div class="fval">1978-03-14 <span style="font-size:.58rem;opacity:.45">[enrollment_svc]</span></div></div>
+        <div class="hm-field"><div class="fname">Email</div><div class="fval">j.worthington@email.com <span style="font-size:.58rem;opacity:.45">[crm]</span></div></div>
+        <div class="hm-field"><div class="fname">Phone</div><div class="fval">(502) 887-4413 <span style="font-size:.58rem;opacity:.45">[enrollment_svc]</span></div></div>
+        <div class="hm-field"><div class="fname">Address</div><div class="fval">1422 Oak Ridge Dr <span style="font-size:.58rem;opacity:.45">[usps_cass]</span></div></div>
+        <div class="hm-field"><div class="fname">City / State</div><div class="fval">Louisville, KY <span style="font-size:.58rem;opacity:.45">[usps_cass]</span></div></div>
+        <div class="hm-field"><div class="fname">ZIP</div><div class="fval">40202 <span style="font-size:.58rem;opacity:.45">[usps_cass]</span></div></div>
+        <div class="hm-field"><div class="fname">Lat / Lon</div><div class="fval">38.2527&deg; / -85.7585&deg; <span style="font-size:.58rem;opacity:.45">[geo_ref]</span></div></div>
+        <div class="hm-field"><div class="fname">Plan ID</div><div class="fval">HMO-PPO-2024-KY <span style="font-size:.58rem;opacity:.45">[enrollment_svc]</span></div></div>
+        <div class="hm-field"><div class="fname">NPI / Provider</div><div class="fval">1427384920 <span style="font-size:.58rem;opacity:.45">[provider_dir]</span></div></div>
+        <div class="hm-field"><div class="fname">Record Version</div><div class="fval">v18 &middot; 2026-04-21 <span style="font-size:.58rem;opacity:.45">[mdm_engine]</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DESIGN DECISIONS ==================== -->
+<section class="hm-sec">
+  <div class="hm-sec-head">
+    <span class="hm-tag hm-tag--az">Design Decisions</span>
+    <h2>Architecture Trade-offs</h2>
+    <p>Key technical decisions made when building an enterprise-scale MDM platform on Azure Databricks.</p>
+  </div>
+
+  <div class="hm-decisions">
+    <div class="hm-decision">
+      <h6><i class="fas fa-random me-1" style="color:#0078d4"></i>Streaming vs. Batch Ingestion</h6>
+      <p>Kafka streaming with micro-batches (5-min trigger) instead of nightly batch loads. Member updates in CRM are visible in the golden record within minutes, not hours &mdash; critical for real-time care coordination.</p>
+      <div class="hm-vs">
+        <span class="hm-vs-pill hm-vs-pill--win">Kafka + Auto Loader</span>
+        <span class="hm-vs-sep">vs</span>
+        <span class="hm-vs-pill hm-vs-pill--lose">Nightly ADF Batch</span>
+      </div>
+    </div>
+    <div class="hm-decision">
+      <h6><i class="fas fa-link me-1" style="color:#7c3aed"></i>Probabilistic vs. Deterministic Matching</h6>
+      <p>Splink-based probabilistic matching using Fellegi-Sunter model trained on 500K labeled pairs. Deterministic rules alone failed on name variations and address reformats common in healthcare data &mdash; recall went from 78% to 97%.</p>
+      <div class="hm-vs">
+        <span class="hm-vs-pill hm-vs-pill--win">Probabilistic (Splink)</span>
+        <span class="hm-vs-sep">vs</span>
+        <span class="hm-vs-pill hm-vs-pill--lose">Deterministic Rules</span>
+      </div>
+    </div>
+    <div class="hm-decision">
+      <h6><i class="fas fa-layer-group me-1" style="color:#b45309"></i>Delta Live Tables vs. Raw Spark Jobs</h6>
+      <p>DLT provides built-in data quality expectations, lineage tracking, and orchestration for the medallion layers. Chose DLT over raw Spark jobs to eliminate boilerplate retry logic and get automatic DQ quarantining without custom code.</p>
+      <div class="hm-vs">
+        <span class="hm-vs-pill hm-vs-pill--win">Delta Live Tables</span>
+        <span class="hm-vs-sep">vs</span>
+        <span class="hm-vs-pill hm-vs-pill--lose">Raw PySpark Jobs</span>
+      </div>
+    </div>
+    <div class="hm-decision">
+      <h6><i class="fas fa-map-marker-alt me-1" style="color:#0d9488"></i>Geospatial Enrichment Strategy</h6>
+      <p>ZIP code resolved to lat/lon, county FIPS, and CBSA code via broadcast-join against a cached USPS CASS reference table (32K rows). Enabled downstream network adequacy analysis and CMS-compliant service area reporting without a GIS microservice round-trip.</p>
+      <div class="hm-vs">
+        <span class="hm-vs-pill hm-vs-pill--win">Broadcast Join (CASS Ref)</span>
+        <span class="hm-vs-sep">vs</span>
+        <span class="hm-vs-pill hm-vs-pill--lose">External GIS API Call</span>
+      </div>
+    </div>
+    <div class="hm-decision">
+      <h6><i class="fas fa-shield-alt me-1" style="color:#ef4444"></i>Unity Catalog for PII Governance</h6>
+      <p>Row-level security policies in Unity Catalog restrict PHI columns (SSN, DOB, diagnosis codes) to roles with HIPAA training certification. Column masking applied to non-clinical consumers, eliminating the need for separate de-identified copies.</p>
+      <div class="hm-vs">
+        <span class="hm-vs-pill hm-vs-pill--win">Unity Catalog RLS / Masking</span>
+        <span class="hm-vs-sep">vs</span>
+        <span class="hm-vs-pill hm-vs-pill--lose">Duplicate De-ID Tables</span>
+      </div>
+    </div>
+    <div class="hm-decision">
+      <h6><i class="fas fa-code me-1" style="color:#059669"></i>C# SDK for Enterprise Consumers</h6>
+      <p>Published a typed C# NuGet package wrapping the REST golden record API. Downstream .NET billing and claims adjudication systems integrate without raw HTTP calls, reducing integration time from weeks to days and ensuring contract alignment via auto-generated OpenAPI 3.0 spec.</p>
+      <div class="hm-vs">
+        <span class="hm-vs-pill hm-vs-pill--win">Typed C# SDK (NuGet)</span>
+        <span class="hm-vs-sep">vs</span>
+        <span class="hm-vs-pill hm-vs-pill--lose">Raw REST / curl scripts</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== INTERVIEW CALLOUT ==================== -->
+<div class="hm-callout">
+  <h5><i class="fas fa-microphone me-2" style="color:#0078d4"></i>Interview Narrative &mdash; Humana Azure Databricks Developer</h5>
+  <p>"I designed and built the enterprise MDM platform processing 8.4 million member records across 11 upstream systems including Epic EHR, Salesforce CRM, enrollment services, and legacy mainframe feeds. The ingestion layer uses Apache Kafka and Azure Event Hubs with Avro schema contracts, flowing into Azure Databricks via Auto Loader. The PySpark Delta Live Tables pipeline applies 47 data quality rules at the Silver layer &mdash; including USPS CASS address standardization and geospatial enrichment that resolves ZIP codes to lat/lon and county FIPS for CMS network adequacy reporting. Entity resolution uses a probabilistic Splink model trained on 500K labeled pairs, achieving 97% member match recall vs. 78% with deterministic rules alone. The Gold layer survivorship framework elects the highest-trust attribute from each source system to produce a single authoritative golden record. Downstream consumers &mdash; including .NET billing and claims systems &mdash; integrate through a typed C# NuGet SDK generated from our OpenAPI 3.0 spec. Unity Catalog enforces row-level PHI security so clinical and non-clinical consumers share a single pipeline without maintaining separate de-identified copies."</p>
+</div>
+
+<!-- ==================== TECH STACK ==================== -->
+<section class="hm-sec" style="padding-bottom:2rem">
+  <div class="hm-sec-head">
+    <span class="hm-tag hm-tag--g">Tech Stack</span>
+    <h2>Technologies Used</h2>
+  </div>
+  <div class="hm-pills">
+    <span class="hm-pill hm-pill--az">Azure Databricks</span>
+    <span class="hm-pill hm-pill--db">PySpark</span>
+    <span class="hm-pill hm-pill--db">Delta Live Tables</span>
+    <span class="hm-pill hm-pill--db">Delta Lake</span>
+    <span class="hm-pill hm-pill--kf">Apache Kafka</span>
+    <span class="hm-pill hm-pill--kf">Azure Event Hubs</span>
+    <span class="hm-pill hm-pill--az">ADLS Gen2</span>
+    <span class="hm-pill hm-pill--az">Unity Catalog</span>
+    <span class="hm-pill hm-pill--az">Auto Loader</span>
+    <span class="hm-pill hm-pill--v">Splink (Entity Resolution)</span>
+    <span class="hm-pill hm-pill--t">USPS CASS / Geospatial</span>
+    <span class="hm-pill hm-pill--g">FastAPI REST</span>
+    <span class="hm-pill hm-pill--g">C# / .NET SDK</span>
+    <span class="hm-pill hm-pill--g">OpenAPI 3.0</span>
+    <span class="hm-pill hm-pill--v">Avro / Schema Registry</span>
+    <span class="hm-pill hm-pill--t">MLflow</span>
+    <span class="hm-pill hm-pill--t">Isolation Forest (DQ)</span>
+    <span class="hm-pill hm-pill--az">Azure Monitor / Grafana</span>
+  </div>
+</section>
+
+<!-- ==================== PRODUCTION IMPL ==================== -->
+<section class="hm-sec" style="padding-bottom:3rem">
+  <div class="hm-sec-head">
+    <span class="hm-tag hm-tag--az">Production</span>
+    <h2>Implementation Details</h2>
+  </div>
+  <div class="hm-impl">
+    <details>
+      <summary><i class="fas fa-rss me-2" style="color:#6d28d9"></i>Kafka Consumer &mdash; Multi-Source Event Ingestion (Python)</summary>
+      <pre>from confluent_kafka import Consumer, KafkaError
+from confluent_kafka.schema_registry.avro import AvroDeserializer
+import json
+
+SOURCE_TOPICS = [
+    "epic-ehr-member-events",
+    "salesforce-crm-member-events",
+    "enrollment-svc-member-events",
+    "claims-adjudication-events",
+    "provider-directory-updates",
+]
+
+def create_consumer(group_id: str) -> Consumer:
+    return Consumer({
+        "bootstrap.servers": "hmn-eventhubs.servicebus.windows.net:9093",
+        "security.protocol": "SASL_SSL",
+        "sasl.mechanism": "PLAIN",
+        "sasl.username": "$ConnectionString",
+        "sasl.password": EVENTHUBS_CONN_STRING,
+        "group.id": group_id,
+        "auto.offset.reset": "earliest",
+        "enable.auto.commit": False,   # manual commit for at-least-once
+        "max.poll.interval.ms": 300000,
+    })
+
+def ingest_to_adls(batch: list[dict], source: str):
+    """Write Avro-decoded events to ADLS Gen2 landing zone."""
+    df = spark.createDataFrame(batch)
+    (df.write
+       .format("delta")
+       .mode("append")
+       .option("mergeSchema", "true")
+       .partitionBy("event_date", "source_system")
+       .save(f"abfss://raw@mdmstorage.dfs.core.windows.net/member-events/{source}/"))
+</pre>
+    </details>
+    <details>
+      <summary><i class="fas fa-map-marker-alt me-2" style="color:#0d9488"></i>Geospatial Enrichment &mdash; ZIP to Lat/Lon + FIPS (PySpark)</summary>
+      <pre>from pyspark.sql import functions as F
+from pyspark.sql.types import DoubleType, StringType
+
+def enrich_geospatial(df, spark):
+    """
+    Join member ZIP codes against USPS CASS + Census FIPS reference table.
+    Returns enriched DataFrame with lat, lon, county_fips, cbsa_code.
+    """
+    # Broadcast the small reference table (32K rows, fits in memory)
+    geo_ref = (spark.table("catalog.reference.zip_geospatial")
+               .select("zip_code", "latitude", "longitude",
+                       "county_fips", "cbsa_code", "state_abbr", "county_name"))
+
+    enriched = (df
+        .withColumn("zip5", F.col("zip_code").substr(1, 5))
+        .join(F.broadcast(geo_ref), df["zip_code"] == geo_ref["zip_code"], "left")
+        .withColumn("geo_confidence",
+            F.when(F.col("latitude").isNotNull(), F.lit("zip5_centroid"))
+             .otherwise(F.lit("unresolved")))
+        .drop(geo_ref["zip_code"])
+    )
+    return enriched
+
+# CMS network adequacy: flag members > 30 miles from nearest in-network provider
+def flag_network_adequacy(members_df, providers_df):
+    from pyspark.sql.functions import acos, cos, radians, sin, sqrt
+    # Haversine distance using member lat/lon vs. provider lat/lon
+    # ... implementation omitted for brevity
+    pass
+</pre>
+    </details>
+    <details>
+      <summary><i class="fas fa-link me-2" style="color:#7c3aed"></i>Entity Resolution &mdash; Probabilistic Matching (Python / Splink)</summary>
+      <pre>import splink.spark.comparison_library as cl
+from splink.spark.spark_linker import SparkLinker
+
+def build_linker(df_spark) -> SparkLinker:
+    settings = {
+        "link_type": "dedupe_only",
+        "comparisons": [
+            cl.levenshtein_at_thresholds("last_name",  [1, 2]),
+            cl.levenshtein_at_thresholds("first_name", [1]),
+            cl.exact_match("date_of_birth"),
+            cl.exact_match("zip_code"),
+            cl.exact_match("phone_e164"),
+        ],
+        "blocking_rules_to_generate_predictions": [
+            "l.last_name = r.last_name AND l.zip_code = r.zip_code",
+            "l.date_of_birth = r.date_of_birth AND l.zip_code = r.zip_code",
+        ],
+        "retain_matching_columns": True,
+        "retain_intermediate_calculation_columns": False,
+    }
+    linker = SparkLinker(df_spark, settings, spark=spark,
+                         catalog="catalog", database="mdm_silver")
+    linker.estimate_u_using_random_sampling(max_pairs=1e7)
+    return linker
+
+def run_entity_resolution(df) -> DataFrame:
+    linker = build_linker(df)
+    pairwise = linker.predict(threshold_match_probability=0.85)
+    clusters = linker.cluster_pairwise_predictions_at_threshold(pairwise, 0.85)
+    return clusters.as_spark_dataframe()
+</pre>
+    </details>
+  </div>
+</section>
+
+</div><!-- /hm-page-body -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ====================================================
+// HUMANA MDM PIPELINE SIMULATOR
+// ====================================================
+(function () {
+  const log    = document.getElementById('hmLog');
+  const stage  = document.getElementById('hmStage');
+  const btnRun = document.getElementById('hmBtnRun');
+  const btnRst = document.getElementById('hmBtnReset');
+  const dash   = document.getElementById('hmDash');
+
+  let runCount = 0;
+  let startTs  = 0;
+
+  function addLog(msg) {
+    const ts = new Date().toISOString().substr(11, 12);
+    log.innerHTML += `<span style="color:#94a3b8">[${ts}]</span> ${msg}\n`;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function setPip(idx, state) {
+    const pip = document.getElementById(`hmPip${idx}`);
+    if (!pip) return;
+    pip.classList.remove('active', 'done');
+    if (state === 'active') pip.classList.add('active');
+    if (state === 'done')   pip.classList.add('done');
+  }
+
+  function showCtx(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('vis');
+  }
+
+  function addStep(html) {
+    const d = document.createElement('div');
+    d.innerHTML = html;
+    stage.appendChild(d.firstElementChild);
+    stage.scrollTop = stage.scrollHeight;
+  }
+
+  function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function chk(icon, text, cls = 'pass') {
+    return `<div class="hm-chk show"><i class="fas ${icon} ${cls}"></i> ${text}</div>`;
+  }
+
+  async function runPipeline() {
+    btnRun.disabled = true;
+    btnRst.style.display = 'none';
+    stage.innerHTML = '';
+    log.innerHTML = '';
+    startTs = Date.now();
+
+    const events = 2847;
+    const passes = [events - 38 - 12, events - 38, events];
+
+    // ── STAGE 0: Kafka Ingest ──
+    setPip(0, 'active');
+    showCtx('hmCtx0');
+    addLog('Connecting to Azure Event Hubs &mdash; 5 Kafka topics...');
+    await wait(700);
+    addStep(`<div class="hm-step"><h6><i class="fas fa-rss me-2" style="color:#6d28d9"></i>Kafka Ingest</h6>
+      ${chk('fa-check-circle','Broker handshake: hmn-eventhubs.servicebus.windows.net')}
+      ${chk('fa-check-circle','Topics subscribed: epic-ehr, salesforce-crm, enrollment-svc, claims, provider-dir')}
+      ${chk('fa-check-circle','Avro deserializer loaded from Schema Registry')}
+      ${chk('fa-check-circle','Consumed 2,847 events &middot; 5 partitions &middot; 1.2 MB')}
+    </div>`);
+    addLog('2,847 Avro messages consumed from 5 topics.');
+    await wait(400);
+    setPip(0, 'done'); setPip(1, 'active');
+    showCtx('hmCtx1');
+
+    // fill source breakdown
+    document.getElementById('hmSrcEhr').textContent = '1,104';
+    document.getElementById('hmSrcCrm').textContent = '612';
+    document.getElementById('hmSrcEnr').textContent = '731';
+    document.getElementById('hmSrcClm').textContent = '400';
+
+    // ── STAGE 1: Bronze ──
+    addLog('Writing raw events to ADLS Gen2 (Delta append, CDF enabled)...');
+    await wait(750);
+    addStep(`<div class="hm-step"><h6><i class="fas fa-layer-group me-2" style="color:#92400e"></i>Bronze Layer &mdash; Raw Capture</h6>
+      ${chk('fa-check-circle','Auto Loader schema evolution: 3 new columns detected')}
+      ${chk('fa-check-circle','2,847 rows appended to bronze_member_events')}
+      ${chk('fa-check-circle','Change Data Feed entries written')}
+      ${chk('fa-check-circle','Partition: event_date=2026-04-21 / source_system')}
+    </div>`);
+    addLog('Bronze layer: 2,847 rows persisted. CDF entries written.');
+    await wait(400);
+    setPip(1, 'done'); setPip(2, 'active');
+    showCtx('hmCtx2');
+
+    // ── STAGE 2: Silver / DQ ──
+    addLog('Running 47 DQ expectations at Silver layer...');
+    await wait(900);
+    const dqPass = events - 38 - 12;
+    const dqQuar = 38;
+    const dqFail = 12;
+    document.getElementById('hmDqPass').textContent = dqPass.toLocaleString();
+    document.getElementById('hmDqQuar').textContent = dqQuar;
+    document.getElementById('hmDqFail').textContent = dqFail;
+    addStep(`<div class="hm-step"><h6><i class="fas fa-filter me-2" style="color:#1e40af"></i>Silver Layer &mdash; Cleanse &amp; Validate</h6>
+      ${chk('fa-check-circle','Name normalisation: initcap + trim applied')}
+      ${chk('fa-check-circle','Phone E.164 standardisation: ${dqPass} records')}
+      ${chk('fa-check-circle','ZIP &rarr; lat/lon geospatial enrichment via CASS broadcast join')}
+      ${chk('fa-check-circle','DQ passed: <strong>${dqPass.toLocaleString()}</strong>')}
+      ${chk('fa-exclamation-triangle','Quarantined (invalid ZIP): <strong>38</strong>', 'pending')}
+      ${chk('fa-times-circle','Rejected (null member_id): <strong>12</strong>', 'text-danger')}
+    </div>`);
+    addLog(`DQ: ${dqPass} passed, 38 quarantined, 12 rejected.`);
+    await wait(400);
+    setPip(2, 'done'); setPip(3, 'active');
+
+    // ── STAGE 3: Entity Resolution ──
+    addLog('Running Splink probabilistic entity resolution...');
+    await wait(1000);
+    const matched = 2289;
+    const newMembers = 508;
+    const conflicts = 0;
+    document.getElementById('hmMatched').textContent = matched.toLocaleString();
+    document.getElementById('hmNew').textContent = newMembers;
+    document.getElementById('hmConflict').textContent = conflicts;
+    addStep(`<div class="hm-step"><h6><i class="fas fa-link me-2" style="color:#7c3aed"></i>Entity Resolution &mdash; Splink</h6>
+      ${chk('fa-check-circle','Blocking rules applied: last_name+zip, dob+zip')}
+      ${chk('fa-check-circle','Fellegi-Sunter model: 8.2M candidate pairs evaluated')}
+      ${chk('fa-check-circle','Matched to existing members: <strong>2,289</strong> (threshold &ge; 0.85)')}
+      ${chk('fa-check-circle','New members assigned enterprise ID: <strong>508</strong>')}
+      ${chk('fa-check-circle','Zero unresolved conflicts')}
+    </div>`);
+    addLog(`Entity resolution: 2,289 matched, 508 new members.`);
+    await wait(400);
+    setPip(3, 'done'); setPip(4, 'active');
+
+    // ── STAGE 4: Golden Record ──
+    addLog('Electing survivorship winners per attribute...');
+    await wait(800);
+    addStep(`<div class="hm-step hm-step--ok"><h6><i class="fas fa-trophy me-2" style="color:#b45309"></i>Gold Layer &mdash; Golden Record Survivorship</h6>
+      ${chk('fa-check-circle','Source trust scores applied per member record')}
+      ${chk('fa-check-circle','Attribute-level election: highest-trust value per field')}
+      ${chk('fa-check-circle','2,797 golden records written to gold_member_golden_record')}
+      ${chk('fa-check-circle','Record version + golden_record_ts stamped')}
+      ${chk('fa-check-circle','Lineage traceable to source system per attribute')}
+    </div>`);
+    const golden = dqPass;
+    addLog(`Golden records: ${golden.toLocaleString()} upserted to Unity Catalog.`);
+    await wait(350);
+    setPip(4, 'done'); setPip(5, 'active');
+
+    // ── STAGE 5: API Egress ──
+    addLog('Publishing golden record delta to Kafka egress topic...');
+    await wait(700);
+    addStep(`<div class="hm-step hm-step--ok"><h6><i class="fas fa-share-alt me-2" style="color:#059669"></i>API Egress &amp; Distribution</h6>
+      ${chk('fa-check-circle','Kafka topic <em>mdm.member.golden-record.v1</em>: 2,797 messages published')}
+      ${chk('fa-check-circle','REST API cache invalidated for updated member IDs')}
+      ${chk('fa-check-circle','Delta Sharing snapshot pushed to downstream workspaces')}
+      ${chk('fa-check-circle','C# SDK consumers notified via SignalR event')}
+    </div>`);
+    addLog('Egress complete. Pipeline finished.');
+    await wait(300);
+    setPip(5, 'done');
+
+    // ── Dashboard ──
+    const elapsed = ((Date.now() - startTs) / 1000).toFixed(1);
+    runCount++;
+    document.getElementById('hmKpiRows').textContent = events.toLocaleString();
+    document.getElementById('hmKpiGolden').textContent = golden.toLocaleString();
+    document.getElementById('hmKpiDq').textContent = ((dqPass / events) * 100).toFixed(1) + '%';
+    document.getElementById('hmKpiTime').textContent = elapsed + 's';
+    dash.style.display = 'block';
+
+    const tbody = document.getElementById('hmRunTable');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>#${runCount}</td><td>5 systems</td><td>${events.toLocaleString()}</td>
+      <td>${((dqPass/events)*100).toFixed(1)}%</td><td>${golden.toLocaleString()}</td>
+      <td>2,289</td><td>${elapsed}s</td>`;
+    tbody.prepend(tr);
+
+    btnRun.disabled = false;
+    btnRst.style.display = '';
+  }
+
+  btnRun.addEventListener('click', runPipeline);
+  btnRst.addEventListener('click', () => {
+    stage.innerHTML = '';
+    log.innerHTML = '';
+    for (let i = 0; i < 6; i++) setPip(i, '');
+    document.querySelectorAll('.hm-ctx-card').forEach(c => c.classList.remove('vis'));
+    ['hmSrcEhr','hmSrcCrm','hmSrcEnr','hmSrcClm',
+     'hmDqPass','hmDqQuar','hmDqFail',
+     'hmMatched','hmNew','hmConflict'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
+    });
+  });
+})();
+</script>
+{% endblock %}

@@ -271,6 +271,11 @@
 .pf-impl summary::before{content:'▶';font-size:.6rem;transition:transform .2s}
 .pf-impl details[open] summary::before{transform:rotate(90deg)}
 .pf-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--pf-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
+/* ── Demo column layout ── */
+.pf-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.pf-page-body>.pf-sec{grid-column:1;min-width:0}
+.pf-page-body>.pf-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
+@media(max-width:1099px){.pf-page-body{grid-template-columns:1fr}.pf-page-body>.pf-sec--demo{grid-column:1;grid-row:auto;position:static}}
 </style>
 
 <!-- ════════════════════════════════════════════════════════
@@ -295,6 +300,7 @@
     </div>
   </div>
 </section>
+<div class="pf-page-body">
 
 <!-- ════════════════════════════════════════════════════════
      AP / AR TWIN CARDS
@@ -373,7 +379,7 @@
 <!-- ════════════════════════════════════════════════════════
      LIVE INTERACTIVE DEMO
 ════════════════════════════════════════════════════════ -->
-<section class="pf-sec">
+<section class="pf-sec pf-sec--demo">
   <div class="pf-sec-head">
     <span class="pf-tag pf-tag--g">Live Demo</span>
     <h2>Watch the Pipeline Run</h2>
@@ -890,6 +896,8 @@ def predict_gl(description: str, pipe=None):
     </div>
   </div>
 </section>
+
+</div><!-- /pf-page-body -->
 
 {% endblock %}
 

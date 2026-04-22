@@ -236,6 +236,11 @@
 .ml-impl details[open] summary::before{transform:rotate(90deg)}
 .ml-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--ml-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
 .ml-impl .kw{color:#c4b5fd}.ml-impl .fn{color:#6ee7b7}.ml-impl .str{color:#fcd34d}.ml-impl .cm{color:#64748b;font-style:italic}.ml-impl .num{color:#f97316}
+/* ── Demo column layout ── */
+.ml-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.ml-page-body>.ml-sec{grid-column:1;min-width:0}
+.ml-page-body>.ml-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
+@media(max-width:1099px){.ml-page-body{grid-template-columns:1fr}.ml-page-body>.ml-sec--demo{grid-column:1;grid-row:auto;position:static}}
 </style>
 
 <!-- ═════════════════════ HERO ═════════════════════ -->
@@ -250,6 +255,7 @@
     <div class="ml-kpi"><div><div class="ml-kpi-val">3.2ms</div><div class="ml-kpi-lbl">Inference Time</div></div></div>
   </div>
 </section>
+<div class="ml-page-body">
 
 <!-- ═════════════════════ LIFECYCLE RING ═════════════════════ -->
 <section class="ml-sec">
@@ -418,7 +424,7 @@
 </section>
 
 <!-- ═════════════════════ EXPERIMENT DASHBOARD ═════════════════════ -->
-<section class="ml-sec">
+<section class="ml-sec ml-sec--demo">
   <div class="ml-sec-head">
     <span class="ml-tag ml-tag--a">Live Demo</span>
     <h2>MLB Win Probability Pipeline</h2>
@@ -844,6 +850,8 @@ BRIER_WINDOW_DAYS = <span class="num">7</span>
     <p><b>Uncertainty Quantification via Conformal Prediction</b> — Instead of bare point estimates ("64.3% win probability"), the pipeline outputs <b>prediction intervals</b> (e.g., 64.3% ± 8.2%) using <b>conformal prediction</b>. This provides distribution-free coverage guarantees: the true probability falls within the interval 90% of the time, letting consumers of the prediction gauge whether the model is confident or hedging.</p>
   </div>
 </section>
+
+</div><!-- /ml-page-body -->
 
 {% endblock content %}
 
