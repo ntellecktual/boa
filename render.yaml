@@ -10,9 +10,9 @@ services:
       - key: DJANGO_DEBUG
         value: "False"
       - key: DJANGO_ALLOWED_HOSTS
-        value: "thenumerix.onrender.com,localhost,127.0.0.1"
+        value: "thenumerix.dev,thenumerix.onrender.com,localhost,127.0.0.1"
       - key: DJANGO_CSRF_TRUSTED_ORIGINS
-        value: "https://thenumerix.onrender.com"
+        value: "https://thenumerix.dev,https://thenumerix.onrender.com"
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DB_ENGINE
