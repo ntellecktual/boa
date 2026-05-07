@@ -60,11 +60,10 @@
 
 /* -- Section Container -- */
 .nd-panel{display:none;animation:ndFadeUp .45s ease both}
-.nd-panel.active{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
-.nd-panel>.nd-sec{grid-column:1;min-width:0}
-.nd-panel>.nd-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
-.nd-panel>.nd-callout{grid-column:1/-1}
-@media(max-width:1099px){.nd-panel.active{grid-template-columns:1fr}.nd-panel>.nd-sec--demo{grid-column:1;grid-row:auto;position:static}.nd-panel>.nd-callout{grid-column:1}}
+.nd-panel.active{display:block}
+.nd-panel>.nd-sec{min-width:0}
+.nd-panel>.nd-sec--demo{position:static}
+.nd-panel>.nd-callout{}
 
 /* -- Common section styles -- */
 .nd-sec{padding:1rem 0;animation:ndFadeUp .5s ease both}
@@ -224,16 +223,16 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 
 <!-- ==================== HERO ==================== -->
 <section class="nd-hero">
-  <div class="nd-badge"><i class="fas fa-code-branch"></i>&nbsp; Platform Engineering &middot; NeonDeck Entertainment</div>
-  <h1>Three CI/CD Pipelines<br>One Casino Platform</h1>
-  <p class="lead">Each pipeline is independently owned, deployed, and governed. Azure DevOps ships the casino gaming app. Databricks processes fintech transaction data. Entra ID controls who can deploy what.</p>
+  <div class="nd-badge"><i class="fas fa-database"></i>&nbsp; Azure Databricks Platform Engineering &middot; Western Alliance Bank</div>
+  <h1>Azure Databricks<br>Platform Engineering</h1>
+  <p class="lead">End-to-end platform engineering across Azure Databricks, Azure DevOps CI/CD, and Entra ID governance &mdash; built for the scale, security, and compliance demands of a top-tier financial institution.</p>
 
   <div class="nd-tabs">
-    <div class="nd-tab active" data-tab="devops">
+    <div class="nd-tab" data-tab="devops">
       <div class="nd-tab-icon"><i class="fas fa-infinity"></i></div>
       Azure DevOps
     </div>
-    <div class="nd-tab" data-tab="databricks">
+    <div class="nd-tab active" data-tab="databricks">
       <div class="nd-tab-icon"><i class="fas fa-database"></i></div>
       Databricks
     </div>
@@ -247,7 +246,7 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 <!-- ============================================================
      PANEL 1 &mdash; AZURE DEVOPS: Casino Gaming App Deployment
      ============================================================ -->
-<div class="nd-panel active" id="panelDevops">
+<div class="nd-panel" id="panelDevops">
 
 <section class="nd-sec">
   <div class="nd-sec-head">
@@ -418,41 +417,41 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 
 
 <!-- ============================================================
-     PANEL 2 &mdash; DATABRICKS: Fintech Transaction Data Pipeline
+     PANEL 2 &mdash; DATABRICKS: Banking Analytics Platform
      ============================================================ -->
-<div class="nd-panel" id="panelDatabricks">
+<div class="nd-panel active" id="panelDatabricks">
 
 <section class="nd-sec">
   <div class="nd-sec-head">
-    <span class="nd-tag nd-tag--db">Databricks</span>
-    <h2>Fintech Transaction Pipeline</h2>
-    <p>Medallion architecture ETL that ingests raw casino payment events, cleans and enriches them, then produces gold-layer analytics for fraud detection, revenue reporting, and compliance.</p>
+    <span class="nd-tag nd-tag--db">Azure Databricks</span>
+    <h2>Banking Analytics Platform</h2>
+    <p>Medallion architecture on Azure Databricks processing daily ACH, wire transfer, and mortgage origination data &mdash; powering AML/BSA compliance, credit risk analytics, and DFAST/CCAR regulatory reporting for Western Alliance Bank.</p>
   </div>
 
   <!-- Medallion Architecture Visual -->
   <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;max-width:900px;margin:0 auto 1.5rem">
     <div style="border-radius:14px;padding:.7rem 1.2rem;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);text-align:center">
       <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:.2rem">Source</div>
-      <div style="font-size:.78rem;font-weight:700">Payment Gateway</div>
-      <div style="font-size:.62rem;opacity:.55">Stripe &middot; PayPal &middot; Crypto</div>
+      <div style="font-size:.78rem;font-weight:700">Core Banking + ADF</div>
+      <div style="font-size:.62rem;opacity:.55">FIS &middot; Azure Data Factory</div>
     </div>
     <div style="opacity:.4;font-size:.8rem"><i class="fas fa-arrow-right"></i></div>
     <div style="border-radius:14px;padding:.7rem 1.2rem;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);text-align:center">
       <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#b45309;margin-bottom:.2rem">Bronze</div>
-      <div style="font-size:.78rem;font-weight:700">Raw Events</div>
-      <div style="font-size:.62rem;opacity:.55">Auto Loader &middot; JSON</div>
+      <div style="font-size:.78rem;font-weight:700">Raw Transactions</div>
+      <div style="font-size:.62rem;opacity:.55">Auto Loader &middot; Parquet</div>
     </div>
     <div style="opacity:.4;font-size:.8rem"><i class="fas fa-arrow-right"></i></div>
     <div style="border-radius:14px;padding:.7rem 1.2rem;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);text-align:center">
       <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#2563eb;margin-bottom:.2rem">Silver</div>
-      <div style="font-size:.78rem;font-weight:700">Cleaned + Enriched</div>
-      <div style="font-size:.62rem;opacity:.55">Schema enforcement &middot; Dedup</div>
+      <div style="font-size:.78rem;font-weight:700">AML Screened</div>
+      <div style="font-size:.62rem;opacity:.55">BSA Compliant &middot; Dedup</div>
     </div>
     <div style="opacity:.4;font-size:.8rem"><i class="fas fa-arrow-right"></i></div>
     <div style="border-radius:14px;padding:.7rem 1.2rem;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);text-align:center">
       <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#059669;margin-bottom:.2rem">Gold</div>
-      <div style="font-size:.78rem;font-weight:700">Analytics + ML</div>
-      <div style="font-size:.62rem;opacity:.55">Fraud model &middot; Revenue KPIs</div>
+      <div style="font-size:.78rem;font-weight:700">Regulatory + Risk</div>
+      <div style="font-size:.62rem;opacity:.55">DFAST &middot; Credit Risk &middot; BSA</div>
     </div>
   </div>
 
@@ -460,49 +459,53 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
   <div class="nd-yaml">
     <div class="nd-yaml-hdr">
       <div class="dots"><div class="dot" style="background:#ef4444"></div><div class="dot" style="background:#f59e0b"></div><div class="dot" style="background:#10b981"></div></div>
-      <span>dlt_transaction_pipeline.py &middot; Databricks &middot; Unity Catalog</span>
+      <span>wab_transaction_pipeline.py &middot; Azure Databricks &middot; Unity Catalog</span>
     </div>
-    <div class="nd-yaml-body"><pre class="nd-code"><span class="cc"># Delta Live Tables &mdash; NeonDeck Fintech Transaction Pipeline</span>
+    <div class="nd-yaml-body"><pre class="nd-code"><span class="cc"># Delta Live Tables &mdash; Western Alliance Bank Analytics Platform</span>
 <span class="cc"># Medallion architecture: Bronze &rarr; Silver &rarr; Gold</span>
+<span class="cc"># Handles ACH, wire transfers, mortgage originations, and deposit activity</span>
 
 <span class="ck">import</span> <span class="cv">dlt</span>
-<span class="ck">from</span> <span class="cv">pyspark.sql.functions</span> <span class="ck">import</span> <span class="cv">col, when, sum, count, lit</span>
+<span class="ck">from</span> <span class="cv">pyspark.sql.functions</span> <span class="ck">import</span> <span class="cv">col, when, sum, count, current_date</span>
 
-<span class="cc"># -------- BRONZE: Raw payment events from ADLS Gen2 --------</span>
+<span class="cc"># -------- BRONZE: Raw ACH/Wire transactions from ADLS Gen2 --------</span>
 <span class="cs">@dlt.table</span>(
     <span class="ck">name</span>=<span class="cs">"bronze_transactions"</span>,
-    <span class="ck">comment</span>=<span class="cs">"Raw payment events from Stripe/PayPal/Crypto"</span>
+    <span class="ck">comment</span>=<span class="cs">"Raw ACH/wire/mortgage transactions from core banking system"</span>
 )
 <span class="ck">def</span> <span class="cv">bronze_transactions</span>():
     <span class="ck">return</span> (
         spark.readStream.format(<span class="cs">"cloudFiles"</span>)
-        .option(<span class="cs">"cloudFiles.format"</span>, <span class="cs">"json"</span>)
-        .option(<span class="cs">"cloudFiles.schemaLocation"</span>, <span class="cs">"dbfs:/schemas/txn"</span>)
-        .load(<span class="cs">"abfss://raw@ndfintech.dfs.core.windows.net/transactions/"</span>)
+        .option(<span class="cs">"cloudFiles.format"</span>, <span class="cs">"parquet"</span>)
+        .option(<span class="cs">"cloudFiles.schemaLocation"</span>, <span class="cs">"dbfs:/schemas/wab_txn"</span>)
+        .load(<span class="cs">"abfss://raw@wabdatalake.dfs.core.windows.net/transactions/"</span>)
     )
 
-<span class="cc"># -------- SILVER: Cleaned, deduplicated, enriched --------</span>
+<span class="cc"># -------- SILVER: AML-screened, BSA-compliant, cleaned --------</span>
 <span class="cs">@dlt.table</span>(<span class="ck">name</span>=<span class="cs">"silver_transactions"</span>)
 <span class="cs">@dlt.expect_or_drop</span>(<span class="cs">"valid_amount"</span>, <span class="cs">"amount > 0"</span>)
-<span class="cs">@dlt.expect_or_drop</span>(<span class="cs">"valid_currency"</span>, <span class="cs">"currency IN ('USD','EUR','GBP','BTC')"</span>)
+<span class="cs">@dlt.expect_or_drop</span>(<span class="cs">"valid_account"</span>, <span class="cs">"account_id IS NOT NULL"</span>)
+<span class="cs">@dlt.expect_or_drop</span>(<span class="cs">"valid_routing"</span>, <span class="cs">"LENGTH(routing_number) = 9"</span>)
 <span class="ck">def</span> <span class="cv">silver_transactions</span>():
     <span class="ck">return</span> (
         dlt.read_stream(<span class="cs">"bronze_transactions"</span>)
         .dropDuplicates([<span class="cs">"transaction_id"</span>])
-        .withColumn(<span class="cs">"amount_usd"</span>, <span class="cc">/* FX conversion */</span>)
-        .withColumn(<span class="cs">"risk_score"</span>, <span class="cc">/* ML model inference */</span>)
+        .withColumn(<span class="cs">"aml_risk_score"</span>, <span class="cc">/* ML AML model inference */</span>)
+        .withColumn(<span class="cs">"ctr_flag"</span>, when(col(<span class="cs">"amount"</span>) &gt;= <span class="num">10000</span>, <span class="cv">True</span>).otherwise(<span class="cv">False</span>))
+        .withColumn(<span class="cs">"sar_candidate"</span>, when(col(<span class="cs">"aml_risk_score"</span>) &gt; <span class="num">0.75</span>, <span class="cv">True</span>).otherwise(<span class="cv">False</span>))
     )
 
-<span class="cc"># -------- GOLD: Aggregated analytics --------</span>
-<span class="cs">@dlt.table</span>(<span class="ck">name</span>=<span class="cs">"gold_revenue_daily"</span>)
-<span class="ck">def</span> <span class="cv">gold_revenue_daily</span>():
+<span class="cc"># -------- GOLD: Regulatory reporting + credit risk analytics --------</span>
+<span class="cs">@dlt.table</span>(<span class="ck">name</span>=<span class="cs">"gold_daily_analytics"</span>)
+<span class="ck">def</span> <span class="cv">gold_daily_analytics</span>():
     <span class="ck">return</span> (
         dlt.read(<span class="cs">"silver_transactions"</span>)
-        .groupBy(<span class="cs">"transaction_date"</span>, <span class="cs">"payment_method"</span>, <span class="cs">"game_category"</span>)
+        .groupBy(<span class="cs">"transaction_date"</span>, <span class="cs">"product_type"</span>, <span class="cs">"region"</span>)
         .agg(
-            sum(<span class="cs">"amount_usd"</span>).alias(<span class="cs">"total_revenue"</span>),
+            sum(<span class="cs">"amount"</span>).alias(<span class="cs">"total_volume"</span>),
             count(<span class="cs">"*"</span>).alias(<span class="cs">"transaction_count"</span>),
-            sum(when(col(<span class="cs">"risk_score"</span>) > <span class="num">0.8</span>, <span class="num">1</span>).otherwise(<span class="num">0</span>)).alias(<span class="cs">"flagged_transactions"</span>)
+            sum(when(col(<span class="cs">"ctr_flag"</span>) == <span class="cv">True</span>, <span class="num">1</span>).otherwise(<span class="num">0</span>)).alias(<span class="cs">"ctr_filings"</span>),
+            sum(when(col(<span class="cs">"sar_candidate"</span>) == <span class="cv">True</span>, <span class="num">1</span>).otherwise(<span class="num">0</span>)).alias(<span class="cs">"sar_candidates"</span>)
         )
     )</pre>
     </div>
@@ -513,14 +516,14 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 <section class="nd-sec nd-sec--demo">
   <div class="nd-sec-head">
     <span class="nd-tag nd-tag--db">Live Demo</span>
-    <h2>Transaction Pipeline Simulator</h2>
-    <p>Click Run to simulate processing 50,000 NeonDeck casino payment events through the Bronze &rarr; Silver &rarr; Gold medallion layers.</p>
+    <h2>Banking Pipeline Simulator</h2>
+    <p>Click Run to simulate processing a daily batch of ACH, wire, and mortgage transactions through the Bronze &rarr; Silver &rarr; Gold medallion layers &mdash; with AML screening and BSA compliance checks at each stage.</p>
   </div>
 
   <div class="nd-demo" id="demoDatabricks">
     <div class="nd-demo-bar" style="background:rgba(255,54,33,.04)">
       <div class="nd-dots"><div class="nd-dot nd-dot--r"></div><div class="nd-dot nd-dot--y"></div><div class="nd-dot nd-dot--g"></div></div>
-      <h4><i class="fas fa-database me-2" style="color:#ff3621"></i>NeonDeck &middot; DLT Pipeline &middot; Unity Catalog</h4>
+      <h4><i class="fas fa-database me-2" style="color:#ff3621"></i>Western Alliance Bank &middot; DLT Pipeline &middot; Unity Catalog</h4>
       <div style="display:flex;gap:.4rem;flex-shrink:0">
         <button class="btn btn-sm" id="dbBtnRun" style="border-radius:8px;font-size:.78rem;background:#ff3621;border-color:#ff3621;color:#fff"><i class="fas fa-play me-1"></i> Run Pipeline</button>
         <button class="btn btn-outline-secondary btn-sm" id="dbBtnReset" style="border-radius:8px;font-size:.78rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
@@ -538,22 +541,22 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
       <div class="nd-side">
         <div class="nd-side-lbl">Pipeline Context</div>
         <div class="nd-ctx-card" id="dbCtx0">
-          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-receipt me-1" style="color:#ff3621"></i>Transaction Batch</div>
-          <div class="nd-ctx-row"><span class="lbl">Events</span><span class="val" id="dbEvtCount">50,000</span></div>
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-university me-1" style="color:#ff3621"></i>Daily Batch</div>
+          <div class="nd-ctx-row"><span class="lbl">Transactions</span><span class="val" id="dbEvtCount">50,000</span></div>
           <div class="nd-ctx-row"><span class="lbl">Source</span><span class="val">ADLS Gen2</span></div>
-          <div class="nd-ctx-row"><span class="lbl">Format</span><span class="val">JSON (Auto Loader)</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Format</span><span class="val">Parquet (Auto Loader)</span></div>
         </div>
         <div class="nd-ctx-card" id="dbCtx1">
-          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-coins me-1" style="color:#f59e0b"></i>Payment Mix</div>
-          <div class="nd-ctx-row"><span class="lbl">Stripe</span><span class="val" id="dbPmStripe">&mdash;</span></div>
-          <div class="nd-ctx-row"><span class="lbl">PayPal</span><span class="val" id="dbPmPaypal">&mdash;</span></div>
-          <div class="nd-ctx-row"><span class="lbl">Crypto</span><span class="val" id="dbPmCrypto">&mdash;</span></div>
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-exchange-alt me-1" style="color:#f59e0b"></i>Product Mix</div>
+          <div class="nd-ctx-row"><span class="lbl">ACH</span><span class="val" id="dbPmStripe">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Wire Transfer</span><span class="val" id="dbPmPaypal">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Mortgage</span><span class="val" id="dbPmCrypto">&mdash;</span></div>
         </div>
         <div class="nd-ctx-card" id="dbCtx2">
-          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-exclamation-triangle me-1" style="color:#ef4444"></i>Fraud Detection</div>
-          <div class="nd-ctx-row"><span class="lbl">Flagged</span><span class="val" id="dbFraud">&mdash;</span></div>
-          <div class="nd-ctx-row"><span class="lbl">Blocked</span><span class="val" id="dbBlocked">&mdash;</span></div>
-          <div class="nd-ctx-row"><span class="lbl">Revenue</span><span class="val" id="dbRevenue">&mdash;</span></div>
+          <div style="font-weight:700;margin-bottom:.2rem"><i class="fas fa-balance-scale me-1" style="color:#ef4444"></i>BSA Compliance</div>
+          <div class="nd-ctx-row"><span class="lbl">CTR Filings</span><span class="val" id="dbFraud">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">SAR Candidates</span><span class="val" id="dbBlocked">&mdash;</span></div>
+          <div class="nd-ctx-row"><span class="lbl">Net Volume</span><span class="val" id="dbRevenue">&mdash;</span></div>
         </div>
       </div>
       <div class="nd-dbody" id="dbStage"></div>
@@ -566,7 +569,7 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
     <div class="nd-dash-kpis">
       <div class="nd-kpi"><div class="nd-kpi-val db" id="dbKpiRows">0</div><div class="nd-kpi-lbl">Rows Processed</div></div>
       <div class="nd-kpi"><div class="nd-kpi-val db" id="dbKpiQuality">&mdash;</div><div class="nd-kpi-lbl">Data Quality</div></div>
-      <div class="nd-kpi"><div class="nd-kpi-val db" id="dbKpiFraud">&mdash;</div><div class="nd-kpi-lbl">Fraud Flagged</div></div>
+      <div class="nd-kpi"><div class="nd-kpi-val db" id="dbKpiFraud">&mdash;</div><div class="nd-kpi-lbl">CTR Candidates</div></div>
       <div class="nd-kpi"><div class="nd-kpi-val db" id="dbKpiTime">&mdash;</div><div class="nd-kpi-lbl">Pipeline Time</div></div>
     </div>
   </div>
@@ -574,8 +577,8 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 
 <!-- Interview Callout -->
 <div class="nd-callout nd-callout--db">
-  <h5><i class="fas fa-fire me-2" style="color:#c92a1e"></i>Interview: Databricks &amp; Data Engineering</h5>
-  <p>"I built and maintained the NeonDeck fintech transaction pipeline processing 2M+ daily payment events across Stripe, PayPal, and cryptocurrency gateways. The pipeline uses Delta Live Tables with a medallion architecture &mdash; Bronze captures raw JSON via Auto Loader from ADLS Gen2, Silver applies schema enforcement, deduplication, and FX normalization, and Gold produces daily revenue aggregations and fraud-flagged transaction feeds. I implemented data quality expectations that automatically quarantine invalid records, and the ML-based fraud scoring model runs inline at the Silver layer, flagging 0.3% of transactions for compliance review. Unity Catalog governs all table access with row-level security on PII columns."</p>
+  <h5><i class="fas fa-university me-2" style="color:#c92a1e"></i>Interview: Azure Databricks Platform Engineering &mdash; Banking</h5>
+  <p>"In my previous role I owned the Azure Databricks platform supporting the bank's Enterprise Data &amp; Analytics function &mdash; including workspace management, cluster policies, Unity Catalog governance, and job orchestration for 50+ data engineering and ML workloads. Our Delta Live Tables pipeline processes 500K+ daily transactions &mdash; ACH, wire transfers, and mortgage originations &mdash; ingested via Auto Loader from ADLS Gen2. The Silver layer enforces BSA/AML rules inline: CTR flags on transactions &ge;$10,000, SAR candidates scored by an AML ML model, and column-level security on PII fields (SSN, account numbers, routing numbers) enforced via Unity Catalog. Gold tables feed DFAST/CCAR regulatory reporting and the credit risk scorecard used by the commercial real estate team. I integrated Azure Key Vault for secret management across all cluster configurations, implemented Azure Monitor alerts on cluster health and job SLA breaches, and reduced cluster compute costs 38% by enforcing auto-termination policies and right-sizing instance types through Databricks cluster policies."</p>
 </div>
 
 </div><!-- /panelDatabricks -->
@@ -927,20 +930,20 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 <span style="color:#f9a8d4">from</span> sklearn.metrics <span style="color:#f9a8d4">import</span> precision_score, recall_score, f1_score
 <span style="color:#f9a8d4">from</span> mlflow.tracking <span style="color:#f9a8d4">import</span> MlflowClient
 
-spark = SparkSession.builder.appName(<span style="color:#6ee7b7">"neondeck-fraud"</span>).getOrCreate()
+spark = SparkSession.builder.appName(<span style="color:#6ee7b7">"wab-credit-risk"</span>).getOrCreate()
 client = MlflowClient()
 
 <span style="color:#94a3b8"># ── 1. Load data from Delta Lake feature store ──</span>
-df = spark.read.format(<span style="color:#6ee7b7">"delta"</span>).table(<span style="color:#6ee7b7">"catalog.gold.fraud_features"</span>)
-feature_cols = [<span style="color:#6ee7b7">"amount_usd"</span>, <span style="color:#6ee7b7">"tx_frequency_1h"</span>, <span style="color:#6ee7b7">"geo_distance_km"</span>,
-                <span style="color:#6ee7b7">"device_fingerprint_age_days"</span>, <span style="color:#6ee7b7">"merchant_risk_tier"</span>]
-pdf = df.select(feature_cols + [<span style="color:#6ee7b7">"is_fraud"</span>]).toPandas()
+df = spark.read.format(<span style="color:#6ee7b7">"delta"</span>).table(<span style="color:#6ee7b7">"wab_catalog.gold.credit_risk_features"</span>)
+feature_cols = [<span style="color:#6ee7b7">"transaction_amount"</span>, <span style="color:#6ee7b7">"acct_days_since_open"</span>, <span style="color:#6ee7b7">"avg_daily_balance"</span>,
+                <span style="color:#6ee7b7">"overdraft_count_30d"</span>, <span style="color:#6ee7b7">"credit_utilization_pct"</span>]
+pdf = df.select(feature_cols + [<span style="color:#6ee7b7">"is_default"</span>]).toPandas()
 
 X = pdf[feature_cols]
-y = pdf[<span style="color:#6ee7b7">"is_fraud"</span>]
+y = pdf[<span style="color:#6ee7b7">"is_default"</span>]
 
 <span style="color:#94a3b8"># ── 2. Train with MLflow tracking ──</span>
-mlflow.set_experiment(<span style="color:#6ee7b7">"/neondeck/fraud-detection"</span>)
+mlflow.set_experiment(<span style="color:#6ee7b7">"/wab/credit-risk-scorecard"</span>)
 <span style="color:#f9a8d4">with</span> mlflow.start_run(run_name=<span style="color:#6ee7b7">"gbm-v2.4"</span>) <span style="color:#f9a8d4">as</span> run:
     model = GradientBoostingClassifier(
         n_estimators=<span style="color:#fcd34d">500</span>, max_depth=<span style="color:#fcd34d">6</span>, learning_rate=<span style="color:#fcd34d">0.05</span>,
@@ -954,11 +957,11 @@ mlflow.set_experiment(<span style="color:#6ee7b7">"/neondeck/fraud-detection"</s
     mlflow.log_metric(<span style="color:#6ee7b7">"recall"</span>,    recall_score(y, preds))
     mlflow.log_metric(<span style="color:#6ee7b7">"f1"</span>,        f1_score(y, preds))
     mlflow.log_param(<span style="color:#6ee7b7">"n_estimators"</span>, <span style="color:#fcd34d">500</span>)
-    mlflow.sklearn.log_model(model, <span style="color:#6ee7b7">"fraud-model"</span>)
+    mlflow.sklearn.log_model(model, <span style="color:#6ee7b7">"credit-risk-model"</span>)
 
 <span style="color:#94a3b8"># ── 3. Model registry: promote staging → production ──</span>
-model_name = <span style="color:#6ee7b7">"neondeck-fraud-detector"</span>
-model_uri  = <span style="color:#6ee7b7">f"runs:/{run.info.run_id}/fraud-model"</span>
+model_name = <span style="color:#6ee7b7">"wab-credit-risk-scorecard"</span>
+model_uri  = <span style="color:#6ee7b7">f"runs:/{run.info.run_id}/credit-risk-model"</span>
 mv = mlflow.register_model(model_uri, model_name)
 
 <span style="color:#94a3b8"># Compare against current production</span>
@@ -1360,18 +1363,18 @@ function dbGenData(){
   _runCounter++;
   var p='databricks';
   var total=seededRnd(p,'total',45000,55000);
-  var stripe=seededRnd(p,'stripe',55,70);
-  var paypal=seededRnd(p,'paypal',20,30);
-  var crypto=100-stripe-paypal;
+  var ach=seededRnd(p,'ach',55,70);
+  var wire=seededRnd(p,'wire',20,30);
+  var mortgage=100-ach-wire;
   var dropped=seededRnd(p,'dropped',80,200);
-  var flagged=seededRnd(p,'flagged',100,200);
-  var blocked=seededRnd(p,'blocked',5,25);
-  var revenue=(seededRnd(p,'rev',2200,3800)*1000);
+  var ctr=seededRnd(p,'ctr',80,180);   // CTR: transactions >= $10K
+  var sar=seededRnd(p,'sar',5,25);     // SAR candidates from AML model
+  var volume=(seededRnd(p,'vol',120,280)*1000000);
   return {
-    total:total, stripe:stripe, paypal:paypal, crypto:crypto,
+    total:total, ach:ach, wire:wire, mortgage:mortgage,
     silverCount:total-dropped, dropped:dropped,
-    flagged:flagged, blocked:blocked,
-    revenue:revenue,
+    ctr:ctr, sar:sar,
+    volume:volume,
     quality:(100-dropped/total*100).toFixed(1),
     goldRows:seededRnd(p,'gold',280,420)
   };
@@ -1392,13 +1395,13 @@ function dbRun(){
   var t0=Date.now();
 
   showCtx('dbCtx0');
-  log('dbLog','<i class="fas fa-database me-1" style="color:#ff3621"></i> DLT pipeline triggered &mdash; processing '+fmtNum(d.total)+' payment events');
+  log('dbLog','<i class="fas fa-database me-1" style="color:#ff3621"></i> WAB DLT pipeline triggered &mdash; processing '+fmtNum(d.total)+' banking transactions');
 
   // Step 1: Ingest
   pip('db',0,'active-db');
   delay(600).then(function(){
     app('dbStage','<div class="nd-step" id="dbStep0"><h6><i class="fas fa-download me-2" style="color:#8b5cf6"></i>Stage 1 &mdash; Auto Loader Ingestion</h6>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Scanning ADLS Gen2: abfss://raw@ndfintech.dfs.core.windows.net/</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Scanning ADLS Gen2: abfss://raw@wabdatalake.dfs.core.windows.net/</div>'+
       '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Schema inference on '+fmtNum(d.total)+' JSON events</div>'+
       '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Checkpoint: dbfs:/checkpoints/transactions/</div></div>');
     showChks(document.getElementById('dbStep0'));
@@ -1410,20 +1413,20 @@ function dbRun(){
     });
     document.getElementById('dbStep0').classList.add('nd-step--ok');
     pip('db',0,'done');
-    log('dbLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Ingested '+fmtNum(d.total)+' events from ADLS Gen2');
+    log('dbLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Ingested '+fmtNum(d.total)+' transactions from ADLS Gen2 (wabdatalake)');
 
     // Step 2: Bronze
     pip('db',1,'active-db');
     showCtx('dbCtx1');
-    document.getElementById('dbPmStripe').textContent=d.stripe+'%';
-    document.getElementById('dbPmPaypal').textContent=d.paypal+'%';
-    document.getElementById('dbPmCrypto').textContent=d.crypto+'%';
+    document.getElementById('dbPmStripe').textContent=d.ach+'%';
+    document.getElementById('dbPmPaypal').textContent=d.wire+'%';
+    document.getElementById('dbPmCrypto').textContent=d.mortgage+'%';
     return delay(600);
   }).then(function(){
     app('dbStage','<div class="nd-step" id="dbStep1"><h6><i class="fas fa-layer-group me-2" style="color:#f59e0b"></i>Stage 2 &mdash; Bronze Layer</h6>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Writing Delta table: catalog.bronze.transactions</div>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Partitioned by: transaction_date, payment_method</div>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Payment mix: Stripe '+d.stripe+'% | PayPal '+d.paypal+'% | Crypto '+d.crypto+'%</div></div>');
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Writing Delta table: wab_catalog.bronze.transactions</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Partitioned by: transaction_date, product_type, region</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Product mix: ACH '+d.ach+'% | Wire '+d.wire+'% | Mortgage '+d.mortgage+'%</div></div>');
     showChks(document.getElementById('dbStep1'));
     log('dbLog','<i class="fas fa-layer-group me-1"></i> Writing Bronze layer...');
     return delay(1200);
@@ -1441,10 +1444,10 @@ function dbRun(){
   }).then(function(){
     app('dbStage','<div class="nd-step" id="dbStep2"><h6><i class="fas fa-filter me-2" style="color:#3b82f6"></i>Stage 3 &mdash; Silver Layer (Clean &amp; Enrich)</h6>'+
       '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> De-duplicating on transaction_id</div>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Applying DQ expectations: valid_amount, valid_currency</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Applying DQ expectations: valid_amount, valid_account, valid_routing</div>'+
       '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> '+d.dropped+' rows quarantined (failed expectations)</div>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> FX normalization to USD &mdash; '+fmtNum(d.silverCount)+' clean rows</div>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> ML fraud scoring: risk_score column added</div></div>');
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> BSA/AML screening &mdash; '+fmtNum(d.silverCount)+' clean rows</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> AML model scoring: aml_risk_score, ctr_flag, sar_candidate columns added</div></div>');
     showChks(document.getElementById('dbStep2'));
     log('dbLog','<i class="fas fa-filter me-1"></i> Silver: cleaning, enriching, fraud scoring...');
     return delay(1800);
@@ -1459,16 +1462,16 @@ function dbRun(){
     // Step 4: Gold
     pip('db',3,'active-db');
     showCtx('dbCtx2');
-    document.getElementById('dbFraud').textContent=d.flagged;
-    document.getElementById('dbBlocked').textContent=d.blocked;
-    document.getElementById('dbRevenue').textContent=fmtMoney(d.revenue);
+    document.getElementById('dbFraud').textContent=d.ctr;
+    document.getElementById('dbBlocked').textContent=d.sar;
+    document.getElementById('dbRevenue').textContent=fmtMoney(d.volume);
     return delay(600);
   }).then(function(){
     app('dbStage','<div class="nd-step" id="dbStep3"><h6><i class="fas fa-chart-line me-2" style="color:#10b981"></i>Stage 4 &mdash; Gold Layer (Analytics)</h6>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Aggregating by date, payment_method, game_category</div>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> gold_revenue_daily: '+d.goldRows+' summary rows</div>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> gold_fraud_alerts: '+d.flagged+' flagged, '+d.blocked+' blocked</div>'+
-      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Total revenue: '+fmtMoney(d.revenue)+'</div></div>');
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Aggregating by date, product_type, region</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> gold_daily_analytics: '+d.goldRows+' summary rows</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> gold_bsa_compliance: '+d.ctr+' CTR candidates, '+d.sar+' SAR candidates</div>'+
+      '<div class="nd-chk"><span class="pending"><i class="fas fa-circle-notch fa-spin"></i></span> Net transaction volume: '+fmtMoney(d.volume)+'</div></div>');
     showChks(document.getElementById('dbStep3'));
     log('dbLog','<i class="fas fa-chart-line me-1"></i> Building Gold aggregations...');
     return delay(1400);
@@ -1478,21 +1481,22 @@ function dbRun(){
     });
     document.getElementById('dbStep3').classList.add('nd-step--ok');
     pip('db',3,'done');
-    log('dbLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Gold: '+d.goldRows+' aggregated rows | revenue '+fmtMoney(d.revenue));
+    log('dbLog','<i class="fas fa-check me-1" style="color:#10b981"></i> Gold: '+d.goldRows+' aggregated rows | net volume '+fmtMoney(d.volume));
 
     // Step 5: Quality validation
     pip('db',4,'active-db');
     return delay(600);
   }).then(function(){
     app('dbStage','<div class="nd-step" id="dbStep4"><h6><i class="fas fa-shield-alt me-2" style="color:#f59e0b"></i>Stage 5 &mdash; Data Quality Validation</h6>'+
-      '<div class="nd-json"><span class="key">"pipeline"</span>: <span class="str">"neondeck_fintech_txn"</span>,\n'+
+      '<div class="nd-json"><span class="key">"pipeline"</span>: <span class="str">"wab_banking_analytics"</span>,\n'+
       '<span class="key">"bronze_rows"</span>: <span class="num">'+fmtNum(d.total)+'</span>,\n'+
       '<span class="key">"silver_rows"</span>: <span class="num">'+fmtNum(d.silverCount)+'</span>,\n'+
       '<span class="key">"quarantined"</span>: <span class="num">'+d.dropped+'</span>,\n'+
       '<span class="key">"gold_rows"</span>: <span class="num">'+d.goldRows+'</span>,\n'+
       '<span class="key">"data_quality"</span>: <span class="num">'+d.quality+'</span>%,\n'+
-      '<span class="key">"fraud_flagged"</span>: <span class="num">'+d.flagged+'</span>,\n'+
-      '<span class="key">"total_revenue"</span>: <span class="str">"'+fmtMoney(d.revenue)+'"</span></div></div>');
+      '<span class="key">"ctr_candidates"</span>: <span class="num">'+d.ctr+'</span>,\n'+
+      '<span class="key">"sar_candidates"</span>: <span class="num">'+d.sar+'</span>,\n'+
+      '<span class="key">"net_volume"</span>: <span class="str">"'+fmtMoney(d.volume)+'"</span></div></div>');
     pip('db',4,'done');
     log('dbLog','<i class="fas fa-shield-alt me-1"></i> Quality validation complete: '+d.quality+'%');
 
@@ -1505,7 +1509,7 @@ function dbRun(){
       '<p style="text-align:center;font-size:.86rem;color:#10b981;font-weight:700;margin:0">'+
       '<i class="fas fa-check-double me-1"></i> DLT Pipeline Succeeded</p>'+
       '<p style="text-align:center;font-size:.72rem;opacity:.55;margin:.12rem 0">'+
-      fmtNum(d.total)+' events &rarr; '+fmtNum(d.silverCount)+' clean &rarr; '+d.goldRows+' gold rows &middot; '+elapsed+'s</p></div>');
+      fmtNum(d.total)+' transactions &rarr; '+fmtNum(d.silverCount)+' AML-screened &rarr; '+d.goldRows+' gold rows &middot; '+elapsed+'s</p></div>');
     pip('db',5,'done');
     log('dbLog','<i class="fas fa-check-double me-1" style="color:#10b981"></i> Pipeline complete in '+elapsed+'s');
 
@@ -1515,7 +1519,7 @@ function dbRun(){
     dash.style.display='';
     document.getElementById('dbKpiRows').textContent=fmtNum(d.total);
     document.getElementById('dbKpiQuality').textContent=d.quality+'%';
-    document.getElementById('dbKpiFraud').textContent=d.flagged;
+    document.getElementById('dbKpiFraud').textContent=d.ctr;
     document.getElementById('dbKpiTime').textContent=elapsed+'s';
 
     dbRunning=false;
