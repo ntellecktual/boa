@@ -1364,6 +1364,10 @@ fetchGames().then(function(){
     if(btnRun){btnRun.innerHTML='<i class="fas fa-calendar-times me-1"></i> No Games Today';btnRun.disabled=true}
   }
 });
+/* Expose inline-onclick handlers to global scope */
+window.setMode=setMode;
+window.gotoSlide=gotoSlide;
+window.shareDemo=shareDemo;
 })();
 </script>
 {% endblock %}
