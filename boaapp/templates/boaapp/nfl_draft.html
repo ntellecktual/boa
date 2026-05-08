@@ -1,14 +1,19 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
-{% block title %}thenumerix | Fantasy Football Draft Room{% endblock %}
-
+{% block title %}thenumerix | NFL Fantasy Draft Analytics{% endblock %}
 {% block content %}
 <style>
-/* ══════════════════════════════════════════════════════════════════
-   2026 FANTASY FOOTBALL DRAFT ROOM — Full Draft Experience
-   ══════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   NFL FANTASY DRAFT — 7-Ideations Demo
+   Wrapper: --nd-*   Simulator: --dr-* / --dfr-*
+   ══════════════════════════════════════════════════════════════ */
 :root{
-  --dr-blue:#3b82f6;--dr-violet:#8b5cf6;--dr-emerald:#10b981;--dr-amber:#f59e0b;--dr-rose:#ef4444;
+  --nd-navy:#013369;--nd-red:#d50a0a;--nd-gold:#c9b037;
+  --nd-text:#0f172a;--nd-muted:#64748b;--nd-card:#fff;
+  --nd-border:rgba(0,0,0,.08);--nd-shadow:0 4px 24px rgba(0,0,0,.07);
+  --nd-shadow-lg:0 12px 48px rgba(0,0,0,.13);--nd-radius:20px;
+  --dr-blue:#3b82f6;--dr-violet:#8b5cf6;--dr-emerald:#10b981;
+  --dr-amber:#f59e0b;--dr-rose:#ef4444;
   --dr-navy:#013369;--dr-red:#d50a0a;--dr-gold:#c9b037;
   --dr-surface:rgba(255,255,255,.92);--dr-border:rgba(0,0,0,.08);
   --dr-shadow:0 4px 24px rgba(0,0,0,.07);--dr-shadow-lg:0 12px 48px rgba(0,0,0,.13);
@@ -18,6 +23,8 @@
   --dfr-user-border:#013369;--dfr-timer-warn:#ef4444;
 }
 [data-theme="dark"]{
+  --nd-text:#e2e8f0;--nd-muted:#94a3b8;--nd-card:#1a1f2e;--nd-border:rgba(255,255,255,.08);
+  --nd-shadow:0 4px 24px rgba(0,0,0,.4);--nd-shadow-lg:0 12px 48px rgba(0,0,0,.6);
   --dr-surface:rgba(22,28,45,.92);--dr-border:rgba(255,255,255,.08);
   --dr-shadow:0 4px 24px rgba(0,0,0,.42);--dr-shadow-lg:0 12px 48px rgba(0,0,0,.58);
   --dfr-bg:#0f1219;--dfr-card:#1a1f2e;--dfr-text:#e2e8f0;--dfr-muted:#94a3b8;
@@ -25,14 +32,177 @@
   --dfr-row-hover:rgba(59,130,246,.08);--dfr-user-bg:rgba(59,130,246,.1);
   --dfr-user-border:#60a5fa;
 }
+/* ── Keyframes ── */
+@keyframes ndFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dfrFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dfrSlideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
 @keyframes dfrPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 @keyframes dfrFlash{0%{background:rgba(59,130,246,.15)}100%{background:transparent}}
 @keyframes dfrTimerWarn{0%,100%{color:var(--dfr-timer-warn)}50%{color:transparent}}
 @keyframes dfrGlow{0%,100%{box-shadow:0 0 20px rgba(59,130,246,.3)}50%{box-shadow:0 0 40px rgba(59,130,246,.6)}}
-
-/* ── Lobby ── */
+/* ══ PROGRESS BAR ══ */
+.nd-progress{position:fixed;top:0;left:0;width:100%;height:3px;z-index:1060;pointer-events:none}
+.nd-progress-fill{height:3px;width:0;background:linear-gradient(90deg,#013369,#d50a0a,#c9b037);transition:width .25s}
+/* ══ STICKY NAV ══ */
+.nd-nav{position:sticky;top:0;z-index:1050;background:var(--nd-card);border-bottom:1px solid var(--nd-border);
+  padding:.5rem 1rem;display:flex;gap:.25rem;overflow-x:auto}
+.nd-nav::-webkit-scrollbar{display:none}
+.nd-nav-item{display:inline-flex;align-items:center;gap:.35rem;padding:.38rem .85rem;border-radius:8px;
+  border:1px solid transparent;font-size:.72rem;font-weight:700;cursor:pointer;text-decoration:none;
+  color:var(--nd-muted);transition:all .2s;white-space:nowrap;font-family:inherit;background:transparent}
+.nd-nav-item:hover{color:var(--nd-text);background:rgba(1,51,105,.05);text-decoration:none}
+.nd-nav-item.active{background:var(--nd-navy);color:#fff;border-color:var(--nd-navy)}
+[data-theme="dark"] .nd-nav-item.active{background:#3b82f6;border-color:#3b82f6}
+.nd-nav-item i{font-size:.63rem}
+/* ══ HERO ══ */
+.nd-hero{max-width:780px;margin:3.5rem auto 2.5rem;padding:0 1.5rem;text-align:center;animation:ndFadeUp .6s ease both}
+.nd-tag{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .75rem;border-radius:20px;
+  background:linear-gradient(135deg,rgba(1,51,105,.08),rgba(213,10,10,.06));
+  border:1px solid rgba(1,51,105,.15);font-size:.65rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;color:var(--nd-navy);margin-bottom:1.1rem}
+[data-theme="dark"] .nd-tag{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#60a5fa}
+.nd-hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;line-height:1.15;margin:0 0 .9rem;
+  background:linear-gradient(135deg,#013369 0%,#d50a0a 55%,#013369 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+[data-theme="dark"] .nd-hero h1{background:linear-gradient(135deg,#e2e8f0,#d50a0a,#60a5fa);
+  -webkit-background-clip:text;background-clip:text}
+.nd-hero .lead{font-size:1rem;color:var(--nd-muted);line-height:1.65;max-width:560px;margin:0 auto 1.5rem}
+.nd-kpi-strip{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem .8rem;margin:.8rem 0}
+.nd-kpi{font-size:.68rem;font-weight:700;color:var(--nd-navy);
+  background:rgba(1,51,105,.06);border:1px solid rgba(1,51,105,.12);border-radius:20px;padding:.28rem .75rem}
+[data-theme="dark"] .nd-kpi{color:#60a5fa;background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.15)}
+/* ══ STORY ══ */
+.nd-story{max-width:940px;margin:0 auto 3rem;padding:0 1.25rem}
+.nd-section-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--nd-red);margin-bottom:.45rem}
+.nd-section-title{font-size:1.45rem;font-weight:900;margin:0 0 .35rem;color:var(--nd-text)}
+.nd-section-sub{font-size:.87rem;color:var(--nd-muted);margin-bottom:1.8rem;line-height:1.6}
+.nd-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:700px){.nd-steps{grid-template-columns:1fr}}
+@media(min-width:701px) and (max-width:920px){.nd-steps{grid-template-columns:1fr 1fr}}
+.nd-step{background:var(--nd-card);border-radius:var(--nd-radius);border:1px solid var(--nd-border);
+  padding:1.2rem;box-shadow:var(--nd-shadow);animation:ndFadeUp .5s ease both;transition:transform .2s}
+.nd-step:hover{transform:translateY(-3px)}
+.nd-step-icon{font-size:1.6rem;margin-bottom:.6rem;display:block}
+.nd-step-num{font-size:.55rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--nd-red);margin-bottom:.25rem}
+.nd-step h3{font-size:.9rem;font-weight:800;margin:0 0 .4rem;color:var(--nd-text)}
+.nd-step p{font-size:.76rem;color:var(--nd-muted);line-height:1.6;margin:0}
+/* ══ DEMO SECTION ══ */
+.nd-demo{max-width:1200px;margin:0 auto 3rem;padding:0 1.25rem}
+.nd-mode-bar{display:flex;gap:.5rem;margin-bottom:1.5rem}
+.nd-mode-btn{border:1px solid var(--nd-border);background:transparent;border-radius:10px;
+  padding:.45rem 1.1rem;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;
+  color:var(--nd-muted);transition:all .2s}
+.nd-mode-btn.active{background:var(--nd-navy);color:#fff;border-color:var(--nd-navy)}
+[data-theme="dark"] .nd-mode-btn.active{background:#3b82f6;border-color:#3b82f6}
+.nd-pane{display:none}
+.nd-pane.active{display:block}
+/* ── ELI5 Pane ── */
+.nd-eli5-wrap{text-align:center;padding:2rem 1rem}
+.nd-eli5-wrap h3{font-size:1.15rem;font-weight:800;margin:0 0 .5rem;color:var(--nd-text)}
+.nd-eli5-sub{color:var(--nd-muted);font-size:.85rem;margin-bottom:1.5rem}
+.nd-persona-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;
+  max-width:560px;margin:0 auto 1.5rem;text-align:left}
+@media(max-width:480px){.nd-persona-grid{grid-template-columns:1fr}}
+.nd-persona{border:2px solid var(--nd-border);border-radius:14px;padding:1rem 1.1rem;cursor:pointer;
+  background:var(--nd-card);transition:all .25s}
+.nd-persona:hover{transform:translateY(-2px);box-shadow:var(--nd-shadow)}
+.nd-persona.selected{border-color:var(--nd-navy);background:rgba(1,51,105,.04)}
+[data-theme="dark"] .nd-persona.selected{border-color:#3b82f6;background:rgba(59,130,246,.08)}
+.nd-persona-icon{font-size:1.5rem;margin-bottom:.4rem;display:block}
+.nd-persona-name{font-size:.85rem;font-weight:800;margin:0 0 .2rem;color:var(--nd-text)}
+.nd-persona-desc{font-size:.72rem;color:var(--nd-muted);line-height:1.5}
+.nd-persona-strat{font-size:.62rem;font-weight:700;color:var(--nd-red);margin-top:.35rem}
+.nd-eli5-btn{border:none;background:linear-gradient(135deg,#013369,#d50a0a);color:#fff;
+  border-radius:12px;padding:.65rem 2rem;font-size:.9rem;font-weight:800;cursor:pointer;
+  font-family:inherit;transition:transform .2s;box-shadow:0 6px 20px rgba(1,51,105,.25)}
+.nd-eli5-btn:hover:not(:disabled){transform:translateY(-2px)}
+.nd-eli5-btn:disabled{opacity:.4;cursor:default}
+.nd-eli5-result{display:none;margin-top:1.5rem;text-align:left;max-width:680px;
+  margin-left:auto;margin-right:auto}
+.nd-eli5-picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.5rem;margin-bottom:1rem}
+.nd-eli5-pick{background:var(--nd-card);border:1px solid var(--nd-border);border-radius:12px;
+  padding:.6rem .75rem;display:flex;align-items:center;gap:.5rem}
+.nd-eli5-pick .rnd{font-size:.55rem;font-weight:800;color:var(--nd-muted);width:18px;flex-shrink:0}
+.nd-eli5-pick .info .name{font-size:.72rem;font-weight:700;color:var(--nd-text)}
+.nd-eli5-pick .info .meta{font-size:.6rem;color:var(--nd-muted)}
+.nd-eli5-grade-card{background:var(--nd-card);border:1px solid var(--nd-border);border-radius:16px;
+  padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;margin-top:.75rem}
+.nd-eli5-grade-circle{width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#013369,#d50a0a);color:#fff;
+  font-size:1.3rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* ── Engineer Pane ── */
+.nd-pane[data-pane="engineer"] .dfr-room{min-height:600px;border-radius:12px;overflow:hidden}
+/* ══ CLASSROOM ══ */
+.nd-cls{max-width:940px;margin:0 auto 3rem;padding:0 1.25rem}
+.nd-cls-wrap{border-radius:var(--nd-radius);overflow:hidden;border:1px solid var(--nd-border);
+  background:var(--nd-card);box-shadow:var(--nd-shadow)}
+.nd-cls-slides{position:relative;min-height:380px}
+.nd-cls-slide{display:none;padding:1.8rem 2rem;animation:ndFadeUp .35s ease both}
+.nd-cls-slide.active{display:block}
+.nd-cls-slide-icon{font-size:2rem;margin-bottom:.6rem;display:block}
+.nd-cls-slide-num{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--nd-red);margin-bottom:.25rem}
+.nd-cls-slide h3{font-size:1.15rem;font-weight:900;margin:0 0 .7rem;color:var(--nd-text)}
+.nd-cls-slide p{font-size:.82rem;color:var(--nd-muted);line-height:1.7;margin:0 0 .8rem}
+.nd-cls-nav{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;
+  border-top:1px solid var(--nd-border)}
+.nd-cls-dots{display:flex;gap:.4rem}
+.nd-cls-dot{width:8px;height:8px;border-radius:50%;background:var(--nd-border);
+  cursor:pointer;transition:all .2s;border:none;padding:0}
+.nd-cls-dot.active{width:20px;border-radius:4px;background:var(--nd-navy)}
+[data-theme="dark"] .nd-cls-dot.active{background:#3b82f6}
+.nd-cls-btn{border:1px solid var(--nd-border);background:transparent;border-radius:8px;
+  padding:.35rem .85rem;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;
+  color:var(--nd-text);transition:all .2s}
+.nd-cls-btn:hover{border-color:var(--nd-navy);color:var(--nd-navy)}
+[data-theme="dark"] .nd-cls-btn:hover{border-color:#3b82f6;color:#3b82f6}
+.nd-cls-code{background:#0f172a;border-radius:10px;padding:.8rem 1rem;font-size:.68rem;
+  font-family:'Cascadia Code','JetBrains Mono',monospace;color:#e2e8f0;
+  line-height:1.6;margin:.6rem 0;overflow-x:auto;white-space:pre}
+.nd-cls-table{width:100%;border-collapse:collapse;font-size:.73rem;margin:.6rem 0}
+.nd-cls-table th{font-size:.6rem;font-weight:700;text-transform:uppercase;color:var(--nd-muted);
+  padding:.3rem .5rem;text-align:left;border-bottom:2px solid var(--nd-border)}
+.nd-cls-table td{padding:.3rem .5rem;border-bottom:1px solid var(--nd-border)}
+.nd-cls-table tr:last-child td{border-bottom:none}
+.nd-strat-pill{display:inline-block;padding:.15rem .45rem;border-radius:5px;font-size:.6rem;
+  font-weight:700;background:rgba(1,51,105,.08);color:var(--nd-navy)}
+[data-theme="dark"] .nd-strat-pill{background:rgba(59,130,246,.1);color:#60a5fa}
+/* ══ KEY POINTS ══ */
+.nd-kps{max-width:940px;margin:0 auto 3rem;padding:0 1.25rem}
+.nd-kps-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+@media(max-width:600px){.nd-kps-grid{grid-template-columns:1fr}}
+.nd-kp{background:var(--nd-card);border-radius:var(--nd-radius);border:1px solid var(--nd-border);
+  padding:1.25rem;box-shadow:var(--nd-shadow);animation:ndFadeUp .5s ease both}
+.nd-kp-icon{font-size:1.5rem;margin-bottom:.5rem;display:block}
+.nd-kp-label{font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--nd-red);margin-bottom:.25rem}
+.nd-kp h4{font-size:.95rem;font-weight:800;margin:0 0 .4rem;color:var(--nd-text)}
+.nd-kp p{font-size:.76rem;color:var(--nd-muted);line-height:1.65;margin:0}
+/* ══ CODE SECTION ══ */
+.nd-code{max-width:940px;margin:0 auto 3rem;padding:0 1.25rem}
+.nd-code details{border-radius:14px;border:1px solid var(--nd-border);background:var(--nd-card);
+  margin-bottom:.8rem;overflow:hidden}
+.nd-code summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:.5rem;list-style:none;color:var(--nd-text)}
+.nd-code summary::-webkit-details-marker{display:none}
+.nd-code summary::before{content:'\25B6';font-size:.6rem;transition:transform .2s;color:var(--nd-muted)}
+.nd-code details[open] summary::before{transform:rotate(90deg)}
+.nd-code pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;
+  line-height:1.6;overflow-x:auto;border-top:1px solid var(--nd-border);
+  font-family:'Cascadia Code','JetBrains Mono',monospace}
+/* ══ ABOUT ══ */
+.nd-about{max-width:560px;margin:0 auto 3.5rem;padding:0 1.25rem;text-align:center}
+.nd-about-card{background:var(--nd-card);border-radius:var(--nd-radius);border:1px solid var(--nd-border);
+  padding:2rem 2rem 1.75rem;box-shadow:var(--nd-shadow)}
+.nd-about-card h3{font-size:1.1rem;font-weight:800;margin:0 0 .5rem;color:var(--nd-text)}
+.nd-about-card p{font-size:.82rem;color:var(--nd-muted);line-height:1.65;margin:0 0 1.2rem}
+.nd-share-btn{border:none;background:linear-gradient(135deg,#013369,#d50a0a);color:#fff;
+  border-radius:10px;padding:.5rem 1.4rem;font-size:.8rem;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:transform .2s}
+.nd-share-btn:hover{transform:translateY(-1px)}
+/* ══ EXISTING: Lobby ══ */
 .dfr-lobby{max-width:800px;margin:0 auto;padding:2rem 1rem;text-align:center}
 .dfr-lobby-hero{margin-bottom:2rem}
 .dfr-lobby-icon{font-size:3rem;margin-bottom:.5rem}
@@ -43,10 +213,8 @@
   -webkit-background-clip:text;background-clip:text}
 .dfr-lobby-hero p{font-size:.95rem;color:var(--dfr-muted);margin:.5rem 0 0}
 .dfr-lobby-stats{display:flex;justify-content:center;gap:1.5rem;margin:1.2rem 0;flex-wrap:wrap}
-.dfr-lobby-stat{text-align:center}
 .dfr-lobby-stat .val{font-size:1.4rem;font-weight:800;color:var(--dfr-accent)}
 .dfr-lobby-stat .lbl{font-size:.65rem;color:var(--dfr-muted);text-transform:uppercase;letter-spacing:.05em}
-
 .dfr-settings{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;max-width:650px;margin:0 auto 1.5rem;text-align:left}
 @media(max-width:600px){.dfr-settings{grid-template-columns:1fr}}
 .dfr-setting{background:var(--dfr-card);border:1px solid var(--dr-border);border-radius:14px;padding:1rem}
@@ -59,13 +227,11 @@
   font-weight:700;cursor:pointer;font-family:inherit;color:var(--dfr-text);opacity:.45;transition:all .2s}
 .dfr-fmt-btns button.active{background:var(--dr-navy);color:#fff;opacity:1}
 [data-theme="dark"] .dfr-fmt-btns button.active{background:#3b82f6}
-
 .dfr-enter-btn{display:inline-flex;align-items:center;gap:.6rem;padding:.9rem 2.5rem;border:none;
   border-radius:14px;background:linear-gradient(135deg,#013369,#d50a0a);color:#fff;font-size:1.1rem;
   font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:.03em;
   box-shadow:0 8px 32px rgba(1,51,105,.3);transition:all .3s;margin-bottom:2rem}
 .dfr-enter-btn:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(1,51,105,.4)}
-
 .dfr-team-preview{margin-top:1rem}
 .dfr-team-preview h3{font-size:.85rem;font-weight:700;color:var(--dfr-muted);margin-bottom:.8rem}
 .dfr-team-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:.5rem;text-align:left}
@@ -74,12 +240,8 @@
 .dfr-team-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .dfr-team-card .name{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dfr-team-card .strat{font-size:.58rem;color:var(--dfr-muted)}
-
-/* ── Draft Room ── */
-.dfr-room{display:flex;flex-direction:column;min-height:calc(100vh - 110px);background:var(--dfr-bg);
-  margin:-1rem -0.75rem;border-radius:0}
-
-/* Top Bar */
+/* ══ EXISTING: Draft Room ══ */
+.dfr-room{display:flex;flex-direction:column;background:var(--dfr-bg);margin:-1rem -0.75rem;border-radius:0}
 .dfr-topbar{display:flex;align-items:center;gap:.5rem;padding:.5rem .8rem;
   background:var(--dfr-header);color:var(--dfr-header-text);flex-shrink:0;flex-wrap:wrap}
 .dfr-topbar-brand{font-weight:800;font-size:.8rem;display:flex;align-items:center;gap:.4rem;margin-right:.5rem}
@@ -100,8 +262,6 @@
   transition:all .2s;display:flex;align-items:center;gap:.3rem}
 .dfr-top-btn:hover{background:rgba(255,255,255,.15)}
 .dfr-top-btn.active-toggle{background:rgba(59,130,246,.4);border-color:rgba(59,130,246,.6)}
-
-/* Ticker */
 .dfr-ticker{display:flex;align-items:center;gap:0;padding:.3rem .5rem;background:var(--dfr-card);
   border-bottom:1px solid var(--dr-border);overflow-x:auto;flex-shrink:0;min-height:44px}
 .dfr-ticker::-webkit-scrollbar{height:3px}
@@ -118,13 +278,9 @@
   max-width:60px;overflow:hidden;text-overflow:ellipsis}
 .dfr-tick-dot{width:8px;height:8px;border-radius:50%;margin-bottom:.1rem}
 .dfr-tick-arr{color:var(--dfr-muted);font-size:.55rem;flex-shrink:0;padding:0 .1rem}
-
-/* Main Grid */
 .dfr-main{display:grid;grid-template-columns:210px 1fr 230px;flex:1;overflow:hidden}
 @media(max-width:900px){.dfr-main{grid-template-columns:180px 1fr 200px}}
 @media(max-width:700px){.dfr-main{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}}
-
-/* Roster Panel */
 .dfr-panel{display:flex;flex-direction:column;border-right:1px solid var(--dr-border);overflow:hidden}
 .dfr-panel:last-child{border-right:none;border-left:1px solid var(--dr-border)}
 .dfr-panel-hd{padding:.5rem .6rem;font-size:.68rem;font-weight:800;text-transform:uppercase;
@@ -148,8 +304,6 @@
 .dfr-slot-pts{font-weight:700;font-size:.6rem;flex-shrink:0}
 .dfr-roster-footer{padding:.4rem .6rem;font-size:.65rem;font-weight:700;border-top:1px solid var(--dr-border);
   background:var(--dfr-card);display:flex;justify-content:space-between}
-
-/* Player Table Panel */
 .dfr-players{display:flex;flex-direction:column;overflow:hidden;background:var(--dfr-bg)}
 .dfr-toolbar{display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;background:var(--dfr-card);
   border-bottom:1px solid var(--dr-border);flex-wrap:wrap}
@@ -176,8 +330,7 @@
 .dfr-tbl tbody tr.drafted{opacity:.25;text-decoration:line-through}
 .dfr-tbl-name{display:flex;align-items:center;gap:.35rem}
 .dfr-tbl-img{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#e2e8f0}
-.dfr-tbl-player{font-weight:700}.dfr-tbl-team{font-size:.58rem;color:var(--dfr-muted)}
-.dfr-tbl-stats{font-size:.55rem;color:var(--dfr-muted);max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.dfr-tbl-player{font-weight:700}.dfr-tbl-stats{font-size:.55rem;color:var(--dfr-muted);max-width:140px;overflow:hidden;text-overflow:ellipsis}
 .dr-pick-pos{padding:.1rem .35rem;border-radius:6px;font-size:.58rem;font-weight:700;display:inline-block}
 .dr-pick-pos--qb{background:rgba(239,68,68,.12);color:#dc2626}
 .dr-pick-pos--rb{background:rgba(59,130,246,.12);color:#2563eb}
@@ -190,8 +343,6 @@
   color:var(--dfr-accent);transition:all .15s}
 .dfr-draft-btn:hover{background:var(--dfr-accent);color:#fff}
 .dfr-draft-btn:disabled{opacity:.2;cursor:default;background:transparent;color:var(--dfr-muted);border-color:var(--dr-border)}
-
-/* Controls Bar */
 .dfr-ctrl-bar{display:flex;align-items:center;gap:.5rem;padding:.35rem .6rem;border-top:1px solid var(--dr-border);
   background:var(--dfr-card);flex-wrap:wrap}
 .dfr-ctrl-btn{border:1px solid var(--dr-border);background:var(--dfr-bg);border-radius:8px;
@@ -209,8 +360,6 @@
 .dfr-progress-bar{width:120px;height:5px;background:var(--dr-border);border-radius:3px;overflow:hidden}
 .dfr-progress-fill{height:100%;background:var(--dfr-accent);border-radius:3px;transition:width .3s}
 .dfr-progress-text{font-size:.58rem;color:var(--dfr-muted);font-weight:600}
-
-/* Feed Panel */
 .dfr-feed{flex:1;overflow-y:auto;padding:.3rem;background:var(--dfr-card)}
 .dfr-feed-item{display:flex;align-items:center;gap:.3rem;padding:.25rem .35rem;border-radius:7px;
   font-size:.62rem;margin-bottom:.15rem;animation:dfrSlideIn .25s ease both;transition:background .2s}
@@ -223,8 +372,6 @@
 .dfr-feed-info{flex:1;min-width:0}
 .dfr-feed-name{font-weight:700;font-size:.62rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dfr-feed-meta{font-size:.5rem;color:var(--dfr-muted)}
-
-/* Draft Board Overlay */
 .dfr-board-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);
   display:flex;align-items:center;justify-content:center;padding:1rem}
 .dfr-board-modal{background:var(--dfr-card);border-radius:16px;max-width:95vw;max-height:90vh;
@@ -241,8 +388,6 @@
 .dfr-board-cell.round-hd{font-weight:700;background:var(--dfr-bg);position:sticky;left:0}
 .dfr-board-cell.user-col{background:var(--dfr-user-bg)}
 .dfr-board-cell.picked{font-weight:600}
-
-/* Post-Draft */
 .dfr-post{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
 .dfr-post-header{text-align:center;margin-bottom:1.5rem}
 .dfr-post-header h2{font-size:1.5rem;font-weight:900;margin:0}
@@ -265,8 +410,8 @@
 .dfr-pos-bar-fill{height:100%;border-radius:4px;transition:width .4s}
 .dfr-pos-bar-val{font-weight:600;font-size:.6rem;color:var(--dfr-muted);width:32px;text-align:right}
 .dfr-bye-grid{display:flex;gap:.2rem;flex-wrap:wrap}
-.dfr-bye-cell{width:28px;height:28px;border-radius:6px;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;border:1px solid var(--dr-border);font-size:.55rem;font-weight:700}
+.dfr-bye-cell{width:28px;height:28px;border-radius:6px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;border:1px solid var(--dr-border);font-size:.55rem;font-weight:700}
 .dfr-bye-cell .wk{font-size:.42rem;color:var(--dfr-muted);font-weight:400}
 .dfr-bye-cell.conflict{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#dc2626}
 .dfr-post-roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.3rem;margin-bottom:1rem}
@@ -281,7 +426,6 @@
   padding:.35rem .4rem;text-align:left;border-bottom:2px solid var(--dr-border)}
 .dfr-post-table td{padding:.3rem .4rem;border-bottom:1px solid var(--dr-border)}
 .dfr-post-table tr.user-row{background:var(--dfr-user-bg);font-weight:700}
-
 .dfr-post-actions{display:flex;gap:.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap}
 .dfr-action-btn{border:1px solid var(--dr-border);background:var(--dfr-card);border-radius:10px;
   padding:.45rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;
@@ -289,24 +433,145 @@
 .dfr-action-btn:hover{border-color:var(--dfr-accent);background:rgba(59,130,246,.05)}
 .dfr-action-btn.primary{background:var(--dr-navy);color:#fff;border-color:var(--dr-navy)}
 .dfr-action-btn.primary:hover{background:#014a99}
-
-/* ── Design Decisions & Implementation ── */
-.dfr-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
-@media(max-width:700px){.dfr-decisions{grid-template-columns:1fr}}
-.dfr-impl{max-width:940px;margin:0 auto}
-.dfr-impl details{border-radius:14px;border:1px solid var(--dr-border);background:var(--dfr-card);margin-bottom:.8rem;overflow:hidden}
-.dfr-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
-.dfr-impl summary::-webkit-details-marker{display:none}
-.dfr-impl summary::before{content:'▶';font-size:.6rem;transition:transform .2s}
-.dfr-impl details[open] summary::before{transform:rotate(90deg)}
-.dfr-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--dr-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
 </style>
 
-<!-- ═══════════════════════════ PRE-DRAFT LOBBY ═══════════════════════════ -->
+<!-- ═══ PROGRESS BAR ═══ -->
+<div class="nd-progress"><div class="nd-progress-fill" id="ndProgressFill"></div></div>
+
+<!-- ═══ STICKY NAV ═══ -->
+<nav class="nd-nav" aria-label="Section navigation">
+  <a href="#nd-story"    class="nd-nav-item active" data-nav="nd-story"><i class="fas fa-football-ball"></i> Story</a>
+  <a href="#nd-demo"     class="nd-nav-item"         data-nav="nd-demo"><i class="fas fa-play-circle"></i> Demo</a>
+  <a href="#nd-classroom" class="nd-nav-item"        data-nav="nd-classroom"><i class="fas fa-chalkboard-teacher"></i> Classroom</a>
+  <a href="#nd-keypoints" class="nd-nav-item"        data-nav="nd-keypoints"><i class="fas fa-lightbulb"></i> Key Points</a>
+  <a href="#nd-code"     class="nd-nav-item"         data-nav="nd-code"><i class="fas fa-code"></i> Code</a>
+  <a href="#nd-about"    class="nd-nav-item"         data-nav="nd-about"><i class="fas fa-user"></i> About</a>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="nd-story">
+<div class="nd-hero">
+  <div class="nd-tag"><i class="fas fa-football-ball me-1"></i> 7-IDEATIONS DEMO &middot; FANTASY DRAFT ANALYTICS</div>
+  <h1>The Algorithm Behind<br>Every Pick.</h1>
+  <p class="lead">A 12-team snake draft simulator powered by VOR-based ranking, 9 AI strategy archetypes, a real-time pick engine, and live NFL projections from SportsData.io.</p>
+  <div class="nd-kpi-strip">
+    <span class="nd-kpi">&#x1F4CA; 220+ Players</span>
+    <span class="nd-kpi">&#x1F916; 9 AI Strategies</span>
+    <span class="nd-kpi">&#x1F4C8; VOR-Ranked</span>
+    <span class="nd-kpi">&#x26A1; Live API Data</span>
+    <span class="nd-kpi">&#x1F3C6; Post-Draft Grade</span>
+  </div>
+</div>
+
+<!-- ═══ STORY ═══ -->
+<div class="nd-story">
+  <div class="nd-section-label">The Story</div>
+  <h2 class="nd-section-title">228 Picks. 9 Strategies. 1 Algorithm.</h2>
+  <p class="nd-section-sub">What looks like a game is actually a multi-agent optimization problem &mdash; every AI bot runs a different strategy, reacts to positional scarcity, and competes on a shared ranking surface built from projected statistics.</p>
+  <div class="nd-steps">
+    <div class="nd-step">
+      <span class="nd-step-icon">&#x1F4CA;</span>
+      <div class="nd-step-num">Step 01</div>
+      <h3>Player Pool Assembled</h3>
+      <p>220+ players loaded with projected stats for 2026 &mdash; or live data from SportsData.io if available. Each player gets 5 raw stats mapped by position: pass yards, rush TDs, receptions, etc.</p>
+    </div>
+    <div class="nd-step">
+      <span class="nd-step-icon">&#x1F522;</span>
+      <div class="nd-step-num">Step 02</div>
+      <h3>VOR Rankings Computed</h3>
+      <p>Value Over Replacement normalizes fantasy points across positions. A RB scoring 280 pts outranks a QB at 350 pts once scarcity is factored &mdash; the drop-off from elite to replacement RBs is far steeper.</p>
+    </div>
+    <div class="nd-step">
+      <span class="nd-step-icon">&#x1F916;</span>
+      <div class="nd-step-num">Step 03</div>
+      <h3>9 AI Archetypes Ready</h3>
+      <p>Each bot runs a named strategy (Robust RB, Zero RB, Hero RB, TE Premium, Late QB, Stars &amp; Scrubs, Balanced BPA, Contrarian, Anchor RB) with distinct positional weight multipliers.</p>
+    </div>
+    <div class="nd-step">
+      <span class="nd-step-icon">&#x26A1;</span>
+      <div class="nd-step-num">Step 04</div>
+      <h3>Snake Draft Executes</h3>
+      <p>19 rounds, 12 teams, 228 picks. Pick order reverses each round &mdash; the snake format. A real-time engine fires picks with a configurable timer, live ticker, and feed showing every selection.</p>
+    </div>
+    <div class="nd-step">
+      <span class="nd-step-icon">&#x1F4C9;</span>
+      <div class="nd-step-num">Step 05</div>
+      <h3>Positional Runs Emerge</h3>
+      <p>When 3+ players at a position are drafted in a short window, the AI urgency multiplier kicks in for remaining players at that spot &mdash; simulating the cascading runs seen in real draft rooms.</p>
+    </div>
+    <div class="nd-step">
+      <span class="nd-step-icon">&#x1F3C6;</span>
+      <div class="nd-step-num">Step 06</div>
+      <h3>Draft Grade Calculated</h3>
+      <p>Post-draft analytics rank all 12 teams on starter projected points, total VOR captured, bye week concentration, and bench depth. Grades A+ through D are assigned by rank position.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══ DEMO ═══ -->
+<section id="nd-demo">
+<div class="nd-demo">
+  <div class="nd-section-label">Live Demo</div>
+  <h2 class="nd-section-title">Try It: Two Ways to Explore</h2>
+  <p class="nd-section-sub">ELI5 explains the draft strategy concept in plain English. Engineer mode runs the full 19-round simulator with live data, real-time pick feed, and post-draft analytics.</p>
+  <div class="nd-mode-bar">
+    <button class="nd-mode-btn active" data-mode="eli5" onclick="ndSetMode('eli5')">
+      <i class="fas fa-comments me-1"></i> ELI5 &mdash; Explain It Simply
+    </button>
+    <button class="nd-mode-btn" data-mode="engineer" onclick="ndSetMode('engineer')">
+      <i class="fas fa-cogs me-1"></i> Engineer &mdash; Full Simulator
+    </button>
+  </div>
+
+  <!-- ELI5 PANE -->
+  <div class="nd-pane active" data-pane="eli5">
+    <div class="nd-eli5-wrap">
+      <h3>Pick Your Draft Strategy</h3>
+      <p class="nd-eli5-sub">Each archetype bets differently on where value hides. Pick one and see which players your algorithm would target in the first 8 rounds.</p>
+      <div class="nd-persona-grid">
+        <div class="nd-persona" id="nd-persona-casual" onclick="ndSelectPersona('casual')">
+          <span class="nd-persona-icon">&#x1F3C8;</span>
+          <div class="nd-persona-name">The Casual Fan</div>
+          <div class="nd-persona-desc">Big names, run-first. Take elite RBs early and fill out from there.</div>
+          <div class="nd-persona-strat">Strategy: Robust RB (RB weight: 1.55&times;)</div>
+        </div>
+        <div class="nd-persona" id="nd-persona-analyst" onclick="ndSelectPersona('analyst')">
+          <span class="nd-persona-icon">&#x1F4CA;</span>
+          <div class="nd-persona-name">The Analyst</div>
+          <div class="nd-persona-desc">Pure algorithm. Best VOR available regardless of position.</div>
+          <div class="nd-persona-strat">Strategy: Balanced BPA (all weights: 1.0&times;)</div>
+        </div>
+        <div class="nd-persona" id="nd-persona-zerorb" onclick="ndSelectPersona('zerorb')">
+          <span class="nd-persona-icon">&#x26A1;</span>
+          <div class="nd-persona-name">Zero RB</div>
+          <div class="nd-persona-desc">Punt RBs early, stack elite WRs, find RBs on waivers.</div>
+          <div class="nd-persona-strat">Strategy: Zero RB (RB weight: 0.45&times;, WR: 1.5&times;)</div>
+        </div>
+        <div class="nd-persona" id="nd-persona-contrarian" onclick="ndSelectPersona('contrarian')">
+          <span class="nd-persona-icon">&#x1F3AF;</span>
+          <div class="nd-persona-name">The Contrarian</div>
+          <div class="nd-persona-desc">Fade the crowd. Target positions others ignore, find undervalued QBs and TEs.</div>
+          <div class="nd-persona-strat">Strategy: Contrarian (QB: 1.15&times;, TE: 1.25&times;)</div>
+        </div>
+      </div>
+      <button class="nd-eli5-btn" id="nd-eli5-run" onclick="ndRunELI5()" disabled>
+        <i class="fas fa-bolt me-1"></i> Simulate My First 8 Picks
+      </button>
+      <div class="nd-eli5-result" id="nd-eli5-result"></div>
+    </div>
+  </div>
+
+  <!-- ENGINEER PANE -->
+  <div class="nd-pane" data-pane="engineer">
+
+<!-- ═══ ENGINEER PANE: Full Draft Room ═══ -->
+
+<!-- PRE-DRAFT LOBBY -->
 <div id="drLobby">
   <div class="dfr-lobby">
     <div class="dfr-lobby-hero">
-      <div class="dfr-lobby-icon">🏈</div>
+      <div class="dfr-lobby-icon">&#x1F3C8;</div>
       <h1>2026 Fantasy Draft Room</h1>
       <p>12-team snake draft simulator with 9 AI archetypes, VOR-based rankings, and real-time analytics.</p>
       <div class="dfr-lobby-stats">
@@ -317,7 +582,6 @@
         <div class="dfr-lobby-stat"><div class="val">228</div><div class="lbl">Total Picks</div></div>
       </div>
     </div>
-
     <div class="dfr-settings">
       <div class="dfr-setting">
         <label>Scoring Format</label>
@@ -328,89 +592,111 @@
         </div>
       </div>
       <div class="dfr-setting">
-        <label>Your Draft Position</label>
+        <label>Your Pick Position</label>
         <select id="dfrPickPos">
-          <option value="0">1st Overall</option><option value="1">2nd Overall</option>
-          <option value="2">3rd Overall</option><option value="3">4th Overall</option>
-          <option value="4">5th Overall</option><option value="5">6th Overall</option>
-          <option value="6">7th Overall</option><option value="7">8th Overall</option>
-          <option value="8">9th Overall</option><option value="9">10th Overall</option>
-          <option value="10">11th Overall</option><option value="11">12th Overall</option>
+          <option value="0">Pick 1 (First)</option>
+          <option value="1">Pick 2</option>
+          <option value="2">Pick 3</option>
+          <option value="3">Pick 4</option>
+          <option value="4">Pick 5</option>
+          <option value="5">Pick 6</option>
+          <option value="6">Pick 7</option>
+          <option value="7">Pick 8</option>
+          <option value="8">Pick 9</option>
+          <option value="9">Pick 10</option>
+          <option value="10">Pick 11</option>
+          <option value="11" selected>Pick 12 (Last)</option>
         </select>
       </div>
       <div class="dfr-setting">
-        <label>Pick Timer</label>
+        <label>Pick Timer (seconds)</label>
         <select id="dfrTimerSel">
           <option value="0">No Timer</option>
-          <option value="15">15 Seconds</option>
-          <option value="30" selected>30 Seconds</option>
-          <option value="60">60 Seconds</option>
-          <option value="120">2 Minutes</option>
+          <option value="30" selected>30 sec</option>
+          <option value="60">60 sec</option>
+          <option value="90">90 sec</option>
+          <option value="120">2 min</option>
         </select>
       </div>
     </div>
-
-    <button class="dfr-enter-btn" id="dfrEnter">
-      <i class="fas fa-play"></i> ENTER DRAFT ROOM
-    </button>
-    <div id="dfrLoadingMsg" style="display:none;font-size:.8rem;color:var(--dfr-muted);margin-bottom:1rem">
-      <i class="fas fa-spinner fa-spin me-1"></i> Loading live projections from SportsData.io...
+    <div>
+      <p id="dfrLoadingMsg" style="display:none;font-size:.8rem;color:var(--dfr-muted);margin-bottom:.5rem">
+        <i class="fas fa-spinner fa-spin me-1"></i> Loading projections&hellip;
+      </p>
+      <button class="dfr-enter-btn" id="dfrEnter">
+        <i class="fas fa-door-open"></i> Enter Draft Room
+      </button>
     </div>
-
     <div class="dfr-team-preview">
-      <h3>YOUR OPPONENTS</h3>
+      <h3>Your Competition</h3>
       <div class="dfr-team-cards" id="dfrTeamCards"></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════ DRAFT ROOM ═══════════════════════════ -->
+<!-- DRAFT ROOM -->
 <div id="drRoom" style="display:none">
   <div class="dfr-room">
     <!-- Top Bar -->
     <div class="dfr-topbar">
       <div class="dfr-topbar-brand"><i class="fas fa-football-ball"></i> DRAFT ROOM</div>
       <div class="dfr-round-badge" id="dfrRoundBadge">RND 1 / 19</div>
-      <div class="dfr-round-badge" id="dfrDataBadge" style="font-size:.58rem;opacity:.7" title="Player data source">OFFLINE</div>
       <div class="dfr-pick-badge" id="dfrPickBadge">Pick 0 / 228</div>
+      <span id="dfrDataBadge" style="font-size:.58rem;font-weight:700;padding:.2rem .5rem;border-radius:6px;background:rgba(255,255,255,.08)">&#x1F4CB; OFFLINE</span>
       <div class="dfr-otc" id="dfrOTC">
-        <div>
-          <div class="dfr-otc-label">ON THE CLOCK</div>
-          <div class="dfr-otc-team"><span class="dfr-otc-dot" id="dfrOTCDot"></span><span id="dfrOTCName">—</span></div>
+        <div class="dfr-otc-label">ON THE CLOCK</div>
+        <div class="dfr-otc-team">
+          <div class="dfr-otc-dot" id="dfrOTCDot"></div>
+          <span id="dfrOTCName">&#x2014;</span>
         </div>
       </div>
       <div class="dfr-timer" id="dfrTimer">
-        <i class="fas fa-clock" style="font-size:.7rem;opacity:.5"></i>
-        <div class="dfr-timer-val" id="dfrTimerVal">0:30</div>
+        <i class="fas fa-clock" style="font-size:.65rem;opacity:.6"></i>
+        <div class="dfr-timer-val" id="dfrTimerVal">0:00</div>
       </div>
       <div class="dfr-topbar-controls">
-        <button class="dfr-top-btn" id="dfrAutoBtn" title="Auto-pick for you"><i class="fas fa-robot"></i> Auto</button>
-        <button class="dfr-top-btn" id="dfrSimMyBtn" title="Sim to your next pick"><i class="fas fa-forward"></i></button>
-        <button class="dfr-top-btn" id="dfrSimAllBtn" title="Simulate remaining draft"><i class="fas fa-fast-forward"></i></button>
-        <button class="dfr-top-btn" id="dfrPauseBtn"><i class="fas fa-pause"></i></button>
-        <button class="dfr-top-btn" id="dfrBoardBtn" title="View draft board"><i class="fas fa-th"></i></button>
-        <button class="dfr-top-btn" id="dfrExitBtn" title="Exit draft"><i class="fas fa-sign-out-alt"></i></button>
+        <button class="dfr-top-btn" id="dfrAutoBtn" title="Auto-pick for me">
+          <i class="fas fa-robot"></i> AUTO
+        </button>
+        <button class="dfr-top-btn" id="dfrSimMyBtn" title="Sim to my pick">
+          <i class="fas fa-forward"></i> SIM
+        </button>
+        <button class="dfr-top-btn" id="dfrSimAllBtn" title="Sim all remaining">
+          <i class="fas fa-fast-forward"></i> ALL
+        </button>
+        <button class="dfr-top-btn" id="dfrPauseBtn" title="Pause / Resume">
+          <i class="fas fa-pause"></i>
+        </button>
+        <button class="dfr-top-btn" id="dfrBoardBtn" title="View draft board">
+          <i class="fas fa-th"></i>
+        </button>
+        <button class="dfr-top-btn" id="dfrExitBtn" title="Exit draft">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
       </div>
     </div>
-
     <!-- Ticker -->
     <div class="dfr-ticker" id="dfrTicker"></div>
-
-    <!-- Main 3-Column Grid -->
+    <!-- 3-Column Main -->
     <div class="dfr-main">
       <!-- Left: Roster -->
       <div class="dfr-panel">
-        <div class="dfr-panel-hd"><span><i class="fas fa-clipboard-list"></i> MY ROSTER</span><span class="count" id="dfrRosterCt">0/19</span></div>
+        <div class="dfr-panel-hd">
+          <span><i class="fas fa-users"></i> YOUR ROSTER</span>
+          <span class="count"><span id="dfrRosterCt">0/19</span> &middot; <span id="dfrRosterPts">0 pts</span></span>
+        </div>
         <div class="dfr-roster" id="dfrRoster"></div>
-        <div class="dfr-roster-footer"><span>Projected Total</span><span id="dfrRosterPts">0 pts</span></div>
+        <div class="dfr-roster-footer">
+          <span>Projected Pts</span>
+          <span id="dfrRosterPtsFooter" style="color:var(--dfr-accent)">0</span>
+        </div>
       </div>
-
-      <!-- Center: Player List -->
+      <!-- Center: Player Table -->
       <div class="dfr-players">
         <div class="dfr-toolbar">
-          <input type="text" class="dfr-search" id="dfrSearch" placeholder="&#xf002;  Search players..." style="font-family:'Font Awesome 6 Free',Inter,sans-serif">
+          <input class="dfr-search" id="dfrSearch" type="text" placeholder="Search player or team&hellip;">
           <div class="dfr-pos-btns" id="dfrPosFilter">
-            <button class="active" data-f="ALL">ALL</button>
+            <button data-f="ALL" class="active">ALL</button>
             <button data-f="QB">QB</button>
             <button data-f="RB">RB</button>
             <button data-f="WR">WR</button>
@@ -418,21 +704,21 @@
             <button data-f="K">K</button>
             <button data-f="DST">DST</button>
           </div>
-          <div class="dfr-sort-lbl">Sorted by <b id="dfrSortLabel">VOR</b></div>
+          <span class="dfr-sort-lbl">Sort: <span id="dfrSortLabel">VOR</span></span>
         </div>
-        <div class="dfr-tbl-wrap" id="dfrTblWrap">
+        <div class="dfr-tbl-wrap">
           <table class="dfr-tbl">
             <thead>
               <tr>
-                <th data-col="rank" style="width:30px">#</th>
-                <th data-col="name">PLAYER</th>
-                <th data-col="pos" style="width:42px">POS</th>
-                <th data-col="team" style="width:40px">TM</th>
-                <th data-col="bye" style="width:32px">BYE</th>
-                <th data-col="pts" style="width:48px">PTS</th>
-                <th data-col="vor" class="sort-active" style="width:44px">VOR ▼</th>
-                <th data-col="adp" style="width:38px">ADP</th>
-                <th style="width:55px"></th>
+                <th>#</th>
+                <th>Player</th>
+                <th data-col="pos">Pos</th>
+                <th data-col="team">Team</th>
+                <th data-col="bye">Bye</th>
+                <th data-col="pts">Pts</th>
+                <th data-col="vor">VOR</th>
+                <th data-col="adp">ADP</th>
+                <th>Pick</th>
               </tr>
             </thead>
             <tbody id="dfrPlayerBody"></tbody>
@@ -441,10 +727,10 @@
         <div class="dfr-ctrl-bar">
           <div class="dfr-speed-grp">
             <span>Speed:</span>
-            <button class="dfr-speed-btn" data-sp="1200">🐢</button>
-            <button class="dfr-speed-btn active" data-sp="400">🏃</button>
-            <button class="dfr-speed-btn" data-sp="100">🚀</button>
-            <button class="dfr-speed-btn" data-sp="0">⚡</button>
+            <button class="dfr-speed-btn" data-sp="800">Slow</button>
+            <button class="dfr-speed-btn active" data-sp="400">Med</button>
+            <button class="dfr-speed-btn" data-sp="120">Fast</button>
+            <button class="dfr-speed-btn" data-sp="20">Turbo</button>
           </div>
           <div class="dfr-progress">
             <div class="dfr-progress-bar"><div class="dfr-progress-fill" id="dfrProgressFill"></div></div>
@@ -452,7 +738,6 @@
           </div>
         </div>
       </div>
-
       <!-- Right: Feed -->
       <div class="dfr-panel" style="border-right:none;border-left:1px solid var(--dr-border)">
         <div class="dfr-panel-hd"><span><i class="fas fa-stream"></i> DRAFT FEED</span></div>
@@ -462,7 +747,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════ DRAFT BOARD OVERLAY ═══════════════════════════ -->
+<!-- DRAFT BOARD OVERLAY -->
 <div id="dfrBoardOverlay" class="dfr-board-overlay" style="display:none">
   <div class="dfr-board-modal">
     <div class="dfr-board-hd">
@@ -473,59 +758,201 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════ POST-DRAFT ═══════════════════════════ -->
+<!-- POST-DRAFT -->
 <div id="drPost" style="display:none">
   <div class="dfr-post" id="dfrPostContent"></div>
 </div>
 
-<!-- ═══════════════════════════ DESIGN DECISIONS & TRADEOFFS ═══════════════════════════ -->
-<div style="max-width:940px;margin:2.5rem auto 0;padding:0 1rem">
-  <h3 style="font-size:1.15rem;font-weight:900;margin-bottom:.25rem">Design Decisions &amp; Tradeoffs</h3>
-  <p style="font-size:.78rem;color:var(--dfr-muted);margin-bottom:1.2rem">Why the draft simulator works the way it does — each choice reflects a real fantasy football principle.</p>
-  <div class="dfr-decisions">
+  </div><!-- /engineer pane -->
+</div><!-- /nd-demo -->
+</section>
 
-    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
-      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">RANKING METHODOLOGY</div>
-      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why VOR (Value Over Replacement) Instead of Raw Points?</h4>
-      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">A QB scoring 350 points and a RB scoring 250 points aren't directly comparable. VOR normalizes by subtracting the replacement-level baseline for each position (QB12, RB24, WR24, TE12 in a 12-team league). After VOR adjustment, the RB may have <b>more</b> value because the drop-off from RB1→RB25 is steeper than QB1→QB13. This is why elite RBs go before elite QBs in real drafts.</p>
+<!-- ═══ CLASSROOM ═══ -->
+<section id="nd-classroom">
+<div class="nd-cls">
+  <div class="nd-section-label">Classroom</div>
+  <h2 class="nd-section-title">Six Concepts That Drive Every Pick</h2>
+  <p class="nd-section-sub">From the math behind VOR to the game theory of positional scarcity &mdash; understand the engine before you run it.</p>
+  <div class="nd-cls-wrap">
+    <div class="nd-cls-slides">
+
+      <!-- Slide 1: VOR -->
+      <div class="nd-cls-slide active">
+        <span class="nd-cls-slide-icon">&#x1F4CA;</span>
+        <div class="nd-cls-slide-num">Concept 01 of 06</div>
+        <h3>Why VOR Beats Raw Points</h3>
+        <p>A QB projecting 350 pts and a RB projecting 280 pts are not directly comparable. VOR (Value Over Replacement) subtracts the <em>replacement level</em> for each position &mdash; the best player freely available on waivers. The position with the steeper drop-off to replacement yields more VOR, and therefore more actual draft value.</p>
+        <div class="nd-cls-code">vor = projected_pts - replacement_level_pts
+
+# QB example (replacement = QB13, ~260 pts)
+vor_qb = 350 - 260 = 90
+
+# RB example (replacement = RB25, ~120 pts)
+vor_rb = 280 - 120 = 160
+
+# The RB ranks HIGHER despite fewer raw points.
+# Scarcity wins.</div>
+        <p style="font-size:.76rem;color:var(--nd-muted);margin:0"><strong>Key insight:</strong> RBs have far fewer viable starters than WRs, so the drop-off from elite to replacement RB is steeper. This is why elite RBs consistently go before elite QBs in real drafts.</p>
+      </div>
+
+      <!-- Slide 2: Snake Draft -->
+      <div class="nd-cls-slide">
+        <span class="nd-cls-slide-icon">&#x1F40D;</span>
+        <div class="nd-cls-slide-num">Concept 02 of 06</div>
+        <h3>Snake Draft: Position Is Everything</h3>
+        <p>In a 12-team snake draft, pick order alternates each round. This creates an asymmetric information problem: you must predict which players will be available at your next pick slot, 23 picks away.</p>
+        <table class="nd-cls-table">
+          <thead><tr><th>Pick Slot</th><th>Round 1 Pick</th><th>Round 2 Pick</th><th>Gap</th><th>Advantage</th></tr></thead>
+          <tbody>
+            <tr><td>Pick 1</td><td>#1</td><td>#24</td><td>23 picks</td><td>Best player, long wait</td></tr>
+            <tr><td>Pick 6</td><td>#6</td><td>#19</td><td>13 picks</td><td>Balanced exposure</td></tr>
+            <tr><td>Pick 12</td><td>#12</td><td>#13</td><td>1 pick</td><td>Immediate double-dip</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:.76rem;color:var(--nd-muted);margin:.5rem 0 0"><strong>Pick 12</strong> gets back-to-back picks in rounds 1&ndash;2, effectively securing two round-1-equivalent players. This is why the late-first-round slot is often considered the most strategically flexible position.</p>
+      </div>
+
+      <!-- Slide 3: AI Archetypes -->
+      <div class="nd-cls-slide">
+        <span class="nd-cls-slide-icon">&#x1F916;</span>
+        <div class="nd-cls-slide-num">Concept 03 of 06</div>
+        <h3>9 AI Archetypes, 9 Draft Stories</h3>
+        <p>Each bot applies position-specific VOR multipliers. A RB with VOR 80 scores 124 composite points for Robust RB (80 &times; 1.55) but only 36 for Zero RB (80 &times; 0.45). Same player, wildly different perceived value.</p>
+        <table class="nd-cls-table">
+          <thead><tr><th>Strategy</th><th>QB</th><th>RB</th><th>WR</th><th>TE</th></tr></thead>
+          <tbody>
+            <tr><td><span class="nd-strat-pill">Robust RB</span></td><td>0.50&times;</td><td><strong>1.55&times;</strong></td><td>0.85&times;</td><td>0.60&times;</td></tr>
+            <tr><td><span class="nd-strat-pill">Zero RB</span></td><td>0.70&times;</td><td>0.45&times;</td><td><strong>1.50&times;</strong></td><td>1.15&times;</td></tr>
+            <tr><td><span class="nd-strat-pill">Hero RB</span></td><td>0.60&times;</td><td>1.10&times;</td><td>1.35&times;</td><td>0.75&times;</td></tr>
+            <tr><td><span class="nd-strat-pill">TE Premium</span></td><td>0.65&times;</td><td>1.00&times;</td><td>1.00&times;</td><td><strong>1.70&times;</strong></td></tr>
+            <tr><td><span class="nd-strat-pill">Late QB</span></td><td>0.25&times;</td><td>1.25&times;</td><td>1.25&times;</td><td>0.90&times;</td></tr>
+            <tr><td><span class="nd-strat-pill">Balanced BPA</span></td><td>1.00&times;</td><td>1.00&times;</td><td>1.00&times;</td><td>1.00&times;</td></tr>
+            <tr><td><span class="nd-strat-pill">Contrarian</span></td><td><strong>1.15&times;</strong></td><td>0.85&times;</td><td>0.85&times;</td><td>1.25&times;</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Slide 4: Positional Scarcity -->
+      <div class="nd-cls-slide">
+        <span class="nd-cls-slide-icon">&#x1F4C9;</span>
+        <div class="nd-cls-slide-num">Concept 04 of 06</div>
+        <h3>Positional Scarcity: The Invisible Clock</h3>
+        <p>Not all positions run dry at the same rate. In a 12-team, 2-RB, 2-WR league, there are 24 starting RB slots and 24 WR slots &mdash; but there are only 12&ndash;15 truly elite RBs while 28&ndash;32 viable WRs exist. The scarcity cliff hits RBs far harder.</p>
+        <table class="nd-cls-table">
+          <thead><tr><th>Position</th><th>Elite Starters</th><th>Replacement Drop-off</th><th>Draft Priority</th></tr></thead>
+          <tbody>
+            <tr><td>RB</td><td>12&ndash;15</td><td>High (RB25 = 48% of RB1)</td><td>&#x1F534; Urgent early</td></tr>
+            <tr><td>WR</td><td>28&ndash;32</td><td>Medium (WR31 = 72% of WR1)</td><td>&#x1F7E1; Can wait</td></tr>
+            <tr><td>TE</td><td>3&ndash;5 elite</td><td>Extreme (TE13 = 62% of TE1)</td><td>&#x1F7E0; Bi-modal</td></tr>
+            <tr><td>QB</td><td>12 starters</td><td>Low (QB13 = 85% of QB1)</td><td>&#x1F7E2; Wait late</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:.76rem;color:var(--nd-muted);margin:.5rem 0 0">TE is the most polarized: a Kelce or Bowers is worth a 2nd-round pick; the 13th TE is barely worth rostering. <strong>TE Premium</strong> bets on this gap; most others ignore it entirely.</p>
+      </div>
+
+      <!-- Slide 5: ADP vs VOR Arbitrage -->
+      <div class="nd-cls-slide">
+        <span class="nd-cls-slide-icon">&#x1F4A1;</span>
+        <div class="nd-cls-slide-num">Concept 05 of 06</div>
+        <h3>Finding Draft Value: ADP vs VOR</h3>
+        <p>Average Draft Position (ADP) is the consensus market rank &mdash; where the crowd drafts a player on average. VOR rank is the algorithmic rank based purely on replacement-adjusted projected points. When these diverge, there is arbitrage.</p>
+        <div class="nd-cls-code"># ADP vs VOR Arbitrage Detector
+for player in sorted_by_vor:
+    adp_rank  = player.adp
+    vor_rank  = player.vor_rank
+    discount  = adp_rank - vor_rank  # positive = undervalued
+
+    if discount >= 15:
+        print(f"{player.name}: drafted at pick {adp_rank}, "
+              f"VOR says pick {vor_rank} (+{discount} free picks)")
+
+# Example output:
+# Trey Benson:   drafted pick 105, VOR rank 71  (+34)
+# Jerome Ford:   drafted pick 91,  VOR rank 68  (+23)</div>
+        <p style="font-size:.76rem;color:var(--nd-muted);margin:.5rem 0 0">The ADP &plusmn;8% jitter in the AI engine deliberately creates these gaps, simulating the cognitive biases and preference divergence that generate real draft value windows.</p>
+      </div>
+
+      <!-- Slide 6: Post-Draft Grading -->
+      <div class="nd-cls-slide">
+        <span class="nd-cls-slide-icon">&#x1F3C6;</span>
+        <div class="nd-cls-slide-num">Concept 06 of 06</div>
+        <h3>How the A&ndash;F Grade Is Calculated</h3>
+        <p>Post-draft grading uses four metrics to rank all 12 teams and assign A+ through D letter grades based on finishing position in the league standings simulation.</p>
+        <table class="nd-cls-table">
+          <thead><tr><th>Metric</th><th>What It Measures</th><th>Penalty</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Starter Pts</strong></td><td>Projected points from starting lineup (QB+2RB+2WR+TE+FLEX+K+DST)</td><td>Primary rank signal</td></tr>
+            <tr><td><strong>Total VOR</strong></td><td>Sum of VOR for all 19 drafted players</td><td>Secondary tiebreaker</td></tr>
+            <tr><td><strong>Bye Conflicts</strong></td><td>Weeks where 3+ starters share a bye week</td><td>&minus;1 grade tier each</td></tr>
+            <tr><td><strong>Bench Depth</strong></td><td>Average bench player projected points</td><td>Informational</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:.76rem;color:var(--nd-muted);margin:.5rem 0 0"><strong>Grades A+ &rarr; D</strong> are assigned by finishing rank (1st = A+, 2nd = A, 3rd = A, etc.) then adjusted down for each bye-week concentration penalty.</p>
+      </div>
+
+    </div><!-- /slides -->
+    <div class="nd-cls-nav">
+      <button class="nd-cls-btn" onclick="ndClsPrev()"><i class="fas fa-chevron-left me-1"></i> Prev</button>
+      <div class="nd-cls-dots" id="ndClsDots">
+        <button class="nd-cls-dot active" onclick="ndGotoClsDot(0)"></button>
+        <button class="nd-cls-dot" onclick="ndGotoClsDot(1)"></button>
+        <button class="nd-cls-dot" onclick="ndGotoClsDot(2)"></button>
+        <button class="nd-cls-dot" onclick="ndGotoClsDot(3)"></button>
+        <button class="nd-cls-dot" onclick="ndGotoClsDot(4)"></button>
+        <button class="nd-cls-dot" onclick="ndGotoClsDot(5)"></button>
+      </div>
+      <button class="nd-cls-btn" onclick="ndClsNext()">Next <i class="fas fa-chevron-right ms-1"></i></button>
     </div>
+  </div><!-- /cls-wrap -->
+</div>
+</section>
 
-    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
-      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">AI DESIGN</div>
-      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why 9 AI Archetypes Instead of One Optimal Strategy?</h4>
-      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">Real drafts have diverse strategies. Zero RB (punt RB, stack WR early) exploits the waiver wire for RB value. Robust RB (heavy RB early) locks in scarce positional value. Hero RB (1 elite RB + WRs) is a hybrid. By modeling 9 real strategies, the draft creates realistic positional runs, reaches, and value falls that a single-strategy AI wouldn't produce.</p>
+<!-- ═══ KEY POINTS ═══ -->
+<section id="nd-keypoints">
+<div class="nd-kps">
+  <div class="nd-section-label">Key Points</div>
+  <h2 class="nd-section-title">Four Engineering Decisions That Matter</h2>
+  <p class="nd-section-sub">Why the simulator behaves the way it does &mdash; each choice reflects a real fantasy football principle with a measurable effect on draft outcomes.</p>
+  <div class="nd-kps-grid">
+    <div class="nd-kp">
+      <span class="nd-kp-icon">&#x1F522;</span>
+      <div class="nd-kp-label">Ranking Methodology</div>
+      <h4>VOR Over Raw Points</h4>
+      <p>A QB scoring 350 pts and a RB scoring 250 pts aren&apos;t comparable. VOR subtracts the replacement-level baseline per position (QB13, RB25, WR25, TE13 in a 12-team league). After VOR adjustment, the RB often ranks <strong>higher</strong> because the RB1&rarr;RB25 drop-off is twice as steep as QB1&rarr;QB13. This is why elite RBs routinely go before elite QBs in real drafts.</p>
     </div>
-
-    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
-      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">DRAFT FORMAT</div>
-      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why Snake Draft Instead of Auction?</h4>
-      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">Snake enforces strategic scarcity: if you pick 1st, you wait 23 picks before your next selection. This creates genuine positional tradeoffs — do you take the best player available or fill a positional need? Auction formats let every team bid on every player, which is more "fair" but removes the strategic depth of pick positioning.</p>
+    <div class="nd-kp">
+      <span class="nd-kp-icon">&#x1F916;</span>
+      <div class="nd-kp-label">AI Design</div>
+      <h4>9 Archetypes, Not One Optimal Bot</h4>
+      <p>Real drafts have diverse strategies. Zero RB exploits waiver-wire RB value; Robust RB locks in scarce positional value early; TE Premium bets on the extreme scarcity cliff at tight end. By modeling 9 real strategies, the simulator creates realistic positional runs, reaches, and value falls that a single-strategy AI would never produce. Draft variance requires behavioral diversity.</p>
     </div>
-
-    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
-      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">BEHAVIORAL REALISM</div>
-      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why ±8% Randomization on AI Picks?</h4>
-      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">Perfect AI play is boring and unrealistic. Real drafters have biases, sleeper picks, and team preferences. The ±8% jitter on VOR values (<code style="font-size:.65rem;background:rgba(59,130,246,.08);padding:.1rem .3rem;border-radius:4px">val *= (0.92 + Math.random() * 0.16)</code>) causes occasional "reaches" (taking a player 3-5 picks early) and "steals" (letting a player fall), creating realistic draft variance without making AI picks nonsensical.</p>
+    <div class="nd-kp">
+      <span class="nd-kp-icon">&#x1F3AF;</span>
+      <div class="nd-kp-label">Behavioral Realism</div>
+      <h4>&plusmn;8% Jitter Creates Realistic Variance</h4>
+      <p>Perfect AI play is boring and unrealistic. Real drafters have biases, sleeper picks, and team preferences. The <code style="font-size:.68rem;background:rgba(1,51,105,.06);padding:.1rem .3rem;border-radius:4px">val *= (0.92 + Math.random() * 0.16)</code> jitter causes occasional reaches (3&ndash;5 picks early) and steals (player falls unexpectedly), creating the variance that makes each draft unique and strategically meaningful.</p>
     </div>
-
-    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card);grid-column:1 / -1">
-      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dfr-accent);margin-bottom:.35rem">GAME THEORY</div>
-      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">Why Positional Scarcity Drives Strategy?</h4>
-      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">There are only ~12 elite RBs but ~30 viable WRs in fantasy. This scarcity curve means missing the RB window is catastrophic (replacement RBs score 40% less), while WR depth lets you wait (WR15 scores only 18% less than WR1). Every AI archetype is essentially a different bet on <em>when</em> positional scarcity becomes binding. Robust RB bets it binds immediately; Zero RB bets the waiver wire provides adequate RB value later.</p>
+    <div class="nd-kp">
+      <span class="nd-kp-icon">&#x1F4E1;</span>
+      <div class="nd-kp-label">Live Data Integration</div>
+      <h4>SportsData.io Projections with Fallback</h4>
+      <p>On load, the simulator fetches live 2026 season projections and ADP from <strong>SportsData.io</strong> via two API endpoints (player projections + DST). If the API fails or returns insufficient data (&lt;60 players), it silently falls back to hardcoded 2026 projections &mdash; a graceful degradation pattern that keeps the demo functional regardless of external API availability.</p>
     </div>
-
   </div>
 </div>
+</section>
 
-<!-- ═══════════════════════════ PRODUCTION IMPLEMENTATION ═══════════════════════════ -->
-<div style="max-width:940px;margin:2.5rem auto 0;padding:0 1rem">
-  <h3 style="font-size:1.15rem;font-weight:900;margin-bottom:.25rem">Production Implementation</h3>
-  <p style="font-size:.78rem;color:var(--dfr-muted);margin-bottom:1.2rem">Core algorithms behind the draft engine — VOR ranking, AI strategy weighting, and post-draft grading.</p>
-  <div class="dfr-impl">
+<!-- ═══ CODE ═══ -->
+<section id="nd-code">
+<div class="nd-code">
+  <div class="nd-section-label">Production Code</div>
+  <h2 class="nd-section-title">Core Algorithms</h2>
+  <p class="nd-section-sub">The Python implementations behind VOR ranking, AI strategy weighting, snake order generation, and post-draft grading.</p>
 
-    <details>
-      <summary>🧮 VOR Calculation Engine (Python)</summary>
-      <pre><code># ── Value Over Replacement (VOR) Calculation ──────────────────────
+  <details>
+    <summary>&#x1F9EE; VOR Calculation Engine (Python)</summary>
+    <pre>
+# ── Value Over Replacement (VOR) Calculation ──────────────────────
 # VOR normalizes fantasy points across positions by subtracting
 # the "replacement level" — the best player available on waivers.
 
@@ -538,7 +965,6 @@ def compute_vor(players: list[dict], league_size: int = 12) -> list[dict]:
     # Replacement thresholds: how many starters exist league-wide
     # QB1 × 12 = 12 starters → replacement = QB13
     # RB1-RB2 × 12 = 24 starters → replacement = RB25
-    # WR1-WR2 × 12 = 24 starters → replacement = WR25 (approx)
     starters_per_team = {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "K": 1, "DST": 1}
     replacement_rank = {
         pos: (slots * league_size) + 1
@@ -546,7 +972,6 @@ def compute_vor(players: list[dict], league_size: int = 12) -> list[dict]:
     }
     # e.g. {"QB": 13, "RB": 25, "WR": 25, "TE": 13, "K": 13, "DST": 13}
 
-    # Group by position, sort descending by projected points
     from collections import defaultdict
     by_pos = defaultdict(list)
     for p in players:
@@ -554,30 +979,26 @@ def compute_vor(players: list[dict], league_size: int = 12) -> list[dict]:
     for pos in by_pos:
         by_pos[pos].sort(key=lambda x: x["projected_pts"], reverse=True)
 
-    # Find replacement-level points for each position
     replacement_pts = {}
     for pos, rank in replacement_rank.items():
         idx = min(rank - 1, len(by_pos[pos]) - 1)
         replacement_pts[pos] = by_pos[pos][idx]["projected_pts"] if idx >= 0 else 0
 
-    # Calculate VOR: player_pts - replacement_pts[position]
     for p in players:
         p["vor"] = round(p["projected_pts"] - replacement_pts[p["pos"]], 1)
 
-    # Sort cross-positionally by VOR (this IS the draft ranking)
     players.sort(key=lambda x: x["vor"], reverse=True)
     return players
 
-# Example: QB with 350 pts, replacement QB13 scores 260 pts → VOR = 90
-#          RB with 280 pts, replacement RB25 scores 120 pts → VOR = 160
-#          The RB ranks HIGHER despite fewer raw points — scarcity wins.</code></pre>
-    </details>
+# Example: QB with 350 pts, replacement QB13 = 260 pts → VOR = 90
+#          RB with 280 pts, replacement RB25 = 120 pts → VOR = 160
+#          The RB ranks HIGHER despite fewer raw points — scarcity wins.</pre>
+  </details>
 
-    <details>
-      <summary>🤖 AI Draft Strategy Engine (Python)</summary>
-      <pre><code># ── AI Draft Strategy: Weighted VOR with Archetype Biases ─────────
-# Each AI team has a strategy archetype that applies positional
-# weight multipliers to VOR, simulating real draft tendencies.
+  <details>
+    <summary>&#x1F916; AI Draft Strategy Engine (Python)</summary>
+    <pre>
+# ── AI Draft Strategy: Weighted VOR with Archetype Biases ─────────
 
 STRATEGIES = {
     "Robust RB":    {"QB": 0.50, "RB": 1.55, "WR": 0.85, "TE": 0.60, "K": 0.30, "DST": 0.30},
@@ -587,41 +1008,29 @@ STRATEGIES = {
     "Late QB":      {"QB": 0.25, "RB": 1.25, "WR": 1.25, "TE": 0.90, "K": 0.30, "DST": 0.30},
     "Balanced BPA": {"QB": 1.00, "RB": 1.00, "WR": 1.00, "TE": 1.00, "K": 0.50, "DST": 0.50},
 }
-# Robust RB weights RB at 1.55× → a RB with VOR 80 scores 124 composite
-# Zero RB weights RB at 0.45× → same RB scores only 36 composite
-# This is why the same player falls to round 3 in one draft but goes pick 8 in another
 
 def ai_pick(available: list, team_roster: list, strategy: dict) -> dict:
-    """Select the best player using strategy-weighted VOR."""
+    """Select best player using strategy-weighted VOR."""
     weights = strategy
-    pos_counts = {}
-    for p in team_roster:
-        pos_counts[p["pos"]] = pos_counts.get(p["pos"], 0) + 1
-
+    pos_counts = {p["pos"]: pos_counts.get(p["pos"], 0) + 1 for p in team_roster}
     pos_needs = {"QB": 3, "RB": 5, "WR": 5, "TE": 2, "K": 2, "DST": 2}
     best, best_score = None, float("-inf")
 
     for player in available[:60]:  # scan top 60 by VOR
-        # Base: VOR × strategy weight
         score = player["vor"] * weights.get(player["pos"], 1.0)
 
-        # Need bonus: +15% if roster slot still open
-        filled = pos_counts.get(player["pos"], 0)
-        if filled < pos_needs[player["pos"]]:
+        # Need bonus: +15% if roster slot open
+        if pos_counts.get(player["pos"], 0) < pos_needs[player["pos"]]:
             score *= 1.15
         else:
             score *= 0.45  # heavy penalty if position full
 
-        # Scarcity check: how many of this position remain?
+        # Scarcity check: positional urgency
         remaining = sum(1 for p in available[:40] if p["pos"] == player["pos"])
         if remaining <= 3:
-            score *= 1.35  # urgency — "run" on position
+            score *= 1.35
         elif remaining <= 6:
             score *= 1.12
-
-        # ADP sanity: don't reach more than 30 picks early
-        if player["adp"] > (current_pick + 30):
-            score *= 0.70
 
         # Behavioral jitter: ±8% randomization
         import random
@@ -630,115 +1039,268 @@ def ai_pick(available: list, team_roster: list, strategy: dict) -> dict:
         if score > best_score:
             best, best_score = player, score
 
-    return best</code></pre>
-    </details>
+    return best</pre>
+  </details>
 
-    <details>
-      <summary>📊 Post-Draft Grade Analysis (Python)</summary>
-      <pre><code># ── Post-Draft Grading Algorithm ──────────────────────────────────
-# Grades each team on four dimensions:
-#   1. Total VOR captured (how much value above replacement)
-#   2. Starter quality (projected points from starting lineup)
-#   3. Bye week concentration (penalty for 3+ starters on same bye)
-#   4. Positional balance (did you cover all positions?)
+  <details>
+    <summary>&#x1F40D; Snake Draft Order Generator (Python)</summary>
+    <pre>
+# ── Snake Draft Order ────────────────────────────────────────────
+# In a snake draft, odd rounds go 1→12, even rounds go 12→1.
+# This creates the "snake" pattern that ensures fairness.
+
+def build_draft_queue(num_teams: int = 12, num_rounds: int = 19) -> list[dict]:
+    """
+    Returns a flat list of {round, pick_in_round, team_idx}
+    in snake order across all rounds.
+    """
+    queue = []
+    for r in range(num_rounds):
+        order = list(range(num_teams))
+        if r % 2 == 1:          # even rounds (0-indexed) reverse
+            order = order[::-1]
+        for pick_pos, team_idx in enumerate(order):
+            queue.append({
+                "round":         r,
+                "pick_in_round": pick_pos,
+                "team_idx":      team_idx,
+                "overall_pick":  r * num_teams + pick_pos + 1,
+            })
+    return queue
+
+# Example output (12-team, first 2 rounds):
+# Round 1: teams 0,1,2,...,11 (picks 1–12)
+# Round 2: teams 11,10,9,...,0 (picks 13–24)
+# Team 0 gets picks 1 and 24 (gap = 23)
+# Team 11 gets picks 12 and 13 (back-to-back)</pre>
+  </details>
+
+  <details>
+    <summary>&#x1F4CA; Post-Draft Grade Analysis (Python)</summary>
+    <pre>
+# ── Post-Draft Grading Algorithm ──────────────────────────────────
+# Grades each team on four dimensions then assigns A+ through D.
 
 def grade_team(roster: list, all_teams: list, league_size: int = 12) -> dict:
-    """Compute composite draft grade for a team's roster."""
-    # ── 1. Total VOR Captured ──
-    total_vor = sum(p["vor"] for p in roster)
-
-    # ── 2. Starter Projected Points ──
     by_pos = {}
     for p in roster:
         by_pos.setdefault(p["pos"], []).append(p)
     for pos in by_pos:
         by_pos[pos].sort(key=lambda x: x["projected_pts"], reverse=True)
 
+    # 1. Starter Projected Points
     starter_pts = 0
-    # QB1
-    if by_pos.get("QB"): starter_pts += by_pos["QB"][0]["projected_pts"]
-    # RB1, RB2
+    if by_pos.get("QB"):  starter_pts += by_pos["QB"][0]["projected_pts"]
     for i in range(min(2, len(by_pos.get("RB", [])))):
         starter_pts += by_pos["RB"][i]["projected_pts"]
-    # WR1, WR2
     for i in range(min(2, len(by_pos.get("WR", [])))):
         starter_pts += by_pos["WR"][i]["projected_pts"]
-    # TE1
-    if by_pos.get("TE"): starter_pts += by_pos["TE"][0]["projected_pts"]
-    # FLEX (best remaining RB/WR/TE)
-    flex_candidates = []
-    if len(by_pos.get("RB", [])) > 2: flex_candidates.append(by_pos["RB"][2])
-    if len(by_pos.get("WR", [])) > 2: flex_candidates.append(by_pos["WR"][2])
-    if len(by_pos.get("TE", [])) > 1: flex_candidates.append(by_pos["TE"][1])
-    flex_candidates.sort(key=lambda x: x["projected_pts"], reverse=True)
-    if flex_candidates: starter_pts += flex_candidates[0]["projected_pts"]
-    # K1, DST1
-    if by_pos.get("K"): starter_pts += by_pos["K"][0]["projected_pts"]
+    if by_pos.get("TE"):  starter_pts += by_pos["TE"][0]["projected_pts"]
+    # FLEX: best remaining RB/WR/TE
+    flex = sorted(
+        [p for pos in ["RB","WR","TE"] for p in by_pos.get(pos,[])[2:]],
+        key=lambda x: x["projected_pts"], reverse=True
+    )
+    if flex: starter_pts += flex[0]["projected_pts"]
+    if by_pos.get("K"):   starter_pts += by_pos["K"][0]["projected_pts"]
     if by_pos.get("DST"): starter_pts += by_pos["DST"][0]["projected_pts"]
 
-    # ── 3. Bye Week Concentration Penalty ──
+    # 2. Bye Week Concentration Penalty
     bye_counts = {}
     for p in roster:
         bye_counts[p["bye"]] = bye_counts.get(p["bye"], 0) + 1
     bye_penalty = sum(1 for count in bye_counts.values() if count >= 3)
-    # Each 3+ concentration = one grade tier penalty
 
-    # ── 4. Starter-to-Bench Quality Ratio ──
-    bench_pts = sum(p["projected_pts"] for p in roster) - starter_pts
-    bench_count = len(roster) - 9  # 9 starters
-    depth_ratio = (bench_pts / bench_count) if bench_count > 0 else 0
-
-    # ── Composite: rank all teams by starter_pts, assign letter grade ──
-    all_starter_pts = []
-    for team_roster in all_teams:
-        # (compute starter_pts for each team using same logic above)
-        all_starter_pts.append(compute_starter_pts(team_roster))
-    all_starter_pts.sort(reverse=True)
-
+    # 3. Rank among all teams, assign grade
+    all_starter_pts = sorted(
+        [compute_starter_pts(t) for t in all_teams], reverse=True
+    )
     rank = all_starter_pts.index(starter_pts) + 1
     grade_map = ["A+","A","A","A-","B+","B","B","B-","C+","C","C-","D"]
-    base_grade_idx = rank - 1
-    final_grade_idx = min(base_grade_idx + bye_penalty, len(grade_map) - 1)
+    grade_idx = min(rank - 1 + bye_penalty, len(grade_map) - 1)
 
     return {
-        "grade": grade_map[final_grade_idx],
-        "rank": rank,
-        "total_vor": round(total_vor),
-        "starter_pts": round(starter_pts),
+        "grade":        grade_map[grade_idx],
+        "rank":         rank,
+        "starter_pts":  round(starter_pts),
         "bye_conflicts": bye_penalty,
-        "bench_depth": round(depth_ratio, 1),
-    }</code></pre>
-    </details>
+        "total_vor":    round(sum(p["vor"] for p in roster)),
+    }</pre>
+  </details>
 
+</div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="nd-about">
+<div class="nd-about">
+  <div class="nd-about-card">
+    <h3>&#x1F3C8; Built for the Portfolio</h3>
+    <p>This demo is part of the <strong>7-Ideations Framework</strong> &mdash; a portfolio approach that walks from narrative to live demo to classroom to production code. Every pick in the simulator reflects a real algorithmic decision: VOR ranking, strategy-weighted AI, scarcity detection, and post-draft analytics.</p>
+    <p style="font-size:.75rem;color:var(--nd-muted);margin-bottom:1.2rem">The most modern resume for the most modern city on earth.</p>
+    <button class="nd-share-btn" id="ndShareBtn" onclick="ndShareDemo()">
+      <i class="fas fa-share-alt me-1"></i> Share This Demo
+    </button>
   </div>
 </div>
-
-<!-- ═══════════════════════════ INNOVATION SPOTLIGHT ═══════════════════════════ -->
-<div style="max-width:940px;margin:2.5rem auto 2rem;padding:0 1rem">
-  <h3 style="font-size:1.15rem;font-weight:900;margin-bottom:.25rem">Innovation Spotlight</h3>
-  <p style="font-size:.78rem;color:var(--dfr-muted);margin-bottom:1.2rem">Advanced techniques that push beyond standard draft simulators.</p>
-  <div class="dfr-decisions">
-
-    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
-      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#8b5cf6;margin-bottom:.35rem">REAL-TIME ADAPTATION</div>
-      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">🔥 Dynamic Positional Run Detection</h4>
-      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">The AI tracks when 3+ players at a position are drafted in a 6-pick window and adjusts urgency weights upward for remaining players at that position, simulating real "run" behavior. This creates cascading effects — one team reaching for a RB can trigger a run that forces three other teams to adjust, mirroring the panic-driven runs seen in real draft rooms.</p>
-    </div>
-
-    <div style="border-radius:14px;border:1px solid var(--dr-border);padding:1rem;background:var(--dfr-card)">
-      <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#8b5cf6;margin-bottom:.35rem">DRAFT CAPITAL THEORY</div>
-      <h4 style="font-size:.88rem;font-weight:800;margin:0 0 .5rem">📈 Bayesian Draft Pick Valuation</h4>
-      <p style="font-size:.72rem;color:var(--dfr-muted);line-height:1.6;margin:0">Using the Jimmy Johnson draft value chart adapted for fantasy, each pick position has a calculated trade value. The system could compute "draft capital efficiency" — how much VOR you captured per unit of draft capital. Pick 1 (worth 3,000 JJ points) drafting a player with VOR 120 yields 0.04 VOR/point, while pick 24 (worth 700 JJ points) with VOR 85 yields 0.12 VOR/point — quantifying which picks truly delivered value.</p>
-    </div>
-
-  </div>
-</div>
+</section>
 
 {% endblock content %}
-
 {% block extra_js %}
 <script>
 (function(){'use strict';
+
+/* ══════════════════════════════════════════════════════════════
+   7-IDEATIONS NAV + ELI5 + CLASSROOM STATE
+   ══════════════════════════════════════════════════════════════ */
+var ndClsCurrent=0,ndClsTotal=6,ndEli5Selected=null;
+
+var ELI5_STRATS={
+  casual:{QB:.7,RB:1.55,WR:.85,TE:.6,K:.3,DST:.3,name:'Robust RB'},
+  analyst:{QB:1.0,RB:1.0,WR:1.0,TE:1.0,K:.5,DST:.5,name:'Balanced BPA'},
+  zerorb:{QB:.7,RB:.45,WR:1.5,TE:1.15,K:.3,DST:.3,name:'Zero RB'},
+  contrarian:{QB:1.15,RB:.85,WR:.85,TE:1.25,K:.4,DST:.4,name:'Contrarian'}
+};
+
+function ndSetMode(mode){
+  document.querySelectorAll('.nd-mode-btn').forEach(function(b){
+    b.classList.toggle('active',b.dataset.mode===mode);
+  });
+  document.querySelectorAll('.nd-pane').forEach(function(p){
+    p.classList.toggle('active',p.dataset.pane===mode);
+  });
+}
+
+function ndSelectPersona(key){
+  ndEli5Selected=key;
+  document.querySelectorAll('.nd-persona').forEach(function(el){
+    el.classList.remove('selected');
+  });
+  var el=document.getElementById('nd-persona-'+key);
+  if(el)el.classList.add('selected');
+  var btn=document.getElementById('nd-eli5-run');
+  if(btn)btn.disabled=false;
+  var res=document.getElementById('nd-eli5-result');
+  if(res)res.style.display='none';
+}
+
+function ndRunELI5(){
+  if(!ndEli5Selected||typeof RAW==='undefined')return;
+  var strat=ELI5_STRATS[ndEli5Selected];
+  var weights={QB:strat.QB,RB:strat.RB,WR:strat.WR,TE:strat.TE,K:strat.K,DST:strat.DST};
+  var pool=RAW.slice(0,80).map(function(r,idx){
+    return{name:r[0],pos:r[1],team:r[2],bye:r[3],adp:r[4],rankScore:80-idx};
+  });
+  var avail=pool.slice();
+  var drafted=[];
+  var posNeeds={QB:1,RB:3,WR:3,TE:1,K:1,DST:1};
+  var posHave={QB:0,RB:0,WR:0,TE:0,K:0,DST:0};
+  for(var rnd=1;rnd<=8;rnd++){
+    var best=null,bestScore=-Infinity,bestIdx=-1;
+    for(var i=0;i<avail.length;i++){
+      var p=avail[i];
+      var w=weights[p.pos]||0.5;
+      var score=p.rankScore*w;
+      if((posHave[p.pos]||0)<(posNeeds[p.pos]||1))score*=1.15;
+      else score*=0.35;
+      score*=(0.92+Math.random()*0.16);
+      if(score>bestScore){best=p;bestScore=score;bestIdx=i;}
+    }
+    if(!best)break;
+    drafted.push({round:rnd,player:best});
+    posHave[best.pos]=(posHave[best.pos]||0)+1;
+    avail.splice(bestIdx,1);
+  }
+  var totalW=0;
+  drafted.forEach(function(d){totalW+=weights[d.player.pos]||0.5;});
+  var avg=drafted.length>0?totalW/drafted.length:0;
+  var grade=avg>=1.1?'A+':avg>=0.95?'A':avg>=0.8?'B+':avg>=0.65?'B':'C';
+  var posColors={QB:'#dc2626',RB:'#2563eb',WR:'#7c3aed',TE:'#059669',K:'#ca8a04',DST:'#e11d48'};
+  var html='<div class="nd-eli5-picks">';
+  drafted.forEach(function(d){
+    var c=posColors[d.player.pos]||'#64748b';
+    html+='<div class="nd-eli5-pick">'
+      +'<div class="rnd">R'+d.round+'</div>'
+      +'<div class="info">'
+      +'<div class="name">'+d.player.name+'</div>'
+      +'<div class="meta" style="color:'+c+';font-weight:700">'+d.player.pos
+        +' <span style="color:var(--nd-muted);font-weight:400">&middot; '+d.player.team+'</span></div>'
+      +'</div></div>';
+  });
+  html+='</div>';
+  html+='<div class="nd-eli5-grade-card">'
+    +'<div class="nd-eli5-grade-circle">'+grade+'</div>'
+    +'<div><div style="font-size:.88rem;font-weight:800;color:var(--nd-text)">Draft Grade: '+grade+'</div>'
+    +'<div style="font-size:.73rem;color:var(--nd-muted);margin:.2rem 0 .1rem">Strategy: <strong>'+strat.name+'</strong></div>'
+    +'<div style="font-size:.68rem;color:var(--nd-muted)">Top 8 VOR-weighted picks for your archetype</div>'
+    +'</div></div>';
+  var result=document.getElementById('nd-eli5-result');
+  result.innerHTML=html;
+  result.style.display='block';
+}
+
+/* ── Classroom Carousel ── */
+function ndClsShowSlide(n){
+  ndClsCurrent=((n%ndClsTotal)+ndClsTotal)%ndClsTotal;
+  document.querySelectorAll('.nd-cls-slide').forEach(function(el,i){
+    el.classList.toggle('active',i===ndClsCurrent);
+  });
+  document.querySelectorAll('.nd-cls-dot').forEach(function(el,i){
+    el.classList.toggle('active',i===ndClsCurrent);
+  });
+}
+function ndClsNext(){ndClsShowSlide(ndClsCurrent+1);}
+function ndClsPrev(){ndClsShowSlide(ndClsCurrent-1);}
+function ndGotoClsDot(n){ndClsShowSlide(n);}
+
+/* ── Share ── */
+function ndShareDemo(){
+  var url=window.location.href;
+  if(navigator.share){navigator.share({title:'NFL Fantasy Draft Analytics',url:url});}
+  else if(navigator.clipboard){
+    navigator.clipboard.writeText(url);
+    var btn=document.getElementById('ndShareBtn');
+    if(btn){var orig=btn.innerHTML;btn.innerHTML='<i class="fas fa-check me-1"></i> Link Copied!';
+      setTimeout(function(){btn.innerHTML=orig;},2200);}
+  }
+}
+
+/* ── Scroll Spy + Progress Bar ── */
+function ndInitNav(){
+  var fill=document.getElementById('ndProgressFill');
+  var navItems=document.querySelectorAll('.nd-nav-item[data-nav]');
+  var sections=['nd-story','nd-demo','nd-classroom','nd-keypoints','nd-code','nd-about'];
+
+  function onScroll(){
+    var scrollTop=window.scrollY||document.documentElement.scrollTop;
+    var docH=document.documentElement.scrollHeight-window.innerHeight;
+    if(docH>0&&fill)fill.style.width=Math.min(100,(scrollTop/docH*100))+'%';
+
+    var active=sections[0];
+    for(var i=0;i<sections.length;i++){
+      var el=document.getElementById(sections[i]);
+      if(el&&el.getBoundingClientRect().top<=80){active=sections[i];}
+    }
+    navItems.forEach(function(item){
+      item.classList.toggle('active',item.dataset.nav===active);
+    });
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+}
+
+/* ── Window exports (used in onclick="" attributes) ── */
+window.ndSetMode=ndSetMode;
+window.ndSelectPersona=ndSelectPersona;
+window.ndRunELI5=ndRunELI5;
+window.ndClsNext=ndClsNext;
+window.ndClsPrev=ndClsPrev;
+window.ndGotoClsDot=ndGotoClsDot;
+window.ndShareDemo=ndShareDemo;
+
+/* ══════════════════════════════════════════════════════════════
+   ORIGINAL DRAFT ROOM ENGINE (verbatim from production build)
+   ══════════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════════
    CONFIGURATION & STATE
@@ -1782,6 +2344,10 @@ document.querySelectorAll('.dfr-speed-btn').forEach(function(btn){
 document.getElementById('dfrBoardOverlay').addEventListener('click',function(e){
   if(e.target===this)this.style.display='none';
 });
+
+
+  /* ── Init navigation ── */
+  ndInitNav();
 
 })();
 </script>
