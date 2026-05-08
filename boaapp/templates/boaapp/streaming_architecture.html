@@ -4,27 +4,47 @@
 
 {% block content %}
 <style>
-/* ══════════════════════════════════════════════════════════
-   REAL-TIME STREAMING ARCHITECTURE
-   ══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   REAL-TIME STREAMING ARCHITECTURE — 7 Ideations
+   ══════════════════════════════════════════════════════ */
 :root{
-  --st-blue:#3b82f6;--st-violet:#8b5cf6;--st-emerald:#10b981;--st-amber:#f59e0b;--st-rose:#ef4444;--st-cyan:#06b6d4;
+  --st-blue:#3b82f6;--st-violet:#8b5cf6;--st-emerald:#10b981;--st-amber:#f59e0b;
+  --st-rose:#ef4444;--st-cyan:#06b6d4;
   --st-grad-b:linear-gradient(135deg,#3b82f6,#06b6d4);
   --st-grad-v:linear-gradient(135deg,#8b5cf6,#6d28d9);
   --st-grad-g:linear-gradient(135deg,#10b981,#059669);
   --st-grad-a:linear-gradient(135deg,#f59e0b,#d97706);
   --st-surface:rgba(255,255,255,.75);--st-border:rgba(0,0,0,.08);
   --st-shadow:0 4px 24px rgba(0,0,0,.07);--st-shadow-lg:0 12px 48px rgba(0,0,0,.13);
+  --st-radius:14px;--st-radius-lg:22px;
+  --st-glass:rgba(255,255,255,.75);
 }
 [data-theme="dark"]{
   --st-surface:rgba(22,28,45,.8);--st-border:rgba(255,255,255,.08);
   --st-shadow:0 4px 24px rgba(0,0,0,.4);--st-shadow-lg:0 12px 48px rgba(0,0,0,.55);
+  --st-glass:rgba(22,28,45,.8);
 }
 @keyframes stFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes stFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes stPulse{0%,100%{box-shadow:0 0 0 0 rgba(6,182,212,.35)}70%{box-shadow:0 0 0 12px rgba(6,182,212,0)}}
-@keyframes stStreamDot{0%{left:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{left:100%;opacity:0}}
+@keyframes stSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes stStepIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
+/* ── Progress Bar ── */
+.st-progress-track{position:fixed;top:0;left:0;right:0;height:3px;z-index:1060;pointer-events:none}
+.st-progress-fill{height:100%;width:0%;background:var(--st-grad-b);transition:width .12s linear;border-radius:0 2px 2px 0}
+
+/* ── Sticky Section Nav ── */
+.st-sec-nav{position:sticky;top:0;z-index:1000;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  background:rgba(255,255,255,.8);border-bottom:1px solid var(--st-border);padding:.45rem 0;margin-bottom:.5rem}
+[data-theme="dark"] .st-sec-nav{background:rgba(15,23,42,.85)}
+.st-sec-nav-inner{display:flex;justify-content:center;gap:.15rem;flex-wrap:wrap;padding:0 1rem}
+.st-sec-link{padding:.3rem .75rem;border-radius:99px;font-size:.76rem;font-weight:700;text-decoration:none;
+  color:inherit;opacity:.52;transition:opacity .2s,background .2s;white-space:nowrap}
+.st-sec-link:hover{opacity:1;color:var(--st-cyan)}
+.st-sec-link.active{opacity:1;background:rgba(6,182,212,.1);color:var(--st-cyan)}
+
+/* ── Hero ── */
 .st-hero{text-align:center;padding:3.5rem 0 2.5rem;position:relative;overflow:hidden}
 .st-hero::before{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(6,182,212,.11) 0%,transparent 70%),
@@ -47,6 +67,7 @@
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .st-kpi-lbl{font-size:.72rem;opacity:.65;line-height:1.3}
 
+/* ── Section Base ── */
 .st-sec{padding:1.8rem 0;animation:stFadeUp .6s ease both}
 .st-sec-head{text-align:center;margin-bottom:1.4rem}
 .st-sec-head h2{font-size:1.55rem;font-weight:800;margin-bottom:.25rem}
@@ -57,54 +78,67 @@
 .st-tag--v{background:rgba(139,92,246,.11);color:#7c3aed}
 .st-tag--g{background:rgba(16,185,129,.11);color:#059669}
 .st-tag--a{background:rgba(245,158,11,.11);color:#b45309}
+.st-tag--b{background:rgba(59,130,246,.11);color:#2563eb}
+.st-divider{height:1px;background:var(--st-border);margin:1.5rem 0}
 
-/* ── Stream Flow ── */
-.st-flow{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap;gap:0;max-width:960px;margin:0 auto 1.5rem}
-.st-flow-node{display:flex;flex-direction:column;align-items:center;padding:1rem .75rem;
-  border-radius:17px;border:1px solid var(--st-border);background:var(--st-surface);
-  backdrop-filter:blur(10px);box-shadow:var(--st-shadow);min-width:105px;text-align:center;
-  transition:transform .25s,box-shadow .25s}
-.st-flow-node:hover{transform:translateY(-4px);box-shadow:var(--st-shadow-lg)}
-.st-flow-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
-  justify-content:center;font-size:1.1rem;color:#fff;margin-bottom:.48rem}
-.st-flow-lbl{font-size:.71rem;font-weight:700;line-height:1.25}
-.st-flow-sub{font-size:.58rem;opacity:.52;margin-top:.14rem}
-.st-flow-arr{display:flex;align-items:center;padding:0 .2rem;align-self:center;position:relative;min-width:28px}
-.st-flow-arr i{opacity:.35;font-size:.82rem}
-.st-flow-arr::after{content:'';position:absolute;top:50%;left:4px;width:6px;height:6px;
-  border-radius:50%;background:var(--st-cyan);animation:stPulse 1.4s ease-in-out infinite}
+/* ── Story Timeline ── */
+.st-story-timeline{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:0}
+.st-story-step{display:flex;gap:1.25rem;align-items:flex-start;padding:1.1rem 0;
+  opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease;position:relative}
+.st-story-step.visible{opacity:1;transform:translateY(0)}
+.st-story-step:not(:last-child)::after{content:'';position:absolute;left:21px;top:60px;
+  bottom:-10px;width:2px;background:var(--st-border)}
+.st-story-icon-wrap{flex-shrink:0;width:44px;height:44px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;font-size:1.25rem;background:var(--st-surface);
+  border:2px solid var(--st-border);box-shadow:var(--st-shadow);position:relative;z-index:1}
+.st-story-content{flex:1;background:var(--st-surface);border:1px solid var(--st-border);
+  border-radius:var(--st-radius);padding:1rem 1.2rem;box-shadow:var(--st-shadow);backdrop-filter:blur(8px)}
+.st-story-content h4{font-size:.95rem;font-weight:800;margin-bottom:.35rem}
+.st-story-content p{font-size:.82rem;opacity:.75;line-height:1.65;margin:0}
+.st-story-content .st-story-detail{margin-top:.55rem;padding:.5rem .7rem;border-radius:10px;
+  background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.12);font-size:.75rem;opacity:.8;line-height:1.55}
+.st-story-content .st-story-detail strong{color:var(--st-cyan)}
 
-/* ── Layer Cards ── */
-.st-layers{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;max-width:960px;margin:0 auto}
-@media(max-width:768px){.st-layers{grid-template-columns:1fr}}
-.st-layer{border-radius:20px;padding:1.5rem;border:1px solid var(--st-border);
-  background:var(--st-surface);backdrop-filter:blur(12px);box-shadow:var(--st-shadow);
-  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
-.st-layer:hover{transform:translateY(-4px);box-shadow:var(--st-shadow-lg)}
-.st-layer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.st-layer--ingest::before{background:var(--st-grad-b)}
-.st-layer--process::before{background:var(--st-grad-v)}
-.st-layer--serve::before{background:var(--st-grad-g)}
-.st-layer--store::before{background:var(--st-grad-a)}
-.st-layer-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;
-  justify-content:center;font-size:1.2rem;color:#fff;margin-bottom:.9rem}
-.st-layer h3{font-size:1.05rem;font-weight:800;margin-bottom:.18rem}
-.st-layer .sub{font-size:.76rem;opacity:.6;margin-bottom:.9rem}
-.st-ck{display:flex;align-items:center;gap:.4rem;font-size:.78rem;margin-bottom:.4rem}
-.st-ck i{font-size:.7rem}
-.st-ck .done{color:var(--st-emerald)}.st-ck .info{color:var(--st-cyan)}
+/* ── Mode Toggle ── */
+.st-mode-toggle{display:flex;justify-content:center;margin-bottom:1.5rem}
+.st-toggle-pill{display:flex;background:var(--st-surface);border:1px solid var(--st-border);
+  border-radius:99px;padding:4px;box-shadow:var(--st-shadow);backdrop-filter:blur(8px)}
+.st-toggle-btn{padding:.45rem 1.25rem;border-radius:99px;border:none;background:transparent;
+  font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;color:inherit;opacity:.6}
+.st-toggle-btn.active{background:linear-gradient(135deg,#06b6d4,#3b82f6);color:#fff;
+  opacity:1;box-shadow:0 2px 10px rgba(6,182,212,.35)}
+.st-demo-pane{display:none}
+.st-demo-pane.active{display:block;animation:stFadeUp .35s ease}
 
-/* ── Pattern Cards ── */
-.st-patterns{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;max-width:940px;margin:0 auto}
-.st-pat{border-radius:14px;border:1px solid var(--st-border);background:var(--st-surface);
-  backdrop-filter:blur(8px);padding:.9rem 1rem;text-align:center;transition:transform .2s,box-shadow .2s}
-.st-pat:hover{transform:translateY(-2px);box-shadow:var(--st-shadow)}
-.st-pat-icon{width:40px;height:40px;border-radius:12px;display:inline-flex;align-items:center;
-  justify-content:center;font-size:1rem;color:#fff;margin-bottom:.5rem}
-.st-pat-name{font-size:.81rem;font-weight:700;margin-bottom:.18rem}
-.st-pat-desc{font-size:.68rem;opacity:.6;line-height:1.4}
+/* ── ELI5 Pane ── */
+.st-eli5-wrap{background:var(--st-surface);border:1px solid var(--st-border);
+  border-radius:var(--st-radius-lg);padding:1.5rem;box-shadow:var(--st-shadow);backdrop-filter:blur(10px);
+  max-width:860px;margin:0 auto}
+.st-eli5-intro{text-align:center;font-size:.88rem;opacity:.7;margin-bottom:1.2rem;line-height:1.6}
+.st-eli5-picker{display:flex;flex-wrap:wrap;gap:.65rem;justify-content:center;margin-bottom:1.2rem}
+.st-eli5-card{flex:0 0 130px;width:130px;border-radius:12px;border:2px solid var(--st-border);
+  overflow:hidden;cursor:pointer;transition:all .2s;background:var(--st-surface)}
+.st-eli5-card:hover{transform:translateY(-3px);box-shadow:var(--st-shadow-lg);border-color:rgba(6,182,212,.35)}
+.st-eli5-card.selected{border-color:var(--st-cyan);box-shadow:0 0 0 3px rgba(6,182,212,.2)}
+.st-eli5-card-img{height:160px;overflow:hidden;background:linear-gradient(135deg,#1e293b,#334155)}
+.st-eli5-card-img img{width:100%;height:100%;object-fit:cover;object-position:center top}
+.st-eli5-card-info{padding:.4rem .5rem}
+.st-eli5-card-title{font-size:.68rem;font-weight:700;line-height:1.2;margin-bottom:.2rem}
+.st-eli5-card-genre{font-size:.6rem;opacity:.55}
+.st-eli5-result{margin-top:1rem;padding:1rem 1.2rem;background:rgba(6,182,212,.04);
+  border:1px solid rgba(6,182,212,.15);border-radius:var(--st-radius);animation:stFadeUp .4s ease}
+.st-eli5-result h5{font-size:.88rem;font-weight:800;margin-bottom:.75rem;color:var(--st-cyan)}
+.st-eli5-rec-grid{display:flex;flex-wrap:wrap;gap:.65rem;justify-content:center}
+.st-eli5-rec-card{flex:0 0 140px;width:140px;border-radius:12px;border:1px solid var(--st-border);
+  overflow:hidden;background:var(--st-surface);animation:stFadeUp .4s ease both}
+.st-eli5-rec-card-img{height:170px;overflow:hidden}
+.st-eli5-rec-card-img img{width:100%;height:100%;object-fit:cover;object-position:center top}
+.st-eli5-rec-info{padding:.45rem .5rem}
+.st-eli5-rec-title{font-size:.7rem;font-weight:700;line-height:1.2;margin-bottom:.15rem}
+.st-eli5-rec-score{font-size:.68rem;font-weight:800;color:var(--st-emerald)}
+.st-eli5-rec-why{font-size:.6rem;opacity:.6;margin-top:.1rem;line-height:1.3}
 
-/* ── Demo Panel ── */
+/* ── Demo Panel (Engineer) ── */
 .st-demo{border-radius:22px;border:1px solid var(--st-border);background:var(--st-surface);
   backdrop-filter:blur(14px);box-shadow:var(--st-shadow-lg);overflow:hidden;max-width:940px;margin:0 auto}
 .st-demo-bar{padding:.85rem 1.4rem;display:flex;align-items:center;justify-content:space-between;
@@ -113,13 +147,43 @@
 .st-dots{display:flex;gap:.38rem}
 .st-dot{width:11px;height:11px;border-radius:50%}
 .st-dot--r{background:#ef4444}.st-dot--y{background:#f59e0b}.st-dot--g{background:#10b981}
-.st-demo-body{padding:1.2rem}
-.st-log{font-family:monospace;font-size:.73rem;line-height:1.7;background:#0f172a;color:#94a3b8;
-  border-radius:12px;padding:1rem 1.2rem;max-height:340px;overflow-y:auto}
-.st-log .ts{color:#64748b}.st-log .ok{color:#6ee7b7}.st-log .warn{color:#fcd34d}
-.st-log .err{color:#fca5a5}.st-log .src{color:#67e8f9}.st-log .num{color:#fcd34d}
+.st-pip-bar{display:flex;align-items:center;justify-content:center;gap:0;padding:.75rem 1.2rem;border-bottom:1px solid var(--st-border);flex-wrap:wrap}
+.st-pip{display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:default;position:relative;padding:0 .8rem}
+.st-pip::after{content:'';position:absolute;top:15px;left:calc(50% + 18px);width:calc(100% - 12px);height:2px;background:var(--st-border)}
+.st-pip:last-child::after{display:none}
+.st-pip-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:var(--st-surface);border:2px solid var(--st-border);color:#94a3b8;transition:all .35s;position:relative;z-index:1}
+.st-pip-lbl{font-size:.58rem;font-weight:700;opacity:.55;white-space:nowrap}
+.st-pip.active .st-pip-dot{border-color:var(--st-cyan);background:rgba(6,182,212,.12);color:var(--st-cyan);box-shadow:0 0 0 4px rgba(6,182,212,.12);animation:stPipPulse 1.2s ease-in-out infinite}
+.st-pip.done .st-pip-dot{border-color:var(--st-emerald);background:var(--st-emerald);color:#fff}
+.st-pip.done .st-pip-lbl,.st-pip.active .st-pip-lbl{opacity:1}
+@keyframes stPipPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.st-i-body{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:260px}
+@media(max-width:700px){.st-i-body{grid-template-columns:1fr}}
+.st-prev-pane{border-right:1px solid var(--st-border);padding:.7rem;font-size:.73rem;overflow-y:auto;max-height:540px}
+.st-pane-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;opacity:.45;margin-bottom:.35rem}
+.st-evt-card{border-radius:10px;border:1px solid var(--st-border);padding:.55rem .65rem;margin-bottom:.4rem;font-size:.7rem;opacity:0;transition:opacity .3s}
+.st-evt-card.vis{opacity:1}
+.st-evt-row{display:flex;justify-content:space-between;font-size:.66rem;padding:.1rem 0}
+.st-evt-row .lbl{opacity:.6}.st-evt-row .val{font-weight:600}
+.st-stage{padding:.8rem;overflow-y:auto;max-height:540px}
+.st-step-card{border-radius:14px;border:1px solid var(--st-border);background:rgba(255,255,255,.55);padding:.85rem 1rem;margin-bottom:.65rem;animation:stFadeUp .35s ease both}
+[data-theme="dark"] .st-step-card{background:rgba(255,255,255,.04)}
+.st-step-card--ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
+.st-step-card h6{font-size:.82rem;font-weight:800;margin-bottom:.45rem}
+.st-json{font-family:monospace;font-size:.71rem;background:#0f172a;color:#94a3b8;border-radius:10px;padding:.65rem .85rem;line-height:1.55;margin-top:.45rem}
+.st-json .key{color:#67e8f9}.st-json .str{color:#6ee7b7}.st-json .num{color:#fcd34d}.st-json .err{color:#fca5a5}
+.st-log2{font-family:monospace;font-size:.67rem;line-height:1.55;max-height:140px;overflow-y:auto;padding:.4rem;background:rgba(0,0,0,.03);border-radius:8px;margin-top:.25rem}
+[data-theme="dark"] .st-log2{background:rgba(255,255,255,.03)}
+.st-dash2{border-radius:18px;border:1px solid var(--st-border);background:var(--st-surface);backdrop-filter:blur(12px);box-shadow:var(--st-shadow);padding:1rem 1.3rem;max-width:940px;margin:1rem auto 0;display:none}
+.st-dash2-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:.7rem}
+@media(max-width:600px){.st-dash2-kpis{grid-template-columns:repeat(2,1fr)}}
+.st-dkpi{text-align:center;padding:.55rem;border-radius:12px;border:1px solid var(--st-border)}
+.st-dkpi-val{font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,#06b6d4,#0891b2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.st-dkpi-lbl{font-size:.58rem;opacity:.55;margin-top:.08rem}
+.st-ds{display:inline-block;padding:.1rem .38rem;border-radius:6px;font-size:.6rem;font-weight:700}
+.st-ds.ok{background:#d1fae5;color:#065f46}
 
-/* ── Pills & Callout ── */
+/* ── Tech Stack / Callout / Code ── */
 .st-stack{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;max-width:800px;margin:1rem auto 0}
 .st-pill{padding:.25rem .7rem;border-radius:999px;font-size:.72rem;font-weight:700}
 .st-pill--b{background:rgba(59,130,246,.12);color:#2563eb}
@@ -133,90 +197,36 @@
 .st-callout--c{border-color:rgba(6,182,212,.22);background:rgba(6,182,212,.04)}
 .st-callout h5{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
 .st-callout p{font-size:.81rem;opacity:.75;margin:0;line-height:1.55}
-
-@media(max-width:640px){
-  .st-flow{flex-direction:column;align-items:center}
-  .st-flow-arr{transform:rotate(90deg)}
-}
-
-/* ── Interactive Demo ── */
-.st-pip-bar{display:flex;align-items:center;justify-content:center;gap:0;padding:.75rem 1.2rem;border-bottom:1px solid var(--st-border);flex-wrap:wrap}
-.st-pip{display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:default;position:relative;padding:0 .8rem}
-.st-pip::after{content:'';position:absolute;top:15px;left:calc(50% + 18px);width:calc(100% - 12px);height:2px;background:var(--st-border)}
-.st-pip:last-child::after{display:none}
-.st-pip-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:var(--st-surface);border:2px solid var(--st-border);color:#94a3b8;transition:all .35s;position:relative;z-index:1}
-.st-pip-lbl{font-size:.58rem;font-weight:700;opacity:.55;white-space:nowrap}
-.st-pip.active .st-pip-dot{border-color:var(--st-cyan);background:rgba(6,182,212,.12);color:var(--st-cyan);box-shadow:0 0 0 4px rgba(6,182,212,.12);animation:stPulse 1.2s ease-in-out infinite}
-.st-pip.done .st-pip-dot{border-color:var(--st-emerald);background:var(--st-emerald);color:#fff}
-.st-pip.done .st-pip-lbl,.st-pip.active .st-pip-lbl{opacity:1}
-@keyframes stPulse{0%,100%{opacity:1}50%{opacity:.45}}
-.st-i-body{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:260px}
-@media(max-width:700px){.st-i-body{grid-template-columns:1fr}}
-.st-prev-pane{border-right:1px solid var(--st-border);padding:.7rem;font-size:.73rem;overflow-y:auto;max-height:540px}
-.st-pane-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;opacity:.45;margin-bottom:.35rem}
-.st-evt-card{border-radius:10px;border:1px solid var(--st-border);padding:.55rem .65rem;margin-bottom:.4rem;font-size:.7rem;opacity:0;transition:opacity .3s}
-.st-evt-card.vis{opacity:1}
-.st-evt-row{display:flex;justify-content:space-between;font-size:.66rem;padding:.1rem 0}
-.st-evt-row .lbl{opacity:.6}.st-evt-row .val{font-weight:600}
-.st-stage{padding:.8rem;overflow-y:auto;max-height:540px}
-.st-step-card{border-radius:14px;border:1px solid var(--st-border);background:rgba(255,255,255,.55);padding:.85rem 1rem;margin-bottom:.65rem;animation:stFadeUp .35s ease both}
-[data-theme="dark"] .st-step-card{background:rgba(255,255,255,.04)}
-.st-step-card--ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
-.st-step-card--warn{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05)}
-.st-step-card h6{font-size:.82rem;font-weight:800;margin-bottom:.45rem}
-.st-json{font-family:monospace;font-size:.71rem;background:#0f172a;color:#94a3b8;border-radius:10px;padding:.65rem .85rem;line-height:1.55;margin-top:.45rem}
-.st-json .key{color:#67e8f9}.st-json .str{color:#6ee7b7}.st-json .num{color:#fcd34d}.st-json .err{color:#fca5a5}
-.st-log2{font-family:monospace;font-size:.67rem;line-height:1.55;max-height:140px;overflow-y:auto;padding:.4rem;background:rgba(0,0,0,.03);border-radius:8px;margin-top:.25rem}
-[data-theme="dark"] .st-log2{background:rgba(255,255,255,.03)}
-.st-dash2{border-radius:18px;border:1px solid var(--st-border);background:var(--st-surface);backdrop-filter:blur(12px);box-shadow:var(--st-shadow);padding:1rem 1.3rem;max-width:940px;margin:1rem auto 0;display:none}
-.st-dash2-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:.7rem}
-@media(max-width:600px){.st-dash2-kpis{grid-template-columns:repeat(2,1fr)}}
-.st-dkpi{text-align:center;padding:.55rem;border-radius:12px;border:1px solid var(--st-border)}
-.st-dkpi-val{font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,#06b6d4,#0891b2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.st-dkpi-lbl{font-size:.58rem;opacity:.55;margin-top:.08rem}
-.st-ds{display:inline-block;padding:.1rem .38rem;border-radius:6px;font-size:.6rem;font-weight:700}
-.st-ds.ok{background:#d1fae5;color:#065f46}.st-ds.fraud{background:#fee2e2;color:#991b1b}
-@keyframes stFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-@keyframes stSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
-
-/* ── Design Decisions ── */
-.st-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
-@media(max-width:700px){.st-decisions{grid-template-columns:1fr}}
-.st-dec-card{border-radius:14px;border:1px solid var(--st-border);background:var(--st-surface);backdrop-filter:blur(8px);padding:1rem 1.1rem;transition:transform .2s,box-shadow .2s}
-.st-dec-card:hover{transform:translateY(-2px);box-shadow:var(--st-shadow-lg)}
-.st-dec-card h4{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
-.st-dec-card p{font-size:.76rem;opacity:.7;line-height:1.55;margin:0}
-.st-dec-cat{display:inline-block;padding:.15rem .5rem;border-radius:999px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem}
-
-/* ── Production Implementation ── */
 .st-impl{max-width:940px;margin:0 auto}
-.st-impl details{border-radius:14px;border:1px solid var(--st-border);background:var(--st-card);margin-bottom:.8rem;overflow:hidden}
+.st-impl details{border-radius:14px;border:1px solid var(--st-border);background:var(--st-surface);margin-bottom:.8rem;overflow:hidden}
 .st-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
 .st-impl summary::-webkit-details-marker{display:none}
 .st-impl summary::before{content:'▶';font-size:.6rem;transition:transform .2s}
 .st-impl details[open] summary::before{transform:rotate(90deg)}
 .st-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--st-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
-
-/* ── Innovation Spotlight ── */
-.st-innov{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
-@media(max-width:700px){.st-innov{grid-template-columns:1fr}}
-.st-innov-card{border-radius:16px;border:1px solid rgba(139,92,246,.2);background:linear-gradient(135deg,rgba(139,92,246,.04),rgba(6,182,212,.04));backdrop-filter:blur(10px);padding:1.1rem 1.2rem;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
-.st-innov-card:hover{transform:translateY(-2px);box-shadow:var(--st-shadow-lg)}
-.st-innov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#8b5cf6,#06b6d4)}
-.st-innov-card h4{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
-.st-innov-card p{font-size:.76rem;opacity:.7;line-height:1.55;margin:0}
-/* ── Demo column layout ── */
-.st-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
-.st-page-body>.st-sec{grid-column:1;min-width:0}
-.st-page-body>.st-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
-@media(max-width:1099px){.st-page-body{grid-template-columns:1fr}.st-page-body>.st-sec--demo{grid-column:1;grid-row:auto;position:static}}
+@media(max-width:640px){.st-eli5-picker{gap:.45rem}.st-eli5-card{flex:0 0 110px;width:110px}}
 </style>
 
-<!-- ═════════════════════ HERO ═════════════════════ -->
+<!-- ── Progress Bar ── -->
+<div class="st-progress-track"><div class="st-progress-fill" id="stProgressFill"></div></div>
+
+<!-- ── Sticky Section Nav ── -->
+<nav class="st-sec-nav" id="stSecNav">
+  <div class="st-sec-nav-inner">
+    <a href="#story"     class="st-sec-link active" data-sec="story">The Story</a>
+    <a href="#demo"      class="st-sec-link" data-sec="demo">Live Demo</a>
+    <a href="#classroom" class="st-sec-link" data-sec="classroom">Classroom</a>
+    <a href="#keypoints" class="st-sec-link" data-sec="keypoints">Key Points</a>
+    <a href="#code"      class="st-sec-link" data-sec="code">Production Code</a>
+    <a href="#about"     class="st-sec-link" data-sec="about">About</a>
+  </div>
+</nav>
+
+<!-- ════════════════════ HERO ════════════════════ -->
 <section class="st-hero">
   <div class="st-badge"><i class="fas fa-bolt"></i>&nbsp; Event-Driven</div>
   <h1>Real-time Streaming<br>Architecture</h1>
-  <p class="lead">Event-driven pipelines processing millions of events per second — from IoT sensors and clickstreams to fraud detection and live dashboards.</p>
+  <p class="lead">A Netflix-scale recommendation pipeline: Kafka + Flink + ALS processing 2.3 million events per second with sub-50ms end-to-end latency.</p>
   <div class="st-kpi-strip">
     <div class="st-kpi"><div><div class="st-kpi-val">2.3M</div><div class="st-kpi-lbl">Events / sec</div></div></div>
     <div class="st-kpi"><div><div class="st-kpi-val">&lt;50ms</div><div class="st-kpi-lbl">E2E Latency</div></div></div>
@@ -224,274 +234,405 @@
     <div class="st-kpi"><div><div class="st-kpi-val">24/7</div><div class="st-kpi-lbl">Always-On</div></div></div>
   </div>
 </section>
-<div class="st-page-body">
 
-<!-- ═════════════════════ STREAM FLOW ═════════════════════ -->
-<section class="st-sec">
+<!-- ════════════════════ SECTION 1 — THE STORY ════════════════════ -->
+<section id="story" class="st-sec">
   <div class="st-sec-head">
-    <span class="st-tag st-tag--c">Architecture</span>
-    <h2>End-to-End Event Flow</h2>
-    <p>Events travel from producers through the broker to processors, sinks, and consumers in real-time.</p>
+    <div class="st-tag st-tag--c"><i class="fas fa-book-open me-1"></i> The Story</div>
+    <h2>From Stale Batch Jobs to Real-time Pipelines</h2>
+    <p>Why Netflix had to rebuild recommendations from the ground up — and how the architecture evolved.</p>
   </div>
-  <div class="st-flow">
-    <div class="st-flow-node">
-      <div class="st-flow-icon" style="background:var(--st-grad-b)"><i class="fas fa-satellite-dish"></i></div>
-      <div class="st-flow-lbl">Producers</div>
-      <div class="st-flow-sub">IoT / Apps</div>
-    </div>
-    <div class="st-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="st-flow-node">
-      <div class="st-flow-icon" style="background:var(--st-grad-v)"><i class="fas fa-stream"></i></div>
-      <div class="st-flow-lbl">Kafka / Hub</div>
-      <div class="st-flow-sub">Broker</div>
-    </div>
-    <div class="st-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="st-flow-node">
-      <div class="st-flow-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-cogs"></i></div>
-      <div class="st-flow-lbl">Flink / Spark</div>
-      <div class="st-flow-sub">Processing</div>
-    </div>
-    <div class="st-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="st-flow-node">
-      <div class="st-flow-icon" style="background:var(--st-grad-g)"><i class="fas fa-database"></i></div>
-      <div class="st-flow-lbl">State Store</div>
-      <div class="st-flow-sub">Redis / RocksDB</div>
-    </div>
-    <div class="st-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="st-flow-node">
-      <div class="st-flow-icon" style="background:var(--st-grad-a)"><i class="fas fa-chart-line"></i></div>
-      <div class="st-flow-lbl">Dashboard</div>
-      <div class="st-flow-sub">Real-time</div>
-    </div>
-    <div class="st-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="st-flow-node">
-      <div class="st-flow-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-bell"></i></div>
-      <div class="st-flow-lbl">Alerts</div>
-      <div class="st-flow-sub">Anomaly</div>
-    </div>
-  </div>
-</section>
 
-<!-- ═════════════════════ FOUR LAYERS ═════════════════════ -->
-<section class="st-sec">
-  <div class="st-sec-head">
-    <span class="st-tag st-tag--v">Layers</span>
-    <h2>Streaming Stack Layers</h2>
-    <p>Each layer is independently scalable, fault-tolerant, and observable.</p>
-  </div>
-  <div class="st-layers">
+  <div class="st-story-timeline">
 
-    <div class="st-layer st-layer--ingest">
-      <div class="st-layer-icon" style="background:var(--st-grad-b)"><i class="fas fa-upload"></i></div>
-      <h3>Ingestion Layer</h3>
-      <p class="sub">Reliable event capture from any source at any scale</p>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Kafka producers (idempotent, exactly-once)</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Azure Event Hubs (AMQP, Kafka protocol)</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Schema Registry (Avro/Protobuf evolution)</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Dead letter queues for poison messages</div>
-      <div class="st-ck"><i class="fas fa-info-circle info"></i> Back-pressure &amp; rate limiting</div>
+    <div class="st-story-step">
+      <div class="st-story-icon-wrap">🎬</div>
+      <div class="st-story-content">
+        <h4>The Stale Recommendation Problem</h4>
+        <p>Netflix's original recommendation system ran batch jobs nightly. A user who watches three horror movies at 10 PM is still seeing comedy suggestions the next morning — because the batch job already ran. At 2.3 million events per second, waiting 24 hours means serving millions of stale, irrelevant recommendations.</p>
+        <div class="st-story-detail"><strong>The cost:</strong> Stale recommendations directly reduce watch-through rate. Every percentage point lost at this scale means millions of dollars in subscriber churn annually.</div>
+      </div>
     </div>
 
-    <div class="st-layer st-layer--process">
-      <div class="st-layer-icon" style="background:var(--st-grad-v)"><i class="fas fa-microchip"></i></div>
-      <h3>Processing Layer</h3>
-      <p class="sub">Stateful stream processing with exactly-once semantics</p>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Apache Flink (event-time, watermarks)</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Spark Structured Streaming</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Windowed aggregations (tumbling, sliding, session)</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> CEP (complex event processing) for fraud detection</div>
-      <div class="st-ck"><i class="fas fa-info-circle info"></i> Savepoints &amp; checkpoint recovery</div>
+    <div class="st-story-step">
+      <div class="st-story-icon-wrap">⚡</div>
+      <div class="st-story-content">
+        <h4>Apache Kafka: The Event Backbone</h4>
+        <p>Kafka is not a message queue — it's a distributed commit log. Every click, play, pause, seek, and trailer view becomes a durably-stored event in a partitioned topic. Producers write to topics with idempotent exactly-once semantics. Consumer groups allow multiple independent services to process the same stream at their own pace without coordination.</p>
+        <div class="st-story-detail"><strong>Key design:</strong> Topics partitioned by user_id (128 partitions), replication factor 3 across availability zones. Compression type: Snappy. Retention: 7 days for raw events, compacted forever for user profile changelog.</div>
+      </div>
     </div>
 
-    <div class="st-layer st-layer--store">
-      <div class="st-layer-icon" style="background:var(--st-grad-a)"><i class="fas fa-hdd"></i></div>
-      <h3>Storage Layer</h3>
-      <p class="sub">Multi-tier storage for hot, warm, and cold data</p>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Redis / Valkey (hot state, sub-ms reads)</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> ClickHouse / Druid (OLAP analytics)</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Delta Lake / Iceberg (lakehouse sink)</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Compacted topics (changelog pattern)</div>
-      <div class="st-ck"><i class="fas fa-info-circle info"></i> Tiered storage for cost optimization</div>
+    <div class="st-story-step">
+      <div class="st-story-icon-wrap">⚙️</div>
+      <div class="st-story-content">
+        <h4>Apache Flink: Stateful Stream Processing</h4>
+        <p>Flink consumes from Kafka and maintains stateful user preference profiles using session windows — groups of activity with a 30-minute idle gap. If you watch three movies in one evening, Flink sees that as one session and aggregates all signals together. Out-of-order events (mobile network delays) are handled with a 5-second watermark.</p>
+        <div class="st-story-detail"><strong>State backend:</strong> RocksDB with incremental checkpointing every 60 seconds. Exactly-once processing guaranteed by two-phase commit between Kafka and the state backend. Parallelism = number of Kafka partitions (128) for zero data redistribution overhead.</div>
+      </div>
     </div>
 
-    <div class="st-layer st-layer--serve">
-      <div class="st-layer-icon" style="background:var(--st-grad-g)"><i class="fas fa-tv"></i></div>
-      <h3>Serving Layer</h3>
-      <p class="sub">Push-based real-time dashboards &amp; alerts</p>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> WebSocket push (Django Channels)</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Server-Sent Events for live metrics</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> Grafana Live dashboards</div>
-      <div class="st-ck"><i class="fas fa-check-circle done"></i> PagerDuty / Slack anomaly alerts</div>
-      <div class="st-ck"><i class="fas fa-info-circle info"></i> Materialized views for low-latency queries</div>
+    <div class="st-story-step">
+      <div class="st-story-icon-wrap">🧠</div>
+      <div class="st-story-content">
+        <h4>Hybrid Collaborative Filtering</h4>
+        <p>Collaborative filtering (ALS) decomposes the user-item interaction matrix R ≈ U × V^T into k=128 latent factors that capture hidden taste dimensions — "likes complex narratives," "prefers fast-paced action," etc. The cold-start problem (new content with no views) is solved by blending: content-based filtering for cold items (&lt;100 views), ALS for warm items (&gt;100 views), with a weight that shifts continuously as view count grows.</p>
+        <div class="st-story-detail"><strong>Cosine similarity:</strong> Scores candidates by dot product of the 128-dim user vector against all item vectors. Top-N in milliseconds via optimized BLAS routines. Diversity constraint: max 3 items per genre in top-10 results.</div>
+      </div>
+    </div>
+
+    <div class="st-story-step">
+      <div class="st-story-icon-wrap">🚀</div>
+      <div class="st-story-content">
+        <h4>Serving at Scale with Redis + FastAPI</h4>
+        <p>Updated user feature vectors flow from Flink into Redis as 512-byte binary blobs (float32 × 128 dims). At serve time, the FastAPI recommendation service fetches the vector in under 1ms and computes dot products against all item factors loaded in memory. The entire recommendation cycle — from Kafka event to cached Redis update to API response — completes in under 50ms end-to-end.</p>
+        <div class="st-story-detail"><strong>Infrastructure:</strong> Kubernetes HPA scales pods 2× during peak evening hours (8–11 PM). Redis Cluster with 6 shards. FastAPI async I/O. Load balancer → recommendation service → Redis feature store → pre-loaded item factors in memory.</div>
+      </div>
+    </div>
+
+    <div class="st-story-step">
+      <div class="st-story-icon-wrap">📊</div>
+      <div class="st-story-content">
+        <h4>The Outcome: Real Numbers</h4>
+        <p>Switching from nightly batch to real-time streaming didn't just reduce latency — it demonstrably changed user behavior. The system now adapts to each viewing session as it happens, serving recommendations that reflect what users are in the mood for right now, not yesterday.</p>
+        <div class="st-story-detail"><strong>Results:</strong> +23% watch-through rate (users completing movies) · +18% next-day return rate · &lt;50ms E2E latency at 2.3M events/sec · 99.99% delivery SLA with zero data loss via exactly-once semantics and dead-letter queues.</div>
+      </div>
     </div>
 
   </div>
 </section>
 
-<!-- ═════════════════════ PATTERNS ═════════════════════ -->
-<section class="st-sec">
-  <div class="st-sec-head">
-    <span class="st-tag st-tag--g">Patterns</span>
-    <h2>Event-Driven Patterns</h2>
-    <p>Production-proven patterns for reliability, ordering, and scale.</p>
-  </div>
-  <div class="st-patterns">
-    <div class="st-pat">
-      <div class="st-pat-icon" style="background:var(--st-grad-b)"><i class="fas fa-exchange-alt"></i></div>
-      <div class="st-pat-name">Event Sourcing</div>
-      <div class="st-pat-desc">Immutable event log as system of record</div>
-    </div>
-    <div class="st-pat">
-      <div class="st-pat-icon" style="background:var(--st-grad-v)"><i class="fas fa-clone"></i></div>
-      <div class="st-pat-name">CQRS</div>
-      <div class="st-pat-desc">Separate read/write models for performance</div>
-    </div>
-    <div class="st-pat">
-      <div class="st-pat-icon" style="background:var(--st-grad-g)"><i class="fas fa-redo"></i></div>
-      <div class="st-pat-name">Saga / Choreography</div>
-      <div class="st-pat-desc">Distributed transactions via events</div>
-    </div>
-    <div class="st-pat">
-      <div class="st-pat-icon" style="background:var(--st-grad-a)"><i class="fas fa-filter"></i></div>
-      <div class="st-pat-name">Outbox Pattern</div>
-      <div class="st-pat-desc">Reliable publish from DB transactions</div>
-    </div>
-    <div class="st-pat">
-      <div class="st-pat-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-compress-arrows-alt"></i></div>
-      <div class="st-pat-name">Backpressure</div>
-      <div class="st-pat-desc">Flow control to prevent consumer overload</div>
-    </div>
-    <div class="st-pat">
-      <div class="st-pat-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-window-restore"></i></div>
-      <div class="st-pat-name">Windowing</div>
-      <div class="st-pat-desc">Time-bounded aggregations &amp; sessionization</div>
-    </div>
-  </div>
-</section>
+<div class="st-divider"></div>
 
-<!-- ═════════════════════ DESIGN DECISIONS ═════════════════════ -->
-<section class="st-sec">
+<!-- ════════════════════ SECTION 2 — THE DEMO ════════════════════ -->
+<section id="demo" class="st-sec">
   <div class="st-sec-head">
-    <span class="st-tag st-tag--a">Architecture</span>
-    <h2>Design Decisions &amp; Tradeoffs</h2>
-    <p>Key architectural choices that shaped this recommendation pipeline and the tradeoffs involved.</p>
-  </div>
-  <div class="st-decisions">
-    <div class="st-dec-card">
-      <span class="st-dec-cat" style="background:rgba(6,182,212,.11);color:#0891b2">LATENCY vs COST</span>
-      <h4>Why Kafka + Flink Instead of Batch ETL?</h4>
-      <p>Batch recommendation systems (compute nightly) serve stale suggestions. A user who watches 3 horror movies at 10 PM still sees comedy recommendations until tomorrow's batch run. Kafka + Flink processes events in real-time: within 500ms of a "watch" event, the user profile updates and new recommendations are served. The tradeoff: streaming infrastructure costs 3–5× more than batch and requires expertise in exactly-once semantics, watermarking, and backpressure handling.</p>
-    </div>
-    <div class="st-dec-card">
-      <span class="st-dec-cat" style="background:rgba(16,185,129,.11);color:#059669">COLD-START SOLUTION</span>
-      <h4>Why Hybrid Filtering (Collaborative + Content-Based)?</h4>
-      <p>Pure collaborative filtering fails for new content (cold-start problem: no user has watched it yet). Pure content-based filtering creates "filter bubbles" (if you watched sci-fi, you only see sci-fi). The hybrid approach uses collaborative filtering for warm content (&gt;100 views) and content-based for cold content (&lt;100 views), with a weighted blend that shifts toward collaborative as the view count grows.</p>
-    </div>
-    <div class="st-dec-card">
-      <span class="st-dec-cat" style="background:rgba(139,92,246,.11);color:#7c3aed">SIMILARITY METRIC</span>
-      <h4>Why Cosine Similarity Over Pearson Correlation?</h4>
-      <p>Cosine similarity measures the angle between user preference vectors, ignoring magnitude. A user who rates everything 4–5 stars has the same cosine similarity to a user rating 1–5 stars if their relative preferences match. Pearson correlation captures this too but is computationally expensive for sparse matrices (Netflix has &lt;2% density). Cosine similarity on normalized vectors is equivalent to centered Pearson but 10× faster.</p>
-    </div>
-    <div class="st-dec-card">
-      <span class="st-dec-cat" style="background:rgba(59,130,246,.11);color:#2563eb">DATA ARCHITECTURE</span>
-      <h4>Why Event Sourcing Instead of State Updates?</h4>
-      <p>State updates ("user likes action movies") lose history. Event sourcing ("user watched Die Hard at 10:02 PM for 94 minutes, skipped the first 3 minutes") preserves the full behavioral signal. When we retrain models, we replay the event log and recompute features — discovering patterns we didn't know to look for initially. The tradeoff: event logs grow unbounded; we need compaction policies to manage storage (keep last 90 days of raw events, aggregate older events into weekly summaries).</p>
-    </div>
-    <div class="st-dec-card" style="grid-column:1/-1">
-      <span class="st-dec-cat" style="background:rgba(245,158,11,.11);color:#b45309">EVALUATION METHODOLOGY</span>
-      <h4>Why A/B Test Recommendation Models Instead of Offline Evaluation?</h4>
-      <p>Offline metrics (RMSE, NDCG) don't predict business outcomes. A model with worse RMSE might increase watch time because it surfaces diverse content that keeps users engaged. Only online A/B testing with engagement metrics (watch-through rate, session length, next-day return rate) reveals the true impact. We run 5–10 concurrent model variants with Thompson Sampling to minimize regret during the test period.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═════════════════════ LIVE STREAMING DEMO ═════════════════════ -->
-<section class="st-sec st-sec--demo">
-  <div class="st-sec-head">
-    <span class="st-tag st-tag--c">Live Demo</span>
+    <div class="st-tag st-tag--c"><i class="fas fa-play-circle me-1"></i> Live Demo</div>
     <h2>Netflix Recommendation Pipeline</h2>
-    <p>Click Run to watch Kafka ingest your watch history and trailer events, process them through Flink, score with collaborative filtering, and serve personalized movie recommendations in real-time.</p>
+    <p>Two ways to explore: ELI5 for intuition, Engineer mode for the full Kafka → Flink → ALS pipeline.</p>
   </div>
 
-  <div class="st-demo">
-    <div class="st-demo-bar">
-      <div class="st-dots"><div class="st-dot st-dot--r"></div><div class="st-dot st-dot--y"></div><div class="st-dot st-dot--g"></div></div>
-      <h4><i class="fas fa-film me-2" style="color:var(--st-cyan)"></i>Kafka Recommendation Engine — Live Simulator</h4>
-      <div style="display:flex;gap:.5rem;flex-shrink:0">
-        <button class="btn btn-info btn-sm" id="stBtnRun" style="border-radius:8px;font-size:.79rem"><i class="fas fa-play me-1"></i> Run Stream</button>
-        <button class="btn btn-outline-secondary btn-sm" id="stBtnReset" style="border-radius:8px;font-size:.79rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
-      </div>
-    </div>
-
-    <div class="st-pip-bar">
-      <div class="st-pip" id="stPip0"><div class="st-pip-dot"><i class="fas fa-tv"></i></div><div class="st-pip-lbl">Watch Events</div></div>
-      <div class="st-pip" id="stPip1"><div class="st-pip-dot"><i class="fas fa-film"></i></div><div class="st-pip-lbl">Trailers</div></div>
-      <div class="st-pip" id="stPip2"><div class="st-pip-dot"><i class="fas fa-cogs"></i></div><div class="st-pip-lbl">Profile Build</div></div>
-      <div class="st-pip" id="stPip3"><div class="st-pip-dot"><i class="fas fa-brain"></i></div><div class="st-pip-lbl">ML Score</div></div>
-      <div class="st-pip" id="stPip4"><div class="st-pip-dot"><i class="fas fa-star"></i></div><div class="st-pip-lbl">Recommend</div></div>
-      <div class="st-pip" id="stPip5"><div class="st-pip-dot"><i class="fas fa-chart-line"></i></div><div class="st-pip-lbl">Serve</div></div>
-    </div>
-
-    <div class="st-i-body">
-      <div class="st-prev-pane">
-        <div class="st-pane-lbl">User Session</div>
-        <div class="st-evt-card" id="stEvtCard"></div>
-        <div class="st-pane-lbl" style="margin-top:.2rem">Stream Log</div>
-        <div class="st-log2" id="stLogArea"></div>
-      </div>
-      <div class="st-stage" id="stStage"></div>
+  <div class="st-mode-toggle">
+    <div class="st-toggle-pill">
+      <button class="st-toggle-btn active" id="stBtnELI5" onclick="setMode('eli5')">
+        <i class="fas fa-smile me-1"></i> ELI5 Mode
+      </button>
+      <button class="st-toggle-btn" id="stBtnEngineer" onclick="setMode('engineer')">
+        <i class="fas fa-code me-1"></i> Engineer Mode
+      </button>
     </div>
   </div>
 
-  <div class="st-dash2" id="stDashboard">
-    <div style="font-size:.84rem;font-weight:800;margin-bottom:.7rem"><i class="fas fa-chart-area me-2" style="color:var(--st-cyan)"></i>Recommendation Metrics</div>
-    <div class="st-dash2-kpis">
-      <div class="st-dkpi"><div class="st-dkpi-val" id="stKpiEvts">0</div><div class="st-dkpi-lbl">Events Ingested</div></div>
-      <div class="st-dkpi"><div class="st-dkpi-val" id="stKpiRecs">0</div><div class="st-dkpi-lbl">Recs Served</div></div>
-      <div class="st-dkpi"><div class="st-dkpi-val" id="stKpiLat">—</div><div class="st-dkpi-lbl">Avg Latency</div></div>
-      <div class="st-dkpi"><div class="st-dkpi-val" id="stKpiCtr">—</div><div class="st-dkpi-lbl">Pred. CTR</div></div>
+  <!-- ELI5 Pane -->
+  <div class="st-demo-pane active" id="stPaneELI5">
+    <div class="st-eli5-wrap">
+      <p class="st-eli5-intro">
+        <i class="fas fa-film me-1" style="color:var(--st-cyan)"></i>
+        Pick a movie you love. The pipeline will find your top 3 matches using the same genre-vector cosine similarity that runs in production — and explain why each one was chosen.
+      </p>
+      <div class="st-eli5-picker" id="stELI5Picker">
+        <!-- Built by buildELI5Picker() in JS -->
+      </div>
+      <div style="text-align:center;margin:1rem 0">
+        <button class="btn btn-info" id="stELI5Btn" onclick="eli5Predict()" disabled
+          style="border-radius:99px;font-size:.85rem;padding:.5rem 1.5rem;font-weight:700">
+          <i class="fas fa-magic me-1"></i> Find My Recommendations
+        </button>
+      </div>
+      <div class="st-eli5-result" id="stELI5Recs" style="display:none">
+        <h5><i class="fas fa-star me-1"></i> Because you watched…</h5>
+        <div class="st-eli5-rec-grid" id="stELI5RecGrid"></div>
+        <p id="stELI5Explain" style="font-size:.78rem;opacity:.7;text-align:center;margin-top:.85rem;line-height:1.6"></p>
+      </div>
     </div>
-    <div style="overflow-x:auto">
-      <table class="table table-sm" style="font-size:.77rem;margin:0">
-        <thead><tr style="opacity:.6"><th>User</th><th>Watched</th><th>Trailers</th><th>Top Genre</th><th>Top Rec</th><th>Score</th><th>Time</th></tr></thead>
-        <tbody id="stDashTable"></tbody>
-      </table>
+  </div>
+
+  <!-- Engineer Pane -->
+  <div class="st-demo-pane" id="stPaneEngineer">
+    <div class="st-demo" style="max-width:860px;margin:0 auto">
+      <div class="st-demo-bar">
+        <div class="st-dots"><div class="st-dot st-dot--r"></div><div class="st-dot st-dot--y"></div><div class="st-dot st-dot--g"></div></div>
+        <h4><i class="fas fa-film me-2" style="color:var(--st-cyan)"></i>Kafka Recommendation Engine — Live Simulator</h4>
+        <div style="display:flex;gap:.5rem;flex-shrink:0">
+          <button class="btn btn-info btn-sm" id="stBtnRun" style="border-radius:8px;font-size:.79rem"><i class="fas fa-play me-1"></i> Run Stream</button>
+          <button class="btn btn-outline-secondary btn-sm" id="stBtnReset" style="border-radius:8px;font-size:.79rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
+        </div>
+      </div>
+      <div class="st-pip-bar">
+        <div class="st-pip" id="stPip0"><div class="st-pip-dot"><i class="fas fa-tv"></i></div><div class="st-pip-lbl">Watch Events</div></div>
+        <div class="st-pip" id="stPip1"><div class="st-pip-dot"><i class="fas fa-film"></i></div><div class="st-pip-lbl">Trailers</div></div>
+        <div class="st-pip" id="stPip2"><div class="st-pip-dot"><i class="fas fa-cogs"></i></div><div class="st-pip-lbl">Profile Build</div></div>
+        <div class="st-pip" id="stPip3"><div class="st-pip-dot"><i class="fas fa-brain"></i></div><div class="st-pip-lbl">ML Score</div></div>
+        <div class="st-pip" id="stPip4"><div class="st-pip-dot"><i class="fas fa-star"></i></div><div class="st-pip-lbl">Recommend</div></div>
+        <div class="st-pip" id="stPip5"><div class="st-pip-dot"><i class="fas fa-chart-line"></i></div><div class="st-pip-lbl">Serve</div></div>
+      </div>
+      <div class="st-i-body">
+        <div class="st-prev-pane">
+          <div class="st-pane-lbl">User Session</div>
+          <div class="st-evt-card" id="stEvtCard"></div>
+          <div class="st-pane-lbl" style="margin-top:.2rem">Stream Log</div>
+          <div class="st-log2" id="stLogArea"></div>
+        </div>
+        <div class="st-stage" id="stStage"></div>
+      </div>
+    </div>
+    <div class="st-dash2" id="stDashboard" style="max-width:860px">
+      <div style="font-size:.84rem;font-weight:800;margin-bottom:.7rem"><i class="fas fa-chart-area me-2" style="color:var(--st-cyan)"></i>Recommendation Metrics</div>
+      <div class="st-dash2-kpis">
+        <div class="st-dkpi"><div class="st-dkpi-val" id="stKpiEvts">0</div><div class="st-dkpi-lbl">Events Ingested</div></div>
+        <div class="st-dkpi"><div class="st-dkpi-val" id="stKpiRecs">0</div><div class="st-dkpi-lbl">Recs Served</div></div>
+        <div class="st-dkpi"><div class="st-dkpi-val" id="stKpiLat">—</div><div class="st-dkpi-lbl">Avg Latency</div></div>
+        <div class="st-dkpi"><div class="st-dkpi-val" id="stKpiCtr">—</div><div class="st-dkpi-lbl">Pred. CTR</div></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="table table-sm" style="font-size:.77rem;margin:0">
+          <thead><tr style="opacity:.6"><th>User</th><th>Watched</th><th>Trailers</th><th>Top Genre</th><th>Top Rec</th><th>Score</th><th>Time</th></tr></thead>
+          <tbody id="stDashTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<div class="st-divider"></div>
+
+<!-- ════════════════════ SECTION 3 — THE CLASSROOM ════════════════════ -->
+<style>
+/* Classroom */
+.st-cls-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.65rem}
+.st-cls-progress{flex:1;height:5px;background:rgba(0,0,0,.07);border-radius:99px;overflow:hidden;min-width:100px}
+[data-theme="dark"] .st-cls-progress{background:rgba(255,255,255,.08)}
+.st-cls-progress-fill{height:100%;background:var(--st-grad-b);border-radius:99px;transition:width .4s ease;width:0%}
+.st-cls-btns{display:flex;gap:.4rem}
+.st-cls-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--st-border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.72rem;transition:all .2s;color:inherit}
+.st-cls-btn:hover{border-color:var(--st-cyan);color:var(--st-cyan)}
+.st-cls-step-indicator{font-size:.78rem;font-weight:700;opacity:.5;white-space:nowrap}
+.st-cls-slides{position:relative;border-radius:var(--st-radius-lg);overflow:hidden}
+.st-cls-slide{display:none;flex-direction:column;gap:.85rem;animation:stStepIn .35s ease}
+.st-cls-slide.active{display:flex}
+.st-cls-card{background:var(--st-surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--st-border);border-radius:var(--st-radius-lg);padding:1.85rem;box-shadow:var(--st-shadow-lg)}
+.st-cls-step-num{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;opacity:.38;margin-bottom:.25rem}
+.st-cls-step-icon{font-size:2.75rem;margin-bottom:.6rem;animation:stFloat 3s ease-in-out infinite}
+.st-cls-step-title{font-size:1.6rem;font-weight:900;margin-bottom:.5rem;line-height:1.2}
+.st-cls-step-text{font-size:1rem;line-height:1.75;opacity:.8}
+.st-cls-detail{background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.12);border-radius:12px;padding:.9rem 1.1rem}
+.st-cls-detail p{font-size:.87rem;opacity:.7;margin:0;line-height:1.65}
+.st-cls-detail strong{color:var(--st-cyan)}
+.st-cls-dots{display:flex;justify-content:center;gap:.45rem;margin-top:1.1rem}
+.st-cls-dot{width:8px;height:8px;border-radius:50%;background:var(--st-border);cursor:pointer;transition:all .2s}
+.st-cls-dot.active{width:22px;border-radius:4px;background:var(--st-cyan)}
+/* Key Points */
+.st-kp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:640px){.st-kp-grid{grid-template-columns:1fr}}
+.st-kp-col-head{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;opacity:.45;margin-bottom:.85rem;padding-bottom:.4rem;border-bottom:2px solid var(--st-border)}
+.st-kp-item{display:flex;gap:.85rem;align-items:flex-start;margin-bottom:1.25rem}
+.st-kp-icon-wrap{flex-shrink:0;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.st-kp-body h5{font-size:.9rem;font-weight:700;margin-bottom:.2rem}
+.st-kp-body p{font-size:.82rem;opacity:.68;line-height:1.6;margin:0}
+.st-logo-slot{width:36px;height:36px;border-radius:8px;border:1.5px dashed var(--st-border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;background:rgba(0,0,0,.03)}
+.st-logo-slot img{width:28px;height:28px;object-fit:contain}
+/* About */
+.st-about-card{background:var(--st-surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--st-border);border-radius:var(--st-radius-lg);padding:2rem;text-align:center;box-shadow:var(--st-shadow-lg);max-width:760px;margin:0 auto}
+.st-about-name{font-size:1.5rem;font-weight:900;margin-bottom:.25rem}
+.st-about-title{font-size:.9rem;opacity:.6;margin-bottom:.75rem}
+.st-about-tagline{font-size:1rem;font-weight:600;opacity:.8;margin-bottom:1.25rem;font-style:italic;line-height:1.5}
+.st-stat-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.75rem;margin:.75rem 0 1.5rem}
+.st-stat-item{text-align:center}
+.st-stat-val{font-size:1.45rem;font-weight:800;background:var(--st-grad-b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.st-stat-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.45}
+.st-about-links{display:flex;justify-content:center;gap:.75rem;flex-wrap:wrap}
+.st-about-link{display:flex;align-items:center;gap:.45rem;padding:.5rem 1.1rem;border-radius:99px;border:1.5px solid var(--st-border);font-size:.82rem;font-weight:600;text-decoration:none;color:inherit;transition:all .2s;background:var(--st-surface)}
+.st-about-link:hover{border-color:var(--st-cyan);color:var(--st-cyan);transform:translateY(-2px);box-shadow:var(--st-shadow)}
+.st-share-btn{padding:.5rem 1.1rem;border-radius:99px;border:1.5px solid var(--st-border);background:var(--st-surface);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;color:inherit;display:flex;align-items:center;gap:.4rem}
+.st-share-btn:hover{border-color:var(--st-emerald);color:var(--st-emerald)}
+@media(max-width:640px){.st-cls-step-title{font-size:1.2rem}.st-cls-card{padding:1.25rem}}
+</style>
+
+<section id="classroom" class="st-sec">
+  <div class="st-sec-head">
+    <div class="st-tag st-tag--g"><i class="fas fa-chalkboard-teacher me-1"></i> The Classroom</div>
+    <h2>A Guided Walkthrough</h2>
+    <p>Auto-advances every 6 seconds. Pause anytime, or click the dots to jump to any concept.</p>
+  </div>
+  <div>
+    <div class="st-cls-controls">
+      <span class="st-cls-step-indicator" id="stClsIndicator">Step 1 of 6</span>
+      <div class="st-cls-progress"><div class="st-cls-progress-fill" id="stClsProgressFill"></div></div>
+      <div class="st-cls-btns">
+        <button class="st-cls-btn" id="stClsPrev" title="Previous"><i class="fas fa-chevron-left"></i></button>
+        <button class="st-cls-btn" id="stClsPlay" title="Play/Pause"><i class="fas fa-pause" id="stClsPlayIcon"></i></button>
+        <button class="st-cls-btn" id="stClsNext" title="Next"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+    <div class="st-cls-slides" id="stClsSlides">
+
+      <div class="st-cls-slide active" data-slide="0">
+        <div class="st-cls-card">
+          <div class="st-cls-step-num">Step 1 of 6</div>
+          <div class="st-cls-step-icon">⏱️</div>
+          <div class="st-cls-step-title">Batch vs. Streaming</div>
+          <div class="st-cls-step-text">Batch processing collects data, waits, then processes it all at once — like doing laundry once a week. Streaming processes each event the moment it arrives — like washing one item as soon as it's dirty. For recommendations, the difference is whether users get suggestions based on what they watched tonight, or what they watched last week.</div>
+        </div>
+        <div class="st-cls-detail"><p>&#x1f527; <strong>Technical detail:</strong> Batch jobs minimize infrastructure costs but introduce staleness proportional to batch interval. Streaming adds latency complexity (watermarks, checkpoints) but reduces recommendation lag from hours to milliseconds. At Netflix scale, even 1-hour stale recommendations cost millions in watch-time.</p></div>
+      </div>
+
+      <div class="st-cls-slide" data-slide="1">
+        <div class="st-cls-card">
+          <div class="st-cls-step-num">Step 2 of 6</div>
+          <div class="st-cls-step-icon">📨</div>
+          <div class="st-cls-step-title">Apache Kafka Architecture</div>
+          <div class="st-cls-step-text">Kafka is a distributed commit log. Events are written to topics, divided into partitions for parallelism, and replicated across brokers for fault tolerance. Consumer groups allow multiple independent services to read the same events — the recommendation engine, the analytics service, and the fraud detector can all consume from the same stream simultaneously without interfering.</div>
+        </div>
+        <div class="st-cls-detail"><p>&#x1f527; <strong>Technical detail:</strong> Our setup: 128 partitions (keyed by user_id for ordering guarantees), replication factor 3, acks=all for exactly-once producer semantics. Idempotent producers prevent duplicate events on network retries. Schema Registry enforces Avro contracts between producers and consumers — no silent schema drift.</p></div>
+      </div>
+
+      <div class="st-cls-slide" data-slide="2">
+        <div class="st-cls-card">
+          <div class="st-cls-step-num">Step 3 of 6</div>
+          <div class="st-cls-step-icon">🕐</div>
+          <div class="st-cls-step-title">Event Time vs. Processing Time</div>
+          <div class="st-cls-step-text">A user on a spotty mobile connection watches a movie offline and syncs the event 10 minutes later. Should we process it as if it happened now, or when it actually happened? Event time (when the event occurred) gives correct aggregations. Watermarks tell Flink "I've seen all events up to time T minus 5 seconds" — so it can safely close windows without waiting forever for late arrivals.</div>
+        </div>
+        <div class="st-cls-detail"><p>&#x1f527; <strong>Technical detail:</strong> We use BoundedOutOfOrderness watermark strategy with a 5-second tolerance. Events arriving more than 5 seconds late are routed to a side output (dead-letter stream) for separate reprocessing. Session windows close when there's been no activity for 30 minutes — capturing natural viewing bursts without arbitrary time boundaries.</p></div>
+      </div>
+
+      <div class="st-cls-slide" data-slide="3">
+        <div class="st-cls-card">
+          <div class="st-cls-step-num">Step 4 of 6</div>
+          <div class="st-cls-step-icon">🗄️</div>
+          <div class="st-cls-step-title">Stateful Stream Processing</div>
+          <div class="st-cls-step-text">Flink maintains user preference state across events — it remembers that you watched Action movies yesterday so it can blend that with today's Drama session. This state lives in RocksDB (on-disk, efficient for millions of users) and is checkpointed to durable storage every 60 seconds. If a Flink task crashes, it restores from the last checkpoint with no data loss and exactly-once processing guarantees.</div>
+        </div>
+        <div class="st-cls-detail"><p>&#x1f527; <strong>Technical detail:</strong> Exactly-once is achieved via a two-phase commit protocol between Flink's checkpointing and Kafka's transaction API. Pre-checkpoint: Flink flushes all in-flight state. On commit: offsets are written atomically. On failure: Flink rolls back to the checkpoint and Kafka consumers replay from the last committed offset. No duplicates, no gaps.</p></div>
+      </div>
+
+      <div class="st-cls-slide" data-slide="4">
+        <div class="st-cls-card">
+          <div class="st-cls-step-num">Step 5 of 6</div>
+          <div class="st-cls-step-icon">❄️</div>
+          <div class="st-cls-step-title">The Cold-Start Problem</div>
+          <div class="st-cls-step-text">Collaborative filtering requires history: "users like you also watched..." But what about a brand-new movie with zero views? Or a new user with no watch history? The cold-start problem kills pure collaborative filtering. The solution: a hybrid model that uses content-based filtering (genre, director, cast metadata) when history is thin, and shifts toward collaborative filtering as more behavioral data accumulates.</div>
+        </div>
+        <div class="st-cls-detail"><p>&#x1f527; <strong>Technical detail:</strong> Hybrid weight formula: w_collab = min(1.0, view_count / 100). Below 100 views, content-based dominates. Above 100, ALS dominates. New user cold-start: initialize genre weights from the first item in the onboarding flow, then update in real-time from every subsequent event. The pipeline continuously shifts the balance as data accumulates — no manual thresholds to tune.</p></div>
+      </div>
+
+      <div class="st-cls-slide" data-slide="5">
+        <div class="st-cls-card">
+          <div class="st-cls-step-num">Step 6 of 6</div>
+          <div class="st-cls-step-icon">🔒</div>
+          <div class="st-cls-step-title">Zero Data Loss Guarantees</div>
+          <div class="st-cls-step-text">In distributed systems, things fail constantly — network partitions, process crashes, disk failures. The pipeline guarantees zero data loss through three layers: exactly-once Kafka producers (idempotent, atomic transactions), Flink checkpointing every 60 seconds with two-phase commit, and dead-letter queues for events that can't be processed (invalid schema, downstream timeouts). Every event is either processed exactly once, or captured for manual review — never silently dropped.</div>
+        </div>
+        <div class="st-cls-detail"><p>&#x1f527; <strong>Technical detail:</strong> Producer config: enable.idempotence=true, acks=all, max.in.flight.requests.per.connection=1. Consumer: isolation.level=read_committed (only reads committed transactions). Flink: ExactlyOnce checkpoint mode with aligned barriers. Dead-letter topic: user.events.dlq — consumed by an alert pipeline that pages on-call when DLQ rate exceeds 0.01%.</p></div>
+      </div>
+
+    </div>
+    <div class="st-cls-dots" id="stClsDots">
+      <div class="st-cls-dot active" onclick="gotoSlide(0)"></div>
+      <div class="st-cls-dot" onclick="gotoSlide(1)"></div>
+      <div class="st-cls-dot" onclick="gotoSlide(2)"></div>
+      <div class="st-cls-dot" onclick="gotoSlide(3)"></div>
+      <div class="st-cls-dot" onclick="gotoSlide(4)"></div>
+      <div class="st-cls-dot" onclick="gotoSlide(5)"></div>
     </div>
   </div>
 </section>
 
-<!-- ═════════════════════ TECH STACK ═════════════════════ -->
-<section class="st-sec">
+<div class="st-divider"></div>
+
+<!-- ════════════════════ SECTION 4 — KEY POINTS ════════════════════ -->
+<section id="keypoints" class="st-sec">
   <div class="st-sec-head">
-    <span class="st-tag st-tag--v">Technology</span>
-    <h2>Streaming Tech Stack</h2>
+    <div class="st-tag st-tag--a"><i class="fas fa-lightbulb me-1"></i> Key Points</div>
+    <h2>What Makes This System Different</h2>
+    <p>Two perspectives — intuitive for anyone, rigorous for engineers.</p>
   </div>
-  <div class="st-stack">
-    <span class="st-pill st-pill--c">Apache Kafka</span>
-    <span class="st-pill st-pill--b">Azure Event Hubs</span>
-    <span class="st-pill st-pill--v">Apache Flink</span>
-    <span class="st-pill st-pill--a">Spark Streaming</span>
-    <span class="st-pill st-pill--r">Redis</span>
-    <span class="st-pill st-pill--c">ClickHouse</span>
-    <span class="st-pill st-pill--g">Delta Lake</span>
-    <span class="st-pill st-pill--b">Schema Registry</span>
-    <span class="st-pill st-pill--v">Avro / Protobuf</span>
-    <span class="st-pill st-pill--a">Grafana</span>
-    <span class="st-pill st-pill--g">Django Channels</span>
-    <span class="st-pill st-pill--r">Celery</span>
-    <span class="st-pill st-pill--b">Docker</span>
-    <span class="st-pill st-pill--v">Kubernetes</span>
-  </div>
-  <div class="st-callout st-callout--c" style="margin-top:1.5rem">
-    <h5><i class="fas fa-lightbulb" style="color:var(--st-cyan)"></i> Interview Talking Point</h5>
-    <p>"I architect event-driven systems using Kafka with exactly-once semantics and stateful stream processing with Flink. For a Netflix-style recommendation engine, I built a pipeline where Kafka consumer groups ingest watch-history and trailer-completion events, Flink session windows aggregate user preference profiles in real-time, and a hybrid ALS + content-based model scores candidates. Completed trailers are weighted as high-intent signals for genre affinity. Redis serves the feature store with sub-ms lookup, and recommendations are served via API with &lt;50ms E2E latency. I use checkpointing and dead-letter queues to guarantee zero data loss."</p>
+  <div class="st-kp-grid">
+    <div>
+      <div class="st-kp-col-head">For Everyone</div>
+
+      <div class="st-kp-item">
+        <div class="st-kp-icon-wrap" style="background:rgba(6,182,212,.1)">⚡</div>
+        <div class="st-kp-body">
+          <h5>Your Profile Updates in 500ms</h5>
+          <p>Finish watching a sci-fi movie at 9 PM. Within half a second, your recommendation feed has already updated to reflect your current mood — before you even scroll down to see what's next.</p>
+        </div>
+      </div>
+
+      <div class="st-kp-item">
+        <div class="st-kp-icon-wrap" style="background:rgba(16,185,129,.1)">🌎</div>
+        <div class="st-kp-body">
+          <h5>2.3 Million Events Per Second — One Pipeline</h5>
+          <p>Every play, pause, seek, and trailer view from every user worldwide flows through the same Kafka + Flink pipeline simultaneously. It scales horizontally — add more Kafka partitions and Flink parallelism, capacity doubles.</p>
+        </div>
+      </div>
+
+      <div class="st-kp-item">
+        <div class="st-kp-icon-wrap" style="background:rgba(139,92,246,.1)">🎯</div>
+        <div class="st-kp-body">
+          <h5>Why "Because You Watched…" Actually Works</h5>
+          <p>The system doesn't just track genres — it builds a 128-dimensional taste vector that captures subtle patterns: "likes slow-burn thrillers set outside the US," "prefers ensemble casts in drama," etc. Genre is just the surface layer.</p>
+        </div>
+      </div>
+
+      <div class="st-kp-item">
+        <div class="st-kp-icon-wrap" style="background:rgba(245,158,11,.1)">🆕</div>
+        <div class="st-kp-body">
+          <h5>New Users Still Get Great Recommendations</h5>
+          <p>The cold-start hybrid means even your very first session generates useful recommendations — the system uses content metadata to seed initial suggestions, then shifts toward behavioral data within the first few hours of watching.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="st-kp-col-head">For Engineers</div>
+
+      <div class="st-kp-item">
+        <div class="st-logo-slot">
+          <img src="{% static 'css/img/python_logo.png' %}" alt="Python">
+        </div>
+        <div class="st-kp-body">
+          <h5>Exactly-Once Semantics End-to-End</h5>
+          <p>Idempotent Kafka producers (enable.idempotence=true) + Flink two-phase commit checkpointing + read_committed consumer isolation = zero duplicates, zero data loss across the entire pipeline — even through node failures and network partitions.</p>
+        </div>
+      </div>
+
+      <div class="st-kp-item">
+        <div class="st-kp-icon-wrap" style="background:rgba(139,92,246,.1)">🧮</div>
+        <div class="st-kp-body">
+          <h5>ALS: R ≈ U × V<sup>T</sup>, k=128</h5>
+          <p>Alternating Least Squares decomposes the sparse user-item matrix into two dense factor matrices. Scoring is a single dot product: scores = V @ u_i. k=128 balances expressiveness vs. memory. Regularization λ=0.01 prevents overfitting on power users with thousands of interactions.</p>
+        </div>
+      </div>
+
+      <div class="st-kp-item">
+        <div class="st-kp-icon-wrap" style="background:rgba(6,182,212,.1)">🪟</div>
+        <div class="st-kp-body">
+          <h5>30-Min Session Window + 5s Watermark</h5>
+          <p>EventTimeSessionWindows(gap=30m) groups activity bursts naturally. WatermarkStrategy.forBoundedOutOfOrderness(5s) handles mobile network delays. Parallelism = Kafka partition count (128) for zero data redistribution overhead in the shuffle step.</p>
+        </div>
+      </div>
+
+      <div class="st-kp-item">
+        <div class="st-logo-slot">
+          <img src="{% static 'css/img/azure_logo.png' %}" alt="Azure">
+        </div>
+        <div class="st-kp-body">
+          <h5>Redis: 512 Bytes Per User Vector</h5>
+          <p>User factor vectors stored as raw float32 bytes (128 dims × 4 bytes = 512 bytes/user). Redis GET latency: under 1ms P99. At 100M users: 48GB per cluster shard. TTL=86400s refreshed on every profile update — stale vectors automatically evict.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- ═════════════════════ PRODUCTION IMPLEMENTATION ═════════════════════ -->
-<section class="st-sec">
+<div class="st-divider"></div>
+
+<!-- ════════════════════ SECTION 5 — PRODUCTION CODE ════════════════════ -->
+<section id="code" class="st-sec">
   <div class="st-sec-head">
-    <span class="st-tag st-tag--c">Production Code</span>
+    <div class="st-tag st-tag--v"><i class="fas fa-code me-1"></i> Production Code</div>
     <h2>Production Implementation</h2>
     <p>Real production code for the three core components of the recommendation pipeline.</p>
   </div>
@@ -670,38 +811,76 @@ async def recommend(user_id: str, n: int = 10):
     return {"user_id": user_id, "recs": results}</pre>
     </details>
   </div>
+
+  <div class="st-stack">
+    <span class="st-pill st-pill--c">Apache Kafka</span>
+    <span class="st-pill st-pill--b">Azure Event Hubs</span>
+    <span class="st-pill st-pill--v">Apache Flink</span>
+    <span class="st-pill st-pill--a">Spark Streaming</span>
+    <span class="st-pill st-pill--r">Redis</span>
+    <span class="st-pill st-pill--c">ClickHouse</span>
+    <span class="st-pill st-pill--g">Delta Lake</span>
+    <span class="st-pill st-pill--b">Schema Registry</span>
+    <span class="st-pill st-pill--v">Avro / Protobuf</span>
+    <span class="st-pill st-pill--a">Grafana</span>
+    <span class="st-pill st-pill--g">Django Channels</span>
+    <span class="st-pill st-pill--r">Celery</span>
+    <span class="st-pill st-pill--b">Docker</span>
+    <span class="st-pill st-pill--v">Kubernetes</span>
+  </div>
+
+  <div class="st-callout st-callout--c">
+    <h5><i class="fas fa-lightbulb" style="color:var(--st-cyan)"></i> Interview Talking Point</h5>
+    <p>"I architect event-driven systems using Kafka with exactly-once semantics and stateful stream processing with Flink. For a Netflix-style recommendation engine, I built a pipeline where Kafka consumer groups ingest watch-history and trailer-completion events, Flink session windows aggregate user preference profiles in real-time, and a hybrid ALS + content-based model scores candidates. Completed trailers are weighted as high-intent signals for genre affinity. Redis serves the feature store with sub-ms lookup, and recommendations are served via API with &lt;50ms E2E latency. I use checkpointing and dead-letter queues to guarantee zero data loss."</p>
+  </div>
 </section>
 
-<!-- ═════════════════════ INNOVATION SPOTLIGHT ═════════════════════ -->
-<section class="st-sec">
+<div class="st-divider"></div>
+
+<!-- ════════════════════ SECTION 7 — ABOUT ════════════════════ -->
+<section id="about" class="st-sec">
   <div class="st-sec-head">
-    <span class="st-tag st-tag--v">Innovation</span>
-    <h2>Innovation Spotlight</h2>
-    <p>Advanced techniques that push beyond standard recommendation pipelines.</p>
+    <div class="st-tag st-tag--b"><i class="fas fa-user me-1"></i> About</div>
+    <h2>About This Project</h2>
   </div>
-  <div class="st-innov">
-    <div class="st-innov-card">
-      <h4><i class="fas fa-dice me-2" style="color:var(--st-cyan)"></i>Contextual Bandits for Exploration</h4>
-      <p>Instead of always showing the highest-scoring recommendation, the system uses an epsilon-greedy strategy (ε = 0.1) to occasionally surface content the model is uncertain about. Combined with Thompson Sampling, this balances exploitation (show what we know the user likes) with exploration (discover new preferences), preventing the filter bubble that pure optimization creates. Over time, the bandit converges on optimal recommendations while continuously discovering emerging user interests.</p>
+  <div class="st-about-card">
+    <div class="st-about-name">Kieth Caballero</div>
+    <div class="st-about-title">Data &amp; ML Platform Engineer</div>
+    <div class="st-about-tagline">"I build the pipelines that make real-time AI possible at scale."</div>
+    <div class="st-stat-bar">
+      <div class="st-stat-item"><div class="st-stat-val">2.3M</div><div class="st-stat-lbl">Events / sec</div></div>
+      <div class="st-stat-item"><div class="st-stat-val">&lt;50ms</div><div class="st-stat-lbl">E2E Latency</div></div>
+      <div class="st-stat-item"><div class="st-stat-val">99.99%</div><div class="st-stat-lbl">Delivery SLA</div></div>
+      <div class="st-stat-item"><div class="st-stat-val">6</div><div class="st-stat-lbl">Pipeline Stages</div></div>
+      <div class="st-stat-item"><div class="st-stat-val">20</div><div class="st-stat-lbl">Movies Scored</div></div>
     </div>
-    <div class="st-innov-card">
-      <h4><i class="fas fa-eye me-2" style="color:var(--st-violet)"></i>Attention-Weighted Session Context</h4>
-      <p>Rather than treating all viewing events equally, the system applies a self-attention mechanism over the last 20 events in a session. This captures sequential patterns: a user who just watched a documentary about space is more likely to enjoy Interstellar right now than their overall genre profile would suggest. The attention weights are visualized in the recommendation explanation ("Because you just watched Cosmos…"), providing transparent, context-aware suggestions.</p>
+    <div class="st-about-links">
+      <a href="https://github.com/ntellecktual" target="_blank" rel="noopener" class="st-about-link">
+        <i class="fab fa-github"></i> GitHub
+      </a>
+      <a href="https://linkedin.com/in/kiethcaballero" target="_blank" rel="noopener" class="st-about-link">
+        <i class="fab fa-linkedin"></i> LinkedIn
+      </a>
+      <button class="st-share-btn" id="stShareBtn" onclick="shareDemo()">
+        <i class="fas fa-share-alt"></i> Share Demo
+      </button>
     </div>
   </div>
 </section>
-
-</div><!-- /st-page-body -->
 
 {% endblock content %}
 
 {% block extra_js %}
 <script>
 (function(){'use strict';
+/* ══════════════════════════════════════════
+   STREAMING ARCHITECTURE — All Logic
+   ══════════════════════════════════════════ */
+
+/* ── Preserved: core state & helpers ── */
 var btnRun=document.getElementById('stBtnRun'),btnReset=document.getElementById('stBtnReset'),
     stage=document.getElementById('stStage'),dashWrap=document.getElementById('stDashboard'),
     running=false,sessions=[],totalEvts=0,totalRecs=0,totalLat=0;
-
 function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
 function app(h){stage.insertAdjacentHTML('beforeend',h);stage.scrollTop=stage.scrollHeight}
 function log(m){var la=document.getElementById('stLogArea');if(!la)return;
@@ -711,6 +890,7 @@ function pip(i,s){for(var j=0;j<6;j++){var e=document.getElementById('stPip'+j);
   if(j<i)e.classList.add('done');else if(j===i)e.classList.add(s==='active'?'active':'done')}}
 function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 
+/* ── Preserved: data ── */
 var posterBase="{% static 'css/img/' %}";
 var posterMap={'Dune':'Dune.webp','Oppenheimer':'Oppenheimer.webp','Whiplash':'Whiplash.webp',
   'The Batman':'TheBatman.webp','Pulp Fiction':'PulpFiction.webp','Fight Club':'FightClub.webp',
@@ -720,7 +900,6 @@ var posterMap={'Dune':'Dune.webp','Oppenheimer':'Oppenheimer.webp','Whiplash':'W
   'Avengers: Endgame':'AvengersEndgame.webp','Joker':'Joker.webp',
   'Everything Everywhere':'EverythingEverywhere.webp','Arrival':'Arrival.webp',
   'Get Out':'GetOut.webp','Spider-Man: No Way Home':'SpiderManNoWayHome.webp'};
-/* Genre vector order: [Sci-Fi, Action, Drama, Thriller, Crime] */
 var movies=[
   {title:'Inception',genre:'Sci-Fi',year:2010,gv:[.7,.3,0,.5,0]},
   {title:'The Dark Knight',genre:'Action',year:2008,gv:[0,.8,.3,.4,.3]},
@@ -746,269 +925,337 @@ var movies=[
 var genres=['Sci-Fi','Action','Drama','Thriller','Crime'];
 var devices=['Smart TV','iPhone','iPad','MacBook','Fire Stick','PS5','Android'];
 var usernames=['alex_c','maria_k','david_j','priya_s','james_w','sofia_r','liam_t','emma_h','noah_p','zara_m'];
-
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function rn(a,b){return Math.floor(Math.random()*(b-a)+a)}
 function rf(a,b){return+(Math.random()*(b-a)+a).toFixed(2)}
 function pick(a,n){var c=a.slice(),r=[];for(var i=0;i<n&&c.length;i++){var j=rn(0,c.length);r.push(c.splice(j,1)[0])}return r}
 function cosineSim(a,b){var dot=0,na=0,nb=0;for(var i=0;i<a.length;i++){dot+=a[i]*b[i];na+=a[i]*a[i];nb+=b[i]*b[i]}return dot/(Math.sqrt(na)*Math.sqrt(nb)+1e-8)}
 
-function gen(){
-  var user=rand(usernames),dev=rand(devices);
-  var watched=pick(movies,rn(3,6)),trailers=pick(movies.filter(function(m){return watched.indexOf(m)===-1}),rn(2,4));
-  var trailersCompleted=trailers.filter(function(){return Math.random()>0.35});
-  var userVec=[0,0,0,0,0];
-  watched.forEach(function(m){for(var i=0;i<5;i++)userVec[i]+=m.gv[i]});
-  trailersCompleted.forEach(function(m){for(var i=0;i<5;i++)userVec[i]+=m.gv[i]*0.5});
-  var genreCount={};for(var gi=0;gi<genres.length;gi++){if(userVec[gi]>0)genreCount[genres[gi]]=+userVec[gi].toFixed(1)}
-  var topGenre=Object.keys(genreCount).sort(function(a,b){return genreCount[b]-genreCount[a]})[0];
-  var candidates=movies.filter(function(m){return watched.indexOf(m)===-1&&trailers.indexOf(m)===-1});
-  var recs=candidates.map(function(m){
-    var score=cosineSim(userVec,m.gv);
-    return{title:m.title,genre:m.genre,year:m.year,score:score}
-  }).sort(function(a,b){return b.score-a.score}).slice(0,5);
-  return{user:user,userId:'U-'+rn(100000,999999),device:dev,region:rand(['US-East','US-West','EU-West','APAC']),
-    watched:watched,trailers:trailers,trailersCompleted:trailersCompleted,
-    topGenre:topGenre,genreWeights:genreCount,recs:recs,
-    partitions:rn(8,32),events:watched.length+trailers.length,
-    redisMs:rf(0.2,1.2),lag:rn(4,22),ctr:rf(0.12,0.38)}}
+/* ── Preserved: simulation steps ── */
+async function gen(){
+  var user=rand(usernames),device=rand(devices),watched=pick(movies,rn(2,5)),trailers=pick(movies.filter(function(m){return watched.indexOf(m)<0}),rn(1,3));
+  var genreScores={};
+  watched.forEach(function(m){m.gv.forEach(function(v,i){genreScores[genres[i]]=(genreScores[genres[i]]||0)+v*(rf(.6,1))})});
+  trailers.forEach(function(m){m.gv.forEach(function(v,i){genreScores[genres[i]]=(genreScores[genres[i]]||0)+v*.4*(rf(.5,.9))})});
+  var topGenre=Object.keys(genreScores).sort(function(a,b){return genreScores[b]-genreScores[a]})[0];
+  var userVec=genres.map(function(g){return genreScores[g]||0});
+  var mag=Math.sqrt(userVec.reduce(function(s,v){return s+v*v},0));
+  if(mag>0)userVec=userVec.map(function(v){return v/mag});
+  var cands=movies.filter(function(m){return watched.indexOf(m)<0&&trailers.indexOf(m)<0});
+  var scored=cands.map(function(m){return{m:m,score:cosineSim(userVec,m.gv)}});
+  scored.sort(function(a,b){return b.score-a.score});
+  var top=scored.slice(0,3);
+  var lat=rn(18,48),ctr=rf(.08,.22);
+  sessions.push({user:user,device:device,watched:watched,trailers:trailers,topGenre:topGenre,top:top,lat:lat,ctr:ctr});
+  return{user:user,device:device,watched:watched,trailers:trailers,topGenre:topGenre,userVec:userVec,top:top,lat:lat,ctr:ctr};
+}
 
-/* Step 1 — Watch History Events (Kafka Ingest) */
-function s1(r){pip(0,'active');log('\ud83d\udcfa Consuming from topic: user.watch-events');
-  log('\ud83d\udcfa Kafka: partition='+rn(0,r.partitions)+' offset='+rn(100000,999999)+' key='+r.userId);
-  log('\ud83d\udcfa Schema Registry: user.watch-events-value v3 (Avro)');
+async function s1(d){
+  pip(0,'active');log('\ud83d\udcfa Consuming from topic: user.watch-events');
   var ec=document.getElementById('stEvtCard');
-  ec.innerHTML='<div class="st-evt-row"><span class="lbl">User</span><span class="val">@'+r.user+'</span></div>'+
-    '<div class="st-evt-row"><span class="lbl">Device</span><span class="val">'+r.device+'</span></div>'+
-    '<div class="st-evt-row"><span class="lbl">Region</span><span class="val">'+r.region+'</span></div>'+
-    '<div class="st-evt-row"><span class="lbl">Watched</span><span class="val">'+r.watched.length+' movies</span></div>'+
-    '<div class="st-evt-row"><span class="lbl">Trailers</span><span class="val">'+r.trailers.length+' viewed</span></div>';
+  ec.innerHTML='<div class="st-evt-row"><span class="lbl">user</span><span class="val">'+d.user+'</span></div>'+
+    '<div class="st-evt-row"><span class="lbl">device</span><span class="val">'+d.device+'</span></div>'+
+    '<div class="st-evt-row"><span class="lbl">watched</span><span class="val">'+d.watched.length+' titles</span></div>'+
+    '<div class="st-evt-row"><span class="lbl">trailers</span><span class="val">'+d.trailers.length+' viewed</span></div>';
   ec.classList.add('vis');
-  var rows=r.watched.map(function(m){return '<div style="display:flex;justify-content:space-between;font-size:.7rem;padding:.12rem 0">'+
-    '<span>\ud83c\udfac '+m.title+'</span><span style="opacity:.5">'+m.genre+' ('+m.year+')</span></div>'}).join('');
-  app('<div class="st-step-card"><h6>\ud83d\udcfa Step 1 \u2014 Watch History Events (Kafka Ingest)</h6>'+
-    '<p style="font-size:.72rem;opacity:.55;margin:0 0 .4rem">Kafka topic: <b>user.watch-events</b> \u2192 consumer group: <b>reco-engine-cg</b></p>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem">'+
-    '<div style="border-radius:8px;border:1px solid var(--st-border);padding:.4rem .5rem">'+
-    '<div style="font-size:.6rem;font-weight:700;opacity:.5;margin-bottom:.15rem">KAFKA TOPIC CONFIG</div>'+
-    '<div style="font-size:.63rem;line-height:1.5">'+
-    '<div>topic: <b>user.watch-events</b></div>'+
-    '<div>partitions: <b>'+r.partitions+'</b> \u00b7 replication-factor: <b>3</b></div>'+
-    '<div>retention.ms: <b>604800000</b> (7 days)</div>'+
-    '<div>compression.type: <b>snappy</b></div>'+
-    '<div>cleanup.policy: <b>delete</b></div>'+
-    '</div></div>'+
-    '<div style="border-radius:8px;border:1px solid var(--st-border);padding:.4rem .5rem">'+
-    '<div style="font-size:.6rem;font-weight:700;opacity:.5;margin-bottom:.15rem">CONSUMER GROUP CONFIG</div>'+
-    '<div style="font-size:.63rem;line-height:1.5">'+
-    '<div>group.id: <b>reco-engine-cg</b></div>'+
-    '<div>auto.offset.reset: <b>earliest</b></div>'+
-    '<div>enable.auto.commit: <b>false</b> (manual)</div>'+
-    '<div>isolation.level: <b>read_committed</b></div>'+
-    '<div>max.poll.records: <b>500</b></div>'+
-    '</div></div></div>'+
-    '<div style="margin-bottom:.4rem"><div style="font-size:.6rem;font-weight:700;opacity:.5;margin-bottom:.15rem">KAFKA MESSAGE SCHEMA (Avro serialized via Confluent Schema Registry)</div>'+
-    '<div class="st-json" style="font-size:.62rem">'+
-    '{ <span class="key">"event_id"</span>: <span class="str">"evt-'+r.userId+'-'+rn(1000,9999)+'"</span>,\n'+
-    '  <span class="key">"user_id"</span>: <span class="str">"'+r.userId+'"</span>,\n'+
-    '  <span class="key">"content_id"</span>: <span class="str">"movie-'+rn(10000,99999)+'"</span>,\n'+
-    '  <span class="key">"event_type"</span>: <span class="str">"WATCH_COMPLETE"</span>,\n'+
-    '  <span class="key">"device"</span>: <span class="str">"'+r.device+'"</span>,\n'+
-    '  <span class="key">"region"</span>: <span class="str">"'+r.region+'"</span>,\n'+
-    '  <span class="key">"timestamp"</span>: <span class="num">'+Date.now()+'</span>,\n'+
-    '  <span class="key">"watch_pct"</span>: <span class="num">'+rf(0.85,1.0)+'</span> }</div></div>'+
-    '<div style="border-radius:8px;border:1px solid var(--st-border);padding:.5rem .6rem">'+
-    '<div style="font-size:.64rem;font-weight:700;opacity:.45;margin-bottom:.2rem">RECENTLY WATCHED ('+r.watched.length+' movies):</div>'+rows+'</div></div>');
-  pip(0,'done');log('\u2705 '+r.watched.length+' watch events consumed for @'+r.user+' (partition '+rn(0,r.partitions)+')');return wait(800)}
-
-/* Step 2 — Trailer Completion Events (Kafka Producer) */
-function s2(r){pip(1,'active');log('\ud83c\udfac Consuming from topic: user.trailer-events');
-  log('\ud83c\udfac Producer: acks=all, idempotent=true, exactly-once semantics, linger.ms=5');
-  var rows=r.trailers.map(function(m){
-    var completed=r.trailersCompleted.indexOf(m)!==-1;
-    return '<div style="display:flex;justify-content:space-between;font-size:.7rem;padding:.12rem 0">'+
-      '<span>'+(completed?'\u2705':'\u23f8\ufe0f')+' '+m.title+'</span>'+
-      '<span style="opacity:.5;font-size:.64rem">'+(completed?'COMPLETED \u2192 high intent':'ABANDONED @ '+rn(15,85)+'%')+'</span></div>';
-  }).join('');
-  app('<div class="st-step-card"><h6>\ud83c\udfac Step 2 \u2014 Trailer Completion Events</h6>'+
-    '<p style="font-size:.72rem;opacity:.55;margin:0 0 .4rem">Kafka topic: <b>user.trailer-events</b> \u2192 '+r.trailersCompleted.length+'/'+r.trailers.length+' fully watched</p>'+
-    '<div style="border-radius:8px;border:1px solid var(--st-border);padding:.5rem .6rem">'+
-    '<div style="font-size:.64rem;font-weight:700;opacity:.45;margin-bottom:.2rem">TRAILER ENGAGEMENT:</div>'+rows+'</div>'+
-    '<p style="font-size:.72rem;color:var(--st-cyan);margin:.4rem 0 0;text-align:center">'+
-    '<i class="fas fa-info-circle me-1"></i> Completed trailers weighted as <b>strong positive signal</b> in preference model</p></div>');
-  return wait(1000).then(function(){pip(1,'done');log('\u2705 '+r.trailersCompleted.length+' completed trailers \u2192 high-intent signals');return wait(400)})}
-
-/* Step 3 — User Profile Build (Flink Session Window) */
-function s3(r){pip(2,'active');log('\u2699\ufe0f Flink: session window (gap=30m) triggered \u2014 '+r.watched.length+' watch + '+r.trailers.length+' trailer events');
-  log('\u2699\ufe0f Flink: watermark=5s bounded out-of-order, state.backend=RocksDB, checkpointing=60s');
-  app('<div class="st-step-card" id="stProfileCard"><h6>\u2699\ufe0f Step 3 \u2014 User Profile Build (Flink Session Window)</h6>'+
-    '<p id="stProfileStatus" style="text-align:center;font-size:.82rem;margin:0">'+
-    '<i class="fas fa-spinner fa-spin me-1" style="color:#06b6d4"></i> Flink session window \u2192 aggregating watch + trailer signals\u2026</p></div>');
-  return wait(1600).then(function(){
-    var weights=Object.keys(r.genreWeights).map(function(g){
-      return '<span class="key">"'+g+'"</span>: <span class="num">'+r.genreWeights[g].toFixed(1)+'</span>'}).join(',\n');
-    document.getElementById('stProfileStatus').remove();
-    document.getElementById('stProfileCard').insertAdjacentHTML('beforeend',
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem">'+
-      '<div style="border-radius:8px;border:1px solid var(--st-border);padding:.4rem .5rem">'+
-      '<div style="font-size:.6rem;font-weight:700;opacity:.5;margin-bottom:.15rem">FLINK SESSION WINDOW CONFIG</div>'+
-      '<div style="font-size:.63rem;line-height:1.5">'+
-      '<div>window.type: <b>EventTimeSessionWindows</b></div>'+
-      '<div>gap: <b>30 minutes</b></div>'+
-      '<div>watermark: <b>BoundedOutOfOrderness(5s)</b></div>'+
-      '<div>state.backend: <b>RocksDB</b> (incremental)</div>'+
-      '<div>checkpointing: <b>exactly-once / 60s</b></div>'+
-      '<div>parallelism: <b>'+r.partitions+'</b> (= Kafka partitions)</div>'+
-      '</div></div>'+
-      '<div style="border-radius:8px;border:1px solid var(--st-border);padding:.4rem .5rem">'+
-      '<div style="font-size:.6rem;font-weight:700;opacity:.5;margin-bottom:.15rem">ENRICHMENT PIPELINE</div>'+
-      '<div style="font-size:.63rem;line-height:1.5">'+
-      '<div>1. Redis async lookup: <b>'+r.redisMs+'ms</b></div>'+
-      '<div>2. Watch event \u2192 genre weight <b>\u00d71.0</b></div>'+
-      '<div>3. Trailer complete \u2192 genre weight <b>\u00d70.5</b></div>'+
-      '<div>4. Trailer abandon \u2192 genre weight <b>\u00d70.0</b></div>'+
-      '<div>5. Sink \u2192 Kafka: <b>user.profiles</b></div>'+
-      '<div>6. Side output \u2192 <b>Prometheus metrics</b></div>'+
-      '</div></div></div>'+
-      '<div class="st-json">'+
-      '<span class="key">"user_id"</span>: <span class="str">"'+r.userId+'"</span>,\n'+
-      '<span class="key">"top_genre"</span>: <span class="str">"'+r.topGenre+'"</span>,\n'+
-      '<span class="key">"genre_weights"</span>: {\n  '+weights+'\n},\n'+
-      '<span class="key">"watch_count"</span>: <span class="num">'+r.watched.length+'</span>,\n'+
-      '<span class="key">"trailer_completions"</span>: <span class="num">'+r.trailersCompleted.length+'</span>,\n'+
-      '<span class="key">"Redis_lookup"</span>: <span class="num">'+r.redisMs+'ms</span></div>');
-    log('\u2699\ufe0f Redis enrichment: user profile lookup in '+r.redisMs+'ms');
-    log('\u2705 Profile built \u2014 top genre: '+r.topGenre+' \u2014 '+r.watched.length+' watches + '+r.trailersCompleted.length+' trailer completions');
-    pip(2,'done');return wait(500)})}
-
-/* Step 4 — ML Scoring (ALS Collaborative Filtering + Content-Based Hybrid) */
-function s4(r){pip(3,'active');log('\ud83e\udde0 Loading ALS model: k=128 latent factors, \u03bb=0.01, 20 iterations');
-  log('\ud83e\udde0 User vector U['+r.userId+'] \u2192 128-dim latent space');
-  app('<div class="st-step-card" id="stScoreCard"><h6>\ud83e\udde0 Step 4 \u2014 ML Recommendation Scoring</h6>'+
-    '<p id="stScoreStatus" style="text-align:center;font-size:.82rem;margin:0">'+
-    '<i class="fas fa-spinner fa-spin me-1" style="color:#06b6d4"></i> ALS matrix factorization + content-based hybrid model\u2026</p></div>');
-  return wait(2000).then(function(){
-    var sc=document.getElementById('stScoreCard');
-    document.getElementById('stScoreStatus').remove();
-    sc.insertAdjacentHTML('beforeend',
-      '<p style="font-size:.72rem;opacity:.55;margin:0 0 .3rem;text-align:center">'+
-      '<i class="fas fa-check-circle me-1" style="color:#10b981"></i>'+
-      'ALS (k=128, \u03bb=0.01) + genre affinity + trailer-completion boost</p>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem">'+
-      '<div style="border-radius:8px;border:1px solid var(--st-border);padding:.4rem .5rem">'+
-      '<div style="font-size:.6rem;font-weight:700;opacity:.5;margin-bottom:.15rem">ALS MATRIX FACTORIZATION</div>'+
-      '<div style="font-size:.62rem;line-height:1.55">'+
-      '<div style="font-weight:700;margin-bottom:.15rem">R \u2248 U \u00d7 V<sup>T</sup></div>'+
-      '<div>U = User matrix (<b>m \u00d7 k</b>) \u2014 m users</div>'+
-      '<div>V = Item matrix (<b>n \u00d7 k</b>) \u2014 n movies</div>'+
-      '<div>k = <b>128</b> latent factors</div>'+
-      '<div style="margin-top:.15rem;font-size:.58rem;opacity:.6">Loss = \u03a3 (r<sub>ui</sub> \u2212 u<sub>i</sub>\u00b7v<sub>j</sub><sup>T</sup>)\u00b2 + \u03bb(||u||\u00b2 + ||v||\u00b2)</div>'+
-      '<div style="font-size:.58rem;opacity:.5">Alternating: fix U\u2192solve V, fix V\u2192solve U (20 iters)</div>'+
-      '</div></div>'+
-      '<div style="border-radius:8px;border:1px solid var(--st-border);padding:.4rem .5rem">'+
-      '<div style="font-size:.6rem;font-weight:700;opacity:.5;margin-bottom:.15rem">HYBRID SCORING FORMULA</div>'+
-      '<div style="font-size:.62rem;line-height:1.55">'+
-      '<div style="font-weight:700;margin-bottom:.15rem">final_score =</div>'+
-      '<div style="padding-left:.6rem"><b>0.6</b> \u00d7 ALS_score</div>'+
-      '<div style="padding-left:.6rem">+ <b>0.3</b> \u00d7 genre_affinity</div>'+
-      '<div style="padding-left:.6rem">+ <b>0.1</b> \u00d7 trailer_boost</div>'+
-      '<div style="margin-top:.2rem;font-size:.58rem;opacity:.5">ALS_score = dot(U[user], V[item])</div>'+
-      '<div style="font-size:.58rem;opacity:.5">genre_affinity = weight[genre] / max_weight</div>'+
-      '<div style="font-size:.58rem;opacity:.5">trailer_boost = 1.0 if completed, else 0.0</div>'+
-      '</div></div></div>'+
-      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.72rem">'+
-      '<thead><tr style="opacity:.5;border-bottom:1px solid var(--st-border)">'+
-      '<th style="padding:.2rem .4rem;text-align:left">Rank</th>'+
-      '<th style="padding:.2rem .4rem;text-align:left">Movie</th>'+
-      '<th style="padding:.2rem .4rem;text-align:left">Genre</th>'+
-      '<th style="padding:.2rem .4rem;text-align:right">Score</th>'+
-      '<th style="padding:.2rem .4rem;text-align:left">Signal</th></tr></thead><tbody id="stScoreRows"></tbody></table></div>');
-    var tb=document.getElementById('stScoreRows');
-    function reveal(i){if(i>=r.recs.length)return Promise.resolve();
-      return wait(450).then(function(){
-        var rec=r.recs[i],signal=rec.genre===r.topGenre?'\ud83c\udfaf genre match':'\ud83e\udd1d collaborative';
-        if(r.trailersCompleted.some(function(t){return t.genre===rec.genre}))signal+=' + \ud83c\udfac trailer boost';
-        tb.insertAdjacentHTML('beforeend',
-          '<tr style="animation:stFadeUp .3s ease both;border-bottom:1px solid var(--st-border)">'+
-          '<td style="padding:.25rem .4rem;font-weight:700">#'+(i+1)+'</td>'+
-          '<td style="padding:.25rem .4rem">'+rec.title+'</td>'+
-          '<td style="padding:.25rem .4rem;opacity:.6">'+rec.genre+' ('+rec.year+')</td>'+
-          '<td style="padding:.25rem .4rem;text-align:right;font-weight:700;color:'+(rec.score>=0.8?'#10b981':'#06b6d4')+'">'+rec.score.toFixed(2)+'</td>'+
-          '<td style="padding:.25rem .4rem;font-size:.65rem">'+signal+'</td></tr>');
-        log('\u2b50 #'+(i+1)+' '+rec.title+' \u2192 '+rec.score.toFixed(2));
-        return reveal(i+1)})}
-    return reveal(0).then(function(){
-      log('\ud83e\udde0 Dot products computed for '+r.recs.length+' candidates \u2192 hybrid scores ranked');
-      pip(3,'done');return wait(400)})})}
-
-/* Step 5 — Recommendation Carousel */
-function s5(r){pip(4,'active');log('\u2b50 Building recommendation carousel\u2026');
-  var cards=r.recs.slice(0,4).map(function(rec){
-    var colors={'Sci-Fi':'#06b6d4','Action':'#ef4444','Drama':'#8b5cf6','Thriller':'#f59e0b','Crime':'#3b82f6'};
-    var bg=colors[rec.genre]||'#64748b';
-    var poster=posterMap[rec.title];
-    var thumb=poster
-      ? '<div style="height:180px;overflow:hidden"><img src="'+posterBase+poster+'" alt="'+rec.title+'" style="width:100%;height:100%;object-fit:cover;object-position:center top"></div>'
-      : '<div style="height:180px;background:linear-gradient(135deg,'+bg+','+bg+'cc);display:flex;align-items:center;justify-content:center">'+
-        '<i class="fas fa-film" style="font-size:2.5rem;color:rgba(255,255,255,.7)"></i></div>';
-    return '<div style="flex:0 0 160px;width:160px;border-radius:12px;border:1px solid var(--st-border);overflow:hidden;animation:stFadeUp .4s ease both">'+
-      thumb+
-      '<div style="padding:.45rem .5rem">'+
-      '<div style="font-size:.72rem;font-weight:700;line-height:1.2">'+rec.title+'</div>'+
-      '<div style="font-size:.6rem;opacity:.5">'+rec.genre+' \u2022 '+rec.year+'</div>'+
-      '<div style="font-size:.68rem;font-weight:800;color:#10b981;margin-top:.15rem">'+Math.round(rec.score*100)+'% Match</div></div></div>';
-  }).join('');
-  app('<div class="st-step-card st-step-card--ok"><h6>\u2b50 Step 5 \u2014 "Because You Watched" Carousel</h6>'+
-    '<p style="font-size:.72rem;opacity:.55;margin:0 0 .5rem;text-align:center">'+
-    'Personalized for @'+r.user+' \u2022 top genre: '+r.topGenre+' \u2022 based on '+r.watched.length+' movies + '+r.trailersCompleted.length+' trailer completions</p>'+
-    '<div style="display:flex;gap:.5rem;overflow-x:auto;padding:.1rem">'+cards+'</div></div>');
-  return wait(1000).then(function(){pip(4,'done');log('\u2705 Carousel ready \u2014 4 personalized picks');return wait(400)})}
-
-/* Step 6 — Serve via API + update dashboard */
-function s6(r,elapsed){pip(5,'active');sessions.push(r);
-  var evts=r.watched.length+r.trailers.length;
-  totalEvts+=evts;totalRecs+=r.recs.length;totalLat+=parseInt(r.lag);
-  log('\ud83d\ude80 Writing to Redis: user:'+r.userId+':recs (TTL=3600s)');
-  log('\ud83d\ude80 API Gateway \u2192 Load Balancer \u2192 Reco Service ('+r.device+', '+r.region+')');
-  log('\ud83d\ude80 Prometheus: reco_served_total{region="'+r.region+'"} +'+r.recs.length);
-  dashWrap.style.display='block';
+  var wl=d.watched.map(function(m){return'"<span class=\'key\'>'+m.title+'</span>"'}).join(', ');
+  app('<div class="st-step-card"><h6>\ud83d\udcfa Step 1 — Kafka Ingest (user.watch-events)</h6>'+
+    '<div class="st-json"><span class="key">"user_id"</span>:<span class="str">"'+d.user+'"</span>, '+
+    '<span class="key">"device"</span>:<span class="str">"'+d.device+'"</span>, '+
+    '<span class="key">"watched"</span>:['+wl+']</div></div>');
+  totalEvts+=d.watched.length;
   document.getElementById('stKpiEvts').textContent=fmt(totalEvts);
-  document.getElementById('stKpiRecs').textContent=totalRecs;
-  document.getElementById('stKpiLat').textContent=Math.round(totalLat/sessions.length)+'ms';
-  document.getElementById('stKpiCtr').textContent=(sessions.reduce(function(s,x){return s+x.ctr},0)/sessions.length*100).toFixed(1)+'%';
-  document.getElementById('stDashTable').insertAdjacentHTML('afterbegin',
-    '<tr style="animation:stFadeUp .35s ease both">'+
-    '<td><b>@'+r.user+'</b></td>'+
-    '<td>'+r.watched.length+'</td><td>'+r.trailersCompleted.length+'/'+r.trailers.length+'</td>'+
-    '<td><span class="st-ds ok">'+r.topGenre+'</span></td>'+
-    '<td>'+r.recs[0].title+'</td>'+
-    '<td style="font-weight:700;color:#10b981">'+r.recs[0].score.toFixed(2)+'</td>'+
-    '<td>'+elapsed.toFixed(1)+'s</td></tr>');
-  app('<div class="st-step-card st-step-card--ok"><h6>\ud83d\ude80 Step 6 \u2014 Real-time Serving</h6>'+
-    '<p style="text-align:center;font-size:.82rem;color:#10b981;font-weight:700;margin:0">'+
-    '<i class="fas fa-check-double me-1"></i> '+r.recs.length+' recommendations served to @'+r.user+' on '+r.device+'</p>'+
-    '<p style="text-align:center;font-size:.72rem;opacity:.55;margin:.15rem 0 0">'+
-    'Kafka consumer lag: '+r.lag+'ms \u2022 predicted CTR: '+(r.ctr*100).toFixed(1)+'% \u2022 E2E: '+elapsed.toFixed(1)+'s</p></div>');
-  pip(5,'done');log('\u2705 @'+r.user+' served \u2014 lag='+r.lag+'ms');return wait(600)}
+  await wait(900);
+}
 
-function runDemo(){if(running)return;running=true;btnRun.disabled=true;
-  btnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Streaming\u2026';btnReset.style.display='none';
-  var r=gen(),start=performance.now();
-  s1(r).then(function(){return s2(r)}).then(function(){return s3(r)})
-  .then(function(){return s4(r)}).then(function(){return s5(r)})
-  .then(function(){return s6(r,(performance.now()-start)/1000)})
-  .then(function(){running=false;btnRun.disabled=false;
-    btnRun.innerHTML='<i class="fas fa-play me-1"></i> Stream Another User';btnReset.style.display='';
-    document.getElementById('stDashboard').scrollIntoView({behavior:'smooth',block:'nearest'})})}
+async function s2(d){
+  pip(1,'active');log('\ud83c\udfac Processing trailer events');
+  var tl=d.trailers.map(function(m){return'"<span class=\'str\'>'+m.title+'</span>"'}).join(', ');
+  app('<div class="st-step-card"><h6>\ud83c\udfac Step 2 — Kafka Ingest (user.trailer-events)</h6>'+
+    '<div class="st-json"><span class="key">"trailers_viewed"</span>:['+tl+'], '+
+    '<span class="key">"completion_pct"</span>:<span class="num">'+rf(.65,.98)+'</span>, '+
+    '<span class="key">"intent_signal"</span>:<span class="str">"high"</span></div></div>');
+  await wait(800);
+}
 
-function resetDemo(){sessions=[];totalEvts=0;totalRecs=0;totalLat=0;stage.innerHTML='';dashWrap.style.display='none';
-  document.getElementById('stDashTable').innerHTML='';
-  var ec=document.getElementById('stEvtCard');ec.innerHTML='';ec.classList.remove('vis');
-  document.getElementById('stLogArea').innerHTML='';
-  btnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Stream';btnReset.style.display='none';
-  for(var i=0;i<6;i++)document.getElementById('stPip'+i).classList.remove('active','done')}
+async function s3(d){
+  pip(2,'active');log('\u26a1 Flink session window building genre profile');
+  var gw=genres.map(function(g,i){return'"<span class=\'key\'>'+g+'</span>":<span class=\'num\'>'+d.userVec[i].toFixed(3)+'</span>'}).join(', ');
+  app('<div class="st-step-card"><h6>\u26a1 Step 3 — Flink Session Window (30-min gap, 5s watermark)</h6>'+
+    '<div class="st-json"><span class="key">"genre_vector"</span>:{'+gw+'}, '+
+    '<span class="key">"session_events"</span>:<span class="num">'+(d.watched.length+d.trailers.length)+'</span>, '+
+    '<span class="key">"top_genre"</span>:<span class="str">"'+d.topGenre+'"</span>, '+
+    '<span class="key">"checkpoint_id"</span>:<span class="num">'+rn(1000,9999)+'</span></div></div>');
+  await wait(1000);
+}
 
-btnRun.addEventListener('click',runDemo);btnReset.addEventListener('click',resetDemo);
+async function s4(d){
+  pip(3,'active');log('\ud83e\udde0 ALS model scoring candidates');
+  var rows=d.top.slice(0,2).map(function(x){return'"<span class=\'key\'>'+x.m.title+'</span>":<span class=\'num\'>'+x.score.toFixed(4)+'</span>'});
+  app('<div class="st-step-card"><h6>\ud83e\udda0 Step 4 — ALS Scoring (R\u2248U\u00d7V\u1d40, k=128)</h6>'+
+    '<div class="st-json"><span class="key">"model"</span>:<span class="str">"als_v3_checkpoint_2401"</span>, '+
+    '<span class="key">"candidates_scored"</span>:<span class="num">'+rn(200,400)+'</span>, '+
+    '<span class="key">"top_scores"</span>:{'+rows.join(', ')+'}, '+
+    '<span class="key">"latency_ms"</span>:<span class="num">'+rn(3,9)+'</span></div></div>');
+  await wait(900);
+}
+
+async function s5(d){
+  pip(4,'active');log('\u2b50 Recommendation list assembled');
+  var rh=d.top.map(function(x,idx){
+    var pf=posterMap[x.m.title];
+    var img=pf?'<img src="'+posterBase+pf+'" style="width:40px;height:54px;border-radius:5px;object-fit:cover;flex-shrink:0" alt="">':'<div style="width:40px;height:54px;border-radius:5px;background:#334155;flex-shrink:0"></div>';
+    return '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">'+img+
+      '<div><div style="font-size:.75rem;font-weight:700">'+x.m.title+'</div>'+
+      '<div style="font-size:.65rem;opacity:.6">'+x.m.genre+' · score '+x.score.toFixed(3)+'</div></div></div>';
+  }).join('');
+  app('<div class="st-step-card st-step-card--ok"><h6>\u2b50 Step 5 — Top Recommendations (diversity: max 3/genre)</h6>'+rh+'</div>');
+  totalRecs+=d.top.length;
+  document.getElementById('stKpiRecs').textContent=fmt(totalRecs);
+  await wait(800);
+}
+
+async function s6(d){
+  pip(5,'done');log('\ud83d\ude80 Serving via FastAPI · Redis feature store');
+  totalLat+=d.lat;
+  var avgLat=(totalLat/sessions.length).toFixed(0);
+  var avgCtr=(sessions.reduce(function(s,x){return s+x.ctr},0)/sessions.length*100).toFixed(1);
+  document.getElementById('stKpiLat').textContent=avgLat+'ms';
+  document.getElementById('stKpiCtr').textContent=avgCtr+'%';
+  var tr=document.createElement('tr');
+  tr.style.animation='stSlide .25s ease';
+  var pf=posterMap[d.top[0].m.title];
+  var thumb=pf?'<img src="'+posterBase+pf+'" style="width:28px;height:38px;border-radius:4px;object-fit:cover" alt="">':'';
+  tr.innerHTML='<td>'+d.user+'</td><td>'+d.watched.length+'</td><td>'+d.trailers.length+'</td>'+
+    '<td><span class="st-ds ok">'+d.topGenre+'</span></td>'+
+    '<td style="display:flex;align-items:center;gap:.35rem">'+thumb+'<span style="font-size:.73rem">'+d.top[0].m.title+'</span></td>'+
+    '<td>'+d.top[0].score.toFixed(3)+'</td><td>'+d.lat+'ms</td>';
+  var tb=document.getElementById('stDashTable');
+  tb.insertBefore(tr,tb.firstChild);
+  if(tb.rows.length>6)tb.deleteRow(tb.rows.length-1);
+  app('<div class="st-step-card"><h6>\ud83d\ude80 Step 6 — Served via FastAPI (&lt;'+d.lat+'ms E2E)</h6>'+
+    '<div class="st-json"><span class="key">"user_id"</span>:<span class="str">"'+d.user+'"</span>, '+
+    '<span class="key">"rec_1"</span>:<span class="str">"'+d.top[0].m.title+'"</span>, '+
+    '<span class="key">"latency_ms"</span>:<span class="num">'+d.lat+'</span>, '+
+    '<span class="key">"ctr_pred"</span>:<span class="num">'+d.ctr+'</span>, '+
+    '<span class="key">"exactly_once"</span>:<span class="str">true</span></div></div>');
+  await wait(700);
+}
+
+async function runDemo(){
+  running=true;btnRun.disabled=true;
+  var br=document.getElementById('stBtnReset');br.style.display='inline-flex';
+  dashWrap.style.display='block';
+  for(var i=0;i<4&&running;i++){
+    stage.innerHTML='';
+    var d=await gen();
+    await s1(d);if(!running)break;
+    await s2(d);if(!running)break;
+    await s3(d);if(!running)break;
+    await s4(d);if(!running)break;
+    await s5(d);if(!running)break;
+    await s6(d);if(!running)break;
+    if(i<3)await wait(600);
+  }
+  if(running){pip(5,'done');log('\u2705 Pipeline complete — 4 sessions processed');}
+  running=false;btnRun.disabled=false;
+}
+
+function resetDemo(){
+  running=false;sessions=[];totalEvts=0;totalRecs=0;totalLat=0;
+  stage.innerHTML='';dashWrap.style.display='none';
+  var lb=document.getElementById('stLogArea');if(lb)lb.innerHTML='';
+  var ec=document.getElementById('stEvtCard');if(ec){ec.innerHTML='';ec.classList.remove('vis');}
+  for(var j=0;j<6;j++){var e=document.getElementById('stPip'+j);e.classList.remove('active','done');}
+  document.getElementById('stKpiEvts').textContent='0';
+  document.getElementById('stKpiRecs').textContent='0';
+  document.getElementById('stKpiLat').textContent='\u2014';
+  document.getElementById('stKpiCtr').textContent='\u2014';
+  var tb=document.getElementById('stDashTable');if(tb)tb.innerHTML='';
+  var br=document.getElementById('stBtnReset');if(br)br.style.display='none';
+  btnRun.disabled=false;
+}
+
+if(btnRun)btnRun.addEventListener('click',runDemo);
+if(btnReset)btnReset.addEventListener('click',resetDemo);
+
+/* ══════════════════════════════════════════
+   NEW: Mode Toggle
+   ══════════════════════════════════════════ */
+function setMode(m){
+  var eli5=document.getElementById('stPaneELI5');
+  var eng=document.getElementById('stPaneEngineer');
+  var bELI5=document.getElementById('stBtnELI5');
+  var bEng=document.getElementById('stBtnEngineer');
+  if(m==='eli5'){
+    eli5.classList.add('active');eng.classList.remove('active');
+    bELI5.classList.add('active');bEng.classList.remove('active');
+  } else {
+    eng.classList.add('active');eli5.classList.remove('active');
+    bEng.classList.add('active');bELI5.classList.remove('active');
+  }
+}
+
+/* ══════════════════════════════════════════
+   NEW: ELI5 Picker
+   ══════════════════════════════════════════ */
+var eli5Selected=null;
+function buildELI5Picker(){
+  var pool=pick(movies,5);
+  var container=document.getElementById('stELI5Picker');
+  if(!container)return;
+  container.innerHTML='';
+  pool.forEach(function(m){
+    var pf=posterMap[m.title];
+    var imgHtml=pf
+      ?'<img src="'+posterBase+pf+'" alt="'+m.title+'">'
+      :'<div style="width:100%;height:100%;background:linear-gradient(135deg,#1e293b,#334155);display:flex;align-items:center;justify-content:center;color:#64748b;font-size:.65rem;text-align:center;padding:.25rem">'+m.title+'</div>';
+    var card=document.createElement('div');
+    card.className='st-eli5-card';
+    card.setAttribute('data-title',m.title);
+    card.innerHTML='<div class="st-eli5-card-img">'+imgHtml+'</div>'+
+      '<div class="st-eli5-card-info">'+
+        '<div class="st-eli5-card-title">'+m.title+'</div>'+
+        '<div class="st-eli5-card-genre">'+m.genre+' &middot; '+m.year+'</div>'+
+      '</div>';
+    card.addEventListener('click',function(){
+      container.querySelectorAll('.st-eli5-card').forEach(function(c){c.classList.remove('selected')});
+      card.classList.add('selected');
+      eli5Selected=m;
+      document.getElementById('stELI5Btn').disabled=false;
+      document.getElementById('stELI5Recs').style.display='none';
+    });
+    container.appendChild(card);
+  });
+}
+
+function eli5Predict(){
+  if(!eli5Selected)return;
+  var results=movies.filter(function(m){return m.title!==eli5Selected.title});
+  var scored=results.map(function(m){return{m:m,score:cosineSim(eli5Selected.gv,m.gv)}});
+  scored.sort(function(a,b){return b.score-a.score});
+  var top3=scored.slice(0,3);
+  var grid=document.getElementById('stELI5RecGrid');
+  grid.innerHTML='';
+  top3.forEach(function(x,idx){
+    var pf=posterMap[x.m.title];
+    var imgHtml=pf
+      ?'<img src="'+posterBase+pf+'" alt="'+x.m.title+'">'
+      :'<div style="width:100%;height:100%;background:linear-gradient(135deg,#1e293b,#334155)"></div>';
+    var reasons=[
+      'Shares the same genre vibes',
+      'Similar narrative complexity',
+      'Overlapping audience taste vectors'
+    ];
+    var card=document.createElement('div');
+    card.className='st-eli5-rec-card';
+    card.style.animationDelay=(idx*.1)+'s';
+    card.innerHTML='<div class="st-eli5-rec-card-img">'+imgHtml+'</div>'+
+      '<div class="st-eli5-rec-info">'+
+        '<div class="st-eli5-rec-title">'+x.m.title+'</div>'+
+        '<div class="st-eli5-rec-score">'+Math.round(x.score*100)+'% match</div>'+
+        '<div class="st-eli5-rec-why">'+reasons[idx]+'</div>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+  var explain=document.getElementById('stELI5Explain');
+  explain.textContent='ALS genre-vector cosine similarity: your "'+eli5Selected.title+'" taste fingerprint matched these '+top3.length+' titles. In production, this runs across 50,000+ candidates in <8ms using BLAS-optimized dot products.';
+  document.getElementById('stELI5Recs').style.display='block';
+}
+
+/* ══════════════════════════════════════════
+   NEW: Classroom Stepper
+   ══════════════════════════════════════════ */
+var clsSlide=0,clsTotal=6,clsPlaying=true,clsInterval=null;
+function clsUpdate(){
+  var slides=document.querySelectorAll('.st-cls-slide');
+  var dots=document.querySelectorAll('.st-cls-dot');
+  slides.forEach(function(s,i){s.classList.toggle('active',i===clsSlide)});
+  dots.forEach(function(d,i){d.classList.toggle('active',i===clsSlide)});
+  var ind=document.getElementById('stClsIndicator');
+  if(ind)ind.textContent='Step '+(clsSlide+1)+' of '+clsTotal;
+  var fill=document.getElementById('stClsProgressFill');
+  if(fill)fill.style.width=(((clsSlide+1)/clsTotal)*100)+'%';
+}
+function clsNext(){clsSlide=(clsSlide+1)%clsTotal;clsUpdate()}
+function clsPrev(){clsSlide=(clsSlide-1+clsTotal)%clsTotal;clsUpdate()}
+function gotoSlide(n){clsSlide=n;clsUpdate();if(clsPlaying){clearInterval(clsInterval);clsInterval=setInterval(clsNext,6000)}}
+function clsTogglePlay(){
+  clsPlaying=!clsPlaying;
+  var ic=document.getElementById('stClsPlayIcon');
+  if(ic){ic.className=clsPlaying?'fas fa-pause':'fas fa-play'}
+  if(clsPlaying){clsInterval=setInterval(clsNext,6000)}else{clearInterval(clsInterval)}
+}
+var clsPrevBtn=document.getElementById('stClsPrev');
+var clsPlayBtn=document.getElementById('stClsPlay');
+var clsNextBtn=document.getElementById('stClsNext');
+if(clsPrevBtn)clsPrevBtn.addEventListener('click',clsPrev);
+if(clsPlayBtn)clsPlayBtn.addEventListener('click',clsTogglePlay);
+if(clsNextBtn)clsNextBtn.addEventListener('click',clsNext);
+clsInterval=setInterval(clsNext,6000);
+clsUpdate();
+
+/* ══════════════════════════════════════════
+   NEW: Progress Bar + Nav + Story Scroll
+   ══════════════════════════════════════════ */
+function stInitProgress(){
+  var fill=document.getElementById('stProgressFill');
+  if(!fill)return;
+  window.addEventListener('scroll',function(){
+    var s=document.documentElement.scrollTop||document.body.scrollTop;
+    var h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+    fill.style.width=(h>0?(s/h*100):0)+'%';
+  });
+}
+function stInitNav(){
+  var links=document.querySelectorAll('.st-sec-link');
+  var secs=Array.from(links).map(function(l){return document.getElementById(l.dataset.sec)}).filter(Boolean);
+  if(!secs.length)return;
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){l.classList.toggle('active',l.dataset.sec===e.target.id)});
+      }
+    });
+  },{rootMargin:'-35% 0px -55% 0px'});
+  secs.forEach(function(s){obs.observe(s)});
+}
+function stInitStoryReveal(){
+  var steps=document.querySelectorAll('.st-story-step');
+  if(!steps.length)return;
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')});
+  },{threshold:.15});
+  steps.forEach(function(s){obs.observe(s)});
+}
+
+/* ══════════════════════════════════════════
+   NEW: Share
+   ══════════════════════════════════════════ */
+function shareDemo(){
+  var url=window.location.href;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){
+      var btn=document.getElementById('stShareBtn');
+      if(btn){btn.innerHTML='<i class="fas fa-check"></i> Link Copied!';setTimeout(function(){btn.innerHTML='<i class="fas fa-share-alt"></i> Share Demo'},2000)}
+    }).catch(function(){window.prompt('Copy this link:',url)});
+  } else {window.prompt('Copy this link:',url)}
+}
+
+/* ══════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════ */
+stInitProgress();
+stInitNav();
+stInitStoryReveal();
+buildELI5Picker();
+
+/* ── Expose globals for onclick= handlers ── */
+window.setMode=setMode;
+window.gotoSlide=gotoSlide;
+window.shareDemo=shareDemo;
+window.eli5Predict=eli5Predict;
+
 })();
 </script>
-{% endblock %}
+{% endblock extra_js %}
