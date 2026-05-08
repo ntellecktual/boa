@@ -1,42 +1,66 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
-{% block title %}thenumerix | API Integration &amp; Orchestration{% endblock %}
+{% block title %}thenumerix | Amazon Order Orchestration{% endblock %}
 
 {% block content %}
 <style>
-/* ══════════════════════════════════════════════════════════
-   API INTEGRATION & ORCHESTRATION
-   ══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   API ORCHESTRATION — 7-Ideations / Amazon Order Fulfillment
+   ══════════════════════════════════════════════════════════════ */
 :root{
-  --ao-blue:#3b82f6;--ao-violet:#8b5cf6;--ao-emerald:#10b981;--ao-amber:#f59e0b;--ao-rose:#ef4444;--ao-indigo:#6366f1;
+  --ao-blue:#3b82f6;--ao-violet:#8b5cf6;--ao-emerald:#10b981;--ao-amber:#f59e0b;
+  --ao-rose:#ef4444;--ao-indigo:#6366f1;--ao-cyan:#06b6d4;
   --ao-grad-b:linear-gradient(135deg,#6366f1,#3b82f6);
   --ao-grad-v:linear-gradient(135deg,#8b5cf6,#6d28d9);
   --ao-grad-g:linear-gradient(135deg,#10b981,#059669);
   --ao-grad-a:linear-gradient(135deg,#f59e0b,#d97706);
   --ao-surface:rgba(255,255,255,.75);--ao-border:rgba(0,0,0,.08);
   --ao-shadow:0 4px 24px rgba(0,0,0,.07);--ao-shadow-lg:0 12px 48px rgba(0,0,0,.13);
+  --ao-text:#0f172a;--ao-muted:#64748b;--ao-card:#fff;--ao-radius:20px;
 }
 [data-theme="dark"]{
   --ao-surface:rgba(22,28,45,.8);--ao-border:rgba(255,255,255,.08);
   --ao-shadow:0 4px 24px rgba(0,0,0,.4);--ao-shadow-lg:0 12px 48px rgba(0,0,0,.55);
+  --ao-text:#e2e8f0;--ao-muted:#94a3b8;--ao-card:rgba(22,28,45,.9);
 }
+
+/* ── Keyframes ── */
 @keyframes aoFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes aoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@keyframes aoOrbit{0%{transform:rotate(0deg) translateX(6px) rotate(0deg)}100%{transform:rotate(360deg) translateX(6px) rotate(-360deg)}}
+@keyframes aoPulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes aoSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
 
-.ao-hero{text-align:center;padding:3.5rem 0 2.5rem;position:relative;overflow:hidden}
+/* ── Progress Bar ── */
+.ao-progress-bar{position:fixed;top:0;left:0;right:0;height:3px;z-index:9999;background:rgba(0,0,0,.07)}
+.ao-progress-fill{height:100%;background:linear-gradient(90deg,#6366f1,#10b981);width:0;transition:width .1s}
+[data-theme="dark"] .ao-progress-bar{background:rgba(255,255,255,.07)}
+
+/* ── Sticky Nav ── */
+.ao-sticky-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.85);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--ao-border);
+  display:flex;justify-content:center;gap:.2rem;padding:.5rem 1rem;flex-wrap:wrap}
+[data-theme="dark"] .ao-sticky-nav{background:rgba(15,23,42,.85)}
+.ao-sec-link{padding:.3rem .75rem;border-radius:999px;font-size:.72rem;font-weight:700;
+  text-decoration:none;color:var(--ao-muted);transition:all .2s}
+.ao-sec-link:hover,.ao-sec-link.active{background:rgba(99,102,241,.12);color:#4f46e5}
+[data-theme="dark"] .ao-sec-link:hover,[data-theme="dark"] .ao-sec-link.active{
+  background:rgba(99,102,241,.2);color:#818cf8}
+
+/* ── Hero ── */
+.ao-hero{text-align:center;padding:3.5rem 1rem 2.5rem;position:relative;overflow:hidden}
 .ao-hero::before{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(99,102,241,.11) 0%,transparent 70%),
              radial-gradient(ellipse 45% 35% at 80% 110%,rgba(16,185,129,.08) 0%,transparent 60%);pointer-events:none}
 .ao-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .9rem;border-radius:999px;
   background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);font-size:.72rem;font-weight:700;
-  color:var(--ao-indigo);margin-bottom:.9rem;text-transform:uppercase;letter-spacing:.06em}
+  color:#4f46e5;margin-bottom:.9rem;text-transform:uppercase;letter-spacing:.06em}
+[data-theme="dark"] .ao-badge{color:#818cf8}
 .ao-hero h1{font-size:clamp(1.9rem,4.5vw,3.1rem);font-weight:800;line-height:1.1;margin-bottom:.8rem;
   background:linear-gradient(135deg,#312e81 0%,#6366f1 50%,#10b981 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 [data-theme="dark"] .ao-hero h1{background:linear-gradient(135deg,#e2e8f0 0%,#818cf8 50%,#6ee7b7 100%);
   -webkit-background-clip:text;background-clip:text}
-.ao-hero .lead{font-size:1rem;opacity:.7;max-width:620px;margin:0 auto 2rem}
+.ao-hero .lead{font-size:1rem;color:var(--ao-muted);max-width:620px;margin:0 auto 2rem;line-height:1.6}
 .ao-kpi-strip{display:flex;justify-content:center;flex-wrap:wrap;gap:1rem;margin-top:1rem}
 .ao-kpi{display:flex;align-items:center;gap:.6rem;padding:.6rem 1.1rem;border-radius:14px;
   background:var(--ao-surface);border:1px solid var(--ao-border);backdrop-filter:blur(8px);
@@ -44,446 +68,540 @@
 .ao-kpi:nth-child(2){animation-delay:.5s}.ao-kpi:nth-child(3){animation-delay:1s}.ao-kpi:nth-child(4){animation-delay:1.5s}
 .ao-kpi-val{font-size:1.15rem;font-weight:800;background:var(--ao-grad-b);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.ao-kpi-lbl{font-size:.72rem;opacity:.65;line-height:1.3}
+.ao-kpi-lbl{font-size:.72rem;color:var(--ao-muted);line-height:1.3}
 
-.ao-sec{padding:1.8rem 0;animation:aoFadeUp .6s ease both}
-.ao-sec-head{text-align:center;margin-bottom:1.4rem}
-.ao-sec-head h2{font-size:1.55rem;font-weight:800;margin-bottom:.25rem}
-.ao-sec-head p{font-size:.88rem;opacity:.65;max-width:540px;margin:0 auto}
-.ao-tag{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.63rem;
+/* ── Generic Section ── */
+.ao-section{padding:2.5rem 1rem;max-width:960px;margin:0 auto}
+.ao-section-head{text-align:center;margin-bottom:2rem}
+.ao-tag{display:inline-block;padding:.22rem .8rem;border-radius:999px;font-size:.63rem;
   font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
 .ao-tag--i{background:rgba(99,102,241,.11);color:#4f46e5}
 .ao-tag--g{background:rgba(16,185,129,.11);color:#059669}
 .ao-tag--v{background:rgba(139,92,246,.11);color:#7c3aed}
 .ao-tag--a{background:rgba(245,158,11,.11);color:#b45309}
+.ao-tag--b{background:rgba(59,130,246,.11);color:#2563eb}
+.ao-tag--r{background:rgba(239,68,68,.11);color:#dc2626}
+[data-theme="dark"] .ao-tag--i{color:#818cf8}[data-theme="dark"] .ao-tag--g{color:#6ee7b7}
+[data-theme="dark"] .ao-tag--v{color:#c4b5fd}[data-theme="dark"] .ao-tag--a{color:#fcd34d}
+.ao-section-head h2{font-size:1.6rem;font-weight:800;margin-bottom:.3rem}
+.ao-section-head p{font-size:.9rem;color:var(--ao-muted);max-width:560px;margin:0 auto;line-height:1.6}
 
-/* ── Gateway Flow ── */
-.ao-flow{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap;gap:0;max-width:960px;margin:0 auto 1.5rem}
-.ao-flow-node{display:flex;flex-direction:column;align-items:center;padding:1rem .75rem;
-  border-radius:17px;border:1px solid var(--ao-border);background:var(--ao-surface);
-  backdrop-filter:blur(10px);box-shadow:var(--ao-shadow);min-width:100px;text-align:center;
-  transition:transform .25s,box-shadow .25s}
-.ao-flow-node:hover{transform:translateY(-4px);box-shadow:var(--ao-shadow-lg)}
-.ao-flow-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
-  justify-content:center;font-size:1.1rem;color:#fff;margin-bottom:.48rem}
-.ao-flow-lbl{font-size:.71rem;font-weight:700;line-height:1.25}
-.ao-flow-sub{font-size:.58rem;opacity:.52;margin-top:.14rem}
-.ao-flow-arr{display:flex;align-items:center;padding:0 .25rem;opacity:.35;font-size:.82rem;align-self:center}
+/* ── Story Steps ── */
+.ao-story-steps{display:flex;flex-direction:column;gap:1rem;max-width:760px;margin:0 auto}
+.ao-story-step{display:flex;align-items:flex-start;gap:1.2rem;padding:1.1rem 1.4rem;
+  border-radius:18px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  backdrop-filter:blur(10px);box-shadow:var(--ao-shadow);
+  opacity:0;transform:translateX(-24px);transition:opacity .5s ease,transform .5s ease}
+.ao-story-step.visible{opacity:1;transform:none}
+.ao-story-num{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:1.1rem;flex-shrink:0}
+.ao-story-body h4{font-size:.9rem;font-weight:800;margin:0 0 .2rem}
+.ao-story-body p{font-size:.79rem;color:var(--ao-muted);margin:0;line-height:1.55}
 
-/* ── Pattern Cards ── */
-.ao-patterns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;max-width:960px;margin:0 auto}
-@media(max-width:768px){.ao-patterns{grid-template-columns:1fr}}
-.ao-card{border-radius:20px;padding:1.5rem;border:1px solid var(--ao-border);
-  background:var(--ao-surface);backdrop-filter:blur(12px);box-shadow:var(--ao-shadow);
-  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
-.ao-card:hover{transform:translateY(-4px);box-shadow:var(--ao-shadow-lg)}
-.ao-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.ao-card--res::before{background:var(--ao-grad-b)}
-.ao-card--rel::before{background:var(--ao-grad-g)}
-.ao-card--sec::before{background:linear-gradient(135deg,#ef4444,#dc2626)}
-.ao-card-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;
-  justify-content:center;font-size:1.2rem;color:#fff;margin-bottom:.9rem}
-.ao-card h3{font-size:1.05rem;font-weight:800;margin-bottom:.18rem}
-.ao-card .sub{font-size:.76rem;opacity:.6;margin-bottom:.9rem}
-.ao-ck{display:flex;align-items:center;gap:.4rem;font-size:.78rem;margin-bottom:.4rem}
-.ao-ck i{font-size:.7rem}
-.ao-ck .done{color:var(--ao-emerald)}.ao-ck .info{color:var(--ao-indigo)}
+/* ── Demo Section ── */
+.ao-demo-section{padding:2.5rem 1rem;max-width:960px;margin:0 auto}
+.ao-mode-toggle{display:flex;justify-content:center;margin-bottom:1.5rem}
+.ao-mode-pill{display:flex;background:var(--ao-surface);border:1px solid var(--ao-border);
+  border-radius:999px;padding:.25rem;box-shadow:var(--ao-shadow);gap:.15rem}
+.ao-mode-btn{padding:.4rem 1.4rem;border-radius:999px;border:none;background:transparent;
+  font-size:.8rem;font-weight:700;cursor:pointer;transition:all .25s;color:var(--ao-muted)}
+.ao-mode-btn.active{background:var(--ao-grad-b);color:#fff;box-shadow:0 2px 12px rgba(99,102,241,.35)}
 
-/* ── Integration Grid ── */
-.ao-integrations{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;max-width:940px;margin:0 auto}
-.ao-integ{border-radius:14px;border:1px solid var(--ao-border);background:var(--ao-surface);
-  backdrop-filter:blur(8px);padding:.9rem 1rem;display:flex;align-items:flex-start;gap:.7rem;
-  transition:transform .2s,box-shadow .2s}
-.ao-integ:hover{transform:translateY(-2px);box-shadow:var(--ao-shadow)}
-.ao-integ-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
-  justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0}
-.ao-integ-name{font-size:.81rem;font-weight:700;margin-bottom:.18rem}
-.ao-integ-desc{font-size:.72rem;opacity:.65;line-height:1.4}
+/* ── Panes ── */
+.ao-pane{display:none}.ao-pane.active{display:block}
 
-/* ── Demo Panel ── */
+/* ── ELI5 Pane ── */
+.ao-eli5-section{background:var(--ao-surface);border:1px solid var(--ao-border);
+  border-radius:var(--ao-radius);box-shadow:var(--ao-shadow-lg);overflow:hidden;padding:1.5rem}
+.ao-eli5-intro{text-align:center;margin-bottom:1.2rem}
+.ao-eli5-intro h3{font-size:1rem;font-weight:800;margin-bottom:.25rem}
+.ao-eli5-intro p{font-size:.8rem;color:var(--ao-muted);margin:0}
+.ao-eli5-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.65rem;margin-bottom:1rem}
+.ao-eli5-card{border-radius:14px;border:2px solid var(--ao-border);padding:.85rem;cursor:pointer;
+  transition:all .2s;text-align:center;background:var(--ao-card)}
+.ao-eli5-card:hover{border-color:rgba(99,102,241,.3);transform:translateY(-2px)}
+.ao-eli5-card.selected{border-color:#6366f1;background:rgba(99,102,241,.07);
+  box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.ao-eli5-icon{font-size:2rem;margin-bottom:.4rem}
+.ao-eli5-card-title{font-size:.78rem;font-weight:800;margin-bottom:.15rem}
+.ao-eli5-card-desc{font-size:.65rem;color:var(--ao-muted)}
+.ao-eli5-simulate-btn{display:block;width:100%;padding:.65rem;border:none;border-radius:12px;
+  background:var(--ao-grad-b);color:#fff;font-size:.82rem;font-weight:700;cursor:pointer;
+  transition:all .2s;margin-bottom:1rem}
+.ao-eli5-simulate-btn:disabled{opacity:.45;cursor:not-allowed}
+.ao-eli5-simulate-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(99,102,241,.35)}
+.ao-eli5-result{display:none}.ao-eli5-result.show{display:block;animation:aoFadeUp .35s ease both}
+.ao-eli5-flow{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:.85rem}
+.ao-eli5-step{display:flex;flex-direction:column;align-items:center;gap:.2rem;text-align:center;min-width:62px}
+.ao-eli5-step-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:1rem;color:#fff}
+.ao-eli5-step-icon.ok{background:var(--ao-grad-g)}
+.ao-eli5-step-icon.fail{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.ao-eli5-step-icon.comp{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.ao-eli5-step-lbl{font-size:.58rem;font-weight:700;line-height:1.2}
+.ao-eli5-arr{font-size:.7rem;color:var(--ao-muted);align-self:center;padding:0 .1rem}
+.ao-eli5-explain{padding:.85rem;border-radius:12px;background:rgba(99,102,241,.06);
+  border:1px solid rgba(99,102,241,.15);font-size:.78rem;line-height:1.65;color:var(--ao-muted)}
+[data-theme="dark"] .ao-eli5-explain{background:rgba(99,102,241,.1)}
+
+/* ── Engineer Pane: demo panel CSS ── */
 .ao-demo{border-radius:22px;border:1px solid var(--ao-border);background:var(--ao-surface);
-  backdrop-filter:blur(14px);box-shadow:var(--ao-shadow-lg);overflow:hidden;max-width:940px;margin:0 auto}
+  backdrop-filter:blur(14px);box-shadow:var(--ao-shadow-lg);overflow:hidden}
 .ao-demo-bar{padding:.85rem 1.4rem;display:flex;align-items:center;justify-content:space-between;
   border-bottom:1px solid var(--ao-border);background:rgba(99,102,241,.035);gap:.8rem;flex-wrap:wrap}
 .ao-demo-bar h4{font-size:.9rem;font-weight:800;margin:0;flex:1}
 .ao-dots{display:flex;gap:.38rem}
 .ao-dot{width:11px;height:11px;border-radius:50%}
 .ao-dot--r{background:#ef4444}.ao-dot--y{background:#f59e0b}.ao-dot--g{background:#10b981}
-.ao-demo-body{padding:1.2rem}
-.ao-log{font-family:monospace;font-size:.73rem;line-height:1.7;background:#0f172a;color:#94a3b8;
-  border-radius:12px;padding:1rem 1.2rem;max-height:340px;overflow-y:auto}
-.ao-log .ts{color:#64748b}.ao-log .ok{color:#6ee7b7}.ao-log .warn{color:#fcd34d}
-.ao-log .err{color:#fca5a5}.ao-log .src{color:#a5b4fc}.ao-log .num{color:#fcd34d}
-
-/* ── Pills & Callout ── */
-.ao-stack{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;max-width:800px;margin:1rem auto 0}
-.ao-pill{padding:.25rem .7rem;border-radius:999px;font-size:.72rem;font-weight:700}
-.ao-pill--i{background:rgba(99,102,241,.12);color:#4f46e5}
-.ao-pill--b{background:rgba(59,130,246,.12);color:#2563eb}
-.ao-pill--g{background:rgba(16,185,129,.12);color:#059669}
-.ao-pill--v{background:rgba(139,92,246,.12);color:#7c3aed}
-.ao-pill--a{background:rgba(245,158,11,.12);color:#b45309}
-.ao-pill--r{background:rgba(239,68,68,.12);color:#dc2626}
-.ao-callout{border-radius:16px;padding:1.1rem 1.4rem;border:1px solid var(--ao-border);
-  background:var(--ao-surface);backdrop-filter:blur(10px);max-width:760px;margin:1.3rem auto 0}
-.ao-callout--i{border-color:rgba(99,102,241,.22);background:rgba(99,102,241,.04)}
-.ao-callout h5{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
-.ao-callout p{font-size:.81rem;opacity:.75;margin:0;line-height:1.55}
-
-@media(max-width:640px){
-  .ao-flow{flex-direction:column;align-items:center}
-  .ao-flow-arr{transform:rotate(90deg)}
-}
-
-/* ── Interactive Demo ── */
-.ao-pip-bar{display:flex;align-items:center;justify-content:center;gap:0;padding:.75rem 1.2rem;border-bottom:1px solid var(--ao-border);flex-wrap:wrap}
-.ao-pip{display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:default;position:relative;padding:0 .8rem}
-.ao-pip::after{content:'';position:absolute;top:15px;left:calc(50% + 18px);width:calc(100% - 12px);height:2px;background:var(--ao-border)}
+.ao-pip-bar{display:flex;align-items:center;justify-content:center;gap:0;
+  padding:.75rem 1.2rem;border-bottom:1px solid var(--ao-border);flex-wrap:wrap}
+.ao-pip{display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:default;
+  position:relative;padding:0 .8rem}
+.ao-pip::after{content:'';position:absolute;top:15px;left:calc(50% + 18px);
+  width:calc(100% - 12px);height:2px;background:var(--ao-border)}
 .ao-pip:last-child::after{display:none}
-.ao-pip-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:var(--ao-surface);border:2px solid var(--ao-border);color:#94a3b8;transition:all .35s;position:relative;z-index:1}
+.ao-pip-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.7rem;background:var(--ao-surface);
+  border:2px solid var(--ao-border);color:#94a3b8;transition:all .35s;position:relative;z-index:1}
 .ao-pip-lbl{font-size:.58rem;font-weight:700;opacity:.55;white-space:nowrap}
-.ao-pip.active .ao-pip-dot{border-color:var(--ao-indigo);background:rgba(99,102,241,.12);color:var(--ao-indigo);box-shadow:0 0 0 4px rgba(99,102,241,.12);animation:aoPulse 1.2s ease-in-out infinite}
+.ao-pip.active .ao-pip-dot{border-color:var(--ao-indigo);background:rgba(99,102,241,.12);
+  color:var(--ao-indigo);box-shadow:0 0 0 4px rgba(99,102,241,.12);animation:aoPulse 1.2s ease-in-out infinite}
 .ao-pip.done .ao-pip-dot{border-color:var(--ao-emerald);background:var(--ao-emerald);color:#fff}
 .ao-pip.done .ao-pip-lbl,.ao-pip.active .ao-pip-lbl{opacity:1}
-@keyframes aoPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .ao-i-body{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:260px}
 @media(max-width:700px){.ao-i-body{grid-template-columns:1fr}}
-.ao-prev-pane{border-right:1px solid var(--ao-border);padding:.7rem;font-size:.73rem;overflow-y:auto;max-height:380px}
-.ao-pane-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;opacity:.45;margin-bottom:.35rem}
-.ao-ord-card{border-radius:10px;border:1px solid var(--ao-border);padding:.55rem .65rem;margin-bottom:.4rem;font-size:.7rem;opacity:0;transition:opacity .3s}
+.ao-prev-pane{border-right:1px solid var(--ao-border);padding:.7rem;font-size:.73rem;
+  overflow-y:auto;max-height:380px}
+.ao-pane-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  opacity:.45;margin-bottom:.35rem}
+.ao-ord-card{border-radius:10px;border:1px solid var(--ao-border);padding:.55rem .65rem;
+  margin-bottom:.4rem;font-size:.7rem;opacity:0;transition:opacity .3s}
 .ao-ord-card.vis{opacity:1}
 .ao-ord-row{display:flex;justify-content:space-between;font-size:.66rem;padding:.1rem 0}
 .ao-ord-row .lbl{opacity:.6}.ao-ord-row .val{font-weight:600}
 .ao-stage{padding:.8rem;overflow-y:auto;max-height:380px}
-.ao-step-card{border-radius:14px;border:1px solid var(--ao-border);background:rgba(255,255,255,.55);padding:.85rem 1rem;margin-bottom:.65rem;animation:aoFadeUp .35s ease both}
+.ao-step-card{border-radius:14px;border:1px solid var(--ao-border);background:rgba(255,255,255,.55);
+  padding:.85rem 1rem;margin-bottom:.65rem;animation:aoFadeUp .35s ease both}
 [data-theme="dark"] .ao-step-card{background:rgba(255,255,255,.04)}
 .ao-step-card--ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05)}
+.ao-step-card--fail{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05)}
 .ao-step-card h6{font-size:.82rem;font-weight:800;margin-bottom:.45rem}
-.ao-chk{display:flex;align-items:center;gap:.4rem;font-size:.76rem;margin-bottom:.3rem;opacity:0;transition:opacity .3s}
-.ao-chk.show{opacity:1}
-.ao-json{font-family:monospace;font-size:.71rem;background:#0f172a;color:#94a3b8;border-radius:10px;padding:.65rem .85rem;line-height:1.55;margin-top:.45rem}
+.ao-json{font-family:monospace;font-size:.71rem;background:#0f172a;color:#94a3b8;
+  border-radius:10px;padding:.65rem .85rem;line-height:1.55;margin-top:.45rem}
 .ao-json .key{color:#a5b4fc}.ao-json .str{color:#6ee7b7}.ao-json .num{color:#fcd34d}
-.ao-log2{font-family:monospace;font-size:.67rem;line-height:1.55;max-height:140px;overflow-y:auto;padding:.4rem;background:rgba(0,0,0,.03);border-radius:8px;margin-top:.25rem}
+.ao-log2{font-family:monospace;font-size:.67rem;line-height:1.55;max-height:140px;
+  overflow-y:auto;padding:.4rem;background:rgba(0,0,0,.03);border-radius:8px;margin-top:.25rem}
 [data-theme="dark"] .ao-log2{background:rgba(255,255,255,.03)}
-.ao-dash2{border-radius:18px;border:1px solid var(--ao-border);background:var(--ao-surface);backdrop-filter:blur(12px);box-shadow:var(--ao-shadow);padding:1rem 1.3rem;max-width:940px;margin:1rem auto 0;display:none}
+.ao-dash2{border-radius:18px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  backdrop-filter:blur(12px);box-shadow:var(--ao-shadow);padding:1rem 1.3rem;margin-top:1rem;display:none}
 .ao-dash2-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:.7rem}
 @media(max-width:600px){.ao-dash2-kpis{grid-template-columns:repeat(2,1fr)}}
 .ao-dkpi{text-align:center;padding:.55rem;border-radius:12px;border:1px solid var(--ao-border)}
-.ao-dkpi-val{font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,#6366f1,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ao-dkpi-val{font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,#6366f1,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .ao-dkpi-lbl{font-size:.58rem;opacity:.55;margin-top:.08rem}
 .ao-ds{display:inline-block;padding:.1rem .38rem;border-radius:6px;font-size:.6rem;font-weight:700}
-.ao-ds.completed{background:#d1fae5;color:#065f46}.ao-ds.compensated{background:#fef3c7;color:#92400e}
-@keyframes aoFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-@keyframes aoSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
-.ao-step-card--fail{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05)}
+.ao-ds.completed{background:#d1fae5;color:#065f46}
+.ao-ds.compensated{background:#fef3c7;color:#92400e}
 .ao-ds.failed{background:#fee2e2;color:#991b1b}
-/* ── Design Decisions ── */
-.ao-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
-@media(max-width:700px){.ao-decisions{grid-template-columns:1fr}}
-.ao-dec-card{border-radius:18px;border:1px solid var(--ao-border);background:var(--ao-surface);backdrop-filter:blur(10px);padding:1.2rem 1.3rem;box-shadow:var(--ao-shadow);transition:transform .25s,box-shadow .25s}
-.ao-dec-card:hover{transform:translateY(-3px);box-shadow:var(--ao-shadow-lg)}
-.ao-dec-card h4{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
-.ao-dec-card p{font-size:.76rem;opacity:.72;line-height:1.55;margin:0}
-.ao-dec-cat{display:inline-block;padding:.15rem .5rem;border-radius:6px;font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:.55rem}
-.ao-dec-cat--b{background:rgba(59,130,246,.11);color:#2563eb}
-.ao-dec-cat--v{background:rgba(139,92,246,.11);color:#7c3aed}
-.ao-dec-cat--g{background:rgba(16,185,129,.11);color:#059669}
-.ao-dec-cat--a{background:rgba(245,158,11,.11);color:#b45309}
-.ao-dec-cat--i{background:rgba(99,102,241,.11);color:#4f46e5}
-/* ── Production Implementation ── */
-.ao-impl{max-width:940px;margin:0 auto}
-.ao-impl details{border-radius:14px;border:1px solid var(--ao-border);background:var(--ao-surface);margin-bottom:.8rem;overflow:hidden}
-.ao-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
-.ao-impl summary::-webkit-details-marker{display:none}
-.ao-impl summary::before{content:'\25B6';font-size:.6rem;transition:transform .2s}
-.ao-impl details[open] summary::before{transform:rotate(90deg)}
-.ao-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--ao-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
-/* ── Innovation Spotlight ── */
-.ao-innov{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
-@media(max-width:700px){.ao-innov{grid-template-columns:1fr}}
-.ao-innov-card{border-radius:18px;border:1px solid var(--ao-border);background:var(--ao-surface);backdrop-filter:blur(10px);padding:1.2rem 1.3rem;box-shadow:var(--ao-shadow);position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
-.ao-innov-card:hover{transform:translateY(-3px);box-shadow:var(--ao-shadow-lg)}
-.ao-innov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(135deg,#f59e0b,#ef4444)}
-.ao-innov-card h4{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
-.ao-innov-card p{font-size:.76rem;opacity:.72;line-height:1.55;margin:0}
-/* ── Demo column layout ── */
-.ao-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
-.ao-page-body>.ao-sec{grid-column:1;min-width:0}
-.ao-page-body>.ao-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
-@media(max-width:1099px){.ao-page-body{grid-template-columns:1fr}.ao-page-body>.ao-sec--demo{grid-column:1;grid-row:auto;position:static}}
 </style>
 
-<!-- ═════════════════════ HERO ═════════════════════ -->
-<section class="ao-hero">
-  <div class="ao-badge"><i class="fas fa-project-diagram"></i>&nbsp; Integration</div>
-  <h1>API Integration &amp;<br>Orchestration</h1>
-  <p class="lead">Enterprise API gateway with circuit breakers, saga orchestration, rate limiting, and intelligent retry — connecting 25+ services with 99.9% reliability.</p>
+<!-- Progress Bar -->
+<div class="ao-progress-bar"><div class="ao-progress-fill" id="aoProgressFill"></div></div>
+
+<!-- Sticky Nav -->
+<nav class="ao-sticky-nav">
+  <a href="#story"     class="ao-sec-link" data-sec="story">Story</a>
+  <a href="#demo"      class="ao-sec-link" data-sec="demo">Demo</a>
+  <a href="#classroom" class="ao-sec-link" data-sec="classroom">Classroom</a>
+  <a href="#keypoints" class="ao-sec-link" data-sec="keypoints">Key Points</a>
+  <a href="#code"      class="ao-sec-link" data-sec="code">Code</a>
+  <a href="#about"     class="ao-sec-link" data-sec="about">About</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════ -->
+<section class="ao-hero" id="top">
+  <div class="ao-badge"><i class="fas fa-project-diagram me-1"></i> API Orchestration</div>
+  <h1>When You Click<br>"Buy Now" on Amazon</h1>
+  <p class="lead">23 microservices. One saga. Under 100ms. The moment you place an order, a distributed saga starts — Stripe authorization to FedEx label, all or nothing.</p>
   <div class="ao-kpi-strip">
-    <div class="ao-kpi"><div><div class="ao-kpi-val">25+</div><div class="ao-kpi-lbl">API Integrations</div></div></div>
-    <div class="ao-kpi"><div><div class="ao-kpi-val">99.9%</div><div class="ao-kpi-lbl">Uptime</div></div></div>
+    <div class="ao-kpi"><div><div class="ao-kpi-val">23+</div><div class="ao-kpi-lbl">Microservices</div></div></div>
+    <div class="ao-kpi"><div><div class="ao-kpi-val">99.9%</div><div class="ao-kpi-lbl">Uptime SLA</div></div></div>
     <div class="ao-kpi"><div><div class="ao-kpi-val">42ms</div><div class="ao-kpi-lbl">Avg Latency</div></div></div>
     <div class="ao-kpi"><div><div class="ao-kpi-val">3.2M</div><div class="ao-kpi-lbl">Calls / Day</div></div></div>
   </div>
 </section>
-<div class="ao-page-body">
 
-<!-- ═════════════════════ GATEWAY FLOW ═════════════════════ -->
-<section class="ao-sec">
-  <div class="ao-sec-head">
-    <span class="ao-tag ao-tag--i">Architecture</span>
-    <h2>API Gateway Flow</h2>
-    <p>Every request passes through centralized routing, auth, rate limiting, and observability.</p>
+<!-- ═══════════════════════════════════════════
+     SECTION 1 — THE STORY
+     ═══════════════════════════════════════════ -->
+<section id="story" class="ao-section">
+  <div class="ao-section-head">
+    <span class="ao-tag ao-tag--i">The Story</span>
+    <h2>One Click. 23 Services. Zero Inconsistency.</h2>
+    <p>Every Amazon order runs a distributed saga — a chain of steps that either all commit, or all cleanly roll back. Here's what really happens.</p>
   </div>
-  <div class="ao-flow">
-    <div class="ao-flow-node">
-      <div class="ao-flow-icon" style="background:var(--ao-grad-b)"><i class="fas fa-mobile-alt"></i></div>
-      <div class="ao-flow-lbl">Client</div>
-      <div class="ao-flow-sub">Web / Mobile</div>
-    </div>
-    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="ao-flow-node">
-      <div class="ao-flow-icon" style="background:var(--ao-grad-v)"><i class="fas fa-shield-alt"></i></div>
-      <div class="ao-flow-lbl">Gateway</div>
-      <div class="ao-flow-sub">Auth / Rate</div>
-    </div>
-    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="ao-flow-node">
-      <div class="ao-flow-icon" style="background:var(--ao-grad-g)"><i class="fas fa-route"></i></div>
-      <div class="ao-flow-lbl">Router</div>
-      <div class="ao-flow-sub">Load Balance</div>
-    </div>
-    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="ao-flow-node">
-      <div class="ao-flow-icon" style="background:var(--ao-grad-a)"><i class="fas fa-cogs"></i></div>
-      <div class="ao-flow-lbl">Services</div>
-      <div class="ao-flow-sub">Microservices</div>
-    </div>
-    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="ao-flow-node">
-      <div class="ao-flow-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-heartbeat"></i></div>
-      <div class="ao-flow-lbl">Circuit Breaker</div>
-      <div class="ao-flow-sub">Fallback</div>
-    </div>
-    <div class="ao-flow-arr"><i class="fas fa-arrow-right"></i></div>
-    <div class="ao-flow-node">
-      <div class="ao-flow-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-chart-bar"></i></div>
-      <div class="ao-flow-lbl">Observability</div>
-      <div class="ao-flow-sub">Trace / Log</div>
-    </div>
-  </div>
-</section>
-
-<!-- ═════════════════════ THREE PILLARS ═════════════════════ -->
-<section class="ao-sec">
-  <div class="ao-sec-head">
-    <span class="ao-tag ao-tag--g">Patterns</span>
-    <h2>Resilience, Reliability &amp; Security</h2>
-    <p>Enterprise patterns that keep services running when things go wrong.</p>
-  </div>
-  <div class="ao-patterns">
-
-    <div class="ao-card ao-card--res">
-      <div class="ao-card-icon" style="background:var(--ao-grad-b)"><i class="fas fa-life-ring"></i></div>
-      <h3>Resilience Patterns</h3>
-      <p class="sub">Graceful degradation under failure</p>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Circuit breaker (closed → open → half-open)</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Exponential backoff with jitter</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Bulkhead isolation (thread pools)</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Timeout budgets per service</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Fallback responses (cached or default)</div>
-      <div class="ao-ck"><i class="fas fa-info-circle info"></i> 99.9% uptime even during partial outages</div>
-    </div>
-
-    <div class="ao-card ao-card--rel">
-      <div class="ao-card-icon" style="background:var(--ao-grad-g)"><i class="fas fa-sync-alt"></i></div>
-      <h3>Orchestration Patterns</h3>
-      <p class="sub">Coordinate multi-service workflows</p>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Saga (orchestration + choreography)</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Compensating transactions for rollback</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Idempotency keys (deduplication)</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Request/reply + async fire-and-forget</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Event-driven choreography (pub/sub)</div>
-      <div class="ao-ck"><i class="fas fa-info-circle info"></i> Distributed tracing with correlation IDs</div>
-    </div>
-
-    <div class="ao-card ao-card--sec">
-      <div class="ao-card-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-lock"></i></div>
-      <h3>Security &amp; Governance</h3>
-      <p class="sub">Zero-trust API security at every layer</p>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> OAuth 2.0 / JWT token validation</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Rate limiting (token bucket algorithm)</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> API versioning (URI + header-based)</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> Request/response schema validation</div>
-      <div class="ao-ck"><i class="fas fa-check-circle done"></i> CORS, HSTS, CSP headers</div>
-      <div class="ao-ck"><i class="fas fa-info-circle info"></i> OpenAPI spec auto-generation</div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ═════════════════════ INTEGRATION GRID ═════════════════════ -->
-<section class="ao-sec">
-  <div class="ao-sec-head">
-    <span class="ao-tag ao-tag--a">Connectors</span>
-    <h2>Integration Connectors</h2>
-    <p>Pre-built connectors with retry logic, auth management, and schema mapping.</p>
-  </div>
-  <div class="ao-integrations">
-    <div class="ao-integ">
-      <div class="ao-integ-icon" style="background:var(--ao-grad-b)"><i class="fas fa-credit-card"></i></div>
-      <div><div class="ao-integ-name">Payment APIs</div><div class="ao-integ-desc">Stripe, PayPal, Square — PCI-compliant with tokenization</div></div>
-    </div>
-    <div class="ao-integ">
-      <div class="ao-integ-icon" style="background:var(--ao-grad-v)"><i class="fas fa-envelope"></i></div>
-      <div><div class="ao-integ-name">Communication</div><div class="ao-integ-desc">SendGrid, Twilio, Slack — multi-channel notification hub</div></div>
-    </div>
-    <div class="ao-integ">
-      <div class="ao-integ-icon" style="background:var(--ao-grad-g)"><i class="fas fa-cloud"></i></div>
-      <div><div class="ao-integ-name">Cloud Services</div><div class="ao-integ-desc">Azure, AWS, GCP — unified SDK wrappers with caching</div></div>
-    </div>
-    <div class="ao-integ">
-      <div class="ao-integ-icon" style="background:var(--ao-grad-a)"><i class="fas fa-database"></i></div>
-      <div><div class="ao-integ-name">Data Sources</div><div class="ao-integ-desc">REST, GraphQL, gRPC — schema-driven client generation</div></div>
-    </div>
-    <div class="ao-integ">
-      <div class="ao-integ-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-robot"></i></div>
-      <div><div class="ao-integ-name">AI / ML Services</div><div class="ao-integ-desc">OpenAI, Azure AI, HuggingFace — async batch + real-time</div></div>
-    </div>
-    <div class="ao-integ">
-      <div class="ao-integ-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-file-invoice"></i></div>
-      <div><div class="ao-integ-name">ERP / Finance</div><div class="ao-integ-desc">SAP, NetSuite, QuickBooks — bi-directional sync</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ═════════════════════ LIVE ORCHESTRATION DEMO ═════════════════════ -->
-<section class="ao-sec ao-sec--demo">
-  <div class="ao-sec-head">
-    <span class="ao-tag ao-tag--i">Live Demo</span>
-    <h2>Saga Orchestration Run</h2>
-    <p>Click Run to watch a distributed order saga — payment, inventory, shipping, and notification across 4 services.</p>
-  </div>
-
-  <div class="ao-demo">
-    <div class="ao-demo-bar">
-      <div class="ao-dots"><div class="ao-dot ao-dot--r"></div><div class="ao-dot ao-dot--y"></div><div class="ao-dot ao-dot--g"></div></div>
-      <h4><i class="fas fa-project-diagram me-2" style="color:var(--ao-indigo)"></i>Saga Orchestrator — Live Simulator</h4>
-      <div style="display:flex;gap:.5rem;flex-shrink:0">
-        <button class="btn btn-primary btn-sm" id="aoBtnRun" style="border-radius:8px;font-size:.79rem;background:var(--ao-indigo);border-color:var(--ao-indigo)"><i class="fas fa-play me-1"></i> Run Saga</button>
-        <button class="btn btn-outline-secondary btn-sm" id="aoBtnReset" style="border-radius:8px;font-size:.79rem;display:none"><i class="fas fa-redo me-1"></i> Reset</button>
+  <div class="ao-story-steps">
+    <div class="ao-story-step">
+      <div class="ao-story-num" style="background:rgba(99,102,241,.1)">\ud83d\udd10</div>
+      <div class="ao-story-body">
+        <h4>You Click "Buy Now" — API Gateway Receives It</h4>
+        <p>Your HTTPS POST hits Amazon's API Gateway. In milliseconds: JWT validated, idempotency key issued (so a network retry never double-charges you), rate limit checked (you're at 3 of 1000 rpm), all 23 circuit breakers verified closed. The saga starts.</p>
       </div>
     </div>
-
-    <div class="ao-pip-bar">
-      <div class="ao-pip" id="aoPip0"><div class="ao-pip-dot"><i class="fas fa-shield-alt"></i></div><div class="ao-pip-lbl">Gateway</div></div>
-      <div class="ao-pip" id="aoPip1"><div class="ao-pip-dot"><i class="fas fa-credit-card"></i></div><div class="ao-pip-lbl">Payment</div></div>
-      <div class="ao-pip" id="aoPip2"><div class="ao-pip-dot"><i class="fas fa-boxes"></i></div><div class="ao-pip-lbl">Inventory</div></div>
-      <div class="ao-pip" id="aoPip3"><div class="ao-pip-dot"><i class="fas fa-truck"></i></div><div class="ao-pip-lbl">Shipping</div></div>
-      <div class="ao-pip" id="aoPip4"><div class="ao-pip-dot"><i class="fas fa-bell"></i></div><div class="ao-pip-lbl">Notify</div></div>
-      <div class="ao-pip" id="aoPip5"><div class="ao-pip-dot"><i class="fas fa-check-double"></i></div><div class="ao-pip-lbl">Complete</div></div>
-    </div>
-
-    <div class="ao-i-body">
-      <div class="ao-prev-pane">
-        <div class="ao-pane-lbl">Order Details</div>
-        <div class="ao-ord-card" id="aoOrdCard"></div>
-        <div class="ao-pane-lbl" style="margin-top:.2rem">Saga Log</div>
-        <div class="ao-log2" id="aoLogArea"></div>
+    <div class="ao-story-step">
+      <div class="ao-story-num" style="background:rgba(59,130,246,.1)">\ud83d\udcb3</div>
+      <div class="ao-story-body">
+        <h4>Stripe Authorizes — But Does Not Charge — Your Card</h4>
+        <p>Stripe runs 300+ fraud signals in 800ms. Your card is authorized (funds ring-fenced) but NOT yet captured. If the warehouse is out of stock, Amazon voids the authorization — you never see a pending charge.</p>
       </div>
-      <div class="ao-stage" id="aoStage"></div>
     </div>
-  </div>
-
-  <div class="ao-dash2" id="aoDashboard">
-    <div style="font-size:.84rem;font-weight:800;margin-bottom:.7rem"><i class="fas fa-project-diagram me-2" style="color:var(--ao-indigo)"></i>Saga Dashboard</div>
-    <div class="ao-dash2-kpis">
-      <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiSagas">0</div><div class="ao-dkpi-lbl">Sagas Run</div></div>
-      <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiSpans">—</div><div class="ao-dkpi-lbl">Total Spans</div></div>
-      <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiLatency">—</div><div class="ao-dkpi-lbl">Avg Latency</div></div>
-      <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiRate">—</div><div class="ao-dkpi-lbl">Error Rate</div></div>
+    <div class="ao-story-step">
+      <div class="ao-story-num" style="background:rgba(16,185,129,.1)">\ud83d\udce6</div>
+      <div class="ao-story-body">
+        <h4>Phoenix Warehouse PHX7 Reserves Your Stock</h4>
+        <p>The nearest fulfillment center decrements the MacBook Pro counter atomically. If this saga fails later, a compensation fires: inventory.release(sku, qty). Stock is restored — Amazon can't oversell an item.</p>
+      </div>
     </div>
-    <div style="overflow-x:auto">
-      <table class="table table-sm" style="font-size:.77rem;margin:0">
-        <thead><tr style="opacity:.6"><th>Order</th><th>Amount</th><th>Services</th><th>Spans</th><th>Latency</th><th>Status</th></tr></thead>
-        <tbody id="aoDashTable"></tbody>
-      </table>
+    <div class="ao-story-step">
+      <div class="ao-story-num" style="background:rgba(245,158,11,.1)">\ud83d\ude9a</div>
+      <div class="ao-story-body">
+        <h4>FedEx Label Created (UPS Fallback if FedEx Times Out)</h4>
+        <p>FedEx API generates a tracking number. Timeout? Exponential backoff: retry at 1s, 2s, 4s with ±30% jitter. After 3 failures, the circuit breaker opens — Amazon's gateway auto-routes to UPS. You never know it happened.</p>
+      </div>
+    </div>
+    <div class="ao-story-step">
+      <div class="ao-story-num" style="background:rgba(6,182,212,.1)">\ud83d\udcb0</div>
+      <div class="ao-story-body">
+        <h4>Now Stripe Captures the Payment</h4>
+        <p>Only after inventory is reserved and a shipping label exists does Stripe capture your card. Authorize-then-capture: you're never charged for an order Amazon can't fulfill. The saga commits all 6 steps atomically.</p>
+      </div>
+    </div>
+    <div class="ao-story-step">
+      <div class="ao-story-num" style="background:rgba(139,92,246,.1)">\u2705</div>
+      <div class="ao-story-body">
+        <h4>23 Notifications Fire in Parallel</h4>
+        <p>Confirmation email (SES), push notification (SNS), #orders Slack webhook, your registered endpoint — fired in parallel via async tasks. OpenTelemetry traces the full saga: 23 spans across 6 services, under 100ms total.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ═════════════════════ TECH STACK ═════════════════════ -->
-<section class="ao-sec">
-  <div class="ao-sec-head">
-    <span class="ao-tag ao-tag--v">Technology</span>
-    <h2>Integration Tech Stack</h2>
+<!-- ═══════════════════════════════════════════
+     SECTION 2 — THE DEMO
+     ═══════════════════════════════════════════ -->
+<section id="demo" class="ao-demo-section">
+  <div class="ao-section-head">
+    <span class="ao-tag ao-tag--g">Live Simulation</span>
+    <h2>Run the Order Saga</h2>
+    <p>Watch a distributed Amazon-style order saga execute in real time — payment, inventory, shipping, and notifications, with random failures and automatic compensation.</p>
   </div>
-  <div class="ao-stack">
-    <span class="ao-pill ao-pill--i">FastAPI</span>
-    <span class="ao-pill ao-pill--b">Django REST</span>
-    <span class="ao-pill ao-pill--g">Kong / APIM</span>
-    <span class="ao-pill ao-pill--v">GraphQL</span>
-    <span class="ao-pill ao-pill--a">gRPC</span>
-    <span class="ao-pill ao-pill--r">Celery</span>
-    <span class="ao-pill ao-pill--i">Redis</span>
-    <span class="ao-pill ao-pill--b">RabbitMQ</span>
-    <span class="ao-pill ao-pill--g">OpenTelemetry</span>
-    <span class="ao-pill ao-pill--v">Jaeger</span>
-    <span class="ao-pill ao-pill--a">OAuth 2.0</span>
-    <span class="ao-pill ao-pill--r">Pydantic</span>
-    <span class="ao-pill ao-pill--i">httpx / aiohttp</span>
-    <span class="ao-pill ao-pill--b">Docker</span>
+  <div class="ao-mode-toggle">
+    <div class="ao-mode-pill">
+      <button class="ao-mode-btn active" id="aoBtnELI5" onclick="setMode('eli5')">
+        <i class="fas fa-user-friends me-1"></i> For Everyone
+      </button>
+      <button class="ao-mode-btn" id="aoBtnEngineer" onclick="setMode('engineer')">
+        <i class="fas fa-code me-1"></i> Engineer Mode
+      </button>
+    </div>
   </div>
-  <div class="ao-callout ao-callout--i" style="margin-top:1.5rem">
-    <h5><i class="fas fa-lightbulb" style="color:var(--ao-indigo)"></i> Interview Talking Point</h5>
-    <p>"I design API integration layers with circuit breakers, exponential backoff, and saga orchestration for distributed transactions. At Witherite, I built a gateway handling 3.2M+ API calls/day across 25 services with 99.9% uptime. I use idempotency keys for deduplication, distributed tracing with OpenTelemetry, and compensating transactions for rollbacks when downstream services fail."</p>
+
+  <!-- ELI5 Pane -->
+  <div class="ao-pane active" id="aoPaneELI5">
+    <div class="ao-eli5-section">
+      <div class="ao-eli5-intro">
+        <h3>Pick a scenario — see what the saga does</h3>
+        <p>Choose an order outcome and see how Amazon's saga handles it — successfully or with a compensation rollback.</p>
+      </div>
+      <div class="ao-eli5-picker" id="aoELI5Picker"></div>
+      <button class="ao-eli5-simulate-btn" id="aoELI5Btn" disabled onclick="eli5Simulate()">
+        <i class="fas fa-bolt me-1"></i> Simulate This Scenario
+      </button>
+      <div class="ao-eli5-result" id="aoELI5Result">
+        <div class="ao-eli5-flow" id="aoELI5Flow"></div>
+        <div class="ao-eli5-explain" id="aoELI5Explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engineer Pane -->
+  <div class="ao-pane" id="aoPaneEngineer">
+    <div class="ao-demo">
+      <div class="ao-demo-bar">
+        <div class="ao-dots">
+          <div class="ao-dot ao-dot--r"></div>
+          <div class="ao-dot ao-dot--y"></div>
+          <div class="ao-dot ao-dot--g"></div>
+        </div>
+        <h4><i class="fas fa-project-diagram me-2" style="color:var(--ao-indigo)"></i>Amazon Saga Orchestrator — Live Simulator</h4>
+        <div style="display:flex;gap:.5rem;flex-shrink:0">
+          <button class="btn btn-primary btn-sm" id="aoBtnRun" style="border-radius:8px;font-size:.79rem;background:var(--ao-indigo);border-color:var(--ao-indigo)">
+            <i class="fas fa-play me-1"></i> Run Saga
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" id="aoBtnReset" style="border-radius:8px;font-size:.79rem;display:none">
+            <i class="fas fa-redo me-1"></i> Reset
+          </button>
+        </div>
+      </div>
+      <div class="ao-pip-bar">
+        <div class="ao-pip" id="aoPip0"><div class="ao-pip-dot"><i class="fas fa-shield-alt"></i></div><div class="ao-pip-lbl">Gateway</div></div>
+        <div class="ao-pip" id="aoPip1"><div class="ao-pip-dot"><i class="fas fa-credit-card"></i></div><div class="ao-pip-lbl">Payment</div></div>
+        <div class="ao-pip" id="aoPip2"><div class="ao-pip-dot"><i class="fas fa-boxes"></i></div><div class="ao-pip-lbl">Inventory</div></div>
+        <div class="ao-pip" id="aoPip3"><div class="ao-pip-dot"><i class="fas fa-truck"></i></div><div class="ao-pip-lbl">Shipping</div></div>
+        <div class="ao-pip" id="aoPip4"><div class="ao-pip-dot"><i class="fas fa-bell"></i></div><div class="ao-pip-lbl">Notify</div></div>
+        <div class="ao-pip" id="aoPip5"><div class="ao-pip-dot"><i class="fas fa-check-double"></i></div><div class="ao-pip-lbl">Complete</div></div>
+      </div>
+      <div class="ao-i-body">
+        <div class="ao-prev-pane">
+          <div class="ao-pane-lbl">Order Details</div>
+          <div class="ao-ord-card" id="aoOrdCard"></div>
+          <div class="ao-pane-lbl" style="margin-top:.2rem">Saga Log</div>
+          <div class="ao-log2" id="aoLogArea"></div>
+        </div>
+        <div class="ao-stage" id="aoStage"></div>
+      </div>
+    </div>
+    <div class="ao-dash2" id="aoDashboard">
+      <div style="font-size:.84rem;font-weight:800;margin-bottom:.7rem">
+        <i class="fas fa-project-diagram me-2" style="color:var(--ao-indigo)"></i>Saga Dashboard
+      </div>
+      <div class="ao-dash2-kpis">
+        <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiSagas">0</div><div class="ao-dkpi-lbl">Sagas Run</div></div>
+        <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiSpans">&mdash;</div><div class="ao-dkpi-lbl">Total Spans</div></div>
+        <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiLatency">&mdash;</div><div class="ao-dkpi-lbl">Avg Latency</div></div>
+        <div class="ao-dkpi"><div class="ao-dkpi-val" id="aoKpiRate">&mdash;</div><div class="ao-dkpi-lbl">Error Rate</div></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="table table-sm" style="font-size:.77rem;margin:0">
+          <thead><tr style="opacity:.6"><th>Order</th><th>Amount</th><th>Services</th><th>Spans</th><th>Latency</th><th>Status</th></tr></thead>
+          <tbody id="aoDashTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CLASSROOM CSS + SECTION 3
+     ═══════════════════════════════════════════ -->
+<style>
+/* ── Classroom ── */
+.ao-cls-wrap{position:relative;max-width:780px;margin:0 auto}
+.ao-cls-slides{position:relative;min-height:280px;overflow:hidden}
+.ao-cls-slide{position:absolute;inset:0;padding:2rem 2.2rem;border-radius:22px;
+  border:1px solid var(--ao-border);background:var(--ao-surface);backdrop-filter:blur(12px);
+  box-shadow:var(--ao-shadow-lg);opacity:0;transform:translateX(40px);
+  transition:opacity .45s ease,transform .45s ease;pointer-events:none}
+.ao-cls-slide.active{opacity:1;transform:none;pointer-events:auto}
+.ao-cls-slide.exit{opacity:0;transform:translateX(-40px)}
+.ao-cls-slide-tag{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--ao-muted);margin-bottom:.6rem}
+.ao-cls-slide h3{font-size:1.1rem;font-weight:800;margin-bottom:.65rem}
+.ao-cls-slide p,.ao-cls-slide li{font-size:.82rem;color:var(--ao-muted);line-height:1.65;margin-bottom:.45rem}
+.ao-cls-slide ul{padding-left:1.2rem;margin:0}
+.ao-cls-slide code{background:rgba(99,102,241,.1);color:#4f46e5;padding:.08rem .3rem;
+  border-radius:5px;font-size:.75rem;font-family:monospace}
+[data-theme="dark"] .ao-cls-slide code{background:rgba(99,102,241,.2);color:#a5b4fc}
+.ao-cls-controls{display:flex;justify-content:center;align-items:center;gap:.6rem;margin-top:1.1rem}
+.ao-cls-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--ao-border);
+  background:var(--ao-surface);color:var(--ao-muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all .2s}
+.ao-cls-btn:hover{background:rgba(99,102,241,.1);color:#4f46e5;border-color:rgba(99,102,241,.3)}
+.ao-cls-indicator{font-size:.72rem;color:var(--ao-muted);min-width:60px;text-align:center}
+.ao-cls-dots{display:flex;justify-content:center;gap:.4rem;margin-top:.7rem}
+.ao-cls-dot{width:7px;height:7px;border-radius:50%;background:var(--ao-border);
+  cursor:pointer;transition:all .2s}
+.ao-cls-dot.active{background:#6366f1;transform:scale(1.25)}
+.ao-cls-progress-bar{height:2px;background:var(--ao-border);border-radius:999px;
+  margin-top:.6rem;overflow:hidden}
+.ao-cls-progress-fill{height:100%;background:var(--ao-grad-b);width:0;transition:width .1s linear}
+
+/* ── Key Points ── */
+.ao-kp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;max-width:820px;margin:0 auto}
+@media(max-width:640px){.ao-kp-grid{grid-template-columns:1fr}}
+.ao-kp-card{border-radius:20px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  backdrop-filter:blur(10px);box-shadow:var(--ao-shadow);padding:1.4rem 1.5rem}
+.ao-kp-head{font-size:.84rem;font-weight:800;margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.ao-kp-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.7rem}
+.ao-kp-list li{font-size:.79rem;color:var(--ao-muted);line-height:1.55;
+  padding-left:1.3rem;position:relative}
+.ao-kp-list li::before{content:'\25B6';position:absolute;left:0;
+  font-size:.5rem;color:#6366f1;top:.28rem}
+.ao-kp-list li strong{color:var(--ao-text);font-weight:700}
+
+/* ── Production Code ── */
+.ao-impl{max-width:940px;margin:0 auto}
+.ao-impl details{border-radius:14px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  margin-bottom:.8rem;overflow:hidden}
+.ao-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:.5rem;list-style:none}
+.ao-impl summary::-webkit-details-marker{display:none}
+.ao-impl summary::before{content:'\25B6';font-size:.6rem;transition:transform .2s}
+.ao-impl details[open] summary::before{transform:rotate(90deg)}
+.ao-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;
+  line-height:1.6;overflow-x:auto;border-top:1px solid var(--ao-border);
+  font-family:'Cascadia Code','JetBrains Mono',monospace}
+
+/* ── About / Share ── */
+.ao-about-card{border-radius:24px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  backdrop-filter:blur(14px);box-shadow:var(--ao-shadow-lg);padding:2rem 2.2rem;
+  max-width:680px;margin:0 auto;text-align:center}
+.ao-about-avatar{width:56px;height:56px;border-radius:16px;background:var(--ao-grad-b);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;
+  font-weight:800;margin:0 auto .8rem}
+.ao-about-name{font-size:1.1rem;font-weight:800;margin-bottom:.15rem}
+.ao-about-role{font-size:.78rem;color:var(--ao-muted);margin-bottom:.9rem}
+.ao-about-bio{font-size:.82rem;color:var(--ao-muted);line-height:1.65;margin-bottom:1.2rem;max-width:520px;margin-left:auto;margin-right:auto}
+.ao-stat-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:.8rem;margin-bottom:1.2rem}
+.ao-stat{text-align:center;padding:.5rem .9rem;border-radius:12px;
+  border:1px solid var(--ao-border);background:rgba(99,102,241,.04)}
+.ao-stat .val{font-size:1rem;font-weight:800;background:var(--ao-grad-b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ao-stat .lbl{font-size:.58rem;color:var(--ao-muted);margin-top:.05rem}
+.ao-share-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.5rem;
+  border:none;border-radius:12px;background:var(--ao-grad-b);color:#fff;
+  font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s}
+.ao-share-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(99,102,241,.35)}
+</style>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 3 — THE CLASSROOM
+     ═══════════════════════════════════════════ -->
+<section id="classroom" class="ao-section">
+  <div class="ao-section-head">
+    <span class="ao-tag ao-tag--v">Classroom</span>
+    <h2>6 Concepts Behind Every Amazon Order</h2>
+    <p>Core ideas explained simply. Auto-advances every 6 seconds — or navigate yourself.</p>
+  </div>
+  <div class="ao-cls-wrap">
+    <div class="ao-cls-slides" id="aoClsSlides">
+
+      <div class="ao-cls-slide active">
+        <div class="ao-cls-slide-tag">Slide 1 of 6 &mdash; Patterns</div>
+        <h3>\u26d3\ufe0f The Distributed Saga</h3>
+        <p>Traditional databases use ACID transactions &mdash; all-or-nothing. But an Amazon order touches Stripe, a warehouse system, FedEx, and SES. There's no single database to roll back across all four.</p>
+        <p>A <strong>saga</strong> breaks the transaction into local steps. Each step commits to its own service's database. If step N fails, steps N&minus;1 down to 1 each run a <em>compensating action</em> that semantically reverses the effect.</p>
+        <ul>
+          <li>Step 1 success &rarr; Step 2 starts</li>
+          <li>Step 3 fails &rarr; compensate Step 2, then Step 1</li>
+          <li>All compensations idempotent &mdash; safe to run twice</li>
+        </ul>
+      </div>
+
+      <div class="ao-cls-slide">
+        <div class="ao-cls-slide-tag">Slide 2 of 6 &mdash; Resilience</div>
+        <h3>\ud83d\udd0c Circuit Breakers &mdash; Three States</h3>
+        <p>Named after electrical circuit breakers. When a downstream service starts failing, you stop calling it instead of waiting for timeouts on every request.</p>
+        <ul>
+          <li><strong>CLOSED</strong> &mdash; normal operation, all requests pass through</li>
+          <li><strong>OPEN</strong> &mdash; after N failures in T seconds, fail fast without calling the service. Zero wasted connections.</li>
+          <li><strong>HALF-OPEN</strong> &mdash; after a timeout, send one test request. Success &rarr; CLOSED. Failure &rarr; OPEN again.</li>
+        </ul>
+        <p>Amazon's gateway tracks error rates per service. FedEx at 50% errors in 10s? Circuit opens, UPS fallback activates automatically.</p>
+      </div>
+
+      <div class="ao-cls-slide">
+        <div class="ao-cls-slide-tag">Slide 3 of 6 &mdash; Reliability</div>
+        <h3>\ud83d\udd11 Idempotency Keys &mdash; Safe to Retry</h3>
+        <p>Network fails. Did the Stripe charge go through? Retry safely with an idempotency key: <code>order_id + ":" + step + ":" + attempt</code>.</p>
+        <p>Stripe receives the retry, checks its key store (Redis, 24h TTL), finds the key already used, and returns the cached result &mdash; no second charge.</p>
+        <ul>
+          <li>Every saga step gets a unique idempotency key</li>
+          <li>Compensation steps get their own keys: <code>corrId + "-comp-pay"</code></li>
+          <li>Enables <strong>at-least-once delivery</strong> with <strong>exactly-once effect</strong></li>
+        </ul>
+      </div>
+
+      <div class="ao-cls-slide">
+        <div class="ao-cls-slide-tag">Slide 4 of 6 &mdash; Observability</div>
+        <h3>\ud83d\udd0d Distributed Tracing with OpenTelemetry</h3>
+        <p>One Amazon order creates a <code>trace_id</code> (128-bit UUID). Every service creates a span with that trace_id as parent. OpenTelemetry injects context into HTTP headers:</p>
+        <p><code>traceparent: 00-{traceId}-{spanId}-01</code></p>
+        <p>The next service extracts it and continues the same trace. In Jaeger you see a flame chart: 23 spans across 6 services. Find the slow service in 10 seconds, not 10 hours.</p>
+        <ul>
+          <li>Each span records: service name, duration, status, custom attributes</li>
+          <li><code>inject(headers)</code> propagates context across HTTP boundaries</li>
+        </ul>
+      </div>
+
+      <div class="ao-cls-slide">
+        <div class="ao-cls-slide-tag">Slide 5 of 6 &mdash; Architecture</div>
+        <h3>\u2696\ufe0f Saga vs Two-Phase Commit (2PC)</h3>
+        <p><strong>2PC:</strong> coordinator sends PREPARE to all services. All respond READY. Coordinator sends COMMIT. One slow service &rarr; everyone waits. In microservices, each service owns its own DB. 2PC requires distributed locks across all DBs.</p>
+        <p><strong>Saga:</strong> local commits only. No distributed locks. Scales horizontally. Tolerates partial failures. The tradeoff:</p>
+        <ul>
+          <li>2PC: strong isolation, but blocks on participant failure</li>
+          <li>Saga: eventual consistency, intermediate states are briefly visible</li>
+          <li>Amazon chooses saga &mdash; availability over strict isolation</li>
+        </ul>
+      </div>
+
+      <div class="ao-cls-slide">
+        <div class="ao-cls-slide-tag">Slide 6 of 6 &mdash; Failure Handling</div>
+        <h3>\u21a9\ufe0f Compensation Chains in Practice</h3>
+        <p>A compensation is NOT a database rollback. It's a <em>forward action</em> with the semantic opposite effect: <code>refund_payment()</code> instead of <code>undo_payment()</code>. It runs in reverse step order:</p>
+        <ul>
+          <li>Shipping failed? &rarr; cancel_shipment()</li>
+          <li>Then &rarr; release_inventory()</li>
+          <li>Then &rarr; void_stripe_authorization()</li>
+        </ul>
+        <p>Each compensation must be <strong>idempotent</strong> &mdash; running it twice is safe. If a compensation itself fails after 3 retries, it goes to the <strong>Dead Letter Queue (DLQ)</strong> for human review.</p>
+      </div>
+
+    </div>
+    <div class="ao-cls-controls">
+      <button class="ao-cls-btn" id="aoClsPrev" onclick="clsPrev()"><i class="fas fa-chevron-left"></i></button>
+      <span class="ao-cls-indicator" id="aoClsIndicator">1 / 6</span>
+      <button class="ao-cls-btn" id="aoClsPlay" onclick="clsTogglePlay()"><i class="fas fa-pause"></i></button>
+      <button class="ao-cls-btn" id="aoClsNext" onclick="clsNext()"><i class="fas fa-chevron-right"></i></button>
+    </div>
+    <div class="ao-cls-dots" id="aoClsDots"></div>
+    <div class="ao-cls-progress-bar">
+      <div class="ao-cls-progress-fill" id="aoClsProgressFill"></div>
+    </div>
   </div>
 </section>
 
-<!-- ═════════════════════ DESIGN DECISIONS ═════════════════════ -->
-<section class="ao-sec">
-  <div class="ao-sec-head">
-    <span class="ao-tag ao-tag--v">Architecture</span>
-    <h2>Design Decisions &amp; Tradeoffs</h2>
-    <p>Every architectural choice has a cost — here's why we chose this path.</p>
+<!-- ═══════════════════════════════════════════
+     SECTION 4 — KEY POINTS
+     ═══════════════════════════════════════════ -->
+<section id="keypoints" class="ao-section">
+  <div class="ao-section-head">
+    <span class="ao-tag ao-tag--a">Key Points</span>
+    <h2>What This Means</h2>
+    <p>The saga pattern, explained for everyone and implemented for engineers.</p>
   </div>
-  <div class="ao-decisions">
-
-    <div class="ao-dec-card">
-      <h4><i class="fas fa-exchange-alt me-2" style="color:var(--ao-indigo)"></i>Why Saga Instead of 2PC?</h4>
-      <p>Two-Phase Commit provides ACID across services but requires all participants to hold locks until the coordinator commits — one slow service blocks everything. In microservices each service owns its database; cross-database locking defeats service isolation. Sagas achieve eventual consistency through local transactions with compensating actions. The tradeoff: intermediate states are visible (lost isolation), and compensation must be carefully designed — but sagas scale horizontally and tolerate partial failures.</p>
-      <span class="ao-dec-cat ao-dec-cat--b">Consistency vs Availability</span>
+  <div class="ao-kp-grid">
+    <div class="ao-kp-card">
+      <div class="ao-kp-head"><i class="fas fa-user" style="color:#6366f1"></i> For Everyone</div>
+      <ul class="ao-kp-list">
+        <li><strong>Your card isn't charged until Amazon confirms the box is reserved.</strong> Stripe authorizes (rings-fence funds) but captures only after inventory is secured &mdash; you're never charged for an item Amazon can't ship.</li>
+        <li><strong>If FedEx is down, Amazon automatically switches to UPS.</strong> Circuit breakers monitor error rates. When FedEx hits 50% failures, the breaker opens and the fallback carrier activates &mdash; invisible to you.</li>
+        <li><strong>You can never be charged twice for the same order.</strong> Every saga step uses an idempotency key. Network retries find the cached result and skip re-execution &mdash; exactly-once, always.</li>
+        <li><strong>If anything goes wrong mid-order, everything rolls back automatically.</strong> Saga compensation runs in reverse: cancel label &rarr; release inventory &rarr; void payment auth. Your account is untouched.</li>
+      </ul>
     </div>
-
-    <div class="ao-dec-card">
-      <h4><i class="fas fa-sitemap me-2" style="color:var(--ao-violet)"></i>Why Orchestration Over Choreography?</h4>
-      <p>In choreography each service publishes events and listens for others — no coordinator. This works for 2–3 services but creates "event spaghetti" in complex flows: debugging requires tracing events across N services. Orchestration uses a central coordinator that sequences steps and handles failures. The tradeoff: the orchestrator is a single point of failure and coupling point, but provides one place to observe, debug, and modify the entire workflow.</p>
-      <span class="ao-dec-cat ao-dec-cat--v">Observability vs Coupling</span>
+    <div class="ao-kp-card">
+      <div class="ao-kp-head"><i class="fas fa-code" style="color:#10b981"></i> For Engineers</div>
+      <ul class="ao-kp-list">
+        <li><strong><code>mulberry32(hashStr(orderId))</code></strong> &mdash; deterministic PRNG seeds failure injection from the order ID. Same order ID always fails at the same step in testing &mdash; reproducible chaos engineering.</li>
+        <li><strong>Saga state machine:</strong> STARTED &rarr; PAYMENT_PENDING &rarr; PAYMENT_CONFIRMED &rarr; INVENTORY_RESERVED &rarr; SHIPPING_INITIATED &rarr; COMPLETED | COMPENSATING &rarr; FAILED. Persisted to DB on every transition.</li>
+        <li><strong>Jitter formula:</strong> <code>delay = min(base &times; 2^attempt &times; (0.7 + rand&times;0.6), max_delay)</code> &mdash; prevents thundering herd when 1,000 correlated failures all retry simultaneously.</li>
+        <li><strong>OpenTelemetry context propagation:</strong> <code>inject(headers)</code> writes <code>traceparent</code> into outbound HTTP headers. Downstream services call <code>extract(headers)</code> to continue the same trace &mdash; 23 spans, one root trace_id.</li>
+      </ul>
     </div>
-
-    <div class="ao-dec-card">
-      <h4><i class="fas fa-undo-alt me-2" style="color:var(--ao-emerald)"></i>Why Compensating Transactions?</h4>
-      <p>In distributed systems you can't "undo" a payment or "un-ship" a package. Compensating transactions are forward actions that semantically reverse the effect: refund payment, cancel shipment, release inventory. Each must be idempotent — running twice is safe because network failures may cause duplicates. Unlike database rollback, compensations have side effects (refund emails) that can't be undone.</p>
-      <span class="ao-dec-cat ao-dec-cat--g">Forward Recovery</span>
-    </div>
-
-    <div class="ao-dec-card">
-      <h4><i class="fas fa-random me-2" style="color:var(--ao-amber)"></i>Why Exponential Backoff with Jitter?</h4>
-      <p>Fixed retry intervals cause thundering herd: 1,000 simultaneous failures all retry at the same moment, overwhelming the recovering service. Exponential backoff (5s, 10s, 20s, 40s) spreads retries. Adding random jitter (&plusmn;30%) prevents synchronized retries from correlated failures. Formula: <code>delay = min(base &times; 2^attempt &times; (0.7 + random&times;0.6), max_delay)</code>. After max retries, the saga compensates rather than retrying indefinitely.</p>
-      <span class="ao-dec-cat ao-dec-cat--a">Failure Handling</span>
-    </div>
-
-    <div class="ao-dec-card">
-      <h4><i class="fas fa-fingerprint me-2" style="color:var(--ao-indigo)"></i>Why Idempotency Keys on Every Call?</h4>
-      <p>Network failures create ambiguity: did the payment go through? Without idempotency, retrying charges the customer twice. Every saga step sends an idempotency key (<code>order_id + step + attempt</code>). The receiving service checks: if already processed, return the cached result. This enables at-least-once delivery without double-processing. The tradeoff: services must maintain an idempotency store (Redis/DynamoDB) adding latency and operational overhead.</p>
-      <span class="ao-dec-cat ao-dec-cat--i">Exactly-Once Semantics</span>
-    </div>
-
   </div>
 </section>
 
-<!-- ═════════════════════ PRODUCTION IMPLEMENTATION ═════════════════════ -->
-<section class="ao-sec">
-  <div class="ao-sec-head">
+<!-- ═══════════════════════════════════════════
+     SECTION 5 — PRODUCTION CODE
+     ═══════════════════════════════════════════ -->
+<section id="code" class="ao-section">
+  <div class="ao-section-head">
     <span class="ao-tag ao-tag--g">Production Code</span>
     <h2>Production Implementation</h2>
     <p>Real-world saga patterns with state machines, compensation chains, and distributed tracing.</p>
@@ -513,7 +631,7 @@ class SagaExecution:
     completed_steps: list = field(default_factory=list)
 
     def persist(self, store):
-        """Persist to DB — survives orchestrator crashes."""
+        """Persist to DB -- survives orchestrator crashes."""
         store.save(self.saga_id, {
             "state": self.state.value,
             "completed_steps": self.completed_steps
@@ -604,7 +722,6 @@ class CompensationChain:
                 self.log.info(f"[{saga_id}] {step.name} compensated")
                 return
             except Exception as e:
-                # Exponential backoff with jitter
                 jitter = 0.7 + 0.6 * (hash(idem_key) % 100) / 100
                 delay = min(step.base_delay * (2 ** attempt) * jitter, 30.0)
                 self.log.warning(f"[{saga_id}] {step.name} retry {attempt+1}: {e}")
@@ -688,37 +805,92 @@ class TracedSagaOrchestrator:
   </div>
 </section>
 
-<!-- ═════════════════════ INNOVATION SPOTLIGHT ═════════════════════ -->
-<section class="ao-sec">
-  <div class="ao-sec-head">
-    <span class="ao-tag ao-tag--a">Innovation</span>
-    <h2>Innovation Spotlight</h2>
-    <p>Novel techniques that push beyond standard saga implementations.</p>
+<!-- ═══════════════════════════════════════════
+     SECTION 6 — ABOUT
+     ═══════════════════════════════════════════ -->
+<section id="about" class="ao-section">
+  <div class="ao-section-head">
+    <span class="ao-tag ao-tag--b">About</span>
+    <h2>Built by Kieth Caballero</h2>
+    <p>Senior Software Engineer specializing in distributed systems, API integration, and platform engineering.</p>
   </div>
-  <div class="ao-innov">
-
-    <div class="ao-innov-card">
-      <h4><i class="fas fa-hourglass-half me-2" style="color:var(--ao-amber)"></i>Saga Timeout with Deadline Propagation</h4>
-      <p>Each saga step inherits a shrinking deadline: if the overall saga must complete in 30 seconds and payment took 8 seconds, inventory gets 22 seconds. This prevents slow downstream services from consuming the entire timeout budget. If a service receives a request with &lt;2 seconds remaining, it immediately returns a timeout error rather than starting work it can't complete — failing fast instead of wasting resources on doomed operations.</p>
+  <div class="ao-about-card">
+    <div class="ao-about-avatar">KC</div>
+    <div class="ao-about-name">Kieth Caballero</div>
+    <div class="ao-about-role">Senior Software Engineer &mdash; Platform &amp; API Integration</div>
+    <p class="ao-about-bio">
+      I design API integration layers with circuit breakers, exponential backoff, and saga orchestration for distributed transactions. At Witherite Law, I built a gateway handling 3.2M+ API calls/day across 25 services with 99.9% uptime. I use idempotency keys for deduplication, distributed tracing with OpenTelemetry, and compensating transactions for rollbacks when downstream services fail.
+    </p>
+    <div class="ao-stat-bar">
+      <div class="ao-stat"><div class="val">3.2M</div><div class="lbl">API calls/day</div></div>
+      <div class="ao-stat"><div class="val">42ms</div><div class="lbl">Avg latency</div></div>
+      <div class="ao-stat"><div class="val">99.9%</div><div class="lbl">Uptime</div></div>
+      <div class="ao-stat"><div class="val">25+</div><div class="lbl">Integrations</div></div>
+      <div class="ao-stat"><div class="val">6</div><div class="lbl">Saga services</div></div>
     </div>
-
-    <div class="ao-innov-card">
-      <h4><i class="fas fa-history me-2" style="color:var(--ao-rose)"></i>Saga Replay for Debugging</h4>
-      <p>Every saga execution is logged as a sequence of events: step started, completed, failed, compensation triggered. Engineers can replay any saga in a sandbox environment, injecting failures at specific steps to test compensation logic. This turns production incidents into reproducible test cases — "Saga #12345 failed at shipping, replay it locally with the same inputs" — eliminating guesswork from post-mortems.</p>
-    </div>
-
+    <button class="ao-share-btn" id="aoShareBtn" onclick="shareDemo()">
+      <i class="fas fa-share-alt me-1"></i> Share This Demo
+    </button>
   </div>
 </section>
 
-</div><!-- /ao-page-body -->
-
 {% endblock content %}
-
 {% block extra_js %}
+<!-- ═════════════════════ LIVE API PROBE ═════════════════════ -->
+<style>
+.ao-probe{max-width:940px;margin:0 auto;padding:0 1rem 2rem}
+.ao-probe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.85rem;margin-top:1rem}
+.ao-probe-card{border-radius:16px;border:1px solid var(--ao-border);background:var(--ao-surface);
+  backdrop-filter:blur(8px);padding:1rem;position:relative;overflow:hidden;transition:all .3s}
+.ao-probe-card.probed{border-color:rgba(16,185,129,.3)}
+.ao-probe-card.failed{border-color:rgba(239,68,68,.3)}
+.ao-probe-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+.ao-probe-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:.85rem;color:#fff;flex-shrink:0}
+.ao-probe-name{font-size:.82rem;font-weight:700}
+.ao-probe-desc{font-size:.68rem;opacity:.55}
+.ao-probe-stats{display:flex;gap:.8rem;font-size:.65rem;margin-top:.5rem}
+.ao-probe-stat{display:flex;align-items:center;gap:.25rem}
+.ao-probe-stat i{font-size:.6rem}
+.ao-probe-data{margin-top:.5rem;font-family:monospace;font-size:.62rem;line-height:1.6;
+  background:rgba(0,0,0,.04);border-radius:8px;padding:.5rem .6rem;max-height:140px;overflow-y:auto}
+[data-theme="dark"] .ao-probe-data{background:rgba(255,255,255,.04)}
+.ao-probe-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border:none;
+  border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;
+  background:var(--ao-grad-g);color:#fff}
+.ao-probe-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(16,185,129,.3)}
+.ao-probe-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.ao-probe-summary{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem;justify-content:center}
+.ao-probe-kpi{text-align:center;padding:.4rem .8rem}
+.ao-probe-kpi .val{font-size:1.1rem;font-weight:800}.ao-probe-kpi .lbl{font-size:.6rem;opacity:.45}
+</style>
+<section class="ao-section" style="padding-bottom:2.5rem">
+  <div class="ao-section-head">
+    <span class="ao-tag ao-tag--g">Real APIs</span>
+    <h2>Live API Probe</h2>
+    <p>Hit real public APIs through the backend proxy &mdash; actual HTTP calls with measured latency and circuit breaker status.</p>
+  </div>
+  <div class="ao-probe">
+    <div style="text-align:center">
+      <button class="ao-probe-btn" id="aoProbeBtn" onclick="probeApis()">
+        <i class="fas fa-satellite-dish"></i> Probe All 5 APIs
+      </button>
+    </div>
+    <div class="ao-probe-summary" id="aoProbeSummary" style="display:none"></div>
+    <div class="ao-probe-grid" id="aoProbeGrid"></div>
+  </div>
+</section>
+
 <script>
 (function(){'use strict';
-var btnRun=document.getElementById('aoBtnRun'),btnReset=document.getElementById('aoBtnReset'),
-    stage=document.getElementById('aoStage'),dashWrap=document.getElementById('aoDashboard'),
+
+/* ─────────────────────────────────────────────
+   SAGA CORE — preserved from original
+   ───────────────────────────────────────────── */
+var btnRun=document.getElementById('aoBtnRun'),
+    btnReset=document.getElementById('aoBtnReset'),
+    stage=document.getElementById('aoStage'),
+    dashWrap=document.getElementById('aoDashboard'),
     running=false,sagas=[],totalSpans=0,totalLat=0;
 
 function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
@@ -735,7 +907,7 @@ var skus=['SKU-1847','SKU-2293','SKU-3014','SKU-4521','SKU-5678','SKU-6102'];
 var carriers=['FedEx 2-Day','UPS Ground','DHL Express','USPS Priority'];
 var processors=['Stripe','Adyen','Braintree','Square'];
 var emails=['alex@corp.io','jordan@startup.com','taylor@dev.co','morgan@tech.io'];
-/* Deterministic seeded PRNG (mulberry32) — same order ID always produces same failure pattern */
+
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function hashStr(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h>>>0}
 var prng=mulberry32(Date.now());
@@ -823,7 +995,6 @@ function s6(r,elapsed){pip(5,'active');sagas.push(r);totalSpans+=r.spans;totalLa
     r.product+' \u00d7 '+r.qty+' \u2014 '+money(r.total)+' via '+r.processor+' \u2192 '+r.carrier+'</p></div>');
   pip(5,'done');log('\u2705 Saga committed');return wait(600)}
 
-/* \u2500\u2500 Compensation chain \u2500\u2500 */
 function showFail(r,step){
   var nm=['','',r.processor+' Payment',r.sku+' Inventory',r.carrier+' Shipping'];
   var ic=['','','\ud83d\udcb3','\ud83d\udce6','\ud83d\ude9a'];
@@ -896,55 +1067,222 @@ function resetDemo(){sagas=[];totalSpans=0;totalLat=0;stage.innerHTML='';dashWra
   btnRun.innerHTML='<i class="fas fa-play me-1"></i> Run Saga';btnReset.style.display='none';
   for(var i=0;i<6;i++)document.getElementById('aoPip'+i).classList.remove('active','done')}
 
-btnRun.addEventListener('click',runDemo);btnReset.addEventListener('click',resetDemo);
-})();
-</script>
+if(btnRun)btnRun.addEventListener('click',runDemo);
+if(btnReset)btnReset.addEventListener('click',resetDemo);
 
-<!-- ═════════════════════ LIVE API PROBE ═════════════════════ -->
-<style>
-.ao-probe{max-width:940px;margin:0 auto;padding:0 0 2rem}
-.ao-probe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.85rem;margin-top:1rem}
-.ao-probe-card{border-radius:16px;border:1px solid var(--ao-border);background:var(--ao-surface);
-  backdrop-filter:blur(8px);padding:1rem;position:relative;overflow:hidden;transition:all .3s}
-.ao-probe-card.probed{border-color:rgba(16,185,129,.3)}
-.ao-probe-card.failed{border-color:rgba(239,68,68,.3)}
-.ao-probe-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
-.ao-probe-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#fff;flex-shrink:0}
-.ao-probe-name{font-size:.82rem;font-weight:700}
-.ao-probe-desc{font-size:.68rem;opacity:.55}
-.ao-probe-stats{display:flex;gap:.8rem;font-size:.65rem;margin-top:.5rem}
-.ao-probe-stat{display:flex;align-items:center;gap:.25rem}
-.ao-probe-stat i{font-size:.6rem}
-.ao-probe-data{margin-top:.5rem;font-family:monospace;font-size:.62rem;line-height:1.6;
-  background:rgba(0,0,0,.04);border-radius:8px;padding:.5rem .6rem;max-height:140px;overflow-y:auto;display:none}
-[data-theme="dark"] .ao-probe-data{background:rgba(255,255,255,.04)}
-.ao-probe-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border:none;
-  border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;
-  background:var(--ao-grad-g);color:#fff}
-.ao-probe-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(16,185,129,.3)}
-.ao-probe-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.ao-probe-summary{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem;justify-content:center}
-.ao-probe-kpi{text-align:center;padding:.4rem .8rem}
-.ao-probe-kpi .val{font-size:1.1rem;font-weight:800}.ao-probe-kpi .lbl{font-size:.6rem;opacity:.45}
-</style>
-<section class="ao-sec">
-  <div class="ao-sec-head">
-    <span class="ao-tag ao-tag--g">Real APIs</span>
-    <h2>Live API Probe</h2>
-    <p>Hit real public APIs through the backend proxy — actual HTTP calls with measured latency and circuit breaker status.</p>
-  </div>
-  <div class="ao-probe">
-    <div style="text-align:center">
-      <button class="ao-probe-btn" id="aoProbeBtn" onclick="probeApis()">
-        <i class="fas fa-satellite-dish"></i> Probe All 5 APIs
-      </button>
-    </div>
-    <div class="ao-probe-summary" id="aoProbeSummary" style="display:none"></div>
-    <div class="ao-probe-grid" id="aoProbeGrid"></div>
-  </div>
-</section>
+/* ─────────────────────────────────────────────
+   MODE TOGGLE
+   ───────────────────────────────────────────── */
+function setMode(m){
+  var eli5Pane=document.getElementById('aoPaneELI5');
+  var engPane=document.getElementById('aoPaneEngineer');
+  var btnELI5=document.getElementById('aoBtnELI5');
+  var btnEng=document.getElementById('aoBtnEngineer');
+  if(m==='eli5'){
+    eli5Pane.classList.add('active');engPane.classList.remove('active');
+    btnELI5.classList.add('active');btnEng.classList.remove('active');
+  } else {
+    engPane.classList.add('active');eli5Pane.classList.remove('active');
+    btnEng.classList.add('active');btnELI5.classList.remove('active');
+  }
+}
 
-<script>
+/* ─────────────────────────────────────────────
+   ELI5 SCENARIOS
+   ───────────────────────────────────────────── */
+var aoScenarios=[
+  {icon:'\ud83c\udf89',title:'Everything Works',desc:'Perfect order, all 6 steps succeed',
+   flow:[{lbl:'Gateway',cls:'ok'},{lbl:'Payment',cls:'ok'},{lbl:'Inventory',cls:'ok'},{lbl:'Shipping',cls:'ok'},{lbl:'Notify',cls:'ok'},{lbl:'Done!',cls:'ok'}],
+   explain:'Everything worked perfectly. Your card was authorized, inventory reserved, a FedEx label created, payment captured, and your confirmation email landed in your inbox. The saga committed all 6 steps. No rollback needed.'},
+  {icon:'\ud83d\udcb3',title:'Card Declined',desc:'Payment fails, nothing to compensate',
+   flow:[{lbl:'Gateway',cls:'ok'},{lbl:'Payment',cls:'fail'},{lbl:'Nothing\nto undo',cls:'comp'}],
+   explain:'Stripe couldn\'t authorize your card (wrong CVV, daily limit hit, or fraud signal). Since nothing was reserved yet, there\'s zero to roll back. The saga ends immediately. No charge, no inventory touched, no drama.'},
+  {icon:'\ud83d\udce6',title:'Sold Out Mid-Order',desc:'Inventory fails after payment auth',
+   flow:[{lbl:'Gateway',cls:'ok'},{lbl:'Payment',cls:'ok'},{lbl:'Inventory',cls:'fail'},{lbl:'Void\nPayment',cls:'comp'},{lbl:'Done',cls:'ok'}],
+   explain:'Your payment was authorized but someone else grabbed the last unit a millisecond before you. The saga runs one compensation: Stripe voids the authorization (no money taken). You see "Out of Stock" and never see a pending charge on your statement.'},
+  {icon:'\ud83d\ude9a',title:'Shipping Service Down',desc:'FedEx/UPS both fail, full rollback',
+   flow:[{lbl:'Gateway',cls:'ok'},{lbl:'Payment',cls:'ok'},{lbl:'Inventory',cls:'ok'},{lbl:'Shipping',cls:'fail'},{lbl:'Release\nStock',cls:'comp'},{lbl:'Void\nPayment',cls:'comp'}],
+   explain:'Inventory was reserved and payment authorized, but the shipping API timed out after 3 retries (1s, 2s, 4s with jitter). Saga compensates in reverse: inventory released back to stock, then Stripe auth voided. No charge, no reservation. Your order never happened.'},
+  {icon:'\u26a1',title:'Black Friday Spike',desc:'All services slow but healthy, saga completes',
+   flow:[{lbl:'Gateway',cls:'ok'},{lbl:'Payment',cls:'ok'},{lbl:'Inventory',cls:'ok'},{lbl:'Shipping',cls:'ok'},{lbl:'Notify',cls:'ok'},{lbl:'Done!',cls:'ok'}],
+   explain:'Under Black Friday load, every service ran 3\u00d7 slower than usual. Circuit breakers watched error rates \u2014 no service hit the 50%-failure threshold so all stayed CLOSED. The saga completed successfully in 180ms instead of the usual 42ms. You waited an extra fraction of a second. That\'s it.'}
+];
+
+function buildAOScenarios(){
+  var picker=document.getElementById('aoELI5Picker');
+  if(!picker)return;
+  picker.innerHTML='';
+  aoScenarios.forEach(function(s,i){
+    var d=document.createElement('div');
+    d.className='ao-eli5-card';
+    d.innerHTML='<div class="ao-eli5-icon">'+s.icon+'</div><div class="ao-eli5-card-title">'+s.title+'</div><div class="ao-eli5-card-desc">'+s.desc+'</div>';
+    d.addEventListener('click',function(){
+      picker.querySelectorAll('.ao-eli5-card').forEach(function(c){c.classList.remove('selected')});
+      d.classList.add('selected');
+      document.getElementById('aoELI5Btn').disabled=false;
+      document.getElementById('aoELI5Result').classList.remove('show');
+      document.getElementById('aoELI5Flow').innerHTML='';
+      document.getElementById('aoELI5Explain').textContent='';
+      d.dataset.idx=i;
+    });
+    picker.appendChild(d);
+  });
+}
+
+function eli5Simulate(){
+  var selected=document.querySelector('.ao-eli5-card.selected');
+  if(!selected)return;
+  var idx=parseInt(selected.dataset.idx,10);
+  var sc=aoScenarios[idx];
+  var flow=document.getElementById('aoELI5Flow');
+  var explain=document.getElementById('aoELI5Explain');
+  var result=document.getElementById('aoELI5Result');
+  flow.innerHTML='';
+  sc.flow.forEach(function(step,i){
+    if(i>0){
+      var arr=document.createElement('span');
+      arr.className='ao-eli5-arr';
+      arr.innerHTML=step.cls==='comp'?'\u21a9':'\u2192';
+      flow.appendChild(arr);
+    }
+    var s=document.createElement('div');
+    s.className='ao-eli5-step';
+    var icon=document.createElement('div');
+    icon.className='ao-eli5-step-icon '+step.cls;
+    icon.innerHTML=step.cls==='ok'?'\u2705':step.cls==='fail'?'\u274c':'\u21a9\ufe0f';
+    var lbl=document.createElement('div');
+    lbl.className='ao-eli5-step-lbl';
+    lbl.textContent=step.lbl;
+    s.appendChild(icon);s.appendChild(lbl);
+    flow.appendChild(s);
+  });
+  explain.textContent=sc.explain;
+  result.classList.add('show');
+}
+
+/* ─────────────────────────────────────────────
+   CLASSROOM STEPPER
+   ───────────────────────────────────────────── */
+var clsIdx=0,clsTotal=6,clsPlaying=true,clsTimer=null,clsProgress=0,clsProgressRaf=null;
+var CLS_DURATION=6000;
+
+function clsUpdate(){
+  var slides=document.querySelectorAll('.ao-cls-slide');
+  var dots=document.querySelectorAll('.ao-cls-dot');
+  slides.forEach(function(s,i){
+    s.classList.toggle('active',i===clsIdx);
+    s.classList.toggle('exit',false);
+  });
+  dots.forEach(function(d,i){d.classList.toggle('active',i===clsIdx)});
+  var ind=document.getElementById('aoClsIndicator');
+  if(ind)ind.textContent=(clsIdx+1)+' / '+clsTotal;
+}
+
+function clsNext(){
+  clsIdx=(clsIdx+1)%clsTotal;clsUpdate();
+  if(clsPlaying)clsResetTimer();
+}
+function clsPrev(){
+  clsIdx=(clsIdx-1+clsTotal)%clsTotal;clsUpdate();
+  if(clsPlaying)clsResetTimer();
+}
+function gotoSlide(i){clsIdx=i;clsUpdate();if(clsPlaying)clsResetTimer()}
+
+function clsTogglePlay(){
+  clsPlaying=!clsPlaying;
+  var btn=document.getElementById('aoClsPlay');
+  if(btn)btn.innerHTML=clsPlaying?'<i class="fas fa-pause"></i>':'<i class="fas fa-play"></i>';
+  if(clsPlaying){clsResetTimer()}else{clearInterval(clsTimer);cancelAnimationFrame(clsProgressRaf);var f=document.getElementById('aoClsProgressFill');if(f)f.style.width='0%';}
+}
+
+function clsResetTimer(){
+  clearInterval(clsTimer);cancelAnimationFrame(clsProgressRaf);
+  clsProgress=0;
+  var fill=document.getElementById('aoClsProgressFill');
+  if(fill)fill.style.width='0%';
+  var start=performance.now();
+  function tick(){
+    if(!clsPlaying)return;
+    var pct=Math.min((performance.now()-start)/CLS_DURATION*100,100);
+    if(fill)fill.style.width=pct+'%';
+    if(pct<100){clsProgressRaf=requestAnimationFrame(tick);}
+    else{clsIdx=(clsIdx+1)%clsTotal;clsUpdate();clsResetTimer();}
+  }
+  clsProgressRaf=requestAnimationFrame(tick);
+}
+
+function clsInitDots(){
+  var dotsEl=document.getElementById('aoClsDots');
+  if(!dotsEl)return;
+  dotsEl.innerHTML='';
+  for(var i=0;i<clsTotal;i++){
+    var d=document.createElement('div');
+    d.className='ao-cls-dot'+(i===0?' active':'');
+    (function(idx){d.addEventListener('click',function(){gotoSlide(idx);})})(i);
+    dotsEl.appendChild(d);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   PROGRESS BAR + NAV
+   ───────────────────────────────────────────── */
+function aoInitProgress(){
+  var fill=document.getElementById('aoProgressFill');
+  if(!fill)return;
+  function update(){
+    var s=document.documentElement.scrollTop||document.body.scrollTop;
+    var h=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+    fill.style.width=(h>0?Math.min(s/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+}
+
+function aoInitNav(){
+  var links=document.querySelectorAll('.ao-sec-link[data-sec]');
+  var secs=['story','demo','classroom','keypoints','code','about'];
+  function update(){
+    var st=window.scrollY+120;
+    var active='';
+    secs.forEach(function(id){
+      var el=document.getElementById(id);
+      if(el&&el.offsetTop<=st)active=id;
+    });
+    links.forEach(function(l){l.classList.toggle('active',l.dataset.sec===active)});
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+}
+
+function aoInitStoryReveal(){
+  var steps=document.querySelectorAll('.ao-story-step');
+  if(!steps.length)return;
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')});
+  },{threshold:.18});
+  steps.forEach(function(s){obs.observe(s)});
+}
+
+/* ─────────────────────────────────────────────
+   SHARE BUTTON
+   ───────────────────────────────────────────── */
+function shareDemo(){
+  var url=window.location.href;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){
+      var btn=document.getElementById('aoShareBtn');
+      if(!btn)return;
+      var orig=btn.innerHTML;
+      btn.innerHTML='<i class="fas fa-check me-1"></i> Link Copied!';
+      btn.style.background='linear-gradient(135deg,#10b981,#059669)';
+      setTimeout(function(){btn.innerHTML=orig;btn.style.background='';},2200);
+    });
+  } else {
+    prompt('Copy this link:',url);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   LIVE API PROBE
+   ───────────────────────────────────────────── */
 function probeApis(){
   var btn=document.getElementById('aoProbeBtn');
   var grid=document.getElementById('aoProbeGrid');
@@ -973,7 +1311,7 @@ function probeApis(){
         '<div class="ao-probe-stat"><i class="fas fa-'+(ok?'check-circle" style="color:#10b981':'times-circle" style="color:#ef4444')+'"></i> '+r.status+'</div>'+
         '<div class="ao-probe-stat"><i class="fas fa-bolt" style="color:#f59e0b"></i> '+r.latency_ms+'ms</div>'+
         '<div class="ao-probe-stat"><i class="fas fa-'+(r.circuit==='closed'?'lock" style="color:#10b981':'lock-open" style="color:#ef4444')+'"></i> '+r.circuit+'</div>'+
-        '</div><div class="ao-probe-data" style="display:block"><pre style="margin:0;white-space:pre-wrap">'+escHtml(preview)+'</pre></div></div>';
+        '</div><div class="ao-probe-data"><pre style="margin:0;white-space:pre-wrap">'+escHtml(preview)+'</pre></div></div>';
     });
     summary.style.display='flex';
     summary.innerHTML='<div class="ao-probe-kpi"><div class="val" style="color:#10b981">'+okCount+'/'+results.length+'</div><div class="lbl">APIs Healthy</div></div>'+
@@ -983,5 +1321,30 @@ function probeApis(){
 }
 function getCsrf(){var v='; '+document.cookie;var p=v.split('; csrftoken=');if(p.length===2)return p.pop().split(';').shift();return ''}
 function escHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+/* ─────────────────────────────────────────────
+   INIT
+   ───────────────────────────────────────────── */
+buildAOScenarios();
+clsInitDots();
+clsUpdate();
+clsResetTimer();
+aoInitProgress();
+aoInitNav();
+aoInitStoryReveal();
+
+/* ─────────────────────────────────────────────
+   WINDOW EXPORTS
+   ───────────────────────────────────────────── */
+window.setMode=setMode;
+window.eli5Simulate=eli5Simulate;
+window.gotoSlide=gotoSlide;
+window.clsNext=clsNext;
+window.clsPrev=clsPrev;
+window.clsTogglePlay=clsTogglePlay;
+window.shareDemo=shareDemo;
+window.probeApis=probeApis;
+
+})();
 </script>
-{% endblock %}
+{% endblock extra_js %}
