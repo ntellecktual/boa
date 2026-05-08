@@ -391,7 +391,7 @@
 <style>
 /* ── Classroom ── */
 .ao-cls-wrap{position:relative;max-width:780px;margin:0 auto}
-.ao-cls-slides{position:relative;min-height:280px;overflow:hidden}
+.ao-cls-slides{position:relative;min-height:460px;overflow:hidden}
 .ao-cls-slide{position:absolute;inset:0;padding:2rem 2.2rem;border-radius:22px;
   border:1px solid var(--ao-border);background:var(--ao-surface);backdrop-filter:blur(12px);
   box-shadow:var(--ao-shadow-lg);opacity:0;transform:translateX(40px);
@@ -482,7 +482,7 @@
 
       <div class="ao-cls-slide active">
         <div class="ao-cls-slide-tag">Slide 1 of 6 &mdash; Patterns</div>
-        <h3>\u26d3\ufe0f The Distributed Saga</h3>
+        <h3>⛓️ The Distributed Saga</h3>
         <p>Traditional databases use ACID transactions &mdash; all-or-nothing. But an Amazon order touches Stripe, a warehouse system, FedEx, and SES. There's no single database to roll back across all four.</p>
         <p>A <strong>saga</strong> breaks the transaction into local steps. Each step commits to its own service's database. If step N fails, steps N&minus;1 down to 1 each run a <em>compensating action</em> that semantically reverses the effect.</p>
         <ul>
@@ -494,7 +494,7 @@
 
       <div class="ao-cls-slide">
         <div class="ao-cls-slide-tag">Slide 2 of 6 &mdash; Resilience</div>
-        <h3>\ud83d\udd0c Circuit Breakers &mdash; Three States</h3>
+        <h3>🔌 Circuit Breakers &mdash; Three States</h3>
         <p>Named after electrical circuit breakers. When a downstream service starts failing, you stop calling it instead of waiting for timeouts on every request.</p>
         <ul>
           <li><strong>CLOSED</strong> &mdash; normal operation, all requests pass through</li>
@@ -506,7 +506,7 @@
 
       <div class="ao-cls-slide">
         <div class="ao-cls-slide-tag">Slide 3 of 6 &mdash; Reliability</div>
-        <h3>\ud83d\udd11 Idempotency Keys &mdash; Safe to Retry</h3>
+        <h3>🔑 Idempotency Keys &mdash; Safe to Retry</h3>
         <p>Network fails. Did the Stripe charge go through? Retry safely with an idempotency key: <code>order_id + ":" + step + ":" + attempt</code>.</p>
         <p>Stripe receives the retry, checks its key store (Redis, 24h TTL), finds the key already used, and returns the cached result &mdash; no second charge.</p>
         <ul>
@@ -518,7 +518,7 @@
 
       <div class="ao-cls-slide">
         <div class="ao-cls-slide-tag">Slide 4 of 6 &mdash; Observability</div>
-        <h3>\ud83d\udd0d Distributed Tracing with OpenTelemetry</h3>
+        <h3>🔍 Distributed Tracing with OpenTelemetry</h3>
         <p>One Amazon order creates a <code>trace_id</code> (128-bit UUID). Every service creates a span with that trace_id as parent. OpenTelemetry injects context into HTTP headers:</p>
         <p><code>traceparent: 00-{traceId}-{spanId}-01</code></p>
         <p>The next service extracts it and continues the same trace. In Jaeger you see a flame chart: 23 spans across 6 services. Find the slow service in 10 seconds, not 10 hours.</p>
@@ -530,7 +530,7 @@
 
       <div class="ao-cls-slide">
         <div class="ao-cls-slide-tag">Slide 5 of 6 &mdash; Architecture</div>
-        <h3>\u2696\ufe0f Saga vs Two-Phase Commit (2PC)</h3>
+        <h3>⚖️ Saga vs Two-Phase Commit (2PC)</h3>
         <p><strong>2PC:</strong> coordinator sends PREPARE to all services. All respond READY. Coordinator sends COMMIT. One slow service &rarr; everyone waits. In microservices, each service owns its own DB. 2PC requires distributed locks across all DBs.</p>
         <p><strong>Saga:</strong> local commits only. No distributed locks. Scales horizontally. Tolerates partial failures. The tradeoff:</p>
         <ul>
@@ -542,7 +542,7 @@
 
       <div class="ao-cls-slide">
         <div class="ao-cls-slide-tag">Slide 6 of 6 &mdash; Failure Handling</div>
-        <h3>\u21a9\ufe0f Compensation Chains in Practice</h3>
+        <h3>↩️ Compensation Chains in Practice</h3>
         <p>A compensation is NOT a database rollback. It's a <em>forward action</em> with the semantic opposite effect: <code>refund_payment()</code> instead of <code>undo_payment()</code>. It runs in reverse step order:</p>
         <ul>
           <li>Shipping failed? &rarr; cancel_shipment()</li>
