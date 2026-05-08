@@ -1,38 +1,48 @@
 {% extends 'boaapp/base_generic.html' %}
 {% load static %}
-{% block title %}thenumerix | AI Process Flows — Finance & Accounting{% endblock %}
-
+{% block title %}thenumerix | AI Finance Process Flows{% endblock %}
 {% block content %}
 <style>
 /* ══════════════════════════════════════════════════════════
-   PROCESS FLOWS — Design Tokens
+   PROCESS FLOWS — 7-Ideations Design Tokens
    ══════════════════════════════════════════════════════════ */
 :root{
-  --pf-blue:#3b82f6;
-  --pf-violet:#8b5cf6;
-  --pf-emerald:#10b981;
-  --pf-amber:#f59e0b;
-  --pf-rose:#ef4444;
+  --pf-blue:#3b82f6;--pf-violet:#8b5cf6;--pf-emerald:#10b981;
+  --pf-amber:#f59e0b;--pf-rose:#ef4444;
   --pf-grad-b:linear-gradient(135deg,#3b82f6,#8b5cf6);
   --pf-grad-g:linear-gradient(135deg,#10b981,#059669);
-  --pf-surface:rgba(255,255,255,.75);
-  --pf-border:rgba(0,0,0,.08);
-  --pf-shadow:0 4px 24px rgba(0,0,0,.07);
-  --pf-shadow-lg:0 12px 48px rgba(0,0,0,.13);
+  --pf-surface:rgba(255,255,255,.75);--pf-border:rgba(0,0,0,.08);
+  --pf-shadow:0 4px 24px rgba(0,0,0,.07);--pf-shadow-lg:0 12px 48px rgba(0,0,0,.13);
+  --pf-radius:18px;
 }
 [data-theme="dark"]{
-  --pf-surface:rgba(22,28,45,.8);
-  --pf-border:rgba(255,255,255,.08);
-  --pf-shadow:0 4px 24px rgba(0,0,0,.4);
-  --pf-shadow-lg:0 12px 48px rgba(0,0,0,.55);
+  --pf-surface:rgba(22,28,45,.8);--pf-border:rgba(255,255,255,.08);
+  --pf-shadow:0 4px 24px rgba(0,0,0,.4);--pf-shadow-lg:0 12px 48px rgba(0,0,0,.55);
 }
-
 /* ── Keyframes ── */
 @keyframes pfFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes pfPulse{0%,100%{opacity:1}50%{opacity:.45}}
 @keyframes pfScan{from{top:0}to{top:100%}}
 @keyframes pfSlide{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── Progress bar ── */
+.pf-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:9999;background:rgba(0,0,0,.06);pointer-events:none}
+.pf-progress-fill{height:100%;background:var(--pf-grad-b);width:0%;transition:width .2s linear}
+[data-theme="dark"] .pf-progress{background:rgba(255,255,255,.06)}
+
+/* ── Sticky nav ── */
+.pf-sticky-nav{position:sticky;top:0;z-index:200;
+  background:rgba(255,255,255,.88);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--pf-border);padding:.45rem 1rem;
+  display:flex;gap:.25rem;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+.pf-sticky-nav::-webkit-scrollbar{display:none}
+[data-theme="dark"] .pf-sticky-nav{background:rgba(15,23,42,.88)}
+.pf-nav-tab{padding:.35rem .85rem;border-radius:999px;font-size:.72rem;font-weight:700;
+  border:none;background:transparent;cursor:pointer;color:inherit;opacity:.55;
+  white-space:nowrap;transition:all .2s;letter-spacing:.03em}
+.pf-nav-tab:hover{opacity:1;background:rgba(59,130,246,.08)}
+.pf-nav-tab.active{opacity:1;background:var(--pf-blue);color:#fff}
 
 /* ── Hero ── */
 .pf-hero{text-align:center;padding:3.5rem 0 2.5rem;position:relative;overflow:hidden}
@@ -49,7 +59,6 @@
 [data-theme="dark"] .pf-hero h1{background:linear-gradient(135deg,#e2e8f0 0%,#60a5fa 50%,#a78bfa 100%);
   -webkit-background-clip:text;background-clip:text}
 .pf-hero .lead{font-size:1rem;opacity:.7;max-width:580px;margin:0 auto 2rem}
-
 .pf-kpi-strip{display:flex;justify-content:center;flex-wrap:wrap;gap:1rem;margin-top:1rem}
 .pf-kpi-chip{display:flex;align-items:center;gap:.6rem;padding:.6rem 1.1rem;border-radius:14px;
   background:var(--pf-surface);border:1px solid var(--pf-border);backdrop-filter:blur(8px);
@@ -61,67 +70,74 @@
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .pf-kpi-lbl{font-size:.72rem;opacity:.65;line-height:1.3}
 
-/* ── Section wrapper ── */
-.pf-sec{padding:1.8rem 0;animation:pfFadeUp .6s ease both}
-.pf-sec-head{text-align:center;margin-bottom:1.4rem}
+/* ── Section ── */
+.pf-sec{padding:2rem 0;animation:pfFadeUp .6s ease both}
+.pf-sec-head{text-align:center;margin-bottom:1.6rem}
 .pf-sec-head h2{font-size:1.55rem;font-weight:800;margin-bottom:.25rem}
-.pf-sec-head p{font-size:.88rem;opacity:.65;max-width:520px;margin:0 auto}
+.pf-sec-head p{font-size:.88rem;opacity:.65;max-width:560px;margin:0 auto}
 .pf-tag{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.63rem;
   font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
 .pf-tag--b{background:rgba(59,130,246,.11);color:#2563eb}
 .pf-tag--g{background:rgba(16,185,129,.11);color:#059669}
 .pf-tag--v{background:rgba(139,92,246,.11);color:#7c3aed}
 .pf-tag--a{background:rgba(245,158,11,.11);color:#b45309}
+.pf-tag--r{background:rgba(239,68,68,.11);color:#dc2626}
 
-/* ── AP/AR twin grid ── */
-.pf-twin{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;max-width:900px;margin:0 auto}
-@media(max-width:620px){.pf-twin{grid-template-columns:1fr}}
-.pf-twin-card{border-radius:20px;padding:1.5rem;border:1px solid var(--pf-border);
+/* ── Story ── */
+.pf-story-steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:1rem;max-width:940px;margin:0 auto}
+.pf-story-step{border-radius:var(--pf-radius);border:1px solid var(--pf-border);
   background:var(--pf-surface);backdrop-filter:blur(12px);box-shadow:var(--pf-shadow);
-  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
-.pf-twin-card:hover{transform:translateY(-4px);box-shadow:var(--pf-shadow-lg)}
-.pf-twin-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.pf-twin-card--ap::before{background:var(--pf-grad-b)}
-.pf-twin-card--ar::before{background:var(--pf-grad-g)}
-.pf-twin-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;
-  justify-content:center;font-size:1.2rem;color:#fff;margin-bottom:.9rem}
-.pf-twin-card--ap .pf-twin-icon{background:var(--pf-grad-b)}
-.pf-twin-card--ar .pf-twin-icon{background:var(--pf-grad-g)}
-.pf-twin-card h3{font-size:1.05rem;font-weight:800;margin-bottom:.18rem}
-.pf-twin-card .sub{font-size:.76rem;opacity:.6;margin-bottom:.9rem}
+  padding:1.3rem;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.pf-story-step:hover{transform:translateY(-4px);box-shadow:var(--pf-shadow-lg)}
+.pf-story-step::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pf-grad-b)}
+.pf-step-num{width:36px;height:36px;border-radius:50%;background:var(--pf-grad-b);
+  color:#fff;font-size:.82rem;font-weight:800;display:flex;align-items:center;
+  justify-content:center;margin-bottom:.85rem}
+.pf-story-step h4{font-size:.95rem;font-weight:800;margin-bottom:.45rem}
+.pf-story-step p{font-size:.78rem;opacity:.72;line-height:1.55;margin:0}
+.pf-stat{font-size:1.35rem;font-weight:800;background:var(--pf-grad-b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin-bottom:.35rem}
 
-.pf-mini-flow{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-bottom:.9rem}
-.pf-fs{display:flex;align-items:center;gap:.28rem;font-size:.71rem;font-weight:600}
-.pf-fn{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:.62rem;font-weight:800;color:#fff;flex-shrink:0}
-.pf-twin-card--ap .pf-fn{background:var(--pf-blue)}
-.pf-twin-card--ar .pf-fn{background:var(--pf-emerald)}
-.pf-fa{opacity:.3;font-size:.62rem}
+/* ── Mode toggle ── */
+.pf-mode-toggle{display:flex;justify-content:center;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.pf-mode-btn{padding:.45rem 1.2rem;border-radius:999px;font-size:.78rem;font-weight:700;
+  border:2px solid var(--pf-border);background:var(--pf-surface);cursor:pointer;
+  color:inherit;transition:all .2s;backdrop-filter:blur(8px)}
+.pf-mode-btn:hover{border-color:var(--pf-blue);color:var(--pf-blue)}
+.pf-mode-btn.active{background:var(--pf-blue);border-color:var(--pf-blue);color:#fff}
 
-.pf-ba{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.9rem;font-size:.74rem}
-.pf-ba-col{border-radius:10px;padding:.5rem .65rem}
-.pf-ba-col--before{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.15)}
-.pf-ba-col--after{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.15)}
-.pf-ba-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.6;margin-bottom:.22rem}
+/* ── ELI5 ── */
+.pf-eli5-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;max-width:940px;margin:0 auto}
+.pf-eli5-card{border-radius:var(--pf-radius);border:1px solid var(--pf-border);
+  background:var(--pf-surface);backdrop-filter:blur(12px);box-shadow:var(--pf-shadow);
+  padding:1.3rem;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.pf-eli5-card:hover{transform:translateY(-4px);box-shadow:var(--pf-shadow-lg)}
+.pf-eli5-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pf-eli5-card:nth-child(1)::before{background:linear-gradient(90deg,#3b82f6,#6366f1)}
+.pf-eli5-card:nth-child(2)::before{background:linear-gradient(90deg,#10b981,#059669)}
+.pf-eli5-card:nth-child(3)::before{background:linear-gradient(90deg,#8b5cf6,#7c3aed)}
+.pf-eli5-card:nth-child(4)::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.pf-eli5-persona{font-size:1.4rem;margin-bottom:.6rem}
+.pf-eli5-role{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  opacity:.5;margin-bottom:.45rem}
+.pf-eli5-card h5{font-size:.88rem;font-weight:800;margin-bottom:.45rem}
+.pf-eli5-card p{font-size:.77rem;opacity:.72;line-height:1.55;margin:0}
+.pf-eli5-insight{margin-top:.75rem;padding:.5rem .7rem;border-radius:10px;
+  background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.12);
+  font-size:.73rem;font-weight:600;color:var(--pf-blue)}
+[data-theme="dark"] .pf-eli5-insight{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.2)}
 
-.pf-pill-row{display:flex;flex-wrap:wrap;gap:.35rem}
-.pf-pill{padding:.2rem .6rem;border-radius:999px;font-size:.68rem;font-weight:700}
-.pf-pill--b{background:rgba(59,130,246,.12);color:#2563eb}
-.pf-pill--g{background:rgba(16,185,129,.12);color:#059669}
-.pf-pill--v{background:rgba(139,92,246,.12);color:#7c3aed}
-.pf-pill--a{background:rgba(245,158,11,.12);color:#b45309}
-
-/* ── Demo panel ── */
+/* ── Pipeline demo (Engineer) ── */
+.pf-demo-wrap{max-width:940px;margin:0 auto}
 .pf-demo{border-radius:22px;border:1px solid var(--pf-border);background:var(--pf-surface);
-  backdrop-filter:blur(14px);box-shadow:var(--pf-shadow-lg);overflow:hidden;max-width:940px;margin:0 auto}
+  backdrop-filter:blur(14px);box-shadow:var(--pf-shadow-lg);overflow:hidden}
 .pf-demo-bar{padding:.85rem 1.4rem;display:flex;align-items:center;justify-content:space-between;
   border-bottom:1px solid var(--pf-border);background:rgba(59,130,246,.035);gap:.8rem;flex-wrap:wrap}
 .pf-demo-bar h4{font-size:.9rem;font-weight:800;margin:0;flex:1}
 .pf-dots{display:flex;gap:.38rem}
 .pf-dot{width:11px;height:11px;border-radius:50%}
 .pf-dot--r{background:#ef4444}.pf-dot--y{background:#f59e0b}.pf-dot--g{background:#10b981}
-
-/* Pipeline steps bar */
 .pf-pip-bar{display:flex;padding:.75rem 1.4rem;border-bottom:1px solid var(--pf-border);overflow-x:auto;gap:0}
 .pf-pip{display:flex;flex-direction:column;align-items:center;gap:.2rem;flex:1;min-width:62px;position:relative}
 .pf-pip:not(:last-child)::after{content:'';position:absolute;top:13px;right:-50%;width:100%;height:2px;
@@ -135,8 +151,6 @@
 .pf-pip-lbl{font-size:.58rem;font-weight:700;text-align:center;opacity:.55;text-transform:uppercase;
   letter-spacing:.04em;transition:opacity .3s}
 .pf-pip.active .pf-pip-lbl,.pf-pip.done .pf-pip-lbl{opacity:1}
-
-/* Demo body: invoice pane + stage */
 .pf-demo-body{display:grid;grid-template-columns:230px 1fr;min-height:330px}
 @media(max-width:620px){.pf-demo-body{grid-template-columns:1fr}}
 .pf-inv-pane{padding:1rem;border-right:1px solid var(--pf-border);display:flex;flex-direction:column;gap:.6rem}
@@ -149,16 +163,12 @@
 .pf-inv-num{font-size:.62rem;opacity:.45}
 .pf-inv-row{display:flex;justify-content:space-between;padding:.18rem 0;border-bottom:1px solid var(--pf-border)}
 .pf-inv-row:last-child{border:none}
-.pf-inv-row .lbl{opacity:.52;font-size:.68rem}
-.pf-inv-row .val{font-weight:700;font-size:.73rem}
+.pf-inv-row .lbl{opacity:.52;font-size:.68rem}.pf-inv-row .val{font-weight:700;font-size:.73rem}
 .pf-scan{position:absolute;left:0;right:0;height:3px;
   background:linear-gradient(90deg,transparent,rgba(59,130,246,.75),transparent);
   top:0;animation:pfScan 1.5s ease-in-out;pointer-events:none}
 .pf-log{font-size:.68rem;opacity:.6;font-family:monospace;line-height:1.65}
-
 .pf-stage{padding:1rem;overflow-y:auto;max-height:430px;display:flex;flex-direction:column;gap:.55rem}
-
-/* Step cards inside stage */
 .pf-step-card{border-radius:12px;border:1px solid var(--pf-border);
   background:rgba(255,255,255,.65);padding:.85rem 1rem;font-size:.81rem;
   animation:pfFadeUp .35s ease both;box-shadow:var(--pf-shadow)}
@@ -177,501 +187,439 @@
 .pf-xt td{padding:.18rem .4rem;border-bottom:1px solid var(--pf-border)}
 .pf-xt td:last-child{text-align:right}
 .label-col{opacity:.6}
-
-/* Demo status badge */
 .pf-ds{display:inline-block;padding:.13rem .48rem;border-radius:6px;font-size:.67rem;font-weight:700}
 .pf-ds.posted{background:#d1fae5;color:#065f46}
-
-/* ── Live dashboard ── */
 .pf-dash{border-radius:18px;border:1px solid var(--pf-border);background:var(--pf-surface);
-  backdrop-filter:blur(10px);box-shadow:var(--pf-shadow);padding:1.2rem;
-  max-width:940px;margin:1rem auto 0}
+  backdrop-filter:blur(10px);box-shadow:var(--pf-shadow);padding:1.2rem;margin-top:1rem}
 .pf-dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1rem}
 @media(max-width:480px){.pf-dash-kpis{grid-template-columns:repeat(2,1fr)}}
-.pf-dkpi{border-radius:12px;padding:.8rem;text-align:center;border:1px solid var(--pf-border);
-  background:rgba(255,255,255,.55)}
+.pf-dkpi{border-radius:12px;padding:.8rem;text-align:center;border:1px solid var(--pf-border);background:rgba(255,255,255,.55)}
 [data-theme="dark"] .pf-dkpi{background:rgba(255,255,255,.04)}
 .pf-dkpi-val{font-size:1.4rem;font-weight:800;background:var(--pf-grad-b);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .pf-dkpi-lbl{font-size:.63rem;opacity:.6;text-transform:uppercase;letter-spacing:.04em;margin-top:.1rem}
 
-/* ── Azure architecture ── */
-.pf-az-flow{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap;
-  gap:0;margin-bottom:1.5rem}
-.pf-az-node{display:flex;flex-direction:column;align-items:center;padding:1.1rem .85rem;
-  border-radius:17px;border:1px solid var(--pf-border);background:var(--pf-surface);
-  backdrop-filter:blur(10px);box-shadow:var(--pf-shadow);min-width:108px;text-align:center;
-  transition:transform .25s,box-shadow .25s;position:relative}
-.pf-az-node:hover{transform:translateY(-4px);box-shadow:var(--pf-shadow-lg)}
-.pf-az-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
-  justify-content:center;font-size:1.1rem;color:#fff;margin-bottom:.48rem}
-.pf-az-lbl{font-size:.71rem;font-weight:700;line-height:1.25}
-.pf-az-sub{font-size:.6rem;opacity:.52;margin-top:.14rem}
-.pf-az-arr{display:flex;align-items:center;padding:0 .3rem;opacity:.35;font-size:.88rem;align-self:center}
+/* ── Classroom ── */
+.pf-cls-wrap{max-width:820px;margin:0 auto;position:relative}
+.pf-cls-outer{overflow:hidden;border-radius:var(--pf-radius);border:1px solid var(--pf-border)}
+.pf-cls-slides{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1)}
+.pf-cls-slide{min-width:100%;padding:2rem;background:var(--pf-surface);backdrop-filter:blur(14px);box-sizing:border-box}
+.pf-cls-slide-tag{display:inline-block;padding:.15rem .6rem;border-radius:999px;font-size:.6rem;
+  font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.65rem}
+.pf-cls-slide h3{font-size:1.2rem;font-weight:800;margin-bottom:.65rem}
+.pf-cls-slide p{font-size:.83rem;opacity:.75;line-height:1.65;margin-bottom:.85rem}
+.pf-cls-facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:.65rem}
+.pf-cls-fact{border-radius:12px;padding:.75rem;border:1px solid var(--pf-border);background:rgba(255,255,255,.55)}
+[data-theme="dark"] .pf-cls-fact{background:rgba(255,255,255,.04)}
+.pf-cls-fact-val{font-size:1.1rem;font-weight:800;background:var(--pf-grad-b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.2rem}
+.pf-cls-fact-lbl{font-size:.7rem;opacity:.65}
+.pf-cls-nav{display:flex;align-items:center;justify-content:space-between;margin-top:.9rem}
+.pf-cls-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--pf-border);
+  background:var(--pf-surface);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:.8rem;color:inherit;transition:all .2s}
+.pf-cls-btn:hover{background:var(--pf-blue);border-color:var(--pf-blue);color:#fff}
+.pf-cls-dots{display:flex;gap:.45rem}
+.pf-cls-dot{width:8px;height:8px;border-radius:50%;background:var(--pf-border);cursor:pointer;transition:all .2s}
+.pf-cls-dot.active{background:var(--pf-blue);transform:scale(1.3)}
+.pf-cls-counter{font-size:.72rem;opacity:.5;font-weight:700}
 
-.pf-svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.85rem;
-  max-width:880px;margin:0 auto}
-.pf-svc{border-radius:13px;border:1px solid var(--pf-border);background:var(--pf-surface);
-  backdrop-filter:blur(8px);padding:.9rem 1rem;display:flex;align-items:flex-start;gap:.7rem;
-  transition:transform .2s,box-shadow .2s}
-.pf-svc:hover{transform:translateY(-2px);box-shadow:var(--pf-shadow)}
-.pf-svc-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
-  justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0}
-.pf-svc-name{font-size:.81rem;font-weight:700;margin-bottom:.18rem}
-.pf-svc-desc{font-size:.72rem;opacity:.65;line-height:1.4}
-.pf-svc-cost{font-size:.63rem;margin-top:.28rem;padding:.1rem .38rem;border-radius:6px;
-  background:rgba(16,185,129,.1);color:#059669;font-weight:700;display:inline-block}
+/* ── Key points ── */
+.pf-kp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;max-width:900px;margin:0 auto}
+.pf-kp-card{border-radius:var(--pf-radius);border:1px solid var(--pf-border);
+  background:var(--pf-surface);backdrop-filter:blur(12px);box-shadow:var(--pf-shadow);
+  padding:1.4rem;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.pf-kp-card:hover{transform:translateY(-4px);box-shadow:var(--pf-shadow-lg)}
+.pf-kp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pf-grad-b)}
+.pf-kp-metric{font-size:1.6rem;font-weight:800;background:var(--pf-grad-b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin-bottom:.5rem}
+.pf-kp-card h5{font-size:.88rem;font-weight:800;margin-bottom:.4rem}
+.pf-kp-card p{font-size:.77rem;opacity:.72;line-height:1.55;margin:0}
+.pf-kp-why{margin-top:.7rem;font-size:.72rem;font-weight:700;color:var(--pf-blue);
+  padding:.3rem .6rem;border-radius:8px;background:rgba(59,130,246,.06);display:inline-block}
+[data-theme="dark"] .pf-kp-why{background:rgba(59,130,246,.12)}
 
-/* ── Claude AI cards ── */
-.pf-ai-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.9rem;
-  max-width:880px;margin:0 auto}
-.pf-ai-card{border-radius:18px;border:1px solid rgba(139,92,246,.2);background:var(--pf-surface);
-  backdrop-filter:blur(10px);padding:1.2rem;position:relative;overflow:hidden;
-  transition:transform .25s,box-shadow .25s}
-.pf-ai-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(139,92,246,.13)}
-.pf-ai-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pf-grad-b)}
-.pf-ai-card-em{font-size:1.55rem;margin-bottom:.55rem}
-.pf-ai-card h5{font-size:.87rem;font-weight:800;margin-bottom:.38rem}
-.pf-ai-card p{font-size:.75rem;opacity:.7;line-height:1.5;margin:0}
-
-/* ── Entity chips ── */
-.pf-entities{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;
-  max-width:700px;margin:.8rem auto 0}
-.pf-ent{padding:.34rem .78rem;border-radius:10px;font-size:.77rem;font-weight:600;
-  border:1px solid var(--pf-border);background:var(--pf-surface);backdrop-filter:blur(6px);
-  display:flex;align-items:center;gap:.38rem}
-
-/* ── Callout ── */
-.pf-callout{border-radius:16px;padding:1.1rem 1.4rem;border:1px solid var(--pf-border);
-  background:var(--pf-surface);backdrop-filter:blur(10px);max-width:760px;margin:1.3rem auto 0}
-.pf-callout--b{border-color:rgba(59,130,246,.22);background:rgba(59,130,246,.04)}
-.pf-callout--g{border-color:rgba(16,185,129,.22);background:rgba(16,185,129,.04)}
-.pf-callout--a{border-color:rgba(245,158,11,.22);background:rgba(245,158,11,.04)}
-.pf-callout h5{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
-.pf-callout p{font-size:.81rem;opacity:.75;margin:0;line-height:1.55}
-
-/* ── Design Decisions ── */
-.pf-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
-@media(max-width:700px){.pf-decisions{grid-template-columns:1fr}}
-.pf-dec{border-radius:18px;border:1px solid var(--pf-border);background:var(--pf-surface);
-  backdrop-filter:blur(10px);padding:1.2rem;position:relative;overflow:hidden;
-  transition:transform .25s,box-shadow .25s}
-.pf-dec:hover{transform:translateY(-4px);box-shadow:var(--pf-shadow-lg)}
-.pf-dec::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pf-grad-b)}
-.pf-dec-cat{display:inline-block;padding:.15rem .55rem;border-radius:6px;font-size:.58rem;
-  font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.55rem}
-.pf-dec h5{font-size:.85rem;font-weight:800;margin-bottom:.35rem}
-.pf-dec p{font-size:.74rem;opacity:.72;line-height:1.55;margin:0}
-
-/* ── Production Implementation ── */
+/* ── Code ── */
 .pf-impl{max-width:940px;margin:0 auto}
 .pf-impl details{border-radius:14px;border:1px solid var(--pf-border);background:var(--pf-surface);margin-bottom:.8rem;overflow:hidden}
 .pf-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
 .pf-impl summary::-webkit-details-marker{display:none}
-.pf-impl summary::before{content:'▶';font-size:.6rem;transition:transform .2s}
+.pf-impl summary::before{content:'\25B6';font-size:.6rem;transition:transform .2s}
 .pf-impl details[open] summary::before{transform:rotate(90deg)}
-.pf-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--pf-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
-/* ── Demo column layout ── */
-.pf-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
-.pf-page-body>.pf-sec{grid-column:1;min-width:0}
-.pf-page-body>.pf-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
-@media(max-width:1099px){.pf-page-body{grid-template-columns:1fr}.pf-page-body>.pf-sec--demo{grid-column:1;grid-row:auto;position:static}}
+.pf-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;
+  line-height:1.6;overflow-x:auto;border-top:1px solid var(--pf-border);
+  font-family:'Cascadia Code','JetBrains Mono',monospace}
+
+/* ── About ── */
+.pf-about-card{max-width:740px;margin:0 auto;border-radius:var(--pf-radius);
+  border:1px solid var(--pf-border);background:var(--pf-surface);backdrop-filter:blur(14px);
+  box-shadow:var(--pf-shadow-lg);padding:2rem;text-align:center}
+.pf-about-title{font-size:1.15rem;font-weight:800;margin-bottom:.35rem}
+.pf-about-sub{font-size:.83rem;opacity:.65;margin-bottom:1.2rem}
+.pf-about-pills{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem}
+.pf-about-pill{padding:.3rem .75rem;border-radius:999px;font-size:.7rem;font-weight:700;
+  border:1px solid var(--pf-border);background:var(--pf-surface);
+  backdrop-filter:blur(6px);transition:all .2s}
+.pf-about-pill:hover{border-color:var(--pf-blue);color:var(--pf-blue)}
+.pf-share-btn{padding:.55rem 1.4rem;border-radius:999px;font-size:.8rem;font-weight:700;
+  border:none;background:var(--pf-grad-b);color:#fff;cursor:pointer;transition:opacity .2s}
+.pf-share-btn:hover{opacity:.85}
 </style>
 
-<!-- ════════════════════════════════════════════════════════
-     HERO
-════════════════════════════════════════════════════════ -->
-<section class="pf-hero">
-  <div class="pf-badge"><i class="fas fa-robot"></i>&nbsp; AI-Powered Automation</div>
+<!-- ── Progress bar ── -->
+<div class="pf-progress"><div class="pf-progress-fill" id="pfProgressFill"></div></div>
+
+<!-- ── Sticky nav ── -->
+<nav class="pf-sticky-nav" id="pfStickyNav">
+  <button class="pf-nav-tab active" onclick="pfScrollTo('pf-story')"><i class="fas fa-book-open me-1"></i>Story</button>
+  <button class="pf-nav-tab" onclick="pfScrollTo('pf-demo')"><i class="fas fa-play-circle me-1"></i>Demo</button>
+  <button class="pf-nav-tab" onclick="pfScrollTo('pf-classroom')"><i class="fas fa-chalkboard-teacher me-1"></i>Classroom</button>
+  <button class="pf-nav-tab" onclick="pfScrollTo('pf-keypoints')"><i class="fas fa-lightbulb me-1"></i>Key Points</button>
+  <button class="pf-nav-tab" onclick="pfScrollTo('pf-code')"><i class="fas fa-code me-1"></i>Code</button>
+  <button class="pf-nav-tab" onclick="pfScrollTo('pf-about')"><i class="fas fa-info-circle me-1"></i>About</button>
+</nav>
+
+<!-- ════════════════════════════ HERO ════════════════════════════ -->
+<section class="pf-hero" id="pf-top">
+  <div class="pf-badge"><i class="fas fa-robot"></i>&nbsp; AI-Powered Finance Automation</div>
   <h1>Finance Process Flows<br>Reimagined with AI</h1>
-  <p class="lead">Accounts Payable &amp; Receivable automation — from invoice receipt to ERP posting in seconds, not days.</p>
+  <p class="lead">AP &amp; AR automation &#x2014; invoice receipt to ERP posting in 3.2 seconds, not 25 minutes. Zero manual data entry on 95% of invoices.</p>
   <div class="pf-kpi-strip">
-    <div class="pf-kpi-chip">
-      <div><div class="pf-kpi-val">95%</div><div class="pf-kpi-lbl">Touchless Rate</div></div>
-    </div>
-    <div class="pf-kpi-chip">
-      <div><div class="pf-kpi-val">3.2s</div><div class="pf-kpi-lbl">Avg Process Time</div></div>
-    </div>
-    <div class="pf-kpi-chip">
-      <div><div class="pf-kpi-val">9</div><div class="pf-kpi-lbl">Entities Supported</div></div>
-    </div>
-    <div class="pf-kpi-chip">
-      <div><div class="pf-kpi-val">$0</div><div class="pf-kpi-lbl">Human Hours/Invoice</div></div>
-    </div>
+    <div class="pf-kpi-chip"><div><div class="pf-kpi-val">95%</div><div class="pf-kpi-lbl">Touchless Rate</div></div></div>
+    <div class="pf-kpi-chip"><div><div class="pf-kpi-val">3.2s</div><div class="pf-kpi-lbl">Avg Process Time</div></div></div>
+    <div class="pf-kpi-chip"><div><div class="pf-kpi-val">9</div><div class="pf-kpi-lbl">Entities Supported</div></div></div>
+    <div class="pf-kpi-chip"><div><div class="pf-kpi-val">$0.013</div><div class="pf-kpi-lbl">Cost Per Invoice</div></div></div>
   </div>
 </section>
-<div class="pf-page-body">
 
-<!-- ════════════════════════════════════════════════════════
-     AP / AR TWIN CARDS
-════════════════════════════════════════════════════════ -->
-<section class="pf-sec">
+<!-- ════════════════════════════ STORY ════════════════════════════ -->
+<section class="pf-sec" id="pf-story">
   <div class="pf-sec-head">
-    <span class="pf-tag pf-tag--b">Automation Scope</span>
-    <h2>End-to-End Finance Automation</h2>
-    <p>Parallel pipelines for both sides of the ledger — AI-validated, ERP-integrated, zero manual entry.</p>
+    <span class="pf-tag pf-tag--b">The Story</span>
+    <h2>From Invoice Chaos to Full Automation</h2>
+    <p>A six-step transformation from an 8-person AP team to a serverless AI pipeline processing 15,000 invoices per month.</p>
   </div>
-  <div class="pf-twin">
+  <div class="pf-story-steps">
 
-    <!-- AP CARD -->
-    <div class="pf-twin-card pf-twin-card--ap">
-      <div class="pf-twin-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-      <h3>Accounts Payable</h3>
-      <p class="sub">Invoice ingestion → GL coding → ERP posting</p>
-      <div class="pf-mini-flow">
-        <div class="pf-fs"><span class="pf-fn">1</span>Receive</div><div class="pf-fa">›</div>
-        <div class="pf-fs"><span class="pf-fn">2</span>OCR</div><div class="pf-fa">›</div>
-        <div class="pf-fs"><span class="pf-fn">3</span>GL Code</div><div class="pf-fa">›</div>
-        <div class="pf-fs"><span class="pf-fn">4</span>Validate</div><div class="pf-fa">›</div>
-        <div class="pf-fs"><span class="pf-fn">5</span>Post</div>
-      </div>
-      <div class="pf-ba">
-        <div class="pf-ba-col pf-ba-col--before">
-          <div class="pf-ba-lbl">❌ Before</div>
-          AP clerk receives PDF, keys into ERP, GL codes from memory, supervisor approves via email
-        </div>
-        <div class="pf-ba-col pf-ba-col--after">
-          <div class="pf-ba-lbl">✅ After</div>
-          Email → OCR → Claude GL code → validation → Acumatica posted — all in &lt;5 seconds
-        </div>
-      </div>
-      <div class="pf-pill-row">
-        <span class="pf-pill pf-pill--b">95% Touchless</span>
-        <span class="pf-pill pf-pill--v">Claude GL Coding</span>
-        <span class="pf-pill pf-pill--g">Azure OCR</span>
-        <span class="pf-pill pf-pill--a">Multi-Entity</span>
-      </div>
+    <div class="pf-story-step">
+      <div class="pf-step-num">1</div>
+      <div class="pf-stat">15,000</div>
+      <h4>Invoices/Month, 8 People, 25 Minutes Each</h4>
+      <p>The AP team received invoices by email, PDF, portal, and fax. Every invoice required manual keying into Acumatica &#x2014; vendor lookup, GL code from memory, entity routing by gut instinct. At $25/invoice fully loaded, that is $375,000 per year in AP labor alone.</p>
     </div>
 
-    <!-- AR CARD -->
-    <div class="pf-twin-card pf-twin-card--ar">
-      <div class="pf-twin-icon"><i class="fas fa-money-check-alt"></i></div>
-      <h3>Accounts Receivable</h3>
-      <p class="sub">Customer payments → revenue recognition</p>
-      <div class="pf-mini-flow">
-        <div class="pf-fs"><span class="pf-fn">1</span>Invoice</div><div class="pf-fa">›</div>
-        <div class="pf-fs"><span class="pf-fn">2</span>Send</div><div class="pf-fa">›</div>
-        <div class="pf-fs"><span class="pf-fn">3</span>Monitor</div><div class="pf-fa">›</div>
-        <div class="pf-fs"><span class="pf-fn">4</span>Collect</div><div class="pf-fa">›</div>
-        <div class="pf-fs"><span class="pf-fn">5</span>Close</div>
-      </div>
-      <div class="pf-ba">
-        <div class="pf-ba-col pf-ba-col--before">
-          <div class="pf-ba-lbl">❌ Before</div>
-          AR team tracks overdue manually, calls customers one-by-one, posts cash receipts with days of delay
-        </div>
-        <div class="pf-ba-col pf-ba-col--after">
-          <div class="pf-ba-lbl">✅ After</div>
-          Auto-generate invoices, AI collection emails, real-time DSO dashboard, instant cash posting
-        </div>
-      </div>
-      <div class="pf-pill-row">
-        <span class="pf-pill pf-pill--g">–30% DSO</span>
-        <span class="pf-pill pf-pill--v">AI Collections</span>
-        <span class="pf-pill pf-pill--b">Auto-Dunning</span>
-        <span class="pf-pill pf-pill--a">Live Dashboard</span>
-      </div>
+    <div class="pf-story-step">
+      <div class="pf-step-num">2</div>
+      <div class="pf-stat">9 Entities</div>
+      <h4>200+ Vendors, Zero Consistent Format</h4>
+      <p>Ashford's 9 hospitality entities (Stirling, Remington, Premier, OpenKey&#x2026;) each had different GL structures, approval thresholds, and vendor relationships. The same vendor invoiced different entities differently. No OCR tool alone could handle the variance without a judgment layer.</p>
+    </div>
+
+    <div class="pf-story-step">
+      <div class="pf-step-num">3</div>
+      <div class="pf-stat">97%</div>
+      <h4>Azure Document Intelligence Extracts in One Call</h4>
+      <p>Azure Form Recognizer's pre-built invoice model extracts vendor name, invoice number, amounts, and line items &#x2014; all in one REST call at $0.01/page. Per-field confidence scores flag low-confidence extractions. Output: structured JSON ready for the judgment layer.</p>
+    </div>
+
+    <div class="pf-story-step">
+      <div class="pf-step-num">4</div>
+      <div class="pf-stat">94%</div>
+      <h4>Claude AI: The GL Code Judgment Layer</h4>
+      <p>Rule-based GL coding works for 78% of invoices. It fails on new vendors, multi-line descriptions, and cross-entity allocations. A TF-IDF + logistic regression classifier trained on 2 years of GL history achieves 94% accuracy &#x2014; 16 percentage points better than hand-coded rules.</p>
+    </div>
+
+    <div class="pf-story-step">
+      <div class="pf-step-num">5</div>
+      <div class="pf-stat">73%</div>
+      <h4>3-Way Match + Hierarchical Approval Routing</h4>
+      <p>PO vs. Invoice vs. Goods Receipt with 2%/5% tolerance bands. Invoices under $5K that pass 3-way match auto-approve &#x2014; covering 73% of all invoice volume. Only exceptions or high-value invoices require a human decision. Approval queue cut by 73%.</p>
+    </div>
+
+    <div class="pf-story-step">
+      <div class="pf-step-num">6</div>
+      <div class="pf-stat">$0.013</div>
+      <h4>Results: 95% Touchless, Full Audit Trail</h4>
+      <p>OCR ($0.01) + Claude AI ($0.003) = $0.013/invoice vs. $15&#x2013;$40 manual. 95% of invoices touch zero human hands. Full immutable audit trail in Azure SQL: extraction confidence, GL reasoning, match result, approval chain, ERP response code. DSO dropped 30% on AR.</p>
     </div>
 
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     LIVE INTERACTIVE DEMO
-════════════════════════════════════════════════════════ -->
-<section class="pf-sec pf-sec--demo">
+<!-- ════════════════════════════ DEMO ════════════════════════════ -->
+<section class="pf-sec" id="pf-demo">
   <div class="pf-sec-head">
     <span class="pf-tag pf-tag--g">Live Demo</span>
-    <h2>Watch the Pipeline Run</h2>
-    <p>A real-time simulation of the AP pipeline — click Run to process a synthetic invoice through all 6 stages.</p>
+    <h2>See It From Every Angle</h2>
+    <p>ELI5 mode explains the value to each stakeholder. Engineer mode runs a live 6-stage AP pipeline simulation with real synthetic invoices.</p>
   </div>
 
-  <div class="pf-demo">
-    <!-- Title bar -->
-    <div class="pf-demo-bar">
-      <div class="pf-dots">
-        <div class="pf-dot pf-dot--r"></div>
-        <div class="pf-dot pf-dot--y"></div>
-        <div class="pf-dot pf-dot--g"></div>
+  <div class="pf-mode-toggle">
+    <button class="pf-mode-btn active" id="pfBtnELI5" onclick="pfSetMode('eli5')">
+      <i class="fas fa-user-circle me-1"></i> ELI5 &#x2014; Plain English
+    </button>
+    <button class="pf-mode-btn" id="pfBtnEng" onclick="pfSetMode('engineer')">
+      <i class="fas fa-terminal me-1"></i> Engineer View
+    </button>
+  </div>
+
+  <!-- ELI5 Pane -->
+  <div id="pfELI5Pane">
+    <div class="pf-eli5-grid">
+
+      <div class="pf-eli5-card">
+        <div class="pf-eli5-persona">&#x1F4BC;</div>
+        <div class="pf-eli5-role">CFO Perspective</div>
+        <h5>The Math That Matters</h5>
+        <p>AP cost $25/invoice &#xD7; 15,000/month = $375K/year. Now it is $0.013/invoice in compute cost. That is a $370K annual saving with tighter controls, faster month-end close, and a 30% DSO reduction on AR &#x2014; freeing up working capital that was sitting in float.</p>
+        <div class="pf-eli5-insight">&#x1F4C9; 40-day DPO &#x2192; same-day posting &#x2022; cash flow optimization</div>
       </div>
-      <h4><i class="fas fa-terminal me-2" style="color:var(--pf-blue)"></i>AP Invoice Pipeline — Live Simulator</h4>
-      <div style="display:flex;gap:.5rem;flex-shrink:0">
-        <button class="btn btn-primary btn-sm" id="btnRun" style="border-radius:8px;font-size:.79rem">
-          <i class="fas fa-play me-1"></i> Run AP Demo
-        </button>
-        <button class="btn btn-outline-secondary btn-sm" id="btnReset" style="border-radius:8px;font-size:.79rem;display:none">
-          <i class="fas fa-redo me-1"></i> Reset
-        </button>
+
+      <div class="pf-eli5-card">
+        <div class="pf-eli5-persona">&#x1F4CB;</div>
+        <div class="pf-eli5-role">AP Clerk Perspective</div>
+        <h5>Your Job Got Better</h5>
+        <p>You no longer key 15,000 invoices a month. The system handles the 95% that are straightforward. You handle 750 complex, high-value, relationship-sensitive cases per month &#x2014; the ones that actually require human expertise, negotiation, and judgment.</p>
+        <div class="pf-eli5-insight">&#x2705; 750 meaningful cases vs. 15,000 routine data entries</div>
+      </div>
+
+      <div class="pf-eli5-card">
+        <div class="pf-eli5-persona">&#x2699;&#xFE0F;</div>
+        <div class="pf-eli5-role">Data Engineer Perspective</div>
+        <h5>The Architecture is Serverless</h5>
+        <p>Email / blob &#x2192; Logic Apps trigger &#x2192; Form Recognizer REST &#x2192; Azure Function validates &#x2192; GL classifier &#x2192; Acumatica REST POST &#x2192; SQL audit log. Zero VMs. The entire pipeline at 15K invoices/month costs roughly $195 in Azure compute.</p>
+        <div class="pf-eli5-insight">&#x26A1; $0.013/invoice &#x2022; 3.2s avg latency &#x2022; 0 servers to manage</div>
+      </div>
+
+      <div class="pf-eli5-card">
+        <div class="pf-eli5-persona">&#x1F50D;</div>
+        <div class="pf-eli5-role">Auditor Perspective</div>
+        <h5>Every Decision Is Traceable</h5>
+        <p>Every invoice carries an immutable record: OCR field confidence, GL assignment plus model reasoning, 3-way match result with variance details, approval chain with timestamps, and ERP HTTP response code. SOC 2-compatible. No more "who approved this?" investigations.</p>
+        <div class="pf-eli5-insight">&#x1F512; Immutable SQL audit trail &#x2022; RBAC per entity &#x2022; AES-256 at rest</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Engineer Pane -->
+  <div id="pfEngPane" style="display:none">
+    <div class="pf-demo-wrap">
+      <div class="pf-demo">
+        <div class="pf-demo-bar">
+          <div class="pf-dots">
+            <div class="pf-dot pf-dot--r"></div>
+            <div class="pf-dot pf-dot--y"></div>
+            <div class="pf-dot pf-dot--g"></div>
+          </div>
+          <h4><i class="fas fa-terminal me-2" style="color:var(--pf-blue)"></i>AP Invoice Pipeline &#x2014; Live Simulator</h4>
+          <div style="display:flex;gap:.5rem;flex-shrink:0">
+            <button class="btn btn-primary btn-sm" id="btnRun" style="border-radius:8px;font-size:.79rem">
+              <i class="fas fa-play me-1"></i> Run AP Demo
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="btnReset" style="border-radius:8px;font-size:.79rem;display:none">
+              <i class="fas fa-redo me-1"></i> Reset
+            </button>
+          </div>
+        </div>
+        <div class="pf-pip-bar">
+          <div class="pf-pip" id="pip0"><div class="pf-pip-dot"><i class="fas fa-file-alt"></i></div><div class="pf-pip-lbl">Invoice</div></div>
+          <div class="pf-pip" id="pip1"><div class="pf-pip-dot"><i class="fas fa-eye"></i></div><div class="pf-pip-lbl">OCR</div></div>
+          <div class="pf-pip" id="pip2"><div class="pf-pip-dot"><i class="fas fa-tags"></i></div><div class="pf-pip-lbl">GL Code</div></div>
+          <div class="pf-pip" id="pip3"><div class="pf-pip-dot"><i class="fas fa-check-circle"></i></div><div class="pf-pip-lbl">Validate</div></div>
+          <div class="pf-pip" id="pip4"><div class="pf-pip-dot"><i class="fas fa-cloud-upload-alt"></i></div><div class="pf-pip-lbl">ERP Post</div></div>
+          <div class="pf-pip" id="pip5"><div class="pf-pip-dot"><i class="fas fa-chart-bar"></i></div><div class="pf-pip-lbl">Dashboard</div></div>
+        </div>
+        <div class="pf-demo-body">
+          <div class="pf-inv-pane">
+            <div class="pf-pane-lbl">Invoice Preview</div>
+            <div class="pf-inv-card" id="invoiceCard"></div>
+            <div class="pf-pane-lbl" style="margin-top:.3rem">Processing Log</div>
+            <div class="pf-log" id="logArea"></div>
+          </div>
+          <div class="pf-stage" id="demoPipeline"></div>
+        </div>
+      </div>
+      <div class="pf-dash" id="demoDashboard" style="display:none">
+        <div style="font-size:.84rem;font-weight:800;margin-bottom:.75rem">
+          <i class="fas fa-chart-bar me-2" style="color:var(--pf-blue)"></i>Live AP Dashboard
+        </div>
+        <div class="pf-dash-kpis">
+          <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiProcessed">0</div><div class="pf-dkpi-lbl">Processed</div></div>
+          <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiTotal">$0</div><div class="pf-dkpi-lbl">Posted Total</div></div>
+          <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiAvgTime">&#x2014;</div><div class="pf-dkpi-lbl">Avg Time</div></div>
+          <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiErrors">0</div><div class="pf-dkpi-lbl">Exceptions</div></div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="table table-sm" style="font-size:.77rem;margin:0">
+            <thead><tr style="opacity:.6"><th>Invoice</th><th>Vendor</th><th>Amount</th><th>GL</th><th>Entity</th><th>Status</th><th>Time</th></tr></thead>
+            <tbody id="dashTable"></tbody>
+          </table>
+        </div>
       </div>
     </div>
+  </div>
+</section>
 
-    <!-- Pipeline step indicators -->
-    <div class="pf-pip-bar">
-      <div class="pf-pip" id="pip0"><div class="pf-pip-dot"><i class="fas fa-file-alt"></i></div><div class="pf-pip-lbl">Invoice</div></div>
-      <div class="pf-pip" id="pip1"><div class="pf-pip-dot"><i class="fas fa-eye"></i></div><div class="pf-pip-lbl">OCR</div></div>
-      <div class="pf-pip" id="pip2"><div class="pf-pip-dot"><i class="fas fa-tags"></i></div><div class="pf-pip-lbl">GL Code</div></div>
-      <div class="pf-pip" id="pip3"><div class="pf-pip-dot"><i class="fas fa-check-circle"></i></div><div class="pf-pip-lbl">Validate</div></div>
-      <div class="pf-pip" id="pip4"><div class="pf-pip-dot"><i class="fas fa-cloud-upload-alt"></i></div><div class="pf-pip-lbl">ERP Post</div></div>
-      <div class="pf-pip" id="pip5"><div class="pf-pip-dot"><i class="fas fa-chart-bar"></i></div><div class="pf-pip-lbl">Dashboard</div></div>
-    </div>
+<!-- ════════════════════════════ CLASSROOM ════════════════════════════ -->
+<section class="pf-sec" id="pf-classroom">
+  <div class="pf-sec-head">
+    <span class="pf-tag pf-tag--v">Classroom</span>
+    <h2>How It Works &#x2014; Lesson by Lesson</h2>
+    <p>Six slides building from the business problem to fraud prevention. Each slide adds one layer of the system.</p>
+  </div>
+  <div class="pf-cls-wrap">
+    <div class="pf-cls-outer">
+      <div class="pf-cls-slides" id="pfClsSlides">
 
-    <!-- Body -->
-    <div class="pf-demo-body">
-      <!-- Invoice preview + log -->
-      <div class="pf-inv-pane">
-        <div class="pf-pane-lbl">Invoice Preview</div>
-        <div class="pf-inv-card" id="invoiceCard"></div>
-        <div class="pf-pane-lbl" style="margin-top:.3rem">Processing Log</div>
-        <div class="pf-log" id="logArea"></div>
+        <!-- Slide 1 -->
+        <div class="pf-cls-slide">
+          <span class="pf-cls-slide-tag" style="background:rgba(239,68,68,.11);color:#dc2626">Slide 1 of 6</span>
+          <h3>The True Cost of Manual AP</h3>
+          <p>Before automation, invoice processing was the most expensive back-office function per transaction. Every invoice required a human to receive it, read it, look up the vendor, recall the GL code, key it into the ERP, route it for approval by email, follow up, and finally post. That human loop cost $15&#x2013;$40 per invoice fully loaded &#x2014; and introduced a 1&#x2013;3% error rate that compounded into rework, late payments, and vendor relationship damage.</p>
+          <div class="pf-cls-facts">
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">$25</div><div class="pf-cls-fact-lbl">Avg cost per manual invoice</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">25 min</div><div class="pf-cls-fact-lbl">Processing time per invoice</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">40 days</div><div class="pf-cls-fact-lbl">Average DPO (Days Payable Outstanding)</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">1&#x2013;3%</div><div class="pf-cls-fact-lbl">Manual entry error rate</div></div>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="pf-cls-slide">
+          <span class="pf-cls-slide-tag" style="background:rgba(59,130,246,.11);color:#2563eb">Slide 2 of 6</span>
+          <h3>Azure Document Intelligence: Structured Extraction</h3>
+          <p>Azure Form Recognizer's pre-built invoice model is a fine-tuned transformer that has been trained on millions of invoice documents. It extracts vendor name, invoice number, invoice date, due date, purchase order number, total amount, tax, and every line item &#x2014; all in a single REST API call. Each field comes with a confidence score (0.0&#x2013;1.0). Fields below 0.85 are flagged for human review. The output is structured JSON at $0.01/page &#x2014; a 2,400&#xD7; cost reduction vs. manual keying.</p>
+          <div class="pf-cls-facts">
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">97%</div><div class="pf-cls-fact-lbl">Field-level extraction accuracy</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">0.85</div><div class="pf-cls-fact-lbl">Confidence threshold for auto-processing</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">$0.01</div><div class="pf-cls-fact-lbl">Cost per page (vs. $25 manual)</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">180+</div><div class="pf-cls-fact-lbl">Supported languages</div></div>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="pf-cls-slide">
+          <span class="pf-cls-slide-tag" style="background:rgba(139,92,246,.11);color:#7c3aed">Slide 3 of 6</span>
+          <h3>Why AI Beats Rules for GL Code Classification</h3>
+          <p>Rule-based GL coding uses static IF/THEN logic: "if vendor = AWS then GL = 6300." This works for 78% of invoices &#x2014; the ones with known vendors and obvious categories. It fails on new vendors (no rule exists), multi-line invoices (line items span multiple GL accounts), and ambiguous descriptions ("Professional services" could be 6600 or 6800 depending on context). A TF-IDF vectorizer converts invoice text into a 5,000-feature sparse matrix. Logistic regression trained on 2 years of GL history learns the associations. Result: 94% accuracy &#x2014; and it improves quarterly as you retrain on new data.</p>
+          <div class="pf-cls-facts">
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">78%</div><div class="pf-cls-fact-lbl">Rule-based accuracy ceiling</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">94%</div><div class="pf-cls-fact-lbl">AI classifier accuracy</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">5,000</div><div class="pf-cls-fact-lbl">TF-IDF features (1-gram + 2-gram)</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">0.70</div><div class="pf-cls-fact-lbl">Confidence threshold for auto-posting</div></div>
+          </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="pf-cls-slide">
+          <span class="pf-cls-slide-tag" style="background:rgba(16,185,129,.11);color:#059669">Slide 4 of 6</span>
+          <h3>The 3-Way Match Protocol</h3>
+          <p>Two-way matching compares only the Purchase Order against the Invoice. It catches pricing errors but misses quantity fraud: a vendor ships 80 units, invoices for 100, and the PO matches on price. Three-way match adds the Goods Receipt Note (GRN) from the warehouse, checking that received quantity equals invoiced quantity. Real invoices almost never match exactly &#x2014; shipping, tax rounding, and FX create small variances. Tolerance bands (2% per line, 5% total) separate genuine fraud from noise. Setting them correctly is the entire engineering challenge: too tight and you flood reviewers with false positives; too loose and fraud slips through.</p>
+          <div class="pf-cls-facts">
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">2%</div><div class="pf-cls-fact-lbl">Per-line item tolerance band</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">5%</div><div class="pf-cls-fact-lbl">Invoice total tolerance band</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">40%</div><div class="pf-cls-fact-lbl">False exception rate at exact match</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">8%</div><div class="pf-cls-fact-lbl">False exception rate with tolerance bands</div></div>
+          </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="pf-cls-slide">
+          <span class="pf-cls-slide-tag" style="background:rgba(245,158,11,.11);color:#b45309">Slide 5 of 6</span>
+          <h3>Hierarchical Approval Routing</h3>
+          <p>Flat approval &#x2014; sending everything to the department head &#x2014; creates a bottleneck and trains reviewers to rubber-stamp because every invoice looks the same. Hierarchical routing assigns approval authority by value and risk: small routine invoices auto-approve, mid-range go to cost center managers who know the context, large invoices escalate to VP with full supporting detail. The velocity trigger is the key innovation: when a cost center's 30-day rolling spend exceeds 120% of budget, ALL invoices for that center escalate one level automatically &#x2014; creating self-enforcing budget guardrails with no manual policy changes required.</p>
+          <div class="pf-cls-facts">
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">&lt;$5K</div><div class="pf-cls-fact-lbl">Auto-approve if 3-way matched (73% of volume)</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">$5K&#x2013;$50K</div><div class="pf-cls-fact-lbl">Cost center manager approval</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">&gt;$50K</div><div class="pf-cls-fact-lbl">VP approval required</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">120%</div><div class="pf-cls-fact-lbl">Budget velocity trigger for auto-escalation</div></div>
+          </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="pf-cls-slide">
+          <span class="pf-cls-slide-tag" style="background:rgba(239,68,68,.11);color:#dc2626">Slide 6 of 6</span>
+          <h3>Fraud Prevention: MinHash LSH</h3>
+          <p>The #1 AP fraud vector is the resubmitted invoice: a vendor submits the same invoice with a slightly different number, date, or amount. Exact-match deduplication catches identical duplicates but misses near-duplicates. MinHash Locality-Sensitive Hashing (LSH) solves this. It converts invoice line items into a set of minhash signatures and groups similar invoices into the same hash bucket. Any invoice landing in the same bucket as a recent invoice from the same vendor, within $50, within 30 days, is held for human review. The technique scales to millions of invoice pairs without comparing each pair explicitly &#x2014; O(n) instead of O(n&#xB2;). Combined with spend velocity tracking, the system provides self-healing fraud detection that tightens automatically when anomalies appear.</p>
+          <div class="pf-cls-facts">
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">MinHash</div><div class="pf-cls-fact-lbl">LSH for near-duplicate invoice detection</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">30 days</div><div class="pf-cls-fact-lbl">Lookback window for duplicate check</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">$50</div><div class="pf-cls-fact-lbl">Amount variance threshold for LSH match</div></div>
+            <div class="pf-cls-fact"><div class="pf-cls-fact-val">O(n)</div><div class="pf-cls-fact-lbl">Time complexity (vs. O(n&#xB2;) brute force)</div></div>
+          </div>
+        </div>
+
+      </div><!-- /slides -->
+    </div><!-- /outer -->
+    <div class="pf-cls-nav">
+      <button class="pf-cls-btn" onclick="pfClsPrev()"><i class="fas fa-chevron-left"></i></button>
+      <div class="pf-cls-dots" id="pfClsDots">
+        <div class="pf-cls-dot active" onclick="pfClsGoto(0)"></div>
+        <div class="pf-cls-dot" onclick="pfClsGoto(1)"></div>
+        <div class="pf-cls-dot" onclick="pfClsGoto(2)"></div>
+        <div class="pf-cls-dot" onclick="pfClsGoto(3)"></div>
+        <div class="pf-cls-dot" onclick="pfClsGoto(4)"></div>
+        <div class="pf-cls-dot" onclick="pfClsGoto(5)"></div>
       </div>
-      <!-- Stage output -->
-      <div class="pf-stage" id="demoPipeline"></div>
-    </div>
-  </div>
-
-  <!-- Live dashboard (hidden until first run) -->
-  <div class="pf-dash" id="demoDashboard" style="display:none">
-    <div style="font-size:.84rem;font-weight:800;margin-bottom:.75rem">
-      <i class="fas fa-chart-bar me-2" style="color:var(--pf-blue)"></i>Live AP Dashboard
-    </div>
-    <div class="pf-dash-kpis">
-      <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiProcessed">0</div><div class="pf-dkpi-lbl">Processed</div></div>
-      <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiTotal">$0</div><div class="pf-dkpi-lbl">Posted Total</div></div>
-      <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiAvgTime">—</div><div class="pf-dkpi-lbl">Avg Time</div></div>
-      <div class="pf-dkpi"><div class="pf-dkpi-val" id="kpiErrors">0</div><div class="pf-dkpi-lbl">Exceptions</div></div>
-    </div>
-    <div style="overflow-x:auto">
-      <table class="table table-sm" style="font-size:.77rem;margin:0">
-        <thead><tr style="opacity:.6"><th>Invoice</th><th>Vendor</th><th>Amount</th><th>GL</th><th>Entity</th><th>Status</th><th>Time</th></tr></thead>
-        <tbody id="dashTable"></tbody>
-      </table>
+      <span class="pf-cls-counter" id="pfClsCounter">1 / 6</span>
+      <button class="pf-cls-btn" onclick="pfClsNext()"><i class="fas fa-chevron-right"></i></button>
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     AZURE ARCHITECTURE
-════════════════════════════════════════════════════════ -->
-<section class="pf-sec">
+<!-- ════════════════════════════ KEY POINTS ════════════════════════════ -->
+<section class="pf-sec" id="pf-keypoints">
   <div class="pf-sec-head">
-    <span class="pf-tag pf-tag--b">Infrastructure</span>
-    <h2>Azure Architecture</h2>
-    <p>Event-driven, serverless components orchestrating the pipeline from email intake to ERP posting.</p>
+    <span class="pf-tag pf-tag--a">Key Points</span>
+    <h2>Four Engineering Decisions That Made It Work</h2>
+    <p>The automation works because of specific, deliberate engineering choices &#x2014; each with a measurable impact.</p>
   </div>
+  <div class="pf-kp-grid">
 
-  <!-- Flow diagram -->
-  <div class="pf-az-flow" style="max-width:880px;margin:0 auto 1.5rem">
-    <div class="pf-az-node">
-      <div class="pf-az-icon" style="background:linear-gradient(135deg,#0078d4,#005a9e)"><i class="fas fa-envelope"></i></div>
-      <div class="pf-az-lbl">Email / Upload</div><div class="pf-az-sub">Invoice source</div>
+    <div class="pf-kp-card">
+      <div class="pf-kp-metric">+16 pts</div>
+      <h5>AI vs. Rules for GL Coding</h5>
+      <p>Rule-based GL classification plateaus at 78% accuracy &#x2014; it cannot generalize to new vendors or ambiguous multi-line invoices. A TF-IDF + logistic regression classifier on 2 years of history achieves 94%. The 16-point gap widens further on hospitality-specific vendor categories where rules require constant manual maintenance.</p>
+      <span class="pf-kp-why">Why it matters: 94% accuracy is the threshold where AP team trust in the system exceeds resistance to adoption</span>
     </div>
-    <div class="pf-az-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="pf-az-node">
-      <div class="pf-az-icon" style="background:linear-gradient(135deg,#f25022,#d83b01)"><i class="fas fa-bolt"></i></div>
-      <div class="pf-az-lbl">Logic Apps</div><div class="pf-az-sub">Trigger &amp; route</div>
-    </div>
-    <div class="pf-az-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="pf-az-node">
-      <div class="pf-az-icon" style="background:linear-gradient(135deg,#7fba00,#4e7900)"><i class="fas fa-eye"></i></div>
-      <div class="pf-az-lbl">Document Intelligence</div><div class="pf-az-sub">OCR extraction</div>
-    </div>
-    <div class="pf-az-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="pf-az-node">
-      <div class="pf-az-icon" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)"><i class="fas fa-robot"></i></div>
-      <div class="pf-az-lbl">Claude AI</div><div class="pf-az-sub">GL code + triage</div>
-    </div>
-    <div class="pf-az-arr"><i class="fas fa-chevron-right"></i></div>
-    <div class="pf-az-node">
-      <div class="pf-az-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-database"></i></div>
-      <div class="pf-az-lbl">Acumatica ERP</div><div class="pf-az-sub">REST API post</div>
-    </div>
-  </div>
 
-  <!-- Service cards -->
-  <div class="pf-svc-grid">
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#f25022,#d83b01)"><i class="fas fa-bolt"></i></div>
-      <div><div class="pf-svc-name">Azure Logic Apps</div>
-        <div class="pf-svc-desc">Event trigger on email / blob. Routes to OCR and orchestrates the entire workflow.</div>
-        <div class="pf-svc-cost">~$0.001 / run</div></div>
+    <div class="pf-kp-card">
+      <div class="pf-kp-metric">40% &#x2192; 8%</div>
+      <h5>Tolerance Bands Cut False Exceptions</h5>
+      <p>Exact-match validation flags 40% of invoices as exceptions &#x2014; creating a workload that overwhelms reviewers and destroys the ROI of automation. A 2% per-line and 5% total tolerance reduces false exceptions to 8%. Engineering the tolerance thresholds is the critical calibration: they must be loose enough to avoid noise but tight enough to catch the 2.3% genuine overpayment rate.</p>
+      <span class="pf-kp-why">Why it matters: false exception rate drives reviewer workload and determines whether the system is trusted or bypassed</span>
     </div>
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#7fba00,#4e7900)"><i class="fas fa-file-alt"></i></div>
-      <div><div class="pf-svc-name">Document Intelligence</div>
-        <div class="pf-svc-desc">Pre-built invoice model — extracts vendor, amount, line items, dates in one API call.</div>
-        <div class="pf-svc-cost">~$0.01 / page</div></div>
-    </div>
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#0078d4,#005a9e)"><i class="fas fa-layer-group"></i></div>
-      <div><div class="pf-svc-name">Azure Functions</div>
-        <div class="pf-svc-desc">Serverless Python workers for validation, GL lookup, exception routing, and ERP post.</div>
-        <div class="pf-svc-cost">Free tier / pay per call</div></div>
-    </div>
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)"><i class="fas fa-comments"></i></div>
-      <div><div class="pf-svc-name">Claude 3.5 Sonnet</div>
-        <div class="pf-svc-desc">GL code assignment, exception triage narrative, AR collection emails in natural language.</div>
-        <div class="pf-svc-cost">~$0.003 / invoice</div></div>
-    </div>
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#e53e3e,#c53030)"><i class="fas fa-database"></i></div>
-      <div><div class="pf-svc-name">Azure SQL / Cosmos DB</div>
-        <div class="pf-svc-desc">Audit trail, vendor master, GL chart of accounts, and processed invoice history.</div>
-        <div class="pf-svc-cost">~$5 / month serverless</div></div>
-    </div>
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#805ad5,#6b46c1)"><i class="fas fa-chart-area"></i></div>
-      <div><div class="pf-svc-name">Power BI Embedded</div>
-        <div class="pf-svc-desc">Real-time AP/AR dashboard — DSO trends, cash flow forecast, entity-level P&amp;L.</div>
-        <div class="pf-svc-cost">Embedded A1 SKU</div></div>
-    </div>
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#3182ce,#2c5282)"><i class="fas fa-key"></i></div>
-      <div><div class="pf-svc-name">Azure Key Vault</div>
-        <div class="pf-svc-desc">Secure storage for ERP API keys, Anthropic key, and entity secrets. Zero plaintext.</div>
-        <div class="pf-svc-cost">~$0.003 / 10K ops</div></div>
-    </div>
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#dd6b20,#c05621)"><i class="fas fa-history"></i></div>
-      <div><div class="pf-svc-name">Azure Monitor</div>
-        <div class="pf-svc-desc">End-to-end pipeline telemetry, alert on exception rates, SLA dashboards, log analytics.</div>
-        <div class="pf-svc-cost">Pay per GB ingested</div></div>
-    </div>
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fas fa-envelope"></i></div>
-      <div><div class="pf-svc-name">Communication Services</div>
-        <div class="pf-svc-desc">AI-drafted AR collection emails at scale — escalated reminders, payment portal links.</div>
-        <div class="pf-svc-cost">~$0.0008 / email</div></div>
-    </div>
-    <div class="pf-svc">
-      <div class="pf-svc-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-lock"></i></div>
-      <div><div class="pf-svc-name">Azure AD / RBAC</div>
-        <div class="pf-svc-desc">Role-based access per entity — CFO sees consolidated, controller sees their entity only.</div>
-        <div class="pf-svc-cost">Included</div></div>
-    </div>
-  </div>
 
-  <div class="pf-callout pf-callout--a" style="margin-top:1.2rem">
-    <h5><i class="fas fa-shield-alt me-2"></i>Security &amp; Compliance</h5>
-    <p>All API keys in Key Vault. TLS 1.3 in transit. AES-256 at rest. SOC 2-compatible audit trail. RBAC per entity — no cross-entity data leakage possible.</p>
+    <div class="pf-kp-card">
+      <div class="pf-kp-metric">$375K &#x2192; $195</div>
+      <h5>Serverless Economics at Scale</h5>
+      <p>The entire pipeline at 15,000 invoices/month: Form Recognizer OCR at $0.01/page, Azure Functions at near-zero, Claude API at $0.003/invoice, SQL writes at $0.001, Logic Apps orchestration at $0.001. Total: $0.013/invoice or $195/month &#x2014; down from $375,000/year in AP labor. The cost structure is perfectly variable: it scales to zero on slow months and to any volume without infrastructure investment.</p>
+      <span class="pf-kp-why">Why it matters: variable cost structure eliminates the risk of over-provisioning for peak capacity</span>
+    </div>
+
+    <div class="pf-kp-card">
+      <div class="pf-kp-metric">73%</div>
+      <h5>Auto-Approval Covers the Majority</h5>
+      <p>73% of invoices are under $5,000 and pass 3-way match validation. These auto-approve without any human touch. The approval queue drops from 15,000 to 4,050 invoices/month. Controllers now review only the invoices that genuinely benefit from human judgment &#x2014; high-value, new-vendor, or exception-flagged. The spend velocity trigger adds automatic escalation when cost centers overspend, creating budget guardrails without policy changes.</p>
+      <span class="pf-kp-why">Why it matters: routing 73% automatically lets approvers give full attention to the 27% that actually need them</span>
+    </div>
+
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     ASHFORD 9 ENTITIES
-════════════════════════════════════════════════════════ -->
-<section class="pf-sec">
-  <div class="pf-sec-head">
-    <span class="pf-tag pf-tag--a">Coverage</span>
-    <h2>Mapped to Ashford's 9 Entities</h2>
-    <p>Every invoice is tagged, validated, and posted to the correct entity's GL — AI handles the routing.</p>
-  </div>
-  <div class="pf-entities">
-    <div class="pf-ent" style="background:rgba(59,130,246,.07);border-color:rgba(59,130,246,.25)"><i class="fas fa-building" style="color:#3b82f6"></i>Ashford Hospitality Trust</div>
-    <div class="pf-ent" style="background:rgba(139,92,246,.07);border-color:rgba(139,92,246,.25)"><i class="fas fa-hotel" style="color:#8b5cf6"></i>Ashford Inc.</div>
-    <div class="pf-ent" style="background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.25)"><i class="fas fa-utensils" style="color:#10b981"></i>Stirling Hotels</div>
-    <div class="pf-ent" style="background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.25)"><i class="fas fa-concierge-bell" style="color:#f59e0b"></i>Premier Properties</div>
-    <div class="pf-ent" style="background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.25)"><i class="fas fa-building" style="color:#ef4444"></i>OpenKey</div>
-    <div class="pf-ent" style="background:rgba(59,130,246,.07);border-color:rgba(59,130,246,.25)"><i class="fas fa-water" style="color:#3b82f6"></i>Marietta City Hotel</div>
-    <div class="pf-ent" style="background:rgba(139,92,246,.07);border-color:rgba(139,92,246,.25)"><i class="fas fa-star" style="color:#8b5cf6"></i>The Reservoir</div>
-    <div class="pf-ent" style="background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.25)"><i class="fas fa-home" style="color:#10b981"></i>Pure Wellness</div>
-    <div class="pf-ent" style="background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.25)"><i class="fas fa-globe" style="color:#f59e0b"></i>Remington Hotels</div>
-  </div>
-
-  <div class="pf-callout pf-callout--b" style="max-width:700px">
-    <h5><i class="fas fa-route me-2"></i>Intelligent Entity Routing</h5>
-    <p>Claude reads invoice context — vendor, ship-to address, PO number — and assigns the correct entity code. No manual lookup required. Entity validation confirmed against Acumatica master before posting.</p>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════
-     WHERE CLAUDE AI FITS
-════════════════════════════════════════════════════════ -->
-<section class="pf-sec" style="margin-bottom:3rem">
-  <div class="pf-sec-head">
-    <span class="pf-tag pf-tag--v">AI Layer</span>
-    <h2>Where Claude AI Fits</h2>
-    <p>Four distinct roles across the AP/AR lifecycle — each replacing hours of skilled manual work.</p>
-  </div>
-  <div class="pf-ai-grid">
-    <div class="pf-ai-card">
-      <div class="pf-ai-card-em">🏷️</div>
-      <h5>GL Code Assignment</h5>
-      <p>Claude reads extracted invoice text and assigns the correct GL account based on vendor type, line item descriptions, and entity rules. Zero human lookup.</p>
-    </div>
-    <div class="pf-ai-card">
-      <div class="pf-ai-card-em">⚠️</div>
-      <h5>Exception Triage</h5>
-      <p>When validation fails, Claude drafts a structured exception narrative — what failed, why, and the recommended resolution — sent directly to the approver.</p>
-    </div>
-    <div class="pf-ai-card">
-      <div class="pf-ai-card-em">📧</div>
-      <h5>AR Collections</h5>
-      <p>AI-written collection emails matching tone and relationship context. Day 30, 60, 90 escalations crafted to maximize response rates without damaging relationships.</p>
-    </div>
-    <div class="pf-ai-card">
-      <div class="pf-ai-card-em">📊</div>
-      <h5>NL Reporting</h5>
-      <p>CFO asks "What's our AP exposure for Stirling this month?" and gets a structured plain-English summary — no BI tool or SQL query required.</p>
-    </div>
-  </div>
-
-  <div class="pf-callout pf-callout--g" style="max-width:700px">
-    <h5><i class="fas fa-lightbulb me-2"></i>The Pattern</h5>
-    <p>Azure services handle the <strong>structured data pipeline</strong>. Claude handles the <strong>judgment layer</strong> — coding, narrating, deciding, writing. Together they produce a fully automated finance back-office with no custom ML models required.</p>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════
-     DESIGN DECISIONS & TRADEOFFS
-════════════════════════════════════════════════════════ -->
-<section class="pf-sec">
-  <div class="pf-sec-head">
-    <span class="pf-tag pf-tag--a">Architecture</span>
-    <h2>Design Decisions &amp; Tradeoffs</h2>
-    <p>Every automation choice has cost, accuracy, and speed implications — here's why we chose what we did.</p>
-  </div>
-  <div class="pf-decisions">
-    <div class="pf-dec">
-      <div class="pf-dec-cat" style="background:rgba(59,130,246,.1);color:#2563eb">ROI Threshold</div>
-      <h5>Why 95% STP (Straight-Through Processing)?</h5>
-      <p>Manual invoice processing costs $15–40 per invoice. At 10,000 invoices/month, even 5% manual handling = 500 invoices × $25 avg = $12,500/month. The 95% STP threshold is the breakeven where automation ROI exceeds ML model maintenance costs. Below 90%, false positives erode reviewer trust in the system.</p>
-    </div>
-    <div class="pf-dec">
-      <div class="pf-dec-cat" style="background:rgba(239,68,68,.1);color:#dc2626">Fraud Prevention</div>
-      <h5>Why 3-Way Match Instead of 2-Way?</h5>
-      <p>2-way matching (PO vs. Invoice) catches pricing errors but misses quantity fraud — a vendor ships 80 units, invoices for 100, and the PO matches. 3-way adds the goods receipt (GRN), catching quantity discrepancies. Tradeoff: adds 2–3 days to payment cycle waiting for warehouse confirmation, but prevents an average 2.3% overpayment rate.</p>
-    </div>
-    <div class="pf-dec">
-      <div class="pf-dec-cat" style="background:rgba(245,158,11,.1);color:#b45309">Approval Economics</div>
-      <h5>Why Hierarchical Approval Routing?</h5>
-      <p>Flat approval sends everything to the department head — a bottleneck. Hierarchical routing: invoices under $5K auto-approve if 3-way matched, $5K–$50K to cost center manager, $50K+ requires VP. This cuts the approval queue by 73% (most invoices are under $5K) while maintaining controls where they matter.</p>
-    </div>
-    <div class="pf-dec">
-      <div class="pf-dec-cat" style="background:rgba(139,92,246,.1);color:#7c3aed">Classification Accuracy</div>
-      <h5>Why ML for GL Code Classification?</h5>
-      <p>Rule-based GL coding ("if vendor = AWS then 6200-Cloud") works for 80% of invoices but fails for multi-line invoices, new vendors, and ambiguous descriptions. A fine-tuned classifier on 2 years of history achieves 94% accuracy vs. 78% for rules. Tradeoff: requires quarterly retraining as the chart of accounts evolves.</p>
-    </div>
-    <div class="pf-dec">
-      <div class="pf-dec-cat" style="background:rgba(16,185,129,.1);color:#059669">Matching Pragmatics</div>
-      <h5>Why Tolerance-Based Instead of Exact Match?</h5>
-      <p>Real invoices rarely match POs exactly: a $10,000 PO arrives as $10,023.50 (shipping, tax). Exact matching flags 40% of invoices for manual review. A 2% tolerance on line items and 5% on total reduces false exceptions to 8%, while catching genuine discrepancies above the threshold.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════
-     PRODUCTION IMPLEMENTATION
-════════════════════════════════════════════════════════ -->
-<section class="pf-sec">
+<!-- ════════════════════════════ CODE ════════════════════════════ -->
+<section class="pf-sec" id="pf-code">
   <div class="pf-sec-head">
     <span class="pf-tag pf-tag--b">Production Code</span>
     <h2>Production Implementation</h2>
-    <p>Real code behind each pipeline stage — from document extraction to GL classification.</p>
+    <p>The three core algorithms &#x2014; extraction, matching, and classification &#x2014; that power the pipeline.</p>
   </div>
   <div class="pf-impl">
+
     <details>
-      <summary><i class="fas fa-file-alt me-2" style="color:var(--pf-blue)"></i>Invoice Data Extraction — Azure Form Recognizer (Python)</summary>
+      <summary><i class="fas fa-file-alt me-2" style="color:var(--pf-blue)"></i>Invoice Data Extraction &#x2014; Azure Form Recognizer (Python)</summary>
       <pre>from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.identity import DefaultAzureCredential
 import os
@@ -730,8 +678,9 @@ def _extract_lines(fields):
         })
     return lines</pre>
     </details>
+
     <details>
-      <summary><i class="fas fa-check-double me-2" style="color:var(--pf-emerald)"></i>3-Way Match Engine (Python)</summary>
+      <summary><i class="fas fa-check-double me-2" style="color:var(--pf-emerald)"></i>3-Way Match Engine &#x2014; PO / Invoice / GRN (Python)</summary>
       <pre>from dataclasses import dataclass
 from Levenshtein import distance as lev_distance
 
@@ -749,7 +698,7 @@ def three_way_match(po, invoice, grn) -&gt; MatchResult:
     """Compare PO, Invoice, and Goods Receipt line-by-line."""
     exceptions = []
 
-    # 1. Check GRN exists
+    # 1. GRN must exist before matching
     if grn is None:
         return MatchResult("exception", 0.0,
             [{"type": "MISSING_GRN",
@@ -765,7 +714,7 @@ def three_way_match(po, invoice, grn) -&gt; MatchResult:
                 "detail": f"PO line '{po_line['desc']}' not on invoice"})
             continue
 
-        # Price variance
+        # Price variance check
         diff = abs(best["amount"] - po_line["amount"])
         if diff / max(po_line["amount"], 0.01) &gt; TOLERANCE_LINE:
             exceptions.append({"type": "PRICE_VARIANCE",
@@ -783,7 +732,7 @@ def three_way_match(po, invoice, grn) -&gt; MatchResult:
         total_po  += po_line["amount"]
         total_inv += best["amount"]
 
-    # 3. Total tolerance
+    # 3. Total tolerance check
     if total_po &gt; 0:
         var = abs(total_inv - total_po) / total_po
         if var &gt; TOLERANCE_TOTAL:
@@ -804,8 +753,9 @@ def _fuzzy_find(target, candidates):
             best, best_d = c, d
     return best if best_d &lt; 3 else None</pre>
     </details>
+
     <details>
-      <summary><i class="fas fa-tags me-2" style="color:var(--pf-violet)"></i>GL Code Classifier — scikit-learn (Python)</summary>
+      <summary><i class="fas fa-tags me-2" style="color:var(--pf-violet)"></i>GL Code Classifier &#x2014; TF-IDF + Logistic Regression (Python)</summary>
       <pre>import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -813,7 +763,7 @@ from sklearn.pipeline import Pipeline
 
 CONFIDENCE_THRESHOLD = 0.70
 
-# ── Training ──────────────────────────────────────
+# ── Training ──────────────────────────────────────────────────────
 def train_gl_classifier(history_df):
     """Train on historical descriptions -&gt; GL codes.
     Expects columns: 'description', 'gl_code'."""
@@ -829,7 +779,7 @@ def train_gl_classifier(history_df):
     joblib.dump(pipe, "models/gl_classifier.pkl")
     return pipe
 
-# ── Prediction ────────────────────────────────────
+# ── Prediction ────────────────────────────────────────────────────
 def predict_gl(description: str, pipe=None):
     """Return GL code with confidence; top-3 fallback
     when confidence &lt; threshold."""
@@ -844,67 +794,143 @@ def predict_gl(description: str, pipe=None):
 
     if best_conf &gt;= CONFIDENCE_THRESHOLD:
         return {
-            "gl_code": best_code,
+            "gl_code":    best_code,
             "confidence": round(float(best_conf), 3),
-            "method": "auto",
+            "method":     "auto",
         }
 
-    # Low confidence: top 3 for human review
+    # Low confidence: surface top 3 for human review
     return {
-        "gl_code": best_code,
+        "gl_code":    best_code,
         "confidence": round(float(best_conf), 3),
-        "method": "review",
+        "method":     "review",
         "suggestions": [
-            {"gl_code": classes[i],
+            {"gl_code":    classes[i],
              "confidence": round(float(probas[i]), 3)}
             for i in top_idx[:3]
         ],
     }</pre>
     </details>
+
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     INNOVATION SPOTLIGHT
-════════════════════════════════════════════════════════ -->
-<section class="pf-sec" style="margin-bottom:3rem">
+<!-- ════════════════════════════ ABOUT ════════════════════════════ -->
+<section class="pf-sec" id="pf-about" style="padding-bottom:3rem">
   <div class="pf-sec-head">
-    <span class="pf-tag pf-tag--v">Innovation</span>
-    <h2>Innovation Spotlight</h2>
-    <p>Advanced techniques that go beyond standard AP automation.</p>
+    <span class="pf-tag pf-tag--g">About This Demo</span>
+    <h2>Technology Stack</h2>
+    <p>Every component in the AP/AR automation pipeline &#x2014; from email ingestion to ERP posting.</p>
   </div>
-  <div class="pf-twin">
-    <div class="pf-twin-card pf-twin-card--ap">
-      <div class="pf-twin-icon"><i class="fas fa-fingerprint"></i></div>
-      <h3>Duplicate Invoice Detection</h3>
-      <p class="sub">Locality-Sensitive Hashing for near-duplicate detection</p>
-      <p style="font-size:.78rem;opacity:.72;line-height:1.55">Instead of exact-match deduplication, the system uses MinHash LSH on invoice line items to detect near-duplicates — same vendor, similar amount ±$50, within 30 days. This catches the #1 AP fraud vector: resubmitted invoices with slightly modified numbers that slip past exact-match checks.</p>
-      <div class="pf-pill-row" style="margin-top:.75rem">
-        <span class="pf-pill pf-pill--b">MinHash LSH</span>
-        <span class="pf-pill pf-pill--v">Fraud Detection</span>
-      </div>
+  <div class="pf-about-card">
+    <div class="pf-about-title">Finance Process Flows &#x2014; AP/AR Automation</div>
+    <div class="pf-about-sub">Production-grade invoice processing pipeline for Ashford Hospitality's 9 entities</div>
+    <div class="pf-about-pills">
+      <span class="pf-about-pill">Azure Logic Apps</span>
+      <span class="pf-about-pill">Azure Document Intelligence</span>
+      <span class="pf-about-pill">Claude 3.5 Sonnet</span>
+      <span class="pf-about-pill">Azure Functions (Python)</span>
+      <span class="pf-about-pill">Acumatica Cloud ERP</span>
+      <span class="pf-about-pill">Azure Key Vault</span>
+      <span class="pf-about-pill">Azure SQL Database</span>
+      <span class="pf-about-pill">Power BI Embedded</span>
+      <span class="pf-about-pill">Azure Communication Services</span>
+      <span class="pf-about-pill">Azure Monitor</span>
+      <span class="pf-about-pill">Azure AD / RBAC</span>
+      <span class="pf-about-pill">scikit-learn TF-IDF</span>
+      <span class="pf-about-pill">MinHash LSH</span>
+      <span class="pf-about-pill">Python-Levenshtein</span>
+      <span class="pf-about-pill">OpenAPI 3.0</span>
     </div>
-    <div class="pf-twin-card pf-twin-card--ar">
-      <div class="pf-twin-icon"><i class="fas fa-tachometer-alt"></i></div>
-      <h3>Dynamic Approval Routing</h3>
-      <p class="sub">Spend velocity triggers automatic escalation</p>
-      <p style="font-size:.78rem;opacity:.72;line-height:1.55">Tracks rolling 30-day spend per vendor and cost center. When a cost center's spend velocity exceeds 120% of budget, ALL invoices for that center escalate one approval level — creating automatic spend controls without manual intervention or policy changes.</p>
-      <div class="pf-pill-row" style="margin-top:.75rem">
-        <span class="pf-pill pf-pill--g">Velocity Tracking</span>
-        <span class="pf-pill pf-pill--a">Auto-Escalation</span>
-      </div>
-    </div>
+    <button class="pf-share-btn" onclick="pfShareDemo()">
+      <i class="fas fa-share-alt me-2"></i>Share This Demo
+    </button>
   </div>
 </section>
 
-</div><!-- /pf-page-body -->
-
-{% endblock %}
-
+{% endblock content %}
 {% block extra_js %}
 <script>
-(function(){ 'use strict';
+(function(){'use strict';
 
+/* ─────────────── Progress bar + scroll spy ─────────────── */
+var pfFill = document.getElementById('pfProgressFill');
+var pfSections = ['pf-story','pf-demo','pf-classroom','pf-keypoints','pf-code','pf-about'];
+var pfTabs = document.querySelectorAll('.pf-nav-tab');
+
+function pfUpdateProgress(){
+  var sc = window.scrollY, h = document.body.scrollHeight - window.innerHeight;
+  if(pfFill) pfFill.style.width = (h > 0 ? Math.min(100, sc/h*100) : 0) + '%';
+  var best = 0;
+  pfSections.forEach(function(id, i){
+    var el = document.getElementById(id);
+    if(el && el.getBoundingClientRect().top <= window.innerHeight * 0.4) best = i;
+  });
+  pfTabs.forEach(function(t, i){ t.classList.toggle('active', i === best); });
+}
+window.addEventListener('scroll', pfUpdateProgress, {passive:true});
+pfUpdateProgress();
+
+/* ─────────────── Nav scroll ─────────────── */
+function pfScrollTo(id){
+  var el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+window.pfScrollTo = pfScrollTo;
+
+/* ─────────────── Mode toggle (ELI5 / Engineer) ─────────────── */
+function pfSetMode(mode){
+  var eli5 = document.getElementById('pfELI5Pane');
+  var eng  = document.getElementById('pfEngPane');
+  var bEli = document.getElementById('pfBtnELI5');
+  var bEng = document.getElementById('pfBtnEng');
+  if(mode === 'eli5'){
+    if(eli5) eli5.style.display = '';
+    if(eng)  eng.style.display  = 'none';
+    if(bEli) bEli.classList.add('active');
+    if(bEng) bEng.classList.remove('active');
+  } else {
+    if(eli5) eli5.style.display = 'none';
+    if(eng)  eng.style.display  = '';
+    if(bEli) bEli.classList.remove('active');
+    if(bEng) bEng.classList.add('active');
+  }
+}
+window.pfSetMode = pfSetMode;
+
+/* ─────────────── Classroom ─────────────── */
+var pfClsIdx = 0, pfClsTotal = 6;
+
+function pfClsRender(){
+  var slides = document.getElementById('pfClsSlides');
+  if(slides) slides.style.transform = 'translateX(-' + (pfClsIdx * 100) + '%)';
+  var dots = document.querySelectorAll('.pf-cls-dot');
+  dots.forEach(function(d,i){ d.classList.toggle('active', i === pfClsIdx); });
+  var ctr = document.getElementById('pfClsCounter');
+  if(ctr) ctr.textContent = (pfClsIdx+1) + ' / ' + pfClsTotal;
+}
+function pfClsNext(){ pfClsIdx = (pfClsIdx + 1) % pfClsTotal; pfClsRender(); }
+function pfClsPrev(){ pfClsIdx = (pfClsIdx - 1 + pfClsTotal) % pfClsTotal; pfClsRender(); }
+function pfClsGoto(i){ pfClsIdx = i; pfClsRender(); }
+window.pfClsNext = pfClsNext;
+window.pfClsPrev = pfClsPrev;
+window.pfClsGoto = pfClsGoto;
+
+/* ─────────────── Share ─────────────── */
+function pfShareDemo(){
+  if(navigator.share){
+    navigator.share({title:'Finance Process Flows — AI AP/AR Automation', url:window.location.href});
+  } else {
+    navigator.clipboard.writeText(window.location.href).then(function(){
+      alert('Link copied to clipboard!');
+    });
+  }
+}
+window.pfShareDemo = pfShareDemo;
+
+/* ═══════════════════════════════════════════════════════════
+   AP PIPELINE SIMULATOR
+   ═══════════════════════════════════════════════════════════ */
 var btnRun   = document.getElementById('btnRun');
 var btnReset = document.getElementById('btnReset');
 var stage    = document.getElementById('demoPipeline');
@@ -912,10 +938,9 @@ var dashWrap = document.getElementById('demoDashboard');
 var running  = false;
 var processed = [], totalPosted = 0, totalTime = 0;
 
-/* ── Helpers ── */
-function money(n){ return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',') }
-function wait(ms){ return new Promise(function(r){ setTimeout(r,ms) }) }
-function appendStep(html){ stage.insertAdjacentHTML('beforeend',html); stage.scrollTop=stage.scrollHeight }
+function money(n){ return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+function wait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+function appendStep(html){ stage.insertAdjacentHTML('beforeend',html); stage.scrollTop=stage.scrollHeight; }
 function addLog(msg){
   var la=document.getElementById('logArea');
   if(!la) return;
@@ -931,34 +956,21 @@ function setPip(idx,state){
   }
 }
 
-/* ── Fake data pools ── */
 var vendors=[
-  {name:'Acme Supplies Co.',category:'Office'},
-  {name:'Gulf Coast Electric',category:'Utilities'},
+  {name:'Acme Supplies Co.',    category:'Office'},
+  {name:'Gulf Coast Electric',  category:'Utilities'},
   {name:'Premier Tech Partners',category:'IT'},
-  {name:'Lone Star Linen',category:'Hospitality'},
-  {name:'Apex HVAC Solutions',category:'Maintenance'},
+  {name:'Lone Star Linen',      category:'Hospitality'},
+  {name:'Apex HVAC Solutions',  category:'Maintenance'},
   {name:'TechBridge Consulting',category:'Professional'},
-  {name:'Metro Food Services',category:'F&B'},
+  {name:'Metro Food Services',  category:'F&B'},
   {name:'National Printing Co.',category:'Marketing'}
 ];
 var entities=['Ashford Hospitality Trust','Remington Hotels','Stirling Hotels',
   'Premier Properties','Pure Wellness','OpenKey','The Reservoir'];
-var glCodes=[
-  {code:'6100',desc:'Office Supplies'},{code:'6200',desc:'Utilities'},
-  {code:'6300',desc:'IT Infrastructure'},{code:'6400',desc:'Linen & Laundry'},
-  {code:'6500',desc:'HVAC Maintenance'},{code:'6600',desc:'Professional Services'},
-  {code:'6700',desc:'Food & Beverage'},{code:'6800',desc:'Marketing & Print'}
-];
 var lineItems=['Monthly service agreement','Software license renewal','Equipment maintenance',
-  'Supplies for Q'+new Date().getMonth(),'Consulting hours','Staff training materials',
+  'Supplies Q'+new Date().getMonth(),'Consulting hours','Staff training materials',
   'Replacement parts','Subscription fee','Installation services'];
-
-/* ── Seeded PRNG (mulberry32) ── */
-function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function hashStr(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return Math.abs(h)}
-
-/* ── Rule-based GL classifier ── */
 var glRules={
   'Office':{code:'6100',desc:'Office Supplies',confidence:0.94},
   'Utilities':{code:'6200',desc:'Utilities',confidence:0.97},
@@ -970,13 +982,13 @@ var glRules={
   'Marketing':{code:'6800',desc:'Marketing & Print',confidence:0.90}
 };
 function classifyGL(vendor){
-  var rule=glRules[vendor.category];
-  if(rule) return {code:rule.code,desc:rule.desc,confidence:rule.confidence};
-  return {code:'6900',desc:'Uncategorized',confidence:0.45};
+  var r=glRules[vendor.category];
+  return r ? r : {code:'6900',desc:'Uncategorized',confidence:0.45};
 }
-
-function rand(a,rng){ return a[Math.floor((rng||Math.random)()*a.length)] }
-function randN(a,b,rng){ return +((rng||Math.random)()*(b-a)+a).toFixed(2) }
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+function hashStr(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return Math.abs(h);}
+function rand(a,rng){return a[Math.floor((rng||Math.random)()*a.length)];}
+function randN(a,b,rng){return +((rng||Math.random)()*(b-a)+a).toFixed(2);}
 
 var invoiceCounter=0;
 function genInvoice(){
@@ -988,7 +1000,7 @@ function genInvoice(){
   var gl=classifyGL(v);
   var n=2+Math.floor(rng()*3), items=[];
   for(var i=0;i<n;i++) items.push({desc:rand(lineItems,rng),amount:randN(120,3800,rng)});
-  var total=items.reduce(function(s,it){return s+it.amount},0);
+  var total=items.reduce(function(s,it){return s+it.amount;},0);
   return {
     num:'INV-'+Math.floor(rng()*90000+10000),
     vendor:v, gl:gl, entity:rand(entities,rng),
@@ -997,10 +1009,9 @@ function genInvoice(){
   };
 }
 
-/* ── STEP 1: Invoice received ── */
 function stepInvoice(inv){
   setPip(0,'active');
-  addLog('📥 Invoice received from <strong>'+inv.vendor.name+'</strong>');
+  addLog('&#x1F4E5; Invoice received from <strong>'+inv.vendor.name+'</strong>');
   var itemRows=inv.items.map(function(it){
     return '<div class="pf-inv-row"><span class="lbl">'+it.desc+'</span><span class="val">'+money(it.amount)+'</span></div>';
   }).join('');
@@ -1018,53 +1029,52 @@ function stepInvoice(inv){
   card.classList.add('vis');
   appendStep(
     '<div class="pf-step-card">'+
-    '<h6>📥 Step 1 — Invoice Received</h6>'+
+    '<h6>&#x1F4E5; Step 1 &mdash; Invoice Received</h6>'+
     '<p style="text-align:center;font-size:.82rem;margin:0">'+
     '<i class="fas fa-check-circle me-1" style="color:#10b981"></i>'+
-    inv.vendor.name+' — '+inv.num+' — '+money(inv.total)+'</p></div>'
+    inv.vendor.name+' &mdash; '+inv.num+' &mdash; '+money(inv.total)+'</p></div>'
   );
   setPip(0,'done');
   return wait(800);
 }
 
-/* ── STEP 2: OCR ── */
 function stepOCR(inv){
   setPip(1,'active');
-  addLog('👁️ Azure Document Intelligence scanning…');
+  addLog('&#x1F441;&#xFE0F; Azure Document Intelligence scanning&hellip;');
   var card=document.getElementById('invoiceCard');
   var sl=document.createElement('div'); sl.className='pf-scan'; card.appendChild(sl);
   appendStep(
     '<div class="pf-step-card" id="stepCard2">'+
-    '<h6>👁️ Step 2 — OCR Scanning</h6>'+
+    '<h6>&#x1F441;&#xFE0F; Step 2 &mdash; OCR Scanning</h6>'+
     '<p style="text-align:center;font-size:.85rem;margin:0" id="ocrStatus">'+
-    '<i class="fas fa-spinner fa-spin me-1" style="color:#3b82f6"></i> Scanning document…</p></div>'
+    '<i class="fas fa-spinner fa-spin me-1" style="color:#3b82f6"></i> Scanning document&hellip;</p></div>'
   );
   return wait(2200).then(function(){
     setPip(1,'done');
     document.getElementById('ocrStatus').innerHTML=
-      '<i class="fas fa-check-circle me-1" style="color:#10b981"></i> OCR complete — '+inv.items.length+' line items extracted';
-    addLog('✅ OCR complete — '+inv.items.length+' line items');
+      '<i class="fas fa-check-circle me-1" style="color:#10b981"></i> OCR complete &mdash; '+inv.items.length+' line items extracted';
+    addLog('&#x2705; OCR complete &mdash; '+inv.items.length+' line items');
     return wait(600);
   });
 }
 
-/* ── STEP 3: GL Coding ── */
 function stepCode(inv){
   setPip(2,'active');
-  addLog('🏷️ Claude AI assigning GL code…');
+  addLog('&#x1F3F7;&#xFE0F; GL classifier running&hellip;');
   var rows=inv.items.map(function(it){
     return '<tr><td>'+it.desc+'</td><td style="text-align:right;font-weight:600">'+money(it.amount)+'</td></tr>';
   }).join('');
   appendStep(
     '<div class="pf-step-card" id="stepCard3">'+
-    '<h6>🏷️ Step 3 — Extracted &amp; Auto-Coded</h6>'+
+    '<h6>&#x1F3F7;&#xFE0F; Step 3 &mdash; Extracted &amp; Auto-Coded</h6>'+
     '<div class="pf-xt">'+
     '<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>'+
     '<tr><td>Invoice #</td><td><strong>'+inv.num+'</strong></td></tr>'+
     '<tr><td>Vendor</td><td>'+inv.vendor.name+'</td></tr>'+
     '<tr><td>Entity</td><td>'+inv.entity+'</td></tr>'+
     '<tr><td style="color:var(--pf-blue);font-weight:700">GL Code (AI)</td>'+
-    '<td style="font-weight:700;color:var(--pf-blue)">'+inv.gl.code+' — '+inv.gl.desc+' <span style="opacity:.6;font-weight:400;font-size:.7rem">('+Math.round((inv.gl.confidence||0.9)*100)+'% conf)</span></td></tr>'+
+    '<td style="font-weight:700;color:var(--pf-blue)">'+inv.gl.code+' &mdash; '+inv.gl.desc+
+    ' <span style="opacity:.6;font-weight:400;font-size:.7rem">('+Math.round((inv.gl.confidence||0.9)*100)+'% conf)</span></td></tr>'+
     '<tr><td>Total</td><td><strong>'+money(inv.total)+'</strong></td></tr>'+
     '</tbody></table>'+
     '<table style="margin-top:.4rem"><thead><tr><th>Line Item</th><th>Amount</th></tr></thead>'+
@@ -1073,25 +1083,24 @@ function stepCode(inv){
   );
   return wait(1600).then(function(){
     setPip(2,'done');
-    addLog('🏷️ GL classified: <strong>'+inv.gl.code+'</strong> ('+Math.round((inv.gl.confidence||0.9)*100)+'% confidence)');
+    addLog('&#x1F3F7;&#xFE0F; GL classified: <strong>'+inv.gl.code+'</strong> ('+Math.round((inv.gl.confidence||0.9)*100)+'% confidence)');
     return wait(400);
   });
 }
 
-/* ── STEP 4: Validation ── */
 function stepValidate(inv){
   setPip(3,'active');
-  addLog('✅ Running CRM validation checks…');
+  addLog('&#x2705; Running validation checks&hellip;');
   appendStep(
     '<div class="pf-step-card" id="stepCard4">'+
-    '<h6>✅ Step 4 — CRM Validation</h6>'+
+    '<h6>&#x2705; Step 4 &mdash; Validation Checks</h6>'+
     '<div id="checkList"></div></div>'
   );
   var checks=[
-    {id:'ck0',label:'Vendor <strong>'+inv.vendor.name+'</strong> found in master'},
+    {id:'ck0',label:'Vendor <strong>'+inv.vendor.name+'</strong> in master'},
     {id:'ck1',label:'GL <strong>'+inv.gl.code+'</strong> valid for <strong>'+inv.entity+'</strong>'},
     {id:'ck2',label:'Amount <strong>'+money(inv.total)+'</strong> within approval threshold'},
-    {id:'ck3',label:'No duplicate for <strong>'+inv.num+'</strong>'},
+    {id:'ck3',label:'No duplicate found for <strong>'+inv.num+'</strong> (MinHash LSH)'},
     {id:'ck4',label:'Tax 8.25% matches Texas jurisdiction'}
   ];
   var cl=document.getElementById('checkList');
@@ -1114,15 +1123,14 @@ function stepValidate(inv){
   }
   return showCheck(0).then(function(){
     setPip(3,'done');
-    addLog('✅ All validation checks passed');
+    addLog('&#x2705; All validation checks passed');
     return wait(400);
   });
 }
 
-/* ── STEP 5: ERP Post ── */
 function stepERPPost(inv){
   setPip(4,'active');
-  addLog('📡 Posting to Acumatica REST API…');
+  addLog('&#x1F4E1; Posting to Acumatica REST API&hellip;');
   var j=
     '<span class="key">"endpoint"</span>: <span class="str">"POST /api/v2/payable"</span>,\n'+
     '<span class="key">"erp"</span>: <span class="str">"Acumatica Cloud ERP"</span>,\n'+
@@ -1134,22 +1142,21 @@ function stepERPPost(inv){
     '<span class="key">"status"</span>: <span class="str">"approved"</span>';
   appendStep(
     '<div class="pf-step-card" id="stepCard5">'+
-    '<h6>📡 Step 5 — ERP API Post</h6>'+
+    '<h6>&#x1F4E1; Step 5 &mdash; ERP API Post</h6>'+
     '<div class="pf-json">'+j+'</div>'+
     '<p style="text-align:center;margin-top:.7rem;font-size:.85rem;margin-bottom:0" id="erpStatus">'+
-    '<i class="fas fa-spinner fa-spin me-1" style="color:#3b82f6"></i> Posting to Acumatica…</p></div>'
+    '<i class="fas fa-spinner fa-spin me-1" style="color:#3b82f6"></i> Posting to Acumatica&hellip;</p></div>'
   );
   return wait(1800).then(function(){
     setPip(4,'done');
     document.getElementById('erpStatus').innerHTML=
       '<i class="fas fa-check-circle me-1" style="color:#10b981"></i>'+
-      ' <strong>HTTP 201 Created</strong> — '+inv.num+' posted successfully';
-    addLog('📡 HTTP 201 Created — <strong>'+inv.num+'</strong> posted');
+      ' <strong>HTTP 201 Created</strong> &mdash; '+inv.num+' posted successfully';
+    addLog('&#x1F4E1; HTTP 201 Created &mdash; <strong>'+inv.num+'</strong> posted');
     return wait(800);
   });
 }
 
-/* ── STEP 6: Dashboard ── */
 function stepDashboard(inv,elapsed){
   setPip(5,'active');
   dashWrap.style.display='block';
@@ -1165,28 +1172,27 @@ function stepDashboard(inv,elapsed){
     '<td>'+money(inv.total)+'</td>'+
     '<td><code>'+inv.gl.code+'</code></td>'+
     '<td>'+inv.entity+'</td>'+
-    '<td><span class="pf-ds posted">✅ Posted</span></td>'+
+    '<td><span class="pf-ds posted">&#x2705; Posted</span></td>'+
     '<td>'+elapsed.toFixed(1)+'s</td></tr>'
   );
   appendStep(
     '<div class="pf-step-card pf-step-card--ok" id="stepCard6">'+
-    '<h6>📊 Step 6 — Dashboard Updated</h6>'+
+    '<h6>&#x1F4CA; Step 6 &mdash; Dashboard Updated</h6>'+
     '<p style="text-align:center;font-size:.9rem;color:#10b981;font-weight:700;margin:0">'+
     '<i class="fas fa-check-double me-1"></i> '+inv.num+' fully processed in '+elapsed.toFixed(1)+'s</p>'+
     '<p style="text-align:center;font-size:.77rem;opacity:.6;margin:.25rem 0 0">'+
-    processed.length+' invoices — '+money(totalPosted)+' posted — 0 errors</p></div>'
+    processed.length+' invoices &mdash; '+money(totalPosted)+' posted &mdash; 0 errors</p></div>'
   );
   setPip(5,'done');
-  addLog('📊 Dashboard updated — '+processed.length+' invoice(s) posted');
+  addLog('&#x1F4CA; Dashboard updated &mdash; '+processed.length+' invoice(s) posted');
   return wait(600);
 }
 
-/* ── Main run / reset ── */
 function runDemo(){
   if(running) return;
   running=true;
   btnRun.disabled=true;
-  btnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Processing…';
+  btnRun.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i> Processing&hellip;';
   btnReset.style.display='none';
   var inv=genInvoice(), start=performance.now();
   stepInvoice(inv)
@@ -1194,9 +1200,7 @@ function runDemo(){
     .then(function(){ return stepCode(inv); })
     .then(function(){ return stepValidate(inv); })
     .then(function(){ return stepERPPost(inv); })
-    .then(function(){
-      return stepDashboard(inv,(performance.now()-start)/1000);
-    })
+    .then(function(){ return stepDashboard(inv,(performance.now()-start)/1000); })
     .then(function(){
       running=false;
       btnRun.disabled=false;
@@ -1205,6 +1209,7 @@ function runDemo(){
       document.getElementById('demoDashboard').scrollIntoView({behavior:'smooth',block:'nearest'});
     });
 }
+window.runDemo = runDemo;
 
 function resetDemo(){
   processed=[]; totalPosted=0; totalTime=0;
@@ -1219,8 +1224,9 @@ function resetDemo(){
   for(var i=0;i<6;i++) document.getElementById('pip'+i).classList.remove('active','done');
 }
 
-btnRun.addEventListener('click',runDemo);
-btnReset.addEventListener('click',resetDemo);
-})();
+if(btnRun)   btnRun.addEventListener('click', runDemo);
+if(btnReset) btnReset.addEventListener('click', resetDemo);
+
+}());
 </script>
-{% endblock %}
+{% endblock extra_js %}

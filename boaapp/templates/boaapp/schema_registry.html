@@ -4,26 +4,64 @@
 {% block container_class %}sreg-shell{% endblock %}
 {% block content %}
 <style>
+/* ══ base ══ */
 .sreg-shell{display:block;width:100%;max-width:100%;padding:0}
-:root{--sreg-accent:#f43f5e;--sreg-accent2:#e11d48;--sreg-surface:#fff;--sreg-border:rgba(0,0,0,.07);--sreg-shadow:0 2px 12px rgba(0,0,0,.06);--sreg-muted:#6b7280}
+:root{--sreg-accent:#f43f5e;--sreg-accent2:#e11d48;--sreg-surface:#fff;--sreg-border:rgba(0,0,0,.07);--sreg-shadow:0 2px 12px rgba(0,0,0,.06);--sreg-muted:#6b7280;--sreg-radius:16px}
 [data-theme="dark"]{--sreg-surface:rgba(22,10,14,.97);--sreg-border:rgba(255,255,255,.08);--sreg-shadow:0 2px 12px rgba(0,0,0,.35);--sreg-muted:#94a3b8}
 @keyframes sregUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes sregFlash{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
-.sreg-wrap{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
-.sreg-hero{text-align:center;padding:1.4rem 0 1rem;animation:sregUp .4s ease both}
+.sreg-wrap{max-width:1200px;margin:0 auto;padding:0 1.5rem 4rem}
+/* ══ progress bar ══ */
+.sreg-progress{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(244,63,94,.12);z-index:2000}
+.sreg-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#f43f5e,#f97316);transition:width .15s}
+/* ══ sticky nav ══ */
+.sreg-nav{position:sticky;top:0;z-index:999;display:flex;gap:.35rem;background:var(--sreg-surface);border-bottom:1px solid var(--sreg-border);padding:.55rem 1rem;backdrop-filter:blur(12px);flex-wrap:wrap}
+.sreg-nav-btn{padding:.32rem .85rem;border-radius:999px;font-size:.72rem;font-weight:700;border:1px solid transparent;background:transparent;cursor:pointer;color:var(--sreg-muted);transition:all .18s}
+.sreg-nav-btn:hover,.sreg-nav-btn.active{background:linear-gradient(135deg,#f43f5e,#f97316);color:#fff;border-color:transparent}
+/* ══ section ══ */
+.sreg-section{padding:2.4rem 0 1.2rem;animation:sregUp .5s ease both}
+.sreg-sec-head{text-align:center;margin-bottom:1.6rem}
+.sreg-sec-head h2{font-size:clamp(1.4rem,3vw,1.9rem);font-weight:800;margin-bottom:.3rem}
+.sreg-sec-head p{font-size:.88rem;color:var(--sreg-muted);max-width:560px;margin:0 auto;line-height:1.6}
+/* ══ hero ══ */
+.sreg-hero{text-align:center;padding:2.2rem 0 1.4rem;animation:sregUp .4s ease both}
 .sreg-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(244,63,94,.09);border:1px solid rgba(244,63,94,.2);color:var(--sreg-accent);margin-bottom:.65rem}
-.sreg-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#f43f5e,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
-.sreg-hero p{font-size:.84rem;color:var(--sreg-muted);max-width:580px;margin:0 auto;line-height:1.6}
-/* Layout */
-.sreg-body{display:grid;grid-template-columns:180px 1fr 220px;gap:1rem;margin-top:1rem}
+.sreg-hero h1{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:800;background:linear-gradient(135deg,#f43f5e,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.4rem}
+.sreg-hero p{font-size:.88rem;color:var(--sreg-muted);max-width:580px;margin:0 auto;line-height:1.6}
+/* ══ story ══ */
+.sreg-story-steps{display:grid;gap:1rem;max-width:900px;margin:0 auto}
+.sreg-step{display:flex;gap:1.1rem;align-items:flex-start;background:var(--sreg-surface);border:1px solid var(--sreg-border);border-radius:var(--sreg-radius);padding:1.1rem 1.3rem;box-shadow:var(--sreg-shadow)}
+.sreg-step-num{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f43f5e,#f97316);color:#fff;font-size:.78rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sreg-step-body h4{font-size:.88rem;font-weight:800;margin:0 0 .25rem}
+.sreg-step-body p{font-size:.82rem;color:var(--sreg-muted);margin:0;line-height:1.55}
+/* ══ demo mode bar ══ */
+.sreg-mode-bar{display:flex;gap:.5rem;max-width:700px;margin:0 auto 1.4rem;background:var(--sreg-surface);border:1px solid var(--sreg-border);border-radius:999px;padding:.25rem;box-shadow:var(--sreg-shadow)}
+.sreg-mode-tab{flex:1;padding:.38rem 0;border-radius:999px;font-size:.75rem;font-weight:700;border:none;background:transparent;cursor:pointer;color:var(--sreg-muted);transition:all .18s}
+.sreg-mode-tab.active{background:linear-gradient(135deg,#f43f5e,#f97316);color:#fff}
+/* ══ demo panes ══ */
+.sreg-pane{display:none}
+.sreg-pane.active{display:block}
+/* ══ ELI5 ══ */
+.sreg-persona-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;max-width:900px;margin:0 auto 1.2rem}
+@media(max-width:700px){.sreg-persona-grid{grid-template-columns:1fr 1fr}}
+.sreg-persona{background:var(--sreg-surface);border:2px solid var(--sreg-border);border-radius:var(--sreg-radius);padding:.9rem .7rem;text-align:center;cursor:pointer;transition:all .18s}
+.sreg-persona:hover,.sreg-persona.selected{border-color:var(--sreg-accent);box-shadow:0 0 0 3px rgba(244,63,94,.12)}
+.sreg-persona-icon{font-size:1.6rem;margin-bottom:.35rem}
+.sreg-persona-label{font-size:.75rem;font-weight:800;margin-bottom:.15rem}
+.sreg-persona-sub{font-size:.63rem;color:var(--sreg-muted)}
+.sreg-eli5-run{display:block;margin:.6rem auto 0;padding:.5rem 1.6rem;border-radius:999px;font-size:.78rem;font-weight:700;background:linear-gradient(135deg,#f43f5e,#f97316);color:#fff;border:none;cursor:pointer}
+.sreg-eli5-result{display:none;max-width:860px;margin:1.1rem auto 0;background:var(--sreg-surface);border:1px solid var(--sreg-border);border-radius:var(--sreg-radius);padding:1.2rem 1.4rem;box-shadow:var(--sreg-shadow)}
+.sreg-eli5-result.show{display:block}
+.sreg-eli5-title{font-size:.93rem;font-weight:800;margin-bottom:.65rem}
+.sreg-eli5-body{font-size:.83rem;color:var(--sreg-muted);line-height:1.65;margin-bottom:.85rem}
+.sreg-eli5-stats{display:flex;flex-wrap:wrap;gap:.5rem}
+.sreg-eli5-stat{font-size:.68rem;font-weight:700;padding:.25rem .7rem;border-radius:999px;background:rgba(244,63,94,.09);color:var(--sreg-accent);border:1px solid rgba(244,63,94,.14)}
+/* ══ Engineer pane — interactive demo ══ */
+.sreg-body{display:grid;grid-template-columns:180px 1fr 220px;gap:1rem}
 @media(max-width:900px){.sreg-body{grid-template-columns:1fr 1fr}}
 @media(max-width:580px){.sreg-body{grid-template-columns:1fr}}
-/* Panels */
-.sreg-panel{background:var(--sreg-surface);border:1px solid var(--sreg-border);border-radius:16px;box-shadow:var(--sreg-shadow);padding:1rem;animation:sregUp .45s ease both}
-.sreg-panel:nth-child(2){animation-delay:.07s}.sreg-panel:nth-child(3){animation-delay:.14s}
+.sreg-panel{background:var(--sreg-surface);border:1px solid var(--sreg-border);border-radius:var(--sreg-radius);box-shadow:var(--sreg-shadow);padding:1rem}
 .sreg-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:1px solid var(--sreg-border)}
 .sreg-panel-hd i{color:var(--sreg-accent);opacity:.8}
-/* Version timeline */
 .sreg-timeline{list-style:none;padding:0;margin:0;position:relative}
 .sreg-timeline::before{content:'';position:absolute;left:9px;top:4px;bottom:4px;width:2px;background:var(--sreg-border)}
 .sreg-tl-item{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem 0;cursor:pointer;border-radius:8px;position:relative;padding-left:6px;transition:background .15s}
@@ -36,7 +74,6 @@
 .sreg-tl-tag{display:inline-block;font-size:.55rem;font-weight:700;padding:.08rem .35rem;border-radius:4px;margin-top:.25rem}
 .sreg-tl-tag--safe{background:rgba(16,185,129,.1);color:#059669}
 .sreg-tl-tag--break{background:rgba(244,63,94,.1);color:#e11d48}
-/* Schema display */
 .sreg-code{background:rgba(0,0,0,.03);border:1px solid var(--sreg-border);border-radius:10px;padding:.85rem;font-size:.66rem;font-family:'Cascadia Code','JetBrains Mono',monospace;line-height:1.8;white-space:pre-wrap;min-height:260px;overflow-x:auto;position:relative}
 [data-theme="dark"] .sreg-code{background:rgba(255,255,255,.03)}
 .sreg-code .k{color:#f43f5e;font-weight:600}
@@ -46,20 +83,17 @@
 .sreg-code .field-new{background:rgba(16,185,129,.1);border-left:2px solid #10b981;padding-left:.2rem}
 .sreg-code .field-del{background:rgba(244,63,94,.1);border-left:2px solid #f43f5e;padding-left:.2rem;text-decoration:line-through;opacity:.7}
 .sreg-code .field-mod{background:rgba(245,158,11,.1);border-left:2px solid #f59e0b;padding-left:.2rem}
-/* Change buttons */
 .sreg-changes{display:flex;flex-direction:column;gap:.45rem;margin-bottom:.85rem}
 .sreg-change-btn{display:block;width:100%;padding:.42rem .7rem;border-radius:9px;font-size:.7rem;font-weight:700;border:1px solid var(--sreg-border);background:transparent;cursor:pointer;text-align:left;transition:all .18s}
 .sreg-change-btn:hover{border-color:var(--sreg-accent);color:var(--sreg-accent)}
 .sreg-change-btn .sreg-cb-tag{display:inline-block;font-size:.58rem;padding:.07rem .4rem;border-radius:4px;float:right;font-weight:700}
-.sreg-change-btn .sreg-cb-tag--safe{background:rgba(16,185,129,.15);color:#059669}
-.sreg-change-btn .sreg-cb-tag--break{background:rgba(244,63,94,.12);color:#e11d48}
-/* Compatibility check */
+.sreg-cb-tag--safe{background:rgba(16,185,129,.15);color:#059669}
+.sreg-cb-tag--break{background:rgba(244,63,94,.12);color:#e11d48}
 .sreg-compat-row{margin-bottom:.7rem}
 .sreg-compat-label{font-size:.65rem;font-weight:700;margin-bottom:.3rem;opacity:.6}
 .sreg-mode-group{display:flex;gap:.3rem}
 .sreg-mode-btn{flex:1;padding:.28rem 0;border-radius:7px;font-size:.62rem;font-weight:700;border:1px solid var(--sreg-border);background:transparent;cursor:pointer;transition:all .18s;color:var(--sreg-muted)}
 .sreg-mode-btn.active{background:linear-gradient(135deg,#f43f5e,#f97316);color:#fff;border-color:transparent}
-/* Result badge */
 .sreg-result{border-radius:12px;padding:.85rem;text-align:center;margin-top:.75rem;transition:all .3s}
 .sreg-result--compat{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25)}
 .sreg-result--incompat{background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25)}
@@ -69,170 +103,316 @@
 .sreg-result--incompat .sreg-result-title{color:#e11d48}
 .sreg-result-issues{list-style:none;padding:0;margin:0;text-align:left}
 .sreg-result-issues li{font-size:.64rem;padding:.2rem 0;display:flex;align-items:flex-start;gap:.35rem;color:var(--sreg-muted)}
-.sreg-result-issues li::before{content:'→';color:var(--sreg-accent);flex-shrink:0}
-/* Version metadata */
+.sreg-result-issues li::before{content:'&#x2192;';color:var(--sreg-accent);flex-shrink:0}
 .sreg-meta{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
 .sreg-meta-badge{display:inline-block;font-size:.6rem;font-weight:700;padding:.15rem .5rem;border-radius:6px;background:rgba(244,63,94,.08);color:var(--sreg-accent);border:1px solid rgba(244,63,94,.12)}
 .sreg-diff-hint{font-size:.65rem;color:var(--sreg-muted);margin-top:.5rem;display:flex;gap:1rem;flex-wrap:wrap}
 .sreg-diff-hint span{display:inline-flex;align-items:center;gap:.3rem}
 .sreg-diff-swatch{width:10px;height:10px;border-radius:2px}
-/* ── Section wrappers ── */
-.sreg-sec{padding:1.8rem 0;animation:sregUp .6s ease both}
-.sreg-sec-head{text-align:center;margin-bottom:1.4rem}
-.sreg-sec-head h2{font-size:1.55rem;font-weight:800;margin-bottom:.25rem}
-.sreg-sec-head p{font-size:.88rem;opacity:.65;max-width:540px;margin:0 auto}
-.sreg-stag{display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem}
-.sreg-stag--r{background:rgba(244,63,94,.11);color:#e11d48}
-.sreg-stag--b{background:rgba(59,130,246,.11);color:#2563eb}
-.sreg-stag--g{background:rgba(16,185,129,.11);color:#059669}
-.sreg-stag--a{background:rgba(245,158,11,.11);color:#b45309}
-/* ── Callout cards ── */
-.sreg-callout{border-radius:16px;padding:1.1rem 1.4rem;border:1px solid var(--sreg-border);background:var(--sreg-surface);box-shadow:var(--sreg-shadow)}
-.sreg-callout--r{border-color:rgba(244,63,94,.22);background:rgba(244,63,94,.04)}
-.sreg-callout h5{font-size:.88rem;font-weight:800;margin-bottom:.35rem}
-.sreg-callout p{font-size:.81rem;opacity:.75;margin:0;line-height:1.55}
-/* ── Design Decisions Grid ── */
-.sreg-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
-@media(max-width:700px){.sreg-decisions{grid-template-columns:1fr}}
-.sreg-impl{max-width:940px;margin:0 auto}
-.sreg-impl details{border-radius:14px;border:1px solid var(--sreg-border);background:var(--sreg-surface);margin-bottom:.8rem;overflow:hidden}
-.sreg-impl summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
-.sreg-impl summary::-webkit-details-marker{display:none}
-.sreg-impl summary::before{content:'▶';font-size:.6rem;transition:transform .2s}
-.sreg-impl details[open] summary::before{transform:rotate(90deg)}
-.sreg-impl pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--sreg-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
-.sreg-impl .kw{color:#c4b5fd}.sreg-impl .fn{color:#6ee7b7}.sreg-impl .str{color:#fcd34d}.sreg-impl .cm{color:#64748b;font-style:italic}.sreg-impl .num{color:#f97316}
-/* ── Demo column layout ── */
-.sreg-page-body{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
-.sreg-page-body>.sreg-sec{grid-column:1;min-width:0}
-.sreg-page-body>.sreg-sec--demo{grid-column:2;grid-row:1/span 99;position:sticky;top:1.5rem;align-self:start}
-@media(max-width:1099px){.sreg-page-body{grid-template-columns:1fr}.sreg-page-body>.sreg-sec--demo{grid-column:1;grid-row:auto;position:static}}
+/* ══ classroom ══ */
+.sreg-cls-wrap{max-width:860px;margin:0 auto}
+.sreg-cls-track{position:relative;min-height:260px}
+.sreg-cls-slide{display:none;animation:sregUp .35s ease}
+.sreg-cls-slide.active{display:block}
+.sreg-cls-slide h3{font-size:1.05rem;font-weight:800;margin-bottom:.65rem}
+.sreg-cls-slide p{font-size:.84rem;color:var(--sreg-muted);line-height:1.65;margin-bottom:.7rem}
+.sreg-cls-slide code{font-size:.78rem;background:rgba(244,63,94,.07);padding:.1rem .35rem;border-radius:4px;color:var(--sreg-accent)}
+.sreg-cls-num{font-size:.62rem;font-weight:700;color:var(--sreg-accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.45rem}
+.sreg-cls-formula{background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.14);border-radius:10px;padding:.65rem 1rem;font-size:.74rem;font-family:'Cascadia Code','JetBrains Mono',monospace;color:var(--sreg-accent);margin-top:.7rem}
+.sreg-cls-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.2rem}
+.sreg-cls-nav-btn{padding:.38rem 1.2rem;border-radius:999px;font-size:.78rem;font-weight:700;border:1px solid var(--sreg-border);background:var(--sreg-surface);cursor:pointer;transition:all .18s}
+.sreg-cls-nav-btn:hover{border-color:var(--sreg-accent);color:var(--sreg-accent)}
+.sreg-cls-dots{display:flex;gap:.5rem;align-items:center}
+.sreg-cls-dot{width:9px;height:9px;border-radius:50%;background:var(--sreg-border);cursor:pointer;transition:all .18s}
+.sreg-cls-dot.active{background:var(--sreg-accent);transform:scale(1.2)}
+/* ══ key points ══ */
+.sreg-kp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;max-width:900px;margin:0 auto}
+@media(max-width:700px){.sreg-kp-grid{grid-template-columns:1fr}}
+.sreg-kp{background:var(--sreg-surface);border:1px solid var(--sreg-border);border-radius:var(--sreg-radius);padding:1.2rem 1.4rem;box-shadow:var(--sreg-shadow)}
+.sreg-kp-icon{font-size:1.6rem;margin-bottom:.5rem}
+.sreg-kp h4{font-size:.9rem;font-weight:800;margin-bottom:.4rem}
+.sreg-kp p{font-size:.82rem;color:var(--sreg-muted);margin:0;line-height:1.55}
+/* ══ code blocks ══ */
+.sreg-code-blocks{max-width:900px;margin:0 auto}
+.sreg-code-block{border:1px solid var(--sreg-border);border-radius:var(--sreg-radius);background:var(--sreg-surface);margin-bottom:.85rem;overflow:hidden;box-shadow:var(--sreg-shadow)}
+.sreg-code-block summary{padding:.8rem 1.2rem;font-size:.83rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
+.sreg-code-block summary::-webkit-details-marker{display:none}
+.sreg-code-block summary::before{content:'&#x25B6;';font-size:.6rem;transition:transform .2s}
+.sreg-code-block[open] summary::before{transform:rotate(90deg)}
+.sreg-code-block pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.65;overflow-x:auto;border-top:1px solid var(--sreg-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
+.sreg-code-block code{background:none;padding:0;color:inherit}
+.sreg-code-block .kw{color:#c4b5fd}.sreg-code-block .fn{color:#6ee7b7}.sreg-code-block .str{color:#fcd34d}.sreg-code-block .cm{color:#64748b;font-style:italic}.sreg-code-block .num{color:#f97316}
+/* ══ about ══ */
+.sreg-about-card{max-width:600px;margin:0 auto;background:var(--sreg-surface);border:1px solid var(--sreg-border);border-radius:var(--sreg-radius);padding:1.8rem;text-align:center;box-shadow:var(--sreg-shadow)}
+.sreg-about-card h3{font-size:1.05rem;font-weight:800;margin-bottom:.6rem}
+.sreg-about-card p{font-size:.83rem;color:var(--sreg-muted);line-height:1.6;margin-bottom:.7rem}
+.sreg-share-btn{padding:.45rem 1.4rem;border-radius:999px;font-size:.78rem;font-weight:700;border:1px solid var(--sreg-border);background:var(--sreg-surface);cursor:pointer;transition:all .18s}
+.sreg-share-btn:hover{border-color:var(--sreg-accent);color:var(--sreg-accent)}
 </style>
 
+<div class="sreg-progress"><div class="sreg-progress-fill" id="sregProgressFill"></div></div>
+
+<nav class="sreg-nav" id="sregNav">
+  <button class="sreg-nav-btn active" onclick="sregScrollTo('sreg-story')">Story</button>
+  <button class="sreg-nav-btn" onclick="sregScrollTo('sreg-demo')">Demo</button>
+  <button class="sreg-nav-btn" onclick="sregScrollTo('sreg-classroom')">Classroom</button>
+  <button class="sreg-nav-btn" onclick="sregScrollTo('sreg-keypoints')">Key Points</button>
+  <button class="sreg-nav-btn" onclick="sregScrollTo('sreg-code')">Code</button>
+  <button class="sreg-nav-btn" onclick="sregScrollTo('sreg-about')">About</button>
+</nav>
+
 <div class="sreg-wrap">
-  <div class="sreg-hero">
-    <div class="sreg-tag"><i class="fas fa-file-code me-1"></i> Data Contracts</div>
-    <h1>Schema Registry</h1>
-    <p>Manage event schema evolution with strict backward/forward compatibility checking. Apply field changes and immediately see which breaks your consumers — before it hits production.</p>
-  </div>
 
-  <div class="sreg-page-body">
-  <section class="sreg-sec sreg-sec--demo">
-  <div class="sreg-body">
-    <!-- Version sidebar -->
-    <div class="sreg-panel">
-      <div class="sreg-panel-hd"><i class="fas fa-history"></i> Versions</div>
-      <ul class="sreg-timeline" id="sregTimeline"></ul>
-    </div>
+<div class="sreg-hero">
+  <div class="sreg-tag"><i class="fas fa-file-code me-1"></i> Data Contracts</div>
+  <h1>Schema Registry</h1>
+  <p>Manage event schema evolution with strict backward/forward compatibility checking. Apply field changes and immediately see which consumers break &#8212; before it reaches production.</p>
+</div>
 
-    <!-- Schema viewer -->
-    <div class="sreg-panel">
-      <div class="sreg-panel-hd"><i class="fas fa-code"></i> Schema — <span id="sregSubject">OrderEvent</span>
-        <span style="margin-left:.5rem;font-size:.68rem;font-weight:600;opacity:.5" id="sregVerBadge">v1</span>
-      </div>
-      <div class="sreg-meta" id="sregMeta"></div>
-      <div class="sreg-code" id="sregCodeView"></div>
-      <div class="sreg-diff-hint" id="sregDiffHint" style="display:none">
-        <span><span class="sreg-diff-swatch" style="background:rgba(16,185,129,.35)"></span>Added</span>
-        <span><span class="sreg-diff-swatch" style="background:rgba(244,63,94,.25)"></span>Removed</span>
-        <span><span class="sreg-diff-swatch" style="background:rgba(245,158,11,.25)"></span>Modified</span>
-      </div>
-    </div>
-
-    <!-- Compatibility panel -->
-    <div class="sreg-panel">
-      <div class="sreg-panel-hd"><i class="fas fa-shield-halved"></i> Change Simulator</div>
-
-      <div class="sreg-compat-label">Apply a Schema Change</div>
-      <div class="sreg-changes">
-        <button class="sreg-change-btn" data-change="add_safe">
-          <i class="fas fa-plus-circle" style="color:#10b981"></i> Add field w/ default
-          <span class="sreg-cb-tag sreg-cb-tag--safe">SAFE</span>
-        </button>
-        <button class="sreg-change-btn" data-change="remove_required">
-          <i class="fas fa-minus-circle" style="color:#f43f5e"></i> Remove required field
-          <span class="sreg-cb-tag sreg-cb-tag--break">⚡ BREAKING</span>
-        </button>
-        <button class="sreg-change-btn" data-change="rename_field">
-          <i class="fas fa-pen-to-square" style="color:#f43f5e"></i> Rename field
-          <span class="sreg-cb-tag sreg-cb-tag--break">⚡ BREAKING</span>
-        </button>
-        <button class="sreg-change-btn" data-change="change_type">
-          <i class="fas fa-arrows-rotate" style="color:#f43f5e"></i> Change field type
-          <span class="sreg-cb-tag sreg-cb-tag--break">⚡ BREAKING</span>
-        </button>
-        <button class="sreg-change-btn" data-change="reset" style="background:rgba(99,102,241,.06);border-color:rgba(99,102,241,.2)">
-          <i class="fas fa-undo" style="color:#6366f1"></i> Reset to v1
-        </button>
-      </div>
-
-      <div class="sreg-compat-label">Compatibility Mode</div>
-      <div class="sreg-mode-group" id="sregModes">
-        <button class="sreg-mode-btn active" data-mode="BACKWARD">BACKWARD</button>
-        <button class="sreg-mode-btn" data-mode="FORWARD">FORWARD</button>
-        <button class="sreg-mode-btn" data-mode="FULL">FULL</button>
-      </div>
-
-      <div id="sregResult" style="display:none"></div>
-    </div>
-  </div>
-  </section><!-- /sreg-sec--demo -->
-
-<!-- ═════════════════════ DESIGN DECISIONS & TRADEOFFS ═════════════════════ -->
-<section class="sreg-sec">
+<!-- ══ STORY ══ -->
+<section class="sreg-section" id="sreg-story">
   <div class="sreg-sec-head">
-    <span class="sreg-stag sreg-stag--r">Rationale</span>
-    <h2>Design Decisions &amp; Tradeoffs</h2>
-    <p>Every compatibility strategy has a reason — here's the "why" behind schema evolution architecture.</p>
+    <h2>The Story</h2>
+    <p>How unmanaged schema evolution brought down a Kafka-based order processing system &#8212; and how the registry fixed it.</p>
   </div>
-  <div class="sreg-decisions">
-
-    <div class="sreg-callout sreg-callout--r">
-      <h5><i class="fas fa-shield-halved" style="color:var(--sreg-accent)"></i> Why Backward Compatibility as the Default?</h5>
-      <p>In event-driven systems, consumers deploy independently from producers. When a producer adds a field, <b>old consumers must still read the new schema</b> (backward compatibility). Making backward compatibility the default ensures zero-downtime deployments: producers upgrade first, and consumers catch up on their own schedule. The tradeoff: backward compatibility <b>forbids removing fields or changing types</b>, which limits schema evolution flexibility.</p>
-      <span class="sreg-stag sreg-stag--b">COMPATIBILITY DEFAULT</span>
+  <div class="sreg-story-steps">
+    <div class="sreg-step">
+      <div class="sreg-step-num">1</div>
+      <div class="sreg-step-body"><h4>3:17 AM &#8212; Kafka Consumer Exception Storm</h4>
+      <p>PagerDuty fires 47 alerts simultaneously. The order processing consumer group is throwing <code>org.apache.avro.AvroTypeException: Expected int, found string</code>. The offending field: <code>user_id</code>. A developer changed it from <code>int</code> to <code>string</code> in a "minor" refactor. Six downstream consumers are crashing on every message.</p></div>
     </div>
-
-    <div class="sreg-callout sreg-callout--r">
-      <h5><i class="fas fa-file-code" style="color:#3b82f6"></i> Why Avro Over Protobuf for Schema Evolution?</h5>
-      <p>Avro schemas are stored separately from data (in the registry), enabling <b>schema evolution without recompiling consumers</b>. Protobuf embeds field numbers in the wire format, which is more efficient but requires recompilation when schemas change. For high-evolution environments (20+ schema changes/quarter), Avro's runtime schema resolution saves significant operational overhead. The tradeoff: Avro's wire format is <b>larger than Protobuf's</b> (no field number compression).</p>
-      <span class="sreg-stag sreg-stag--a">SERIALIZATION FORMAT</span>
+    <div class="sreg-step">
+      <div class="sreg-step-num">2</div>
+      <div class="sreg-step-body"><h4>The Root Cause &#8212; No Schema Contract Enforcement</h4>
+      <p>Schemas were embedded in application code and distributed via Git. No central registry, no compatibility checks. Three teams shared the OrderEvent schema &#8212; none knew about each other's assumptions. The producer updated <code>user_id</code> independently because the unit tests passed. The integration tests didn't cover Avro deserialization.</p></div>
     </div>
-
-    <div class="sreg-callout sreg-callout--r">
-      <h5><i class="fas fa-database" style="color:#10b981"></i> Why Schema Registry Instead of Embedded Schemas?</h5>
-      <p>Without a registry, every message carries its schema (bloating payloads) or consumers must know schemas in advance (tight coupling). The registry acts as a <b>single source of truth</b>: producers register schemas, consumers look them up by ID. This decouples producer/consumer deployment cycles. The tradeoff: the registry becomes a <b>single point of failure</b> — if it's down, new schemas can't be registered and unknown schema IDs can't be resolved.</p>
-      <span class="sreg-stag sreg-stag--g">CENTRALIZED GOVERNANCE</span>
+    <div class="sreg-step">
+      <div class="sreg-step-num">3</div>
+      <div class="sreg-step-body"><h4>Deploying Confluent Schema Registry</h4>
+      <p>The fix: a single Schema Registry as the contract layer between all producers and consumers. Every schema version is registered at deployment time. The registry enforces a compatibility mode &#8212; BACKWARD by default &#8212; that rejects breaking changes before they ever reach the wire. Producers that would break consumers are blocked at registration.</p></div>
     </div>
-
-    <div class="sreg-callout sreg-callout--r">
-      <h5><i class="fas fa-landmark" style="color:#f59e0b"></i> Why Full Compatibility for Financial Events?</h5>
-      <p>Financial events (payments, settlements) have regulatory requirements for data retention and replay. <b>Full compatibility</b> (both backward AND forward) ensures that any consumer version can read any producer version — critical when replaying 7-year-old events for audit. The tradeoff: full compatibility is the <b>most restrictive mode</b> — you can only add optional fields with defaults. No field removal, no type changes.</p>
-      <span class="sreg-stag sreg-stag--r">REGULATORY COMPLIANCE</span>
+    <div class="sreg-step">
+      <div class="sreg-step-num">4</div>
+      <div class="sreg-step-body"><h4>Three Compatibility Modes, Three Use Cases</h4>
+      <p><strong>BACKWARD</strong> (default): New consumer can read old messages. Allows adding optional fields with defaults. Used for most event streams. <strong>FORWARD</strong>: Old consumers can read new messages. Used when consumers can't be updated immediately. <strong>FULL</strong>: Both directions simultaneously. Mandatory for financial events subject to 7-year replay requirements.</p></div>
     </div>
-
-    <div class="sreg-callout sreg-callout--r">
-      <h5><i class="fas fa-code-branch" style="color:var(--sreg-accent)"></i> Why Semantic Versioning for Schemas?</h5>
-      <p>SemVer (MAJOR.MINOR.PATCH) communicates the <b>impact of schema changes</b>: PATCH = documentation/metadata only, MINOR = backward-compatible additions, MAJOR = breaking changes requiring consumer updates. This lets operations teams <b>automate deployment decisions</b>: auto-deploy MINOR/PATCH, require manual approval for MAJOR. Without SemVer, every schema change requires human review.</p>
-      <span class="sreg-stag sreg-stag--b">CHANGE COMMUNICATION</span>
+    <div class="sreg-step">
+      <div class="sreg-step-num">5</div>
+      <div class="sreg-step-body"><h4>Canary Migration for Breaking Changes</h4>
+      <p>When a MAJOR version change is unavoidable (e.g., splitting one field into two), the migration orchestrator deploys the new schema to 5% of traffic, monitors deserialization error rates for 15 minutes, then promotes to 100% if error rate stays below 0.1%. If it exceeds threshold, it rolls back to the previous version automatically &#8212; no human intervention required.</p></div>
     </div>
-
+    <div class="sreg-step">
+      <div class="sreg-step-num">6</div>
+      <div class="sreg-step-body"><h4>Zero Breaking Changes in 18 Months</h4>
+      <p>After adopting the registry with full CI/CD integration &#8212; schema compatibility check as a required pipeline step &#8212; the team shipped 87 schema versions across 14 subjects with zero production deserialization failures. Dead field detection identified 23 fields no consumer had read in 90 days, enabling a clean MAJOR version that reduced average message size by 31%.</p></div>
+    </div>
   </div>
 </section>
 
-<!-- ═════════════════════ PRODUCTION IMPLEMENTATION ═════════════════════ -->
-<section class="sreg-sec">
+<!-- ══ DEMO ══ -->
+<section class="sreg-section" id="sreg-demo">
   <div class="sreg-sec-head">
-    <span class="sreg-stag sreg-stag--b">Code</span>
-    <h2>Production Implementation</h2>
-    <p>Real Python code powering schema registration, compatibility checking, and migration orchestration.</p>
+    <h2>Interactive Demo</h2>
+    <p>Select an ELI5 persona to hear the plain-English story, or switch to Engineer mode for the live schema compatibility simulator.</p>
   </div>
-  <div class="sreg-impl">
+  <div class="sreg-mode-bar">
+    <button class="sreg-mode-tab active" data-pane="eli5" onclick="sregSetMode('eli5')">&#x1F4AC; ELI5 Mode</button>
+    <button class="sreg-mode-tab" data-pane="engineer" onclick="sregSetMode('engineer')">&#x2699;&#xFE0F; Engineer Mode</button>
+  </div>
 
-    <details>
-      <summary><i class="fas fa-server" style="color:#3b82f6"></i> Confluent Schema Registry Integration (Python)</summary>
-      <pre><span class="kw">from</span> confluent_kafka.schema_registry <span class="kw">import</span> SchemaRegistryClient, Schema
-<span class="kw">from</span> confluent_kafka.schema_registry.avro <span class="kw">import</span> AvroSerializer, AvroDeserializer
+  <!-- ELI5 pane -->
+  <div class="sreg-pane active" data-pane="eli5">
+    <div class="sreg-persona-grid">
+      <div class="sreg-persona" data-key="backend" onclick="sregSelectPersona('backend')">
+        <div class="sreg-persona-icon">&#x1F4BB;</div>
+        <div class="sreg-persona-label">Backend Dev</div>
+        <div class="sreg-persona-sub">API integration</div>
+      </div>
+      <div class="sreg-persona" data-key="dataeng" onclick="sregSelectPersona('dataeng')">
+        <div class="sreg-persona-icon">&#x1F4E1;</div>
+        <div class="sreg-persona-label">Data Engineer</div>
+        <div class="sreg-persona-sub">Kafka pipelines</div>
+      </div>
+      <div class="sreg-persona" data-key="architect" onclick="sregSelectPersona('architect')">
+        <div class="sreg-persona-icon">&#x1F3D7;&#xFE0F;</div>
+        <div class="sreg-persona-label">Platform Architect</div>
+        <div class="sreg-persona-sub">Contract governance</div>
+      </div>
+      <div class="sreg-persona" data-key="compliance" onclick="sregSelectPersona('compliance')">
+        <div class="sreg-persona-icon">&#x2696;&#xFE0F;</div>
+        <div class="sreg-persona-label">Compliance Officer</div>
+        <div class="sreg-persona-sub">7-year audit replay</div>
+      </div>
+    </div>
+    <button class="sreg-eli5-run" onclick="sregRunELI5()">&#x25B6; Explain It To Me</button>
+    <div class="sreg-eli5-result" id="sregELI5Result">
+      <div class="sreg-eli5-title" id="sregELI5Title"></div>
+      <div class="sreg-eli5-body" id="sregELI5Body"></div>
+      <div class="sreg-eli5-stats" id="sregELI5Stats"></div>
+    </div>
+  </div>
+
+  <!-- Engineer pane — original interactive demo -->
+  <div class="sreg-pane" data-pane="engineer">
+    <div class="sreg-body">
+      <div class="sreg-panel">
+        <div class="sreg-panel-hd"><i class="fas fa-history"></i> Versions</div>
+        <ul class="sreg-timeline" id="sregTimeline"></ul>
+      </div>
+      <div class="sreg-panel">
+        <div class="sreg-panel-hd"><i class="fas fa-code"></i> Schema &#8212; <span id="sregSubject">OrderEvent</span>
+          <span style="margin-left:.5rem;font-size:.68rem;font-weight:600;opacity:.5" id="sregVerBadge">v1</span>
+        </div>
+        <div class="sreg-meta" id="sregMeta"></div>
+        <div class="sreg-code" id="sregCodeView"></div>
+        <div class="sreg-diff-hint" id="sregDiffHint" style="display:none">
+          <span><span class="sreg-diff-swatch" style="background:rgba(16,185,129,.35)"></span>Added</span>
+          <span><span class="sreg-diff-swatch" style="background:rgba(244,63,94,.25)"></span>Removed</span>
+          <span><span class="sreg-diff-swatch" style="background:rgba(245,158,11,.25)"></span>Modified</span>
+        </div>
+      </div>
+      <div class="sreg-panel">
+        <div class="sreg-panel-hd"><i class="fas fa-shield-halved"></i> Change Simulator</div>
+        <div class="sreg-compat-label">Apply a Schema Change</div>
+        <div class="sreg-changes">
+          <button class="sreg-change-btn" data-change="add_safe">
+            <i class="fas fa-plus-circle" style="color:#10b981"></i> Add field w/ default
+            <span class="sreg-cb-tag sreg-cb-tag--safe">SAFE</span>
+          </button>
+          <button class="sreg-change-btn" data-change="remove_required">
+            <i class="fas fa-minus-circle" style="color:#f43f5e"></i> Remove required field
+            <span class="sreg-cb-tag sreg-cb-tag--break">&#x26A1; BREAKING</span>
+          </button>
+          <button class="sreg-change-btn" data-change="rename_field">
+            <i class="fas fa-pen-to-square" style="color:#f43f5e"></i> Rename field
+            <span class="sreg-cb-tag sreg-cb-tag--break">&#x26A1; BREAKING</span>
+          </button>
+          <button class="sreg-change-btn" data-change="change_type">
+            <i class="fas fa-arrows-rotate" style="color:#f43f5e"></i> Change field type
+            <span class="sreg-cb-tag sreg-cb-tag--break">&#x26A1; BREAKING</span>
+          </button>
+          <button class="sreg-change-btn" data-change="reset" style="background:rgba(99,102,241,.06);border-color:rgba(99,102,241,.2)">
+            <i class="fas fa-undo" style="color:#6366f1"></i> Reset to v1
+          </button>
+        </div>
+        <div class="sreg-compat-label">Compatibility Mode</div>
+        <div class="sreg-mode-group" id="sregModes">
+          <button class="sreg-mode-btn active" data-mode="BACKWARD">BACKWARD</button>
+          <button class="sreg-mode-btn" data-mode="FORWARD">FORWARD</button>
+          <button class="sreg-mode-btn" data-mode="FULL">FULL</button>
+        </div>
+        <div id="sregResult" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CLASSROOM ══ -->
+<section class="sreg-section" id="sreg-classroom">
+  <div class="sreg-sec-head">
+    <h2>Classroom</h2>
+    <p>Six concepts from event serialization basics to transitive compatibility graphs &#8212; building from fundamentals to advanced production patterns.</p>
+  </div>
+  <div class="sreg-cls-wrap">
+    <div class="sreg-cls-track">
+      <div class="sreg-cls-slide active" data-slide="0">
+        <div class="sreg-cls-num">Slide 1 of 6</div>
+        <h3>Why Schema Evolution Matters in Event Streaming</h3>
+        <p>In a monolithic application, changing a data structure is a single deployment. In an event-driven microservices architecture, the producer and every consumer deploy independently. A field renamed in the producer breaks every consumer that references the old name &#8212; and there may be 15 consumers you don&#39;t know about.</p>
+        <p>Kafka retains messages for days or weeks (or indefinitely in compacted topics). Consumers restart and replay old messages. Even if all consumers are updated simultaneously, replaying old events against new code will fail unless the schema change is backward-compatible. Schema evolution isn&#39;t just a deployment concern &#8212; it&#39;s a data durability concern.</p>
+        <div class="sreg-cls-formula">Problem: Producer changes schema &#8594; Consumer crashes on old messages &#8594; Entire Kafka lag backlog must be replayed</div>
+      </div>
+      <div class="sreg-cls-slide" data-slide="1">
+        <div class="sreg-cls-num">Slide 2 of 6</div>
+        <h3>Avro vs. Protobuf vs. JSON Schema</h3>
+        <p>Three serialization formats, three tradeoffs. <strong>JSON Schema</strong>: human readable, easy to debug, largest payload. No support for union types or schema evolution semantics. Best for REST APIs where developer experience matters more than throughput.</p>
+        <p><strong>Protobuf</strong>: smallest payload, fastest serialization, strongly typed. Schema evolution via field number stability &#8212; don&#39;t reuse field numbers. Requires recompilation when schemas change. Best for gRPC inter-service communication. <strong>Avro</strong>: medium payload, schema stored separately from data (in registry), runtime schema resolution without recompile. The native choice for Kafka because the registry integration is first-class. Best for high-cardinality event streams with frequent schema evolution.</p>
+        <div class="sreg-cls-formula">Kafka + Avro + Schema Registry = producer stores schema ID (4 bytes) in message header &#8594; consumer fetches schema by ID</div>
+      </div>
+      <div class="sreg-cls-slide" data-slide="2">
+        <div class="sreg-cls-num">Slide 3 of 6</div>
+        <h3>Backward Compatibility Deep Dive</h3>
+        <p>Backward compatibility answers: <em>can a new consumer version read messages written by an old producer version?</em> This is the most important property for rolling deployments where consumers update before producers (or independently).</p>
+        <p>Rules for backward-compatible changes: (1) You may add new fields IF they have a default value. Old messages won&#39;t have the field &#8212; the default fills in. (2) You may remove fields that had a default. Old messages that include the field &#8212; it gets ignored. Forbidden: removing required fields (no default), changing field types, renaming fields (Avro has no rename concept &#8212; it&#39;s a delete + add, which breaks).</p>
+        <div class="sreg-cls-formula">Safe: add field with default &#8594; Breaks: remove required field &#8594; Breaks: rename field (delete+add) &#8594; Breaks: type change</div>
+      </div>
+      <div class="sreg-cls-slide" data-slide="3">
+        <div class="sreg-cls-num">Slide 4 of 6</div>
+        <h3>Forward Compatibility &#8212; When Producers Upgrade First</h3>
+        <p>Forward compatibility answers: <em>can an old consumer version read messages written by a new producer?</em> This scenario occurs when the producer deploys first (canary) and old consumers are still running. The old consumer must be able to parse the new message format.</p>
+        <p>Forward-compatible rules mirror backward: new fields must have defaults (so old consumers can ignore them), removed fields must have had defaults (old consumers that reference them get the default). The critical difference from backward: in forward mode, the consumer is the "old" code reading "new" data. You need defaults on the producer side (new schema) so old readers can skip unknown fields.</p>
+        <div class="sreg-cls-formula">FORWARD = old consumer + new producer data &#8594; BACKWARD = new consumer + old producer data &#8594; FULL = both simultaneously</div>
+      </div>
+      <div class="sreg-cls-slide" data-slide="4">
+        <div class="sreg-cls-num">Slide 5 of 6</div>
+        <h3>Full Compatibility for Financial Event Replay</h3>
+        <p>FULL compatibility is the intersection of BACKWARD and FULL &#8212; the most restrictive mode. You can only add optional fields with defaults, and only remove fields that already had defaults. No type changes, no renames, no removing required fields. Ever.</p>
+        <p>The financial services use case makes this mandatory: MiFID II, SOX, and Dodd-Frank require 7-year retention and replay of transaction events. A compliance team might replay 5-year-old payment events against today&#39;s fraud models. FULL compatibility guarantees that any consumer version &#8212; from 2019 or 2026 &#8212; can deserialize any message in the topic, regardless of when it was produced. Without FULL compatibility, some version combinations will silently corrupt or crash.</p>
+        <div class="sreg-cls-formula">MiFID II: 7-year replay &#8594; FULL compatibility required &#8594; only additive changes with defaults &#8594; no field removal, no type changes</div>
+      </div>
+      <div class="sreg-cls-slide" data-slide="5">
+        <div class="sreg-cls-num">Slide 6 of 6</div>
+        <h3>Transitive Compatibility Graphs</h3>
+        <p>Standard registry implementations check compatibility only between adjacent versions: v3 vs v4, v4 vs v5. This misses a dangerous edge case: v1&#8594;v3 may be compatible, v3&#8594;v5 may be compatible, but v1&#8594;v5 may NOT be compatible. This happens when a field was removed in v3 with a default, then the default value was changed in v5.</p>
+        <p>The fix: build a full pairwise compatibility graph across all registered versions. This is computationally expensive &#8212; O(n&#178;) version checks &#8212; but critical for long-lived topics with many versions. Practical optimization: check compatibility against the earliest version still in the topic retention window, plus all currently active consumer versions (from consumer group lag metrics).</p>
+        <div class="sreg-cls-formula">Graph check: check_compat(v1, v_new) &#8594; check_compat(v2, v_new) &#8594; ... &#8594; check_compat(v_latest, v_new) &#8594; all must pass</div>
+      </div>
+    </div>
+    <div class="sreg-cls-nav">
+      <button class="sreg-cls-nav-btn" onclick="sregClsPrev()">&#8592; Prev</button>
+      <div class="sreg-cls-dots" id="sregClsDots">
+        <div class="sreg-cls-dot active" onclick="sregGotoClsDot(0)"></div>
+        <div class="sreg-cls-dot" onclick="sregGotoClsDot(1)"></div>
+        <div class="sreg-cls-dot" onclick="sregGotoClsDot(2)"></div>
+        <div class="sreg-cls-dot" onclick="sregGotoClsDot(3)"></div>
+        <div class="sreg-cls-dot" onclick="sregGotoClsDot(4)"></div>
+        <div class="sreg-cls-dot" onclick="sregGotoClsDot(5)"></div>
+      </div>
+      <button class="sreg-cls-nav-btn" onclick="sregClsNext()">Next &#8594;</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ KEY POINTS ══ -->
+<section class="sreg-section" id="sreg-keypoints">
+  <div class="sreg-sec-head">
+    <h2>Key Engineering Points</h2>
+    <p>Four architectural decisions that determine whether schema governance actually works in production.</p>
+  </div>
+  <div class="sreg-kp-grid">
+    <div class="sreg-kp">
+      <div class="sreg-kp-icon">&#x26D4;</div>
+      <h4>Registry as a CI/CD Gate</h4>
+      <p>The most impactful deployment: add schema compatibility check as a required step in the CI/CD pipeline. Before any producer deploys, the pipeline runs <code>test_compatibility()</code> against the registry. If it fails, the build fails. This moves the detection from runtime (production crash) to build time &#8212; a 100x improvement in the cost of catching the defect.</p>
+    </div>
+    <div class="sreg-kp">
+      <div class="sreg-kp-icon">&#x1F9F5;</div>
+      <h4>Avro Union Types Enable Gradual Migration</h4>
+      <p>When a field type must change, the Avro union type enables gradual migration: change the type from <code>string</code> to <code>["null", "string", "int"]</code>. Producers write both the old and new format. Consumers handle all three variants. After all consumers migrate, the producer removes the old variant. This makes what would be a BREAKING change into a three-phase SAFE migration.</p>
+    </div>
+    <div class="sreg-kp">
+      <div class="sreg-kp-icon">&#x1F480;</div>
+      <h4>Dead Field Detection Prevents Schema Bloat</h4>
+      <p>After 3 years of schema evolution, topics accumulate fields that no consumer reads. These "dead fields" waste serialization bandwidth and confuse new developers. Correlate Avro deserializer field access patterns with consumer group activity: a field with zero reads in 90 days, from any active consumer, is a dead field. MAJOR version cleanup removes them with a coordinated deprecation cycle.</p>
+    </div>
+    <div class="sreg-kp">
+      <div class="sreg-kp-icon">&#x1F4CA;</div>
+      <h4>Schema ID in Message Header, Not Payload</h4>
+      <p>The Confluent wire format prepends a 5-byte magic byte + schema ID to every Avro message. Consumers use this ID to fetch the writer schema from the registry, then apply it against their local reader schema for field resolution. This means schema metadata costs only 5 bytes per message (not the full JSON schema), and the registry caches frequently-used schemas in the consumer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CODE ══ -->
+<section class="sreg-section" id="sreg-code">
+  <div class="sreg-sec-head">
+    <h2>Production Code</h2>
+    <p>Four patterns: registry client integration, compatibility checking, canary migration orchestration, and the transitive compatibility graph.</p>
+  </div>
+  <div class="sreg-code-blocks">
+    <details class="sreg-code-block">
+      <summary><i class="fas fa-server" style="color:var(--sreg-accent)"></i>&nbsp;Confluent Schema Registry Client (Python)</summary>
+      <pre><code><span class="kw">from</span> confluent_kafka.schema_registry <span class="kw">import</span> SchemaRegistryClient, Schema
 <span class="kw">import</span> json, logging
 
 logger = logging.getLogger(<span class="str">"schema_registry"</span>)
@@ -240,411 +420,436 @@ logger = logging.getLogger(<span class="str">"schema_registry"</span>)
 <span class="kw">class</span> <span class="fn">SchemaManager</span>:
     <span class="cm">"""Manages Avro schema lifecycle against Confluent Schema Registry."""</span>
 
-    <span class="kw">def</span> <span class="fn">__init__</span>(self, registry_url: <span class="kw">str</span>, auth: <span class="kw">tuple</span> = <span class="kw">None</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, registry_url: str, auth: tuple = None):
         conf = {<span class="str">'url'</span>: registry_url}
         <span class="kw">if</span> auth:
-            conf[<span class="str">'basic.auth.user.info'</span>] = <span class="str">f"{auth[0]}:{auth[1]}"</span>
+            conf[<span class="str">'basic.auth.user.info'</span>] = f<span class="str">"{auth[0]}:{auth[1]}"</span>
         self.client = SchemaRegistryClient(conf)
 
-    <span class="kw">def</span> <span class="fn">register_with_compat_check</span>(self, subject: <span class="kw">str</span>,
-                                    schema_str: <span class="kw">str</span>) -> <span class="kw">int</span>:
+    <span class="kw">def</span> <span class="fn">register_with_compat_check</span>(self, subject: str, schema_str: str) -> int:
         <span class="cm">"""Register schema only if it passes compatibility check."""</span>
         schema = Schema(schema_str, <span class="str">'AVRO'</span>)
-        <span class="cm"># Pre-flight compatibility test before registration</span>
         <span class="kw">try</span>:
-            is_compat = self.client.test_compatibility(
-                subject, schema
-            )
+            is_compat = self.client.test_compatibility(subject, schema)
             <span class="kw">if not</span> is_compat:
-                logger.error(<span class="str">f"Schema incompatible with {subject}"</span>)
-                <span class="kw">raise</span> <span class="fn">ValueError</span>(
-                    <span class="str">f"Schema breaks {subject} compatibility"</span>
-                )
+                <span class="kw">raise</span> <span class="fn">ValueError</span>(f<span class="str">"Schema breaks {subject} compatibility"</span>)
         <span class="kw">except</span> Exception <span class="kw">as</span> e:
-            <span class="kw">if</span> <span class="str">'40401'</span> <span class="kw">not in</span> <span class="kw">str</span>(e):  <span class="cm"># First schema — no prior version</span>
+            <span class="kw">if</span> <span class="str">'40401'</span> <span class="kw">not in</span> str(e):  <span class="cm"># First schema — no prior version</span>
                 <span class="kw">raise</span>
         schema_id = self.client.register_schema(subject, schema)
-        logger.info(<span class="str">f"Registered {subject} v{schema_id}"</span>)
+        logger.info(f<span class="str">"Registered {subject} id={schema_id}"</span>)
         <span class="kw">return</span> schema_id
 
-    <span class="kw">def</span> <span class="fn">resolve_for_consumer</span>(self, schema_id: <span class="kw">int</span>) -> <span class="kw">dict</span>:
-        <span class="cm">"""Resolve schema by ID during consumption (cached)."""</span>
-        schema = self.client.get_schema(schema_id)
-        <span class="kw">return</span> json.loads(schema.schema_str)
-
-    <span class="kw">def</span> <span class="fn">set_compatibility</span>(self, subject: <span class="kw">str</span>,
-                          level: <span class="kw">str</span> = <span class="str">'BACKWARD'</span>) -> <span class="kw">None</span>:
-        <span class="cm">"""Set subject-level compatibility (overrides global)."""</span>
+    <span class="kw">def</span> <span class="fn">set_compatibility</span>(self, subject: str, level: str = <span class="str">'BACKWARD'</span>):
+        <span class="cm">"""BACKWARD | FORWARD | FULL | NONE — subject-level override."""</span>
         self.client.set_compatibility(subject, level)
-        logger.info(<span class="str">f"{subject} compatibility → {level}"</span>)</pre>
+
+    <span class="kw">def</span> <span class="fn">get_all_versions</span>(self, subject: str) -> list[dict]:
+        versions = self.client.get_versions(subject)
+        <span class="kw">return</span> [json.loads(self.client.get_version(subject, v).schema.schema_str)
+                <span class="kw">for</span> v <span class="kw">in</span> versions]</code></pre>
     </details>
-
-    <details>
-      <summary><i class="fas fa-shield-halved" style="color:var(--sreg-accent)"></i> Schema Compatibility Checker (Python)</summary>
-      <pre><span class="kw">from</span> typing <span class="kw">import</span> List, Dict, Optional
-<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
-
-<span class="kw">@dataclass</span>
-<span class="kw">class</span> <span class="fn">CompatIssue</span>:
-    field: <span class="kw">str</span>
-    issue_type: <span class="kw">str</span>   <span class="cm"># 'REMOVED' | 'TYPE_CHANGED' | 'MISSING_DEFAULT'</span>
-    message: <span class="kw">str</span>
-    breaking: <span class="kw">bool</span> = <span class="kw">True</span>
-
-<span class="kw">def</span> <span class="fn">check_backward</span>(writer: <span class="kw">dict</span>, reader: <span class="kw">dict</span>) -> List[CompatIssue]:
-    <span class="cm">"""Backward: can NEW reader read OLD writer data?
-    All writer fields must exist in reader OR have defaults."""</span>
-    issues = []
-    reader_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> reader[<span class="str">'fields'</span>]}
-    writer_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> writer[<span class="str">'fields'</span>]}
-    <span class="cm"># Writer field removed from reader → break</span>
-    <span class="kw">for</span> name, wf <span class="kw">in</span> writer_fields.items():
-        <span class="kw">if</span> name <span class="kw">not in</span> reader_fields:
-            issues.append(CompatIssue(name, <span class="str">'REMOVED'</span>,
-                <span class="str">f'Field "{name}" in writer but missing from reader'</span>))
-        <span class="kw">elif</span> reader_fields[name][<span class="str">'type'</span>] != wf[<span class="str">'type'</span>]:
-            <span class="cm"># Handle union promotion: ["null", "string"] compat with "string"</span>
-            <span class="kw">if not</span> _union_compatible(wf[<span class="str">'type'</span>], reader_fields[name][<span class="str">'type'</span>]):
-                issues.append(CompatIssue(name, <span class="str">'TYPE_CHANGED'</span>,
-                    <span class="str">f'"{name}": {wf["type"]} → {reader_fields[name]["type"]}'</span>))
-    <span class="cm"># New reader fields without defaults → break on old data</span>
-    <span class="kw">for</span> name, rf <span class="kw">in</span> reader_fields.items():
-        <span class="kw">if</span> name <span class="kw">not in</span> writer_fields <span class="kw">and</span> <span class="str">'default'</span> <span class="kw">not in</span> rf:
-            issues.append(CompatIssue(name, <span class="str">'MISSING_DEFAULT'</span>,
-                <span class="str">f'New field "{name}" has no default — old data breaks'</span>))
-    <span class="kw">return</span> issues
-
-<span class="kw">def</span> <span class="fn">check_forward</span>(writer: <span class="kw">dict</span>, reader: <span class="kw">dict</span>) -> List[CompatIssue]:
-    <span class="cm">"""Forward: can OLD reader read NEW writer data?
-    Symmetric of backward — old consumers must handle new fields."""</span>
-    issues = []
-    reader_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> reader[<span class="str">'fields'</span>]}
-    writer_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> writer[<span class="str">'fields'</span>]}
-    <span class="kw">for</span> name, wf <span class="kw">in</span> writer_fields.items():
-        <span class="kw">if</span> name <span class="kw">not in</span> reader_fields <span class="kw">and</span> <span class="str">'default'</span> <span class="kw">not in</span> wf:
-            issues.append(CompatIssue(name, <span class="str">'MISSING_DEFAULT'</span>,
-                <span class="str">f'New field "{name}" required — old reader can\'t parse'</span>))
-        <span class="kw">elif</span> name <span class="kw">in</span> reader_fields:
-            <span class="kw">if</span> reader_fields[name][<span class="str">'type'</span>] != wf[<span class="str">'type'</span>]:
-                <span class="kw">if not</span> _union_compatible(wf[<span class="str">'type'</span>], reader_fields[name][<span class="str">'type'</span>]):
-                    issues.append(CompatIssue(name, <span class="str">'TYPE_CHANGED'</span>,
-                        <span class="str">f'Type change on "{name}" — forward readers fail'</span>))
-    <span class="kw">return</span> issues
-
-<span class="kw">def</span> <span class="fn">check_full</span>(writer: <span class="kw">dict</span>, reader: <span class="kw">dict</span>) -> List[CompatIssue]:
-    <span class="cm">"""Full: backward + forward — most restrictive mode."""</span>
-    <span class="kw">return</span> check_backward(writer, reader) + check_forward(writer, reader)
-
-<span class="kw">def</span> <span class="fn">_union_compatible</span>(t1, t2) -> <span class="kw">bool</span>:
-    <span class="cm">"""Check if types are union-compatible (Avro union promotion)."""</span>
-    <span class="kw">if</span> <span class="kw">isinstance</span>(t1, <span class="kw">list</span>) <span class="kw">and not</span> <span class="kw">isinstance</span>(t2, <span class="kw">list</span>):
-        <span class="kw">return</span> t2 <span class="kw">in</span> t1
-    <span class="kw">if</span> <span class="kw">isinstance</span>(t2, <span class="kw">list</span>) <span class="kw">and not</span> <span class="kw">isinstance</span>(t1, <span class="kw">list</span>):
-        <span class="kw">return</span> t1 <span class="kw">in</span> t2
-    <span class="kw">return</span> <span class="kw">False</span></pre>
-    </details>
-
-    <details>
-      <summary><i class="fas fa-rocket" style="color:#f59e0b"></i> Schema Migration Orchestrator (Python)</summary>
-      <pre><span class="kw">import</span> time, logging
+    <details class="sreg-code-block">
+      <summary><i class="fas fa-shield-halved" style="color:var(--sreg-accent)"></i>&nbsp;Schema Compatibility Checker (Python)</summary>
+      <pre><code><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
 <span class="kw">from</span> typing <span class="kw">import</span> List
-<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
-<span class="kw">from</span> confluent_kafka.admin <span class="kw">import</span> AdminClient
+
+@dataclass
+<span class="kw">class</span> <span class="fn">CompatIssue</span>:
+    field: str; issue_type: str; message: str; breaking: bool = <span class="kw">True</span>
+
+<span class="kw">def</span> <span class="fn">check_backward</span>(writer: dict, reader: dict) -> List[CompatIssue]:
+    <span class="cm">"""New reader can read old writer data?"""</span>
+    issues = []
+    r_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> reader[<span class="str">'fields'</span>]}
+    w_fields = {f[<span class="str">'name'</span>]: f <span class="kw">for</span> f <span class="kw">in</span> writer[<span class="str">'fields'</span>]}
+    <span class="kw">for</span> name, wf <span class="kw">in</span> w_fields.items():
+        <span class="kw">if</span> name <span class="kw">not in</span> r_fields:
+            issues.append(<span class="fn">CompatIssue</span>(name, <span class="str">'REMOVED'</span>,
+                f<span class="str">'{name} in writer but missing from reader'</span>))
+        <span class="kw">elif not</span> _types_compat(wf[<span class="str">'type'</span>], r_fields[name][<span class="str">'type'</span>]):
+            issues.append(<span class="fn">CompatIssue</span>(name, <span class="str">'TYPE_CHANGED'</span>,
+                f<span class="str">'{name}: {wf["type"]} -> {r_fields[name]["type"]}'</span>))
+    <span class="kw">for</span> name, rf <span class="kw">in</span> r_fields.items():
+        <span class="kw">if</span> name <span class="kw">not in</span> w_fields <span class="kw">and</span> <span class="str">'default'</span> <span class="kw">not in</span> rf:
+            issues.append(<span class="fn">CompatIssue</span>(name, <span class="str">'MISSING_DEFAULT'</span>,
+                f<span class="str">'New field {name} has no default (breaks old data)'</span>))
+    <span class="kw">return</span> issues
+
+<span class="kw">def</span> <span class="fn">check_full</span>(writer: dict, reader: dict) -> List[CompatIssue]:
+    <span class="cm">"""Full: backward + forward combined."""</span>
+    <span class="kw">return</span> <span class="fn">check_backward</span>(writer, reader) + <span class="fn">check_backward</span>(reader, writer)
+
+<span class="kw">def</span> <span class="fn">_types_compat</span>(t1, t2) -> bool:
+    <span class="kw">if</span> t1 == t2: <span class="kw">return True</span>
+    <span class="kw">if</span> isinstance(t1, list) <span class="kw">and</span> t2 <span class="kw">in</span> t1: <span class="kw">return True</span>
+    <span class="kw">if</span> isinstance(t2, list) <span class="kw">and</span> t1 <span class="kw">in</span> t2: <span class="kw">return True</span>
+    <span class="kw">return False</span></code></pre>
+    </details>
+    <details class="sreg-code-block">
+      <summary><i class="fas fa-rocket" style="color:var(--sreg-accent)"></i>&nbsp;Canary Migration Orchestrator (Python)</summary>
+      <pre><code><span class="kw">import</span> time, logging
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
 
 logger = logging.getLogger(<span class="str">"migration"</span>)
 
-<span class="kw">@dataclass</span>
+@dataclass
 <span class="kw">class</span> <span class="fn">MigrationPlan</span>:
-    subject: <span class="kw">str</span>
-    old_version: <span class="kw">int</span>
-    new_version: <span class="kw">int</span>
-    canary_pct: <span class="kw">float</span> = <span class="num">0.05</span>
-    error_threshold: <span class="kw">float</span> = <span class="num">0.001</span>  <span class="cm"># 0.1% deser error rate</span>
-    monitor_window_sec: <span class="kw">int</span> = <span class="num">900</span>     <span class="cm"># 15 min observation</span>
+    subject: str; old_version: int; new_schema: dict
+    canary_pct: float = <span class="num">0.05</span>
+    error_threshold: float = <span class="num">0.001</span>
+    monitor_window_sec: int = <span class="num">900</span>
 
 <span class="kw">class</span> <span class="fn">MigrationOrchestrator</span>:
-    <span class="cm">"""Orchestrates safe schema rollout with canary + rollback."""</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, schema_mgr, metrics):
+        self.schema_mgr = schema_mgr; self.metrics = metrics
 
-    <span class="kw">def</span> <span class="fn">__init__</span>(self, schema_mgr, metrics_client):
-        self.schema_mgr = schema_mgr
-        self.metrics = metrics_client
-
-    <span class="kw">def</span> <span class="fn">execute</span>(self, plan: MigrationPlan) -> <span class="kw">bool</span>:
-        <span class="cm">"""Run full migration: validate → canary → monitor → promote/rollback."""</span>
-
-        <span class="cm"># Step 1: Validate against ALL active consumer versions</span>
-        consumer_versions = self.schema_mgr.get_active_versions(
-            plan.subject
-        )
-        <span class="kw">for</span> cv <span class="kw">in</span> consumer_versions:
-            issues = check_full(cv, plan.new_schema)
+    <span class="kw">def</span> <span class="fn">execute</span>(self, plan: MigrationPlan) -> bool:
+        <span class="cm"># Step 1: full transitive compatibility check</span>
+        <span class="kw">for</span> v <span class="kw">in</span> self.schema_mgr.get_all_versions(plan.subject):
+            issues = check_full(v, plan.new_schema)
             <span class="kw">if</span> issues:
-                logger.error(
-                    <span class="str">f"Incompatible with consumer v{cv['version']}: "</span>
-                    <span class="str">f"{[i.message for i in issues]}"</span>
-                )
+                logger.error(f<span class="str">"Incompatible: {[i.message for i in issues]}"</span>)
                 <span class="kw">return False</span>
 
-        <span class="cm"># Step 2: Deploy canary (5% traffic gets new schema)</span>
-        logger.info(<span class="str">f"Canary deploy: {plan.canary_pct*100}% traffic"</span>)
-        self._set_canary_routing(plan.subject, plan.canary_pct)
+        <span class="cm"># Step 2: canary 5%</span>
+        logger.info(f<span class="str">"Canary {plan.canary_pct*100:.0f}% for {plan.subject}"</span>)
+        self._set_weight(plan.subject, plan.canary_pct)
 
-        <span class="cm"># Step 3: Monitor deserialization error rates</span>
-        start = time.time()
-        <span class="kw">while</span> time.time() - start < plan.monitor_window_sec:
-            error_rate = self.metrics.query(
-                <span class="str">f'rate(kafka_consumer_deser_errors_total'</span>
-                <span class="str">f'{{subject="{plan.subject}"}}[5m])'</span>
-            )
-            <span class="kw">if</span> error_rate > plan.error_threshold:
-                logger.error(
-                    <span class="str">f"Error rate {error_rate:.4f} > threshold"</span>
-                )
-                self._rollback(plan)
+        <span class="cm"># Step 3: monitor 15 min</span>
+        start = time.monotonic()
+        <span class="kw">while</span> time.monotonic() - start < plan.monitor_window_sec:
+            rate = self.metrics.deser_error_rate(plan.subject)
+            <span class="kw">if</span> rate > plan.error_threshold:
+                logger.error(f<span class="str">"Error rate {rate:.4f} > threshold — rolling back"</span>)
+                self._set_weight(plan.subject, <span class="num">0.0</span>)
                 <span class="kw">return False</span>
             time.sleep(<span class="num">30</span>)
 
-        <span class="cm"># Step 4: Promote — route 100% to new schema</span>
-        logger.info(<span class="str">"Canary passed — promoting to 100%"</span>)
-        self._set_canary_routing(plan.subject, <span class="num">1.0</span>)
+        <span class="cm"># Step 4: promote 100%</span>
+        self._set_weight(plan.subject, <span class="num">1.0</span>)
+        logger.info(<span class="str">"Migration complete"</span>)
         <span class="kw">return True</span>
 
-    <span class="kw">def</span> <span class="fn">_rollback</span>(self, plan: MigrationPlan):
-        logger.warning(<span class="str">f"Rolling back {plan.subject} to v{plan.old_version}"</span>)
-        self._set_canary_routing(plan.subject, <span class="num">0.0</span>)
-
-    <span class="kw">def</span> <span class="fn">_set_canary_routing</span>(self, subject: <span class="kw">str</span>, pct: <span class="kw">float</span>):
-        <span class="cm">"""Configure weighted routing in the schema-aware producer."""</span>
-        self.metrics.set_gauge(
-            <span class="str">f'schema_canary_weight{{subject="{subject}"}}'</span>, pct
-        )</pre>
+    <span class="kw">def</span> <span class="fn">_set_weight</span>(self, subject: str, pct: float):
+        self.metrics.set_gauge(f<span class="str">'canary_weight{{subject="{subject}"}}'</span>, pct)</code></pre>
     </details>
+    <details class="sreg-code-block">
+      <summary><i class="fas fa-diagram-project" style="color:var(--sreg-accent)"></i>&nbsp;Transitive Compatibility Graph (Python)</summary>
+      <pre><code><span class="kw">from</span> typing <span class="kw">import</span> List, Dict, Tuple
 
+<span class="kw">class</span> <span class="fn">CompatibilityGraph</span>:
+    <span class="cm">"""Full pairwise compatibility check across all schema versions.
+    Catches transitive incompatibility that adjacent-only checks miss."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, schema_mgr):
+        self.schema_mgr = schema_mgr
+        self._cache: Dict[Tuple[int, int], List[CompatIssue]] = {}
+
+    <span class="kw">def</span> <span class="fn">build</span>(self, subject: str) -> Dict[Tuple[int, int], List[CompatIssue]]:
+        <span class="cm">"""O(n^2) check — run in CI, not hot path."""</span>
+        versions = self.schema_mgr.get_all_versions(subject)
+        results = {}
+        <span class="kw">for</span> i, v1 <span class="kw">in</span> enumerate(versions):
+            <span class="kw">for</span> j, v2 <span class="kw">in</span> enumerate(versions):
+                <span class="kw">if</span> i == j: <span class="kw">continue</span>
+                key = (i, j)
+                <span class="kw">if</span> key <span class="kw">not in</span> self._cache:
+                    self._cache[key] = check_full(v1, v2)
+                results[key] = self._cache[key]
+        <span class="kw">return</span> results
+
+    <span class="kw">def</span> <span class="fn">safe_to_ship</span>(self, subject: str, new_schema: dict) -> bool:
+        <span class="cm">"""Returns True only if new schema is compatible with ALL versions."""</span>
+        <span class="kw">for</span> v <span class="kw">in</span> self.schema_mgr.get_all_versions(subject):
+            <span class="kw">if</span> check_full(v, new_schema):
+                <span class="kw">return False</span>
+        <span class="kw">return True</span>
+
+    <span class="kw">def</span> <span class="fn">dead_fields</span>(self, subject: str, access_log: Dict[str, int],
+                    window_days: int = <span class="num">90</span>) -> List[str]:
+        <span class="cm">"""Fields with zero consumer reads in window_days = safe to remove.</span>
+        <span class="cm">access_log: {field_name: read_count_in_window}"""</span>
+        latest = self.schema_mgr.get_all_versions(subject)[-<span class="num">1</span>]
+        <span class="kw">return</span> [
+            f[<span class="str">'name'</span>] <span class="kw">for</span> f <span class="kw">in</span> latest[<span class="str">'fields'</span>]
+            <span class="kw">if</span> access_log.get(f[<span class="str">'name'</span>], <span class="num">0</span>) == <span class="num">0</span>
+        ]</code></pre>
+    </details>
   </div>
 </section>
 
-<!-- ═════════════════════ INNOVATION SPOTLIGHT ═════════════════════ -->
-<section class="sreg-sec">
+<!-- ══ ABOUT ══ -->
+<section class="sreg-section" id="sreg-about">
   <div class="sreg-sec-head">
-    <span class="sreg-stag sreg-stag--a">Innovation</span>
-    <h2>Innovation Spotlight</h2>
-    <p>Novel techniques that go beyond standard schema registry patterns.</p>
+    <h2>About This Demo</h2>
+    <p>A live Confluent Schema Registry simulator with real compatibility checking and animated schema diffing.</p>
   </div>
-  <div class="sreg-callout sreg-callout--r" style="max-width:940px;margin:0 auto">
-    <h5><i class="fas fa-bolt" style="color:#f59e0b"></i> Schema Compatibility Graph</h5>
-    <p style="margin-bottom:.6rem">Instead of checking compatibility only between adjacent versions (v3 vs v4), build a <b>full compatibility graph</b> checking every version pair. This catches "compatibility chains" where v1→v2 is compatible and v2→v3 is compatible, but <b>v1→v3 is NOT compatible</b> — a real problem when consumers skip versions during upgrades. The graph enables automated detection of transitive incompatibility, letting operations teams identify which consumer versions require mandatory upgrades before a new schema can ship.</p>
-    <p><b>Dead Field Detection</b> — By analyzing the last 30 days of Kafka consumer group offsets and schema usage, the system identifies fields that <b>no active consumer reads</b>. These "dead fields" can be safely deprecated in the next MAJOR version, preventing schema bloat that accumulates over years of evolution. The detector correlates field-level access patterns from the Avro deserializer with consumer lag metrics, producing a confidence score for each field's liveness.</p>
+  <div class="sreg-about-card">
+    <h3>&#x1F4C4; Kafka Schema Evolution &#8212; Live Simulator</h3>
+    <p>Apply breaking and safe changes to an <code>OrderEvent</code> Avro schema, see real-time compatibility assessment across BACKWARD / FORWARD / FULL modes, and explore the production patterns that prevent 3AM incidents.</p>
+    <p style="font-size:.72rem;color:var(--sreg-muted)">Stack: JavaScript &#183; Confluent Schema Registry patterns &#183; Django 5.1 &#183; Event-Driven Architecture</p>
+    <button class="sreg-share-btn" onclick="sregShareDemo()">&#x1F517; Copy Link</button>
   </div>
 </section>
-</div><!-- /sreg-page-body -->
 
-</div>
-
+</div><!-- /sreg-wrap -->
+{% endblock content %}
+{% block extra_js %}
 <script>
 (function(){
 'use strict';
 
-/* ─── Schema versions ─── */
+/* ══ 7-ideations nav helpers ══ */
+var sregClsCurrent = 0;
+var sregELI5Selected = null;
+
+var SREG_ELI5 = {
+  backend: {
+    label: 'Backend Developer',
+    title: 'Why Your API Broke &#8212; and How the Registry Prevents It',
+    run: function(){
+      return {
+        body: 'You changed <code>user_id</code> from <code>int</code> to <code>string</code> because your new user service uses UUIDs. Unit tests passed. You deployed. Three minutes later, six Kafka consumers started crashing with <code>AvroTypeException: Expected int, found string</code>.<br><br>With a Schema Registry, that deployment would never have reached production. The CI/CD pipeline runs <code>test_compatibility()</code> before deployment. Since changing a field type is a BREAKING change under BACKWARD, FORWARD, and FULL modes, the registration fails and the build fails. You get a clear error message listing exactly which consumers would break and why. Fix it with a union type migration instead.',
+        stats: ['Type change: int &#8594; string = BREAKING in all modes', 'Registry catches at CI/CD, not at 3AM', 'Union type fix: ["null","string","int"] = gradual migration', '87 schema versions shipped safely after registry adoption']
+      };
+    }
+  },
+  dataeng: {
+    label: 'Data Engineer',
+    title: 'Kafka Consumer Deserialization Errors &#8212; Root Cause',
+    run: function(){
+      return {
+        body: 'Your Kafka consumer is logging <code>org.apache.avro.AvroTypeException</code> at 400 errors/minute. The consumer group lag is growing &#8212; it&#39;s processing zero messages. The problem: a producer deployed a schema change yesterday that removed a field your consumer expects. Your consumer holds a stale reader schema in its local cache.<br><br>With a registry, the consumer fetches the writer schema by ID on every batch. It applies schema resolution: writer schema (what was in the message) vs. reader schema (what your consumer expects). The registry handles field defaults automatically. Even if the producer removed a field with a default, your consumer gets the default value and processes the message successfully.',
+        stats: ['Consumer fetches writer schema by 5-byte header ID', 'Schema resolution: writer schema + reader schema &#8594; resolved record', 'Missing field with default: consumer gets default, no crash', 'Schema cache TTL: 60s default &#8212; tune to reduce registry calls']
+      };
+    }
+  },
+  architect: {
+    label: 'Platform Architect',
+    title: 'Schema Registry as the Contract Layer for 50+ Microservices',
+    run: function(){
+      return {
+        body: 'Without a central registry, schema management in a large microservices platform is tribal knowledge: developer A knows OrderEvent v3 added a channel field, developer B doesn&#39;t. Renaming a field in one service cascades into 6 hotfixes across 4 teams. Onboarding a new consumer requires reading 18 months of git history.<br><br>The registry is the single source of truth for every event contract. Each subject (topic name + value/key) has a versioned history, a compatibility mode, and a human-readable description. New consumers can fetch the latest schema, understand the evolution history, and know exactly which fields are stable vs. likely to change. Schema governance becomes a platform concern, not a tribal one.',
+        stats: ['Single registry: 14 subjects, 87 schema versions', 'Compatibility mode per subject: BACKWARD (default), FULL (financial)', 'Dead field detection: 23 fields identified for MAJOR cleanup', 'Schema ID in message header: 5 bytes overhead per message']
+      };
+    }
+  },
+  compliance: {
+    label: 'Compliance Officer',
+    title: 'MiFID II 7-Year Replay &#8212; Why FULL Compatibility Is Non-Negotiable',
+    run: function(){
+      return {
+        body: 'MiFID II Article 25 requires investment firms to retain order records for 7 years and produce them on regulatory request. That means replaying 2019 Kafka messages against 2026 consumer code. Without schema governance, that replay will fail: fields have been renamed, types have changed, required fields have been removed.<br><br>FULL compatibility mode enforces that every schema change is non-breaking in both directions. Over 7 years, the only allowed operations are: (1) add fields with defaults, (2) remove fields that previously had defaults. No renames, no type changes. Your 2019 messages will always be readable by any version of the consumer. The schema registry provides an immutable audit trail of every schema version, timestamped, with the identity of who registered it &#8212; admissible evidence of your data governance program.',
+        stats: ['MiFID II: 7-year record retention and replay', 'FULL mode: only additive changes with defaults', 'Schema registry: immutable version history with timestamps', 'Regulatory evidence: who registered each schema version']
+      };
+    }
+  }
+};
+
+function sregSetMode(mode) {
+  document.querySelectorAll('.sreg-mode-tab').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-pane') === mode);
+  });
+  document.querySelectorAll('.sreg-pane').forEach(function(p){
+    p.classList.toggle('active', p.getAttribute('data-pane') === mode);
+  });
+}
+function sregSelectPersona(key) {
+  sregELI5Selected = key;
+  document.querySelectorAll('.sreg-persona').forEach(function(p){
+    p.classList.toggle('selected', p.getAttribute('data-key') === key);
+  });
+  document.getElementById('sregELI5Result').classList.remove('show');
+}
+function sregRunELI5() {
+  if (!sregELI5Selected) { alert('Select a persona first!'); return; }
+  var p = SREG_ELI5[sregELI5Selected];
+  var data = p.run();
+  document.getElementById('sregELI5Title').innerHTML = p.title;
+  document.getElementById('sregELI5Body').innerHTML = data.body;
+  document.getElementById('sregELI5Stats').innerHTML = data.stats.map(function(s){
+    return '<span class="sreg-eli5-stat">' + s + '</span>';
+  }).join('');
+  document.getElementById('sregELI5Result').classList.add('show');
+}
+function sregClsShowSlide(n) {
+  sregClsCurrent = n;
+  document.querySelectorAll('.sreg-cls-slide').forEach(function(s, i){ s.classList.toggle('active', i === n); });
+  document.querySelectorAll('.sreg-cls-dot').forEach(function(d, i){ d.classList.toggle('active', i === n); });
+}
+function sregClsNext() { sregClsShowSlide((sregClsCurrent + 1) % 6); }
+function sregClsPrev() { sregClsShowSlide((sregClsCurrent + 5) % 6); }
+function sregGotoClsDot(n) { sregClsShowSlide(n); }
+function sregShareDemo() {
+  navigator.clipboard.writeText(window.location.href).then(function(){
+    var btn = document.querySelector('.sreg-share-btn');
+    btn.textContent = '\u2713 Copied!';
+    setTimeout(function(){ btn.innerHTML = '&#x1F517; Copy Link'; }, 2000);
+  });
+}
+function sregScrollTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.sreg-nav-btn').forEach(function(b){
+    b.classList.remove('active');
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf(id) > -1)
+      b.classList.add('active');
+  });
+}
+function sregInitNav() {
+  var fill = document.getElementById('sregProgressFill');
+  var secs = Array.from(document.querySelectorAll('.sreg-section'));
+  var btns = Array.from(document.querySelectorAll('.sreg-nav-btn'));
+  window.addEventListener('scroll', function(){
+    var scrolled = window.scrollY;
+    var total = document.documentElement.scrollHeight - window.innerHeight;
+    fill.style.width = (total > 0 ? Math.min(100, scrolled / total * 100) : 0) + '%';
+    var active = 0;
+    secs.forEach(function(s, i){ if (s.getBoundingClientRect().top < 100) active = i; });
+    btns.forEach(function(b, i){ b.classList.toggle('active', i === active); });
+  });
+}
+
+/* exports */
+window.sregSetMode = sregSetMode;
+window.sregSelectPersona = sregSelectPersona;
+window.sregRunELI5 = sregRunELI5;
+window.sregClsNext = sregClsNext;
+window.sregClsPrev = sregClsPrev;
+window.sregGotoClsDot = sregGotoClsDot;
+window.sregShareDemo = sregShareDemo;
+window.sregScrollTo = sregScrollTo;
+
+/* ══ Original interactive demo ══ */
 var V1 = {
-  ver:1, ts:'2026-01-15 09:00', label:'Initial Release',
+  ver:1, ts:'2026-01-15 09:00',
   subject:'OrderEvent', namespace:'com.thenumerix.events',
   fields:[
-    {name:'order_id', type:'string', required:true, _tag:''},
-    {name:'user_id', type:'int', required:true, _tag:''},
-    {name:'amount', type:'double', required:true, _tag:''},
-    {name:'currency', type:'string', default:'USD', _tag:''},
-    {name:'created_at', type:'timestamp', required:true, _tag:''},
+    {name:'order_id',   type:'string',    required:true,  _tag:''},
+    {name:'user_id',    type:'int',       required:true,  _tag:''},
+    {name:'amount',     type:'double',    required:true,  _tag:''},
+    {name:'currency',   type:'string',    default:'USD',  _tag:''},
+    {name:'created_at', type:'timestamp', required:true,  _tag:''}
   ]
 };
+var versions = [JSON.parse(JSON.stringify(V1))];
+var currentVer = 0;
+var compatMode = 'BACKWARD';
 
-var versions=[JSON.parse(JSON.stringify(V1))];
-var currentVer=0; // index into versions
-
-/* ─── Render timeline ─── */
-var CHANGES_META={
-  add_safe:{label:'Added channel field',tag:'safe',tagLabel:'BACKWARD-SAFE'},
-  remove_required:{label:'Removed amount',tag:'break',tagLabel:'BREAKING'},
-  rename_field:{label:'Renamed amount→total',tag:'break',tagLabel:'BREAKING'},
-  change_type:{label:'user_id: int→string',tag:'break',tagLabel:'BREAKING'},
-};
 function renderTimeline(){
-  var tl=document.getElementById('sregTimeline');
-  tl.innerHTML='';
-  versions.forEach(function(v,idx){
-    var li=document.createElement('li');
-    li.className='sreg-tl-item'+(idx===currentVer?' active':'');
-    li.dataset.idx=idx;
-    var tag=idx===0?'':'';
-    var tagHtml='';
-    if(v._changeMeta){
-      tagHtml='<span class="sreg-tl-tag sreg-tl-tag--'+v._changeMeta.tag+'">'+v._changeMeta.tagLabel+'</span>';
-    }
-    li.innerHTML='<span class="sreg-tl-dot"></span><div class="sreg-tl-content"><div class="sreg-tl-ver">v'+v.ver+'</div><div class="sreg-tl-ts">'+v.ts+'</div>'+tagHtml+'</div>';
-    li.addEventListener('click',function(){currentVer=idx;renderView();renderTimeline();});
+  var tl = document.getElementById('sregTimeline');
+  tl.innerHTML = '';
+  versions.forEach(function(v, idx){
+    var li = document.createElement('li');
+    li.className = 'sreg-tl-item' + (idx === currentVer ? ' active' : '');
+    li.dataset.idx = idx;
+    var tagHtml = '';
+    if (v._changeMeta)
+      tagHtml = '<span class="sreg-tl-tag sreg-tl-tag--' + v._changeMeta.tag + '">' + v._changeMeta.tagLabel + '</span>';
+    li.innerHTML = '<span class="sreg-tl-dot"></span><div class="sreg-tl-content"><div class="sreg-tl-ver">v' + v.ver + '</div><div class="sreg-tl-ts">' + v.ts + '</div>' + tagHtml + '</div>';
+    li.addEventListener('click', function(){ currentVer = idx; renderView(); renderTimeline(); });
     tl.appendChild(li);
   });
 }
-
-/* ─── Render schema code ─── */
 function renderView(){
-  var v=versions[currentVer];
-  document.getElementById('sregVerBadge').textContent='v'+v.ver;
-  // Metadata badges
-  var meta=document.getElementById('sregMeta');
-  meta.innerHTML='<span class="sreg-meta-badge"><i class="fas fa-tag me-1"></i>'+v.namespace+'</span>'
-    +'<span class="sreg-meta-badge">'+v.fields.length+' fields</span>'
-    +'<span class="sreg-meta-badge">'+new Date(v.ts).toLocaleDateString()+'</span>';
-
-  // Build code
-  var lines=[];
-  lines.push('<span class="k">schema</span> <span class="s">'+v.subject+'</span> {');
-  lines.push('  <span class="k">namespace</span>: <span class="s">"'+v.namespace+'"</span>');
-  lines.push('  <span class="k">version</span>:   <span class="n">'+v.ver+'</span>');
+  var v = versions[currentVer];
+  document.getElementById('sregVerBadge').textContent = 'v' + v.ver;
+  var meta = document.getElementById('sregMeta');
+  meta.innerHTML = '<span class="sreg-meta-badge">' + v.namespace + '</span>'
+    + '<span class="sreg-meta-badge">' + v.fields.length + ' fields</span>'
+    + '<span class="sreg-meta-badge">' + new Date(v.ts).toLocaleDateString() + '</span>';
+  var lines = [];
+  lines.push('<span class="k">schema</span> <span class="s">' + v.subject + '</span> {');
+  lines.push('  <span class="k">namespace</span>: <span class="s">"' + v.namespace + '"</span>');
+  lines.push('  <span class="k">version</span>:   <span class="n">' + v.ver + '</span>');
   lines.push('  <span class="k">fields</span>: [');
   v.fields.forEach(function(f){
-    var parts=['    { <span class="k">name</span>: <span class="s">"'+f.name+'"</span>'];
-    parts.push('<span class="k">type</span>: <span class="n">'+f.type+'</span>');
-    if(f.required) parts.push('<span class="k">required</span>: <span class="b">true</span>');
-    if(f.default!==undefined) parts.push('<span class="k">default</span>: <span class="s">"'+f.default+'"</span>');
-    var line=parts.join(', ')+' }';
-    if(f._tag) line='<span class="field-'+f._tag+'">'+line+'</span>';
+    var parts = ['    { <span class="k">name</span>: <span class="s">"' + f.name + '"</span>'];
+    parts.push('<span class="k">type</span>: <span class="n">' + f.type + '</span>');
+    if (f.required) parts.push('<span class="k">required</span>: <span class="b">true</span>');
+    if (f.default !== undefined) parts.push('<span class="k">default</span>: <span class="s">"' + f.default + '"</span>');
+    var line = parts.join(', ') + ' }';
+    if (f._tag) line = '<span class="field-' + f._tag + '">' + line + '</span>';
     lines.push(line);
   });
-  lines.push('  ]');
-  lines.push('}');
-  var code=document.getElementById('sregCodeView');
-  code.innerHTML=lines.join('\n');
-
-  // Diff hint
-  var hasDiff=v.fields.some(function(f){return f._tag;});
-  document.getElementById('sregDiffHint').style.display=hasDiff?'flex':'none';
-
-  // Clear result when navigating
-  document.getElementById('sregResult').style.display='none';
+  lines.push('  ]'); lines.push('}');
+  document.getElementById('sregCodeView').innerHTML = lines.join('\n');
+  var hasDiff = v.fields.some(function(f){ return f._tag; });
+  document.getElementById('sregDiffHint').style.display = hasDiff ? 'flex' : 'none';
+  document.getElementById('sregResult').style.display = 'none';
 }
-
-/* ─── Compatibility check ─── */
-var compatMode='BACKWARD';
-function checkCompat(oldV,newV){
-  var issues=[];
-  // BACKWARD: new can read old data → removed fields must have default in new; new required fields not in old = break
-  if(compatMode==='BACKWARD'||compatMode==='FULL'){
+function checkCompat(oldV, newV){
+  var issues = [];
+  if (compatMode === 'BACKWARD' || compatMode === 'FULL'){
     oldV.fields.forEach(function(f){
-      var inNew=newV.fields.find(function(f2){return f2.name===f.name;});
-      if(!inNew) issues.push('Field "'+f.name+'" removed — old consumers will break.');
-      else if(inNew.type!==f.type) issues.push('Field "'+f.name+'" type changed '+f.type+'→'+inNew.type+' — deserialization breaks.');
+      var n = newV.fields.find(function(x){ return x.name === f.name; });
+      if (!n) issues.push('Field "' + f.name + '" removed \u2014 old consumers break.');
+      else if (n.type !== f.type) issues.push('Field "' + f.name + '" type changed ' + f.type + '\u2192' + n.type);
     });
     newV.fields.forEach(function(f){
-      var inOld=oldV.fields.find(function(f2){return f2.name===f.name;});
-      if(!inOld&&f.default===undefined) issues.push('New required field "'+f.name+'" breaks old data (no default).');
+      var o = oldV.fields.find(function(x){ return x.name === f.name; });
+      if (!o && f.default === undefined) issues.push('New required field "' + f.name + '" breaks old data.');
     });
   }
-  // FORWARD: old can read new data → old consumers read new schemas
-  if(compatMode==='FORWARD'||compatMode==='FULL'){
+  if (compatMode === 'FORWARD' || compatMode === 'FULL'){
     newV.fields.forEach(function(f){
-      var inOld=oldV.fields.find(function(f2){return f2.name===f.name;});
-      if(!inOld&&f.required) issues.push('Field "'+f.name+'" required in new but absent in old schema.');
+      var o = oldV.fields.find(function(x){ return x.name === f.name; });
+      if (!o && f.required) issues.push('New required field "' + f.name + '" \u2014 old consumers can\'t parse.');
     });
     oldV.fields.forEach(function(f){
-      var inNew=newV.fields.find(function(f2){return f2.name===f.name;});
-      if(inNew&&inNew.type!==f.type) issues.push('Type change on "'+f.name+'" — forward readers will fail.');
+      var n = newV.fields.find(function(x){ return x.name === f.name; });
+      if (n && n.type !== f.type) issues.push('Type change on "' + f.name + '" \u2014 forward readers fail.');
     });
   }
   return issues;
 }
-
-function showResult(issues,changed){
-  if(!changed){
-    var res=document.getElementById('sregResult');res.style.display='none';return;
-  }
-  var pass=issues.length===0;
-  var res=document.getElementById('sregResult');
-  res.style.display='block';
-  res.className='sreg-result '+(pass?'sreg-result--compat':'sreg-result--incompat');
-  var issueHtml='';
-  if(!pass){
-    issueHtml='<ul class="sreg-result-issues">'+issues.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>';
-  }
-  res.innerHTML='<div class="sreg-result-icon">'+(pass?'✅':'🚨')+'</div>'
-    +'<div class="sreg-result-title">'+(pass?compatMode+' COMPATIBLE':compatMode+' INCOMPATIBLE')+'</div>'
-    +(pass?'<div style="font-size:.68rem;color:var(--sreg-muted)">This change is safe to deploy.</div>':issueHtml);
+function showResult(issues, changed){
+  if (!changed){ document.getElementById('sregResult').style.display = 'none'; return; }
+  var pass = issues.length === 0;
+  var res = document.getElementById('sregResult');
+  res.style.display = 'block';
+  res.className = 'sreg-result ' + (pass ? 'sreg-result--compat' : 'sreg-result--incompat');
+  res.innerHTML = '<div class="sreg-result-icon">' + (pass ? '\u2705' : '\u{1F6A8}') + '</div>'
+    + '<div class="sreg-result-title">' + (pass ? compatMode + ' COMPATIBLE' : compatMode + ' INCOMPATIBLE') + '</div>'
+    + (pass ? '<div style="font-size:.68rem;color:var(--sreg-muted)">Safe to deploy.</div>'
+            : '<ul class="sreg-result-issues">' + issues.map(function(i){ return '<li>' + i + '</li>'; }).join('') + '</ul>');
 }
-
-/* ─── Apply changes ─── */
 var CHANGE_DEFS = {
-  add_safe: function(schema){
-    schema.fields.push({name:'channel',type:'string',default:'web',_tag:'new'});
-    schema._desc='Added channel (backward-safe)';
-    schema._changeMeta={tag:'safe',tagLabel:'SAFE'};
-  },
-  remove_required: function(schema){
-    schema.fields=schema.fields.map(function(f){
-      return f.name==='amount'?Object.assign({},f,{_tag:'del'}):f;
-    }).filter(function(f){return f._tag!=='del';});
-    schema._desc='Removed amount';
-    schema._changeMeta={tag:'break',tagLabel:'BREAKING'};
-  },
-  rename_field: function(schema){
-    schema.fields=schema.fields.map(function(f){
-      if(f.name==='amount'){
-        return Object.assign({},f,{name:'total_amount',_tag:'mod'});
-      } return f;
-    });
-    schema._desc='Renamed amount→total_amount';
-    schema._changeMeta={tag:'break',tagLabel:'BREAKING'};
-  },
-  change_type: function(schema){
-    schema.fields=schema.fields.map(function(f){
-      if(f.name==='user_id'){
-        return Object.assign({},f,{type:'string',_tag:'mod'});
-      } return f;
-    });
-    schema._desc='Changed user_id: int→string';
-    schema._changeMeta={tag:'break',tagLabel:'BREAKING'};
-  },
+  add_safe: function(s){ s.fields.push({name:'channel',type:'string',default:'web',_tag:'new'}); s._changeMeta={tag:'safe',tagLabel:'SAFE'}; },
+  remove_required: function(s){ s.fields = s.fields.filter(function(f){ return f.name !== 'amount'; }); s._changeMeta={tag:'break',tagLabel:'BREAKING'}; },
+  rename_field: function(s){ s.fields = s.fields.map(function(f){ return f.name==='amount'?Object.assign({},f,{name:'total_amount',_tag:'mod'}):f; }); s._changeMeta={tag:'break',tagLabel:'BREAKING'}; },
+  change_type: function(s){ s.fields = s.fields.map(function(f){ return f.name==='user_id'?Object.assign({},f,{type:'string',_tag:'mod'}):f; }); s._changeMeta={tag:'break',tagLabel:'BREAKING'}; },
   reset: null
 };
-
 document.querySelectorAll('.sreg-change-btn').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    var change=this.getAttribute('data-change');
-    if(change==='reset'){
-      versions=[JSON.parse(JSON.stringify(V1))]; currentVer=0;
-      renderTimeline(); renderView();
-      document.getElementById('sregResult').style.display='none';
-      return;
-    }
-    // Build new version from v1 base (always diff against v1)
-    var base=JSON.parse(JSON.stringify(V1));
-    var newSchema=JSON.parse(JSON.stringify(V1));
-    newSchema.ver=versions.length+1;
-    var now=new Date();
-    newSchema.ts=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+now.toTimeString().slice(0,5);
-    newSchema.fields=newSchema.fields.map(function(f){return Object.assign({},f,{_tag:''});});
+  btn.addEventListener('click', function(){
+    var change = this.getAttribute('data-change');
+    if (change === 'reset'){ versions=[JSON.parse(JSON.stringify(V1))]; currentVer=0; renderTimeline(); renderView(); document.getElementById('sregResult').style.display='none'; return; }
+    var base = JSON.parse(JSON.stringify(V1));
+    var newSchema = JSON.parse(JSON.stringify(V1));
+    newSchema.ver = versions.length + 1;
+    var now = new Date();
+    newSchema.ts = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+now.toTimeString().slice(0,5);
+    newSchema.fields = newSchema.fields.map(function(f){ return Object.assign({}, f, {_tag:''}); });
     CHANGE_DEFS[change](newSchema);
-    // Check compat
-    var issues=checkCompat(base,newSchema);
-    versions.push(newSchema);
-    currentVer=versions.length-1;
-    renderTimeline(); renderView();
-    showResult(issues,true);
+    var issues = checkCompat(base, newSchema);
+    versions.push(newSchema); currentVer = versions.length - 1;
+    renderTimeline(); renderView(); showResult(issues, true);
   });
 });
-
-/* ─── Mode buttons ─── */
 document.querySelectorAll('.sreg-mode-btn').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    compatMode=this.getAttribute('data-mode');
-    document.querySelectorAll('.sreg-mode-btn').forEach(function(b){b.classList.remove('active');});
+  btn.addEventListener('click', function(){
+    compatMode = this.getAttribute('data-mode');
+    document.querySelectorAll('.sreg-mode-btn').forEach(function(b){ b.classList.remove('active'); });
     this.classList.add('active');
-    if(versions.length>1){
-      var issues=checkCompat(versions[0],versions[currentVer]);
-      showResult(issues,true);
-    }
+    if (versions.length > 1) showResult(checkCompat(versions[0], versions[currentVer]), true);
   });
 });
 
-renderTimeline(); renderView();
+renderTimeline();
+renderView();
+sregInitNav();
 }());
 </script>
-{% endblock %}
+{% endblock extra_js %}

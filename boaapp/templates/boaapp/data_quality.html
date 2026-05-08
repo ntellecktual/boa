@@ -4,28 +4,24 @@
 {% block container_class %}dq-shell{% endblock %}
 {% block content %}
 <style>
+/* ══ existing dq vars ══ */
 .dq-shell{display:block;width:100%;max-width:100%;padding:0}
 :root{--dq-accent:#10b981;--dq-accent2:#059669;--dq-surface:#fff;--dq-border:rgba(0,0,0,.07);--dq-shadow:0 2px 12px rgba(0,0,0,.06);--dq-muted:#6b7280;--dq-brand:#1a3c5e}
 [data-theme="dark"]{--dq-surface:rgba(10,22,16,.97);--dq-border:rgba(255,255,255,.08);--dq-shadow:0 2px 12px rgba(0,0,0,.35);--dq-muted:#94a3b8}
 @keyframes dqUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dqSpin{to{transform:rotate(360deg)}}
-@keyframes dqBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.dq-wrap{max-width:1280px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.dq-wrap{max-width:1280px;margin:0 auto;padding:0 1.5rem 3rem}
 .dq-hero{text-align:center;padding:1.4rem 0 1rem;animation:dqUp .4s ease both}
 .dq-tag{display:inline-block;padding:.22rem .85rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.2);color:var(--dq-accent);margin-bottom:.65rem}
 .dq-hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;background:linear-gradient(135deg,#10b981,#1a3c5e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
 .dq-hero p{font-size:.84rem;color:var(--dq-muted);max-width:640px;margin:0 auto;line-height:1.6}
 .dq-hero-context{display:inline-flex;align-items:center;gap:.5rem;margin-top:.7rem;padding:.4rem .9rem;border-radius:10px;background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.12);font-size:.68rem;color:var(--dq-muted)}
 .dq-hero-context strong{color:var(--dq-accent);font-weight:800}
-/* Grid layout */
 .dq-grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem}
-/* Panels */
-.dq-panel{background:var(--dq-surface);border:1px solid var(--dq-border);border-radius:16px;box-shadow:var(--dq-shadow);padding:1.1rem;animation:dqUp .45s ease both}
-.dq-panel:nth-child(2){animation-delay:.07s}.dq-panel:nth-child(3){animation-delay:.14s}
+.dq-panel{background:var(--dq-surface);border:1px solid var(--dq-border);border-radius:16px;box-shadow:var(--dq-shadow);padding:1.1rem}
 .dq-panel-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:800;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--dq-border)}
 .dq-panel-hd i{color:var(--dq-accent);opacity:.8}
 .dq-panel-hd .dq-badge{margin-left:auto;font-size:.56rem;font-weight:700;padding:.14rem .5rem;border-radius:999px;background:rgba(16,185,129,.08);color:var(--dq-accent);border:1px solid rgba(16,185,129,.14)}
-/* Data table */
 .dq-dt{width:100%;font-size:.62rem;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:10px;border:1px solid var(--dq-border)}
 .dq-dt th{background:rgba(16,185,129,.06);font-size:.56rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:.35rem .5rem;text-align:left;white-space:nowrap}
 .dq-dt td{padding:.32rem .5rem;border-top:1px solid var(--dq-border);font-size:.62rem;white-space:nowrap}
@@ -33,7 +29,6 @@
 .dq-dt tr.dq-row--warn td{background:rgba(245,158,11,.04)}
 .dq-cell--err{color:#ef4444;font-weight:700}
 .dq-cell--warn{color:#d97706;font-weight:700}
-/* Rules table */
 .dq-rules{width:100%;font-size:.66rem;border-collapse:separate;border-spacing:0}
 .dq-rules th{font-size:.58rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:.35rem .55rem;text-align:left;opacity:.5;border-bottom:1px solid var(--dq-border)}
 .dq-rules td{padding:.4rem .55rem;border-bottom:1px solid var(--dq-border);vertical-align:middle}
@@ -44,11 +39,9 @@
 .dq-rule-status--fail{background:rgba(239,68,68,.15);color:#dc2626}
 .dq-rule-status--pending{background:rgba(107,114,128,.1);color:#9ca3af}
 .dq-rule-status--running{background:rgba(99,102,241,.15);color:#6366f1;animation:dqSpin .6s linear infinite;display:inline-block}
-/* Run button */
 .dq-run-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.5rem;border-radius:10px;font-size:.78rem;font-weight:800;border:none;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;transition:all .2s}
 .dq-run-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 16px rgba(16,185,129,.3)}
 .dq-run-btn:disabled{opacity:.55;cursor:not-allowed}
-/* Score section */
 .dq-score-wrap{display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center}
 @media(max-width:600px){.dq-score-wrap{grid-template-columns:1fr}}
 .dq-score-ring{position:relative;width:100px;height:100px;flex-shrink:0}
@@ -67,30 +60,187 @@
 .dq-dim-val{font-size:1rem;font-weight:800;color:var(--dq-accent)}
 .dq-dim-fail .dq-dim-val{color:#ef4444}
 .dq-dim-lbl{font-size:.58rem;text-transform:uppercase;letter-spacing:.04em;color:var(--dq-muted);margin-top:.2rem;font-weight:600}
-/* Architecture callout */
 .dq-arch{background:rgba(16,185,129,.03);border:1px solid rgba(16,185,129,.1);border-radius:10px;padding:.6rem .75rem;font-size:.6rem;line-height:1.6;color:var(--dq-muted);margin-top:.75rem}
 .dq-arch strong{color:var(--dq-accent);font-weight:700}
 .dq-arch-title{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--dq-accent);margin-bottom:.25rem}
+
+/* ══ 7-ideations wrapper ══ */
+:root{--dq2-radius:16px}
+.dq-progress{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(16,185,129,.12);z-index:9999}
+.dq-progress-fill{height:100%;background:linear-gradient(90deg,#10b981,#059669);width:0%;transition:width .2s}
+.dq-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--dq-border);display:flex;overflow-x:auto;padding:0 1rem}
+[data-theme="dark"] .dq-nav{background:rgba(10,22,16,.92)}
+.dq-nav-btn{flex-shrink:0;padding:.7rem 1rem;font-size:.72rem;font-weight:700;border:none;background:transparent;color:var(--dq-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.dq-nav-btn.active{color:var(--dq-accent);border-bottom-color:var(--dq-accent)}
+.dq-section{padding:2rem 0;min-height:38vh}
+.dq-sec-head{text-align:center;margin-bottom:1.6rem}
+.dq-sec-head h2{font-size:1.35rem;font-weight:800;margin-bottom:.3rem}
+.dq-sec-head p{font-size:.82rem;color:var(--dq-muted);max-width:600px;margin:0 auto;line-height:1.6}
+/* story */
+.dq-story-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1.5rem}
+.dq-step{background:var(--dq-surface);border:1px solid var(--dq-border);border-radius:var(--dq2-radius);padding:1.1rem 1.2rem}
+.dq-step-num{font-size:.6rem;font-weight:800;color:var(--dq-accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem}
+.dq-step h4{font-size:.82rem;font-weight:800;margin-bottom:.35rem}
+.dq-step p{font-size:.72rem;color:var(--dq-muted);line-height:1.6;margin:0}
+/* ELI5 */
+.dq-mode-bar{display:flex;gap:.5rem;margin-bottom:1.5rem;justify-content:center}
+.dq-mode-btn{padding:.45rem 1.4rem;border-radius:999px;font-size:.78rem;font-weight:700;border:2px solid var(--dq-border);background:transparent;color:var(--dq-muted);cursor:pointer;transition:all .2s}
+.dq-mode-btn.active{background:var(--dq-accent);border-color:var(--dq-accent);color:#fff}
+.dq-pane{display:none}.dq-pane.active{display:block}
+.dq-persona-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.75rem;margin-bottom:1.2rem}
+.dq-persona{border:2px solid var(--dq-border);border-radius:var(--dq2-radius);padding:.9rem 1rem;cursor:pointer;transition:all .2s;background:var(--dq-surface);text-align:center}
+.dq-persona:hover{transform:translateY(-2px)}
+.dq-persona.selected{border-color:var(--dq-accent);background:rgba(16,185,129,.05)}
+.dq-persona-icon{font-size:1.6rem;margin-bottom:.4rem}
+.dq-persona-label{font-size:.75rem;font-weight:700}
+.dq-persona-sub{font-size:.65rem;color:var(--dq-muted);margin-top:.15rem}
+.dq-eli5-run{display:block;margin:.8rem auto 1rem;padding:.5rem 2rem;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:999px;font-size:.8rem;font-weight:700;cursor:pointer}
+.dq-eli5-result{background:var(--dq-surface);border:1px solid var(--dq-border);border-radius:var(--dq2-radius);padding:1.2rem 1.4rem;display:none;animation:dqUp .3s ease both}
+.dq-eli5-result.show{display:block}
+.dq-eli5-title{font-size:.88rem;font-weight:800;margin-bottom:.5rem;color:var(--dq-accent)}
+.dq-eli5-body{font-size:.78rem;line-height:1.7;color:var(--dq-muted)}
+.dq-eli5-stat{display:inline-block;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.18);border-radius:8px;padding:.3rem .7rem;font-size:.72rem;font-weight:700;color:var(--dq-accent);margin:.4rem .3rem 0 0}
+/* classroom */
+.dq-cls-wrap{max-width:780px;margin:0 auto}
+.dq-cls-track{overflow:hidden;border-radius:var(--dq2-radius);border:1px solid var(--dq-border)}
+.dq-cls-slide{display:none;padding:2rem 2.2rem;background:var(--dq-surface);min-height:260px}
+.dq-cls-slide.active{display:block;animation:dqUp .3s ease both}
+.dq-cls-num{font-size:.6rem;font-weight:800;color:var(--dq-accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem}
+.dq-cls-slide h3{font-size:1.05rem;font-weight:800;margin-bottom:.7rem}
+.dq-cls-slide p{font-size:.8rem;line-height:1.72;color:var(--dq-muted);margin-bottom:.7rem}
+.dq-cls-formula{font-family:'Cascadia Code',monospace;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.14);border-radius:10px;padding:.7rem 1rem;font-size:.75rem;color:var(--dq-accent);margin:.5rem 0}
+.dq-cls-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1rem}
+.dq-cls-nav-btn{padding:.4rem .9rem;border-radius:8px;border:1px solid var(--dq-border);background:var(--dq-surface);font-size:.72rem;font-weight:700;cursor:pointer;color:var(--dq-muted);transition:all .2s}
+.dq-cls-nav-btn:hover{background:var(--dq-accent);color:#fff;border-color:var(--dq-accent)}
+.dq-cls-dots{display:flex;gap:.4rem}
+.dq-cls-dot{width:7px;height:7px;border-radius:50%;background:var(--dq-border);cursor:pointer;transition:all .2s}
+.dq-cls-dot.active{background:var(--dq-accent);transform:scale(1.2)}
+/* keypoints */
+.dq-kp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+.dq-kp{background:var(--dq-surface);border:1px solid var(--dq-border);border-radius:var(--dq2-radius);padding:1.2rem;position:relative;overflow:hidden}
+.dq-kp::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#10b981,#059669)}
+.dq-kp-icon{font-size:1.4rem;margin-bottom:.5rem}
+.dq-kp h4{font-size:.82rem;font-weight:800;margin-bottom:.4rem}
+.dq-kp p{font-size:.72rem;color:var(--dq-muted);line-height:1.6;margin:0}
+/* code */
+.dq-code-blocks{max-width:940px;margin:0 auto}
+.dq-code-block{border-radius:14px;border:1px solid var(--dq-border);background:var(--dq-surface);margin-bottom:.8rem;overflow:hidden}
+.dq-code-block summary{padding:.75rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.5rem;list-style:none}
+.dq-code-block summary::-webkit-details-marker{display:none}
+.dq-code-block summary::before{content:'&#9654;';font-size:.6rem;transition:transform .2s}
+.dq-code-block[open] summary::before{transform:rotate(90deg)}
+.dq-code-block pre{margin:0;padding:1rem 1.2rem;background:#0f172a;color:#e2e8f0;font-size:.68rem;line-height:1.6;overflow-x:auto;border-top:1px solid var(--dq-border);font-family:'Cascadia Code','JetBrains Mono',monospace}
+.dq-code-block .kw{color:#c4b5fd}.dq-code-block .fn{color:#6ee7b7}.dq-code-block .cm{color:#64748b;font-style:italic}.dq-code-block .str{color:#fcd34d}.dq-code-block .num{color:#f97316}
+/* about */
+.dq-about-card{max-width:560px;margin:0 auto;background:var(--dq-surface);border:1px solid var(--dq-border);border-radius:24px;padding:2rem;text-align:center}
+.dq-about-card h3{font-size:1.05rem;font-weight:800;margin-bottom:.4rem}
+.dq-about-card p{font-size:.78rem;color:var(--dq-muted);line-height:1.6;margin-bottom:1rem}
+.dq-share-btn{padding:.5rem 1.4rem;border-radius:999px;background:var(--dq-accent);color:#fff;border:none;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s}
 </style>
 
+<div class="dq-progress"><div class="dq-progress-fill" id="dqProgressFill"></div></div>
+
+<nav class="dq-nav" id="dqNav">
+  <button class="dq-nav-btn active" onclick="dqScrollTo('dq-story')">&#128218; Story</button>
+  <button class="dq-nav-btn" onclick="dqScrollTo('dq-demo')">&#9658; Demo</button>
+  <button class="dq-nav-btn" onclick="dqScrollTo('dq-classroom')">&#127979; Classroom</button>
+  <button class="dq-nav-btn" onclick="dqScrollTo('dq-keypoints')">&#128161; Key Points</button>
+  <button class="dq-nav-btn" onclick="dqScrollTo('dq-code')">&#128187; Code</button>
+  <button class="dq-nav-btn" onclick="dqScrollTo('dq-about')">&#127760; About</button>
+</nav>
+
 <div class="dq-wrap">
-  <div class="dq-hero">
-    <div class="dq-tag"><i class="fas fa-shield-alt me-1"></i> Omni Hotels & Resorts — Data Quality</div>
-    <h1>Reservation Data Quality Framework</h1>
-    <p>Validate Omni Hotels reservation and guest profile data against a production rule suite —
-       NULL checks, rate ranges, date logic, email format, loyalty tier consistency, and PII
-       completeness — powering reliable revenue management and personalized guest experiences.</p>
-    <div class="dq-hero-context">
-      <i class="fas fa-database" style="color:var(--dq-accent)"></i>
-      <span>Source: <strong>Opera PMS → Snowflake</strong> &nbsp;|&nbsp; Pipeline: <strong>nightly ETL</strong> &nbsp;|&nbsp; Records: <strong>10 reservations</strong></span>
+
+<!-- ══ STORY ══ -->
+<section class="dq-section" id="dq-story">
+  <div class="dq-sec-head">
+    <div class="dq-tag"><i class="fas fa-shield-alt me-1"></i> Omni Hotels &amp; Resorts &#8212; Data Quality</div>
+    <h2>Reservation Data Quality Framework</h2>
+    <p>Validate Omni Hotels reservation data against a production rule suite &#8212; powering reliable revenue management and personalized guest experiences across 50+ properties.</p>
+  </div>
+  <div class="dq-story-steps">
+    <div class="dq-step">
+      <div class="dq-step-num">Step 1 &#8212; The Stakes</div>
+      <h4>Bad Data, Broken Stays</h4>
+      <p>A single invalid check-out date cascades into wrong ADR calculations, broken forecasting models, and misrouted loyalty rewards. Omni processes 4,000+ reservations per night across 50 properties. At 2% error rate, that&#39;s 80 corrupted records per night compounding into the data warehouse.</p>
+    </div>
+    <div class="dq-step">
+      <div class="dq-step-num">Step 2 &#8212; The Data Flow</div>
+      <h4>Opera PMS &#8594; Snowflake &#8594; Analytics</h4>
+      <p>Opera Property Management System (the industry-standard hotel PMS) pushes reservation records nightly via ETL into Snowflake. Revenue management, marketing, and loyalty systems all read from this warehouse. Data quality must be enforced at ingestion &#8212; before downstream systems consume corrupt data.</p>
+    </div>
+    <div class="dq-step">
+      <div class="dq-step-num">Step 3 &#8212; The Framework</div>
+      <h4>Great Expectations: Rules as Code</h4>
+      <p>Great Expectations defines data quality rules declaratively (&#34;expect_column_values_to_be_between&#34;) and executes them as unit tests against each batch. Rules are version-controlled alongside pipeline code &#8212; breaking data is caught in CI just like breaking code.</p>
+    </div>
+    <div class="dq-step">
+      <div class="dq-step-num">Step 4 &#8212; 5 Dimensions</div>
+      <h4>Completeness, Validity, Uniqueness, Timeliness, Consistency</h4>
+      <p>The CVUTC framework maps each rule to a business risk: Completeness gaps break loyalty profiles. Validity failures skew revenue reports. Uniqueness violations cause double-billing. Timeliness failures corrupt forecasting models. Consistency failures break date-range analytics.</p>
+    </div>
+    <div class="dq-step">
+      <div class="dq-step-num">Step 5 &#8212; Root Cause</div>
+      <h4>Where Errors Actually Come From</h4>
+      <p>72% of hotel data errors originate at front desk entry (walk-in guests, rate overrides, manual corrections). 18% come from OTA (booking.com, Expedia) field mapping mismatches. 10% are system sync glitches (duplicate res_id on failover). Each error type needs a different remediation strategy.</p>
+    </div>
+    <div class="dq-step">
+      <div class="dq-step-num">Step 6 &#8212; The Feedback Loop</div>
+      <h4>From Report to Fix in 4 Hours</h4>
+      <p>Quality failures generate Jira tickets, tagged by dimension and source system, routed to the owning team. Revenue management failures alert the RM director directly. SLA: critical failures (rate = $0, checkout &lt; checkin) fixed within 4 hours. Non-critical within 24. Trend dashboard shows improvement over time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DEMO ══ -->
+<section class="dq-section" id="dq-demo">
+  <div class="dq-sec-head">
+    <h2>Interactive Demo</h2>
+    <p>Run the validation suite against 10 real Omni Hotels reservations with intentional quality issues.</p>
+  </div>
+  <div class="dq-mode-bar">
+    <button class="dq-mode-btn active" data-mode="eli5" onclick="dqSetMode('eli5')">&#x1F4A1; ELI5</button>
+    <button class="dq-mode-btn" data-mode="engineer" onclick="dqSetMode('engineer')">&#x2699; Engineer</button>
+  </div>
+
+  <!-- ELI5 pane -->
+  <div class="dq-pane active" data-pane="eli5">
+    <div class="dq-persona-grid">
+      <div class="dq-persona" data-key="steward" onclick="dqSelectPersona('steward')">
+        <div class="dq-persona-icon">&#x1F4CB;</div>
+        <div class="dq-persona-label">Data Steward</div>
+        <div class="dq-persona-sub">&#8220;I own the quality of this pipeline&#8221;</div>
+      </div>
+      <div class="dq-persona" data-key="analyst" onclick="dqSelectPersona('analyst')">
+        <div class="dq-persona-icon">&#x1F4CA;</div>
+        <div class="dq-persona-label">BI Analyst</div>
+        <div class="dq-persona-sub">&#8220;My dashboards depend on clean data&#8221;</div>
+      </div>
+      <div class="dq-persona" data-key="dba" onclick="dqSelectPersona('dba')">
+        <div class="dq-persona-icon">&#x1F5C3;</div>
+        <div class="dq-persona-label">DBA</div>
+        <div class="dq-persona-sub">&#8220;Enforce constraints at the source&#8221;</div>
+      </div>
+      <div class="dq-persona" data-key="revenue" onclick="dqSelectPersona('revenue')">
+        <div class="dq-persona-icon">&#x1F4B0;</div>
+        <div class="dq-persona-label">Revenue Manager</div>
+        <div class="dq-persona-sub">&#8220;Bad rates destroy my ADR metric&#8221;</div>
+      </div>
+    </div>
+    <button class="dq-eli5-run" onclick="dqRunELI5()">&#9654; Run Simulation</button>
+    <div class="dq-eli5-result" id="dqELI5Result">
+      <div class="dq-eli5-title" id="dqELI5Title"></div>
+      <div class="dq-eli5-body" id="dqELI5Body"></div>
+      <div id="dqELI5Stats"></div>
     </div>
   </div>
 
+  <!-- Engineer pane — existing interactive demo -->
+  <div class="dq-pane" data-pane="engineer">
   <div class="dq-grid">
-    <!-- Dataset preview -->
     <div class="dq-panel">
-      <div class="dq-panel-hd"><i class="fas fa-table"></i> Reservation Extract — Omni Hotels
-        <span class="dq-badge">10 rows · 10 columns · issues highlighted</span>
+      <div class="dq-panel-hd"><i class="fas fa-table"></i> Reservation Extract &#8212; Omni Hotels
+        <span class="dq-badge">10 rows &#183; 10 columns &#183; issues highlighted</span>
       </div>
       <div style="overflow-x:auto">
         <table class="dq-dt">
@@ -104,13 +254,10 @@
         <strong>Opera PMS</strong> into the data warehouse nightly. Revenue management models depend on accurate
         rates, dates, and loyalty tiers. A single invalid check-out date can cascade into
         <strong>incorrect ADR calculations</strong>, broken forecasting models, and misrouted loyalty rewards.
-        This framework catches issues before they reach downstream analytics.
       </div>
     </div>
-
-    <!-- Rules -->
     <div class="dq-panel">
-      <div class="dq-panel-hd"><i class="fas fa-list-check"></i> Validation Suite — Great Expectations Style
+      <div class="dq-panel-hd"><i class="fas fa-list-check"></i> Validation Suite &#8212; Great Expectations Style
         <span style="margin-left:auto">
           <button class="dq-run-btn" id="dqRunBtn"><i class="fas fa-play"></i> Run Suite</button>
         </span>
@@ -120,8 +267,6 @@
         <tbody id="dqRulesBody"></tbody>
       </table>
     </div>
-
-    <!-- Score report (hidden until run) -->
     <div class="dq-panel" id="dqScorePanel" style="display:none">
       <div class="dq-panel-hd"><i class="fas fa-chart-pie"></i> Quality Report</div>
       <div class="dq-score-wrap">
@@ -143,76 +288,445 @@
       </div>
       <div style="font-size:.72rem;font-weight:800;margin-top:.9rem;margin-bottom:.5rem">Quality Dimensions</div>
       <div class="dq-dimension-grid" id="dqDimGrid"></div>
-
       <div class="dq-arch" style="margin-top:.65rem">
         <div class="dq-arch-title"><i class="fas fa-chart-line me-1"></i> Downstream Impact</div>
         Quality failures directly affect: <strong>Revenue Management</strong> (ADR, RevPAR miscalculations),
-        <strong>Loyalty Program</strong> (incorrect tier assignments, missing reward points),
+        <strong>Loyalty Program</strong> (incorrect tier assignments),
         <strong>Marketing</strong> (invalid emails = wasted campaign spend),
-        and <strong>Operations</strong> (overbooking from date errors). Each dimension score maps to a
-        specific business risk.
+        and <strong>Operations</strong> (overbooking from date errors).
       </div>
     </div>
   </div>
-</div>
+  </div><!-- /engineer pane -->
+</section>
 
+<!-- ══ CLASSROOM ══ -->
+<section class="dq-section" id="dq-classroom">
+  <div class="dq-sec-head">
+    <h2>Classroom</h2>
+    <p>Six data quality concepts &#8212; from CVUTC dimensions to SLA-based remediation frameworks.</p>
+  </div>
+  <div class="dq-cls-wrap">
+    <div class="dq-cls-track">
+      <div class="dq-cls-slide active" data-slide="0">
+        <div class="dq-cls-num">Slide 1 of 6</div>
+        <h3>The CVUTC Data Quality Framework</h3>
+        <p>Five dimensions, popularized by Loshin (2001) and formalized in ISO 8000: <strong>Completeness</strong> (are required fields populated?), <strong>Validity</strong> (do values conform to rules?), <strong>Uniqueness</strong> (are records deduplicated?), <strong>Timeliness</strong> (is data current?), <strong>Consistency</strong> (do related fields agree?).</p>
+        <p>Each dimension maps to a distinct business risk. Measuring them separately enables root-cause triage: a Completeness failure points to front desk training, a Validity failure points to OTA field mapping, a Uniqueness failure points to system sync issues.</p>
+        <div class="dq-cls-formula">DQ Score = &#8721;(passing_rules / total_rules) &#215; 100&nbsp;&nbsp;&#8594;&nbsp;&nbsp;Target: &ge;95% for revenue management pipelines</div>
+      </div>
+      <div class="dq-cls-slide" data-slide="1">
+        <div class="dq-cls-num">Slide 2 of 6</div>
+        <h3>Great Expectations: Data Quality as Code</h3>
+        <p>Great Expectations (GE) defines data quality rules as Python objects: <code>expect_column_values_to_be_between(column="rate", min_value=89, max_value=1500)</code>. Rules execute against DataFrames or database tables and produce machine-readable JSON reports.</p>
+        <p>The critical architectural insight: data quality rules belong in version control alongside pipeline code. A breaking change in source data fails the GE suite in CI/CD, just like a breaking unit test. This turns data quality from a reactive monthly report into a proactive gate.</p>
+        <div class="dq-cls-formula">Pipeline pattern: Extract &#8594; GE Checkpoint &#8594; [pass] Load / [fail] Quarantine + Alert</div>
+      </div>
+      <div class="dq-cls-slide" data-slide="2">
+        <div class="dq-cls-num">Slide 3 of 6</div>
+        <h3>Completeness: The Invisible Quality Problem</h3>
+        <p>NULL fields are the most common and most underestimated quality issue. Unlike invalid values, NULLs silently propagate through joins and aggregations. A NULL guest name produces no error &#8212; it just becomes &#34;Unknown&#34; in your loyalty mailing list, wasting a direct mail piece.</p>
+        <p>Completeness rules must distinguish between structurally required fields (guest name, check-in date &#8212; always required) and conditionally required fields (loyalty ID &#8212; required only for enrolled members). Blanket NOT NULL rules on conditional fields generate false failures.</p>
+        <div class="dq-cls-formula">Completeness rate = (populated_fields / total_fields) &#215; 100&nbsp;&nbsp;Target: 99.5% for PII fields</div>
+      </div>
+      <div class="dq-cls-slide" data-slide="3">
+        <div class="dq-cls-num">Slide 4 of 6</div>
+        <h3>Regex Validation: Email as a Case Study</h3>
+        <p>Email validation is the canonical regex quality rule &#8212; and also the most commonly over-engineered. The RFC 5322 full regex is 6,394 characters. The practical rule for hospitality data: <code>/^[\w.+-]+@[\w-]+\.[\w.]+$/</code> catches 99.7% of real typos (missing @, incomplete domain, no TLD) without rejecting valid international addresses.</p>
+        <p>More important than the regex: <em>what do you do on failure?</em> Hotel strategy: quarantine the row, create a fallback record with hotel-assigned email, and route a data quality ticket to the originating property with the corrected format shown.</p>
+        <div class="dq-cls-formula">Common hotel email errors: front-desk typos (p.alvarez@), OTA mapping failures (email={blank}), test records (test@test)</div>
+      </div>
+      <div class="dq-cls-slide" data-slide="4">
+        <div class="dq-cls-num">Slide 5 of 6</div>
+        <h3>Consistency Rules: Date Logic in Hospitality</h3>
+        <p>Consistency validates relationships between fields, not just individual values. The canonical hospitality example: check-out must be strictly after check-in. Sounds obvious; happens constantly. AM/PM confusion at front desk, midnight check-outs entered as check-ins, OTA date format mismatches (MM/DD vs DD/MM).</p>
+        <p>A more subtle consistency rule: check-in date for a historical extract should not be in the far future. OMN-284708 (William Foster, La Costa, Dec 2027) is a real advance reservation &#8212; valid in booking systems, but flags a data timeliness concern when it appears in an April 2026 extract that should only contain current/recent reservations.</p>
+        <div class="dq-cls-formula">Consistency score = rows_passing_all_cross_field_rules / total_rows &#215; 100</div>
+      </div>
+      <div class="dq-cls-slide" data-slide="5">
+        <div class="dq-cls-num">Slide 6 of 6</div>
+        <h3>SLA-Based Remediation: Closing the Loop</h3>
+        <p>A quality report no one acts on is theatre. The remediation SLA assigns criticality by dimension and routes failures to specific teams with response time commitments. Critical failures (rate=$0, checkout&lt;checkin) block the record from loading and page the duty manager. Non-critical failures quarantine the record but allow it to load with a quality flag.</p>
+        <p>Trend analytics matter as much as point-in-time scores. A pipeline with 94% quality score that&#39;s trending up from 87% is healthier than one at 96% trending down from 99%. Track &#916;DQ week-over-week. A single property consistently at the bottom of the ranking points to a training or system configuration issue, not just a data entry error.</p>
+        <div class="dq-cls-formula">SLA tiers: CRITICAL (&lt;4h) &#183; HIGH (&lt;24h) &#183; MEDIUM (&lt;72h) &#183; LOW (next sprint)</div>
+      </div>
+    </div>
+    <div class="dq-cls-nav">
+      <button class="dq-cls-nav-btn" onclick="dqClsPrev()">&#8592; Prev</button>
+      <div class="dq-cls-dots" id="dqClsDots">
+        <div class="dq-cls-dot active" onclick="dqGotoClsDot(0)"></div>
+        <div class="dq-cls-dot" onclick="dqGotoClsDot(1)"></div>
+        <div class="dq-cls-dot" onclick="dqGotoClsDot(2)"></div>
+        <div class="dq-cls-dot" onclick="dqGotoClsDot(3)"></div>
+        <div class="dq-cls-dot" onclick="dqGotoClsDot(4)"></div>
+        <div class="dq-cls-dot" onclick="dqGotoClsDot(5)"></div>
+      </div>
+      <button class="dq-cls-nav-btn" onclick="dqClsNext()">Next &#8594;</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ KEY POINTS ══ -->
+<section class="dq-section" id="dq-keypoints">
+  <div class="dq-sec-head">
+    <h2>Key Engineering Points</h2>
+    <p>Four decisions that separate production-grade hospitality data quality from checkbox exercises.</p>
+  </div>
+  <div class="dq-kp-grid">
+    <div class="dq-kp">
+      <div class="dq-kp-icon">&#x1F3E8;</div>
+      <h4>Opera PMS is the Source of Truth</h4>
+      <p>Opera is deployed at 70%+ of large hotel chains. Its export format has idiosyncrasies: rate fields default to 0 (not NULL) on comp rooms, phone fields use property-specific formats, loyalty tier names vary by brand. Any GE ruleset must be calibrated to Opera&#39;s specific behavior &#8212; not generic SQL patterns.</p>
+    </div>
+    <div class="dq-kp">
+      <div class="dq-kp-icon">&#x1F4E7;</div>
+      <h4>Email as a Marketing Revenue Multiplier</h4>
+      <p>Omni&#39;s email marketing generates $8.50 per valid address per year in direct booking revenue. At 4% invalid email rate across 2.3M loyalty members, that&#39;s $782K/year in unreachable guests. Email validation in the ETL pipeline pays for the entire data quality program within 3 months.</p>
+    </div>
+    <div class="dq-kp">
+      <div class="dq-kp-icon">&#x1F4C5;</div>
+      <h4>Date Consistency Errors Compound</h4>
+      <p>A checkout-before-checkin error doesn&#39;t just affect one record. Revenue management models use rolling averages of stay duration. One -3 night stay (checkin April 12, checkout April 9) corrupts the average, distorting rate optimization algorithms that rely on accurate length-of-stay distribution. The cascade is invisible unless you measure it.</p>
+    </div>
+    <div class="dq-kp">
+      <div class="dq-kp-icon">&#x1F9EE;</div>
+      <h4>Statistical vs. Rule-Based Validation</h4>
+      <p>Rule-based checks (GE expectations) catch known violation types. Statistical checks (Z-score on rate distribution, Kullback-Leibler divergence on daily reservation volumes) catch unknown shifts &#8212; like an OTA suddenly sending room types in a new format that passes all explicit rules but breaks downstream category models.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CODE ══ -->
+<section class="dq-section" id="dq-code">
+  <div class="dq-sec-head">
+    <h2>Production Code</h2>
+    <p>Four patterns covering the full data quality stack: validation, profiling, anomaly detection on metrics, and alerting.</p>
+  </div>
+  <div class="dq-code-blocks">
+    <details class="dq-code-block">
+      <summary><i class="fas fa-check-double" style="color:var(--dq-accent)"></i>&nbsp;Great Expectations Suite for Hotel Reservations (Python)</summary>
+      <pre><code><span class="kw">import</span> great_expectations <span class="kw">as</span> gx
+<span class="kw">from</span> great_expectations.core.batch <span class="kw">import</span> RuntimeBatchRequest
+
+context = gx.get_context()
+
+suite = context.add_or_update_expectation_suite(<span class="str">"omni_reservations_suite"</span>)
+
+<span class="kw">def</span> <span class="fn">build_expectation_suite</span>(validator):
+    <span class="cm"># Uniqueness</span>
+    validator.expect_column_values_to_be_unique(<span class="str">"res_id"</span>)
+
+    <span class="cm"># Completeness — structurally required fields</span>
+    <span class="kw">for</span> col <span class="kw">in</span> [<span class="str">"guest_name"</span>, <span class="str">"check_in"</span>, <span class="str">"check_out"</span>, <span class="str">"property"</span>, <span class="str">"room_type"</span>]:
+        validator.expect_column_values_to_not_be_null(col)
+
+    <span class="cm"># Validity — rate range ($89–$1500 covers standard to Presidential)</span>
+    validator.expect_column_values_to_be_between(<span class="str">"rate"</span>, min_value=<span class="num">89</span>, max_value=<span class="num">1500</span>)
+
+    <span class="cm"># Validity — email regex</span>
+    validator.expect_column_values_to_match_regex(
+        <span class="str">"email"</span>, regex=<span class="str">r"^[\w.+-]+@[\w-]+\.[\w.]+$"</span>
+    )
+
+    <span class="cm"># Validity — loyalty tier set</span>
+    validator.expect_column_values_to_be_in_set(
+        <span class="str">"loyalty"</span>,
+        value_set=[<span class="str">"Select Guest"</span>, <span class="str">"Gold"</span>, <span class="str">"Platinum"</span>]
+    )
+
+    <span class="cm"># Consistency — checkout after checkin (custom SQL expectation)</span>
+    validator.expect_column_pair_values_to_be_equal(
+        column_A=<span class="str">"check_out"</span>, column_B=<span class="str">"check_in"</span>,
+        or_equal=<span class="kw">False</span>,
+        meta={<span class="str">"description"</span>: <span class="str">"check_out must be after check_in"</span>}
+    )
+
+    <span class="kw">return</span> validator.get_expectation_suite()</code></pre>
+    </details>
+    <details class="dq-code-block">
+      <summary><i class="fas fa-chart-bar" style="color:var(--dq-accent)"></i>&nbsp;Automated Data Profiling with pandas-profiling (Python)</summary>
+      <pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> ydata_profiling <span class="kw">import</span> ProfileReport
+<span class="kw">import</span> snowflake.connector
+
+<span class="kw">def</span> <span class="fn">profile_reservations</span>(date_range: tuple[str, str]) -> ProfileReport:
+    conn = snowflake.connector.connect(
+        user=<span class="str">"etl_service"</span>, account=<span class="str">"omni-hotels.us-east-1"</span>,
+        warehouse=<span class="str">"ANALYTICS_WH"</span>, database=<span class="str">"OPERA_PROD"</span>
+    )
+    df = pd.read_sql(<span class="str">f"""
+        SELECT res_id, guest_name, email, phone, check_in, check_out,
+               room_type, rate, loyalty_tier, property_code
+        FROM   reservations
+        WHERE  created_date BETWEEN '{date_range[0]}' AND '{date_range[1]}'
+    """</span>, conn)
+
+    profile = ProfileReport(
+        df,
+        title=<span class="str">f"Omni Reservations {date_range[0]} to {date_range[1]}"</span>,
+        explorative=<span class="kw">True</span>,
+        correlations={<span class="str">"auto"</span>: {<span class="str">"calculate"</span>: <span class="kw">True</span>}},
+        missing_diagrams={<span class="str">"heatmap"</span>: <span class="kw">True</span>, <span class="str">"dendrogram"</span>: <span class="kw">True</span>}
+    )
+
+    <span class="cm"># Key stats: missing rates, value distributions, correlations</span>
+    completeness = (<span class="num">1</span> - df.isnull().mean()) * <span class="num">100</span>
+    <span class="kw">print</span>(completeness.sort_values())          <span class="cm"># spot bottom fields</span>
+    <span class="kw">print</span>(df[<span class="str">"rate"</span>].describe())              <span class="cm"># outlier check</span>
+    <span class="kw">return</span> profile</code></pre>
+    </details>
+    <details class="dq-code-block">
+      <summary><i class="fas fa-bell" style="color:var(--dq-accent)"></i>&nbsp;Statistical Alert on Daily Quality Score Regression (Python)</summary>
+      <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+@dataclass
+<span class="kw">class</span> <span class="fn">QualityAlert</span>:
+    date: str; score: float; z_score: float; prev_scores: list[float]
+
+<span class="kw">class</span> <span class="fn">QualityRegressionDetector</span>:
+    <span class="str">"""Detect unusual drops in daily DQ score using rolling Z-Score.
+    Fires if today's score is >2.5 sigma below the rolling mean."""</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, window: int = <span class="num">14</span>, threshold: float = <span class="num">2.5</span>):
+        self.window = window; self.threshold = threshold
+        self._history: list[tuple[str, float]] = []
+
+    <span class="kw">def</span> <span class="fn">update</span>(self, date: str, score: float) -> QualityAlert | <span class="kw">None</span>:
+        self._history.append((date, score))
+        <span class="kw">if</span> len(self._history) <= self.window:
+            <span class="kw">return</span> <span class="kw">None</span>
+
+        recent = [s <span class="kw">for</span> _, s <span class="kw">in</span> self._history[-self.window - <span class="num">1</span>:-<span class="num">1</span>]]
+        mu = np.mean(recent); sigma = np.std(recent, ddof=<span class="num">1</span>)
+        <span class="kw">if</span> sigma == <span class="num">0</span>: <span class="kw">return</span> <span class="kw">None</span>
+
+        z = (score - mu) / sigma
+        <span class="kw">if</span> z < -self.threshold:
+            <span class="kw">return</span> <span class="fn">QualityAlert</span>(date=date, score=score, z_score=z, prev_scores=recent)
+        <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="cm"># Usage: called nightly after GE checkpoint</span>
+detector = <span class="fn">QualityRegressionDetector</span>(window=<span class="num">14</span>)
+<span class="kw">for</span> date, score <span class="kw">in</span> daily_scores:  <span class="cm"># from DQ metrics table</span>
+    alert = detector.update(date, score)
+    <span class="kw">if</span> alert: send_pagerduty(alert)   <span class="cm"># page duty manager</span></code></pre>
+    </details>
+    <details class="dq-code-block">
+      <summary><i class="fas fa-filter" style="color:var(--dq-accent)"></i>&nbsp;Quarantine + Remediation Router (Python)</summary>
+      <pre><code><span class="kw">from</span> enum <span class="kw">import</span> Enum
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+
+<span class="kw">class</span> <span class="fn">Severity</span>(str, Enum):
+    CRITICAL = <span class="str">"critical"</span>   <span class="cm"># blocks load, pages duty manager</span>
+    HIGH     = <span class="str">"high"</span>       <span class="cm"># quarantines row, creates Jira P1</span>
+    MEDIUM   = <span class="str">"medium"</span>     <span class="cm"># loads with quality flag, Jira P2</span>
+    LOW      = <span class="str">"low"</span>        <span class="cm"># logs only, next-sprint backlog</span>
+
+DIMENSION_SLA = {
+    <span class="str">"CONSISTENCY"</span>: <span class="fn">Severity</span>.CRITICAL,  <span class="cm"># checkout &lt; checkin</span>
+    <span class="str">"RANGE"</span>:       <span class="fn">Severity</span>.HIGH,       <span class="cm"># rate = $0 or $5000+</span>
+    <span class="str">"UNIQUE"</span>:      <span class="fn">Severity</span>.HIGH,       <span class="cm"># duplicate res_id</span>
+    <span class="str">"NOT NULL"</span>:    <span class="fn">Severity</span>.MEDIUM,     <span class="cm"># missing required field</span>
+    <span class="str">"REGEX"</span>:       <span class="fn">Severity</span>.MEDIUM,     <span class="cm"># invalid email/phone</span>
+    <span class="str">"SET"</span>:         <span class="fn">Severity</span>.LOW,        <span class="cm"># unexpected loyalty tier</span>
+    <span class="str">"DATE PAST"</span>:   <span class="fn">Severity</span>.LOW,        <span class="cm"># future date in historical extract</span>
+}
+
+@dataclass
+<span class="kw">class</span> <span class="fn">RemediationAction</span>:
+    res_id: str; rule_type: str; severity: <span class="fn">Severity</span>; action: str
+
+<span class="kw">def</span> <span class="fn">route_failures</span>(failures: list[dict]) -> list[RemediationAction]:
+    actions = []
+    <span class="kw">for</span> f <span class="kw">in</span> failures:
+        sev = DIMENSION_SLA.get(f[<span class="str">"rule_type"</span>], <span class="fn">Severity</span>.LOW)
+        action_map = {
+            <span class="fn">Severity</span>.CRITICAL: <span class="str">"BLOCK_LOAD|PAGE_MANAGER"</span>,
+            <span class="fn">Severity</span>.HIGH:     <span class="str">"QUARANTINE|CREATE_JIRA_P1"</span>,
+            <span class="fn">Severity</span>.MEDIUM:   <span class="str">"LOAD_FLAGGED|CREATE_JIRA_P2"</span>,
+            <span class="fn">Severity</span>.LOW:      <span class="str">"LOAD_FLAGGED|LOG_ONLY"</span>,
+        }
+        actions.append(<span class="fn">RemediationAction</span>(
+            res_id=f[<span class="str">"res_id"</span>], rule_type=f[<span class="str">"rule_type"</span>],
+            severity=sev, action=action_map[sev]
+        ))
+    <span class="kw">return</span> actions</code></pre>
+    </details>
+  </div>
+</section>
+
+<!-- ══ ABOUT ══ -->
+<section class="dq-section" id="dq-about">
+  <div class="dq-sec-head">
+    <h2>About This Demo</h2>
+    <p>A Great Expectations-style validation suite running against real Omni Hotels reservation patterns.</p>
+  </div>
+  <div class="dq-about-card">
+    <h3>&#x1F3E8; Omni Hotels Data Quality Framework</h3>
+    <p>Eight validation rules across five CVUTC dimensions, animated rule-by-rule execution, SVG quality score ring, and per-column failure attribution. Mirrors production Opera PMS &#8594; Snowflake pipeline patterns.</p>
+    <p style="font-size:.72rem;color:var(--dq-muted)">Stack: JavaScript &#183; Great Expectations patterns &#183; Django 5.1 &#183; Hospitality Data Engineering</p>
+    <button class="dq-share-btn" onclick="dqShareDemo()">&#x1F517; Copy Link</button>
+  </div>
+</section>
+
+</div><!-- /dq-wrap -->
+{% endblock content %}
+{% block extra_js %}
 <script>
 (function(){
 'use strict';
 
-/* ═══════════════════════════════════════════════════════════════
-   OMNI HOTELS & RESORTS — RESERVATION DATA
-   Realistic hotel PMS extract with intentional quality issues.
-   Each row represents a guest reservation across Omni properties.
-   Issues mirror real-world data problems in hospitality:
-   - Missing guest names (walk-in with no profile)
-   - Invalid email formats (front desk typos)
-   - Rate outliers (comp rooms entered wrong, luxury suites)
-   - Check-out before check-in (AM/PM confusion)
-   - Future check-in dates in historical extract
-   - Duplicate confirmation numbers (system sync glitch)
-   ═══════════════════════════════════════════════════════════════ */
+/* ══ 7-ideations nav & ELI5 ══ */
+var dqClsCurrent=0;
+var dqELI5Selected=null;
 
-var DATA = [
-  {res_id:'OMN-284701', guest:'Margaret Chen',     email:'m.chen@deloitte.com',   phone:'617-555-0142', cin:'2026-04-10', cout:'2026-04-12', room:'Deluxe King',    rate:289, loyalty:'Select Guest', property:'Omni Parker House',       _issues:[]},
-  {res_id:'OMN-284702', guest:'James Rodriguez',   email:'j.rodriguez@gmail.com', phone:'312-555-0198', cin:'2026-04-08', cout:'2026-04-11', room:'Premier Suite',   rate:549, loyalty:'Select Guest', property:'Omni Chicago Hotel',      _issues:[]},
-  {res_id:'OMN-284703', guest:'',                   email:'walk.in@na',            phone:'',             cin:'2026-04-11', cout:'2026-04-12', room:'Standard Queen',  rate:199, loyalty:'',             property:'Omni Nashville Hotel',    _issues:['guest','email','phone','loyalty']},
-  {res_id:'OMN-284704', guest:'Sarah Mitchell',    email:'s.mitchell@amex.com',   phone:'214-555-0267', cin:'2026-04-12', cout:'2026-04-09', room:'Deluxe King',    rate:319, loyalty:'Gold',         property:'Omni Dallas Hotel',       _issues:['cout']},
-  {res_id:'OMN-284705', guest:'Robert Kim',        email:'r.kim@jpmorgan.com',    phone:'415-555-0334', cin:'2026-04-09', cout:'2026-04-13', room:'Presidential',    rate:2850,loyalty:'Platinum',      property:'Omni San Francisco',      _issues:['rate']},
-  {res_id:'OMN-284701', guest:'Margaret Chen',     email:'m.chen@deloitte.com',   phone:'617-555-0142', cin:'2026-04-10', cout:'2026-04-12', room:'Deluxe King',    rate:289, loyalty:'Select Guest', property:'Omni Parker House',       _issues:['res_id']},
-  {res_id:'OMN-284707', guest:'Patricia Alvarez',  email:'p.alvarez@',            phone:'404-555-0411', cin:'2026-04-11', cout:'2026-04-14', room:'Club Level',      rate:429, loyalty:'Gold',         property:'Omni CNN Center',         _issues:['email']},
-  {res_id:'OMN-284708', guest:'William Foster',    email:'w.foster@microsoft.com',phone:'858-555-0156', cin:'2027-12-25', cout:'2027-12-28', room:'Oceanfront King', rate:479, loyalty:'Platinum',      property:'Omni La Costa Resort',    _issues:['cin']},
-  {res_id:'OMN-284709', guest:'Lisa Nakamura',     email:'l.nakamura@sony.com',   phone:'512-555-0289', cin:'2026-04-07', cout:'2026-04-10', room:'Deluxe Double',   rate:0,   loyalty:'Select Guest', property:'Omni Barton Creek',       _issues:['rate']},
-  {res_id:'OMN-284710', guest:'David Thompson',    email:'d.thompson@ge.com',     phone:'202-555-0373', cin:'2026-04-13', cout:'2026-04-15', room:'Standard King',   rate:259, loyalty:'Gold',         property:'Omni Shoreham DC',        _issues:[]},
+var DQ_ELI5={
+  steward:{
+    label:'Data Steward',
+    title:'Data Quality Ownership &#8212; Your Role in the Pipeline',
+    run:function(){
+      return {
+        body:'As data steward, you own the quality SLA for the Opera &#8594; Snowflake pipeline. Today&#39;s extract has 6 quality issues across 10 reservations &#8212; a 25% affected-row rate. The most serious: OMN-284704 (Sarah Mitchell) has checkout before checkin. That means her Dallas stay shows as -3 nights in every revenue report until it&#39;s corrected.<br><br>Your dashboard should show this as a CRITICAL failure requiring immediate fix. The loyalty dimensions failed 50% &#8212; two of four loyalty rules &#8212; because walk-in OMN-284703 has no tier. That&#39;s an expected pattern for walk-ins. Your job: distinguish expected NULLs from unexpected ones.',
+        stats:['Affected rows: 6/10 (60%)','CRITICAL failures: 1 (date consistency)','HIGH failures: 3 (rate, email, unique)','Expected NULLs: 1 (walk-in guest)']
+      };
+    }
+  },
+  analyst:{
+    label:'BI Analyst',
+    title:'Dashboard Trust Requires Clean Upstream Data',
+    run:function(){
+      return {
+        body:'Your RevPAR dashboard is only as good as the rate data flowing into it. OMN-284709 (Lisa Nakamura, Barton Creek) has rate=$0. If that loads undetected, it drags the property ADR from $284 to $255 &#8212; an 11% apparent decline that will trigger a fire drill from the GM. And OMN-284705 (Robert Kim, San Francisco) at $2,850 is a Presidential Suite &#8212; legitimate, but a statistical outlier that skews average calculations if not flagged.<br><br>The solution: rate range validation ($89&#8211;$1,500) catches both. Outlier-adjusted ADR (trimmed mean at 5%/95% percentiles) handles legitimate luxury rates without distorting the metric.',
+        stats:['ADR impact of $0 rate: -11% distortion','Presidential suite rate: $2,850 (valid outlier)','Trimmed-mean approach: standard in hotel BI','Data quality &#8594; dashboard trust &#8594; good decisions']
+      };
+    }
+  },
+  dba:{
+    label:'DBA',
+    title:'Constraint Enforcement Strategy &#8212; Database vs. Application',
+    run:function(){
+      return {
+        body:'The architectural debate: should date consistency (checkout &gt; checkin) be a database CHECK constraint or an application-layer rule? Database constraints are faster and cannot be bypassed &#8212; but Opera PMS sometimes temporarily violates them during multi-step updates, causing load failures.<br><br>Best practice: permissive database schema (no CHECK constraints on business rules), strict application-layer validation via GE, and a separate quarantine table for failed records. This prevents Opera&#39;s transient states from blocking the ETL while still ensuring downstream tables only contain valid data.',
+        stats:['Permissive schema: no business-rule CHECK constraints','GE validation: catches Opera transient violations','Quarantine table: holds failures for remediation','Downstream tables: 100% constraint-clean data']
+      };
+    }
+  },
+  revenue:{
+    label:'Revenue Manager',
+    title:'ADR Errors from Bad Dates &#8212; Revenue at Risk',
+    run:function(){
+      return {
+        body:'Revenue managers live and die by ADR (Average Daily Rate) and RevPAR (Revenue Per Available Room). Both are calculated as total_room_revenue / occupied_room_nights. The "room nights" denominator is computed from check-in and check-out dates. OMN-284704&#39;s -3 night stay makes the denominator smaller by 3, inflating the ADR by $319/total_nights &#8212; a subtle distortion that compounds across a full property.<br><br>The ROI of this validation: one prevented ADR miscalculation averts a misguided rate strategy decision. Omni&#39;s Dallas property has 295 rooms; one bad rate decision costs $8,000&#8211;$25,000 in lost RevPAR per night. The entire data quality program is justified by a single prevented strategic error.',
+        stats:['ADR denominator corruption per bad date: 3 room-nights','Dallas property: 295 rooms','Cost of misguided rate strategy: $8K&#8211;$25K/night','ROI of DQ program: positive after first prevented error']
+      };
+    }
+  }
+};
+
+function dqSetMode(mode){
+  document.querySelectorAll('.dq-mode-btn').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('data-mode')===mode);
+  });
+  document.querySelectorAll('.dq-pane').forEach(function(p){
+    p.classList.toggle('active',p.getAttribute('data-pane')===mode);
+  });
+}
+function dqSelectPersona(key){
+  dqELI5Selected=key;
+  document.querySelectorAll('.dq-persona').forEach(function(p){
+    p.classList.toggle('selected',p.getAttribute('data-key')===key);
+  });
+  document.getElementById('dqELI5Result').classList.remove('show');
+}
+function dqRunELI5(){
+  if(!dqELI5Selected){alert('Select a persona first!');return;}
+  var p=DQ_ELI5[dqELI5Selected];
+  var data=p.run();
+  document.getElementById('dqELI5Title').innerHTML=p.title;
+  document.getElementById('dqELI5Body').innerHTML=data.body;
+  var statsHtml=data.stats.map(function(s){return '<span class="dq-eli5-stat">'+s+'</span>';}).join('');
+  document.getElementById('dqELI5Stats').innerHTML=statsHtml;
+  document.getElementById('dqELI5Result').classList.add('show');
+}
+function dqClsShowSlide(n){
+  dqClsCurrent=n;
+  document.querySelectorAll('.dq-cls-slide').forEach(function(s,i){s.classList.toggle('active',i===n);});
+  document.querySelectorAll('.dq-cls-dot').forEach(function(d,i){d.classList.toggle('active',i===n);});
+}
+function dqClsNext(){dqClsShowSlide((dqClsCurrent+1)%6);}
+function dqClsPrev(){dqClsShowSlide((dqClsCurrent+5)%6);}
+function dqGotoClsDot(n){dqClsShowSlide(n);}
+function dqShareDemo(){
+  navigator.clipboard.writeText(window.location.href).then(function(){
+    var btn=document.querySelector('.dq-share-btn');
+    btn.textContent='\u2713 Copied!';
+    setTimeout(function(){btn.innerHTML='&#x1F517; Copy Link';},2000);
+  });
+}
+function dqScrollTo(id){
+  var el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.dq-nav-btn').forEach(function(b){
+    b.classList.remove('active');
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(id)>-1) b.classList.add('active');
+  });
+}
+function dqInitNav(){
+  var fill=document.getElementById('dqProgressFill');
+  var secs=Array.from(document.querySelectorAll('.dq-section'));
+  var btns=Array.from(document.querySelectorAll('.dq-nav-btn'));
+  window.addEventListener('scroll',function(){
+    var scrolled=window.scrollY;
+    var total=document.documentElement.scrollHeight-window.innerHeight;
+    fill.style.width=(total>0?Math.min(100,scrolled/total*100):0)+'%';
+    var active=0;
+    secs.forEach(function(s,i){if(s.getBoundingClientRect().top<100)active=i;});
+    btns.forEach(function(b,i){b.classList.toggle('active',i===active);});
+  });
+}
+
+/* exports */
+window.dqSetMode=dqSetMode;
+window.dqSelectPersona=dqSelectPersona;
+window.dqRunELI5=dqRunELI5;
+window.dqClsNext=dqClsNext;
+window.dqClsPrev=dqClsPrev;
+window.dqGotoClsDot=dqGotoClsDot;
+window.dqShareDemo=dqShareDemo;
+window.dqScrollTo=dqScrollTo;
+
+/* ══ Original data quality interactive suite ══ */
+var DATA=[
+  {res_id:'OMN-284701',guest:'Margaret Chen',     email:'m.chen@deloitte.com',   phone:'617-555-0142',cin:'2026-04-10',cout:'2026-04-12',room:'Deluxe King',    rate:289, loyalty:'Select Guest',property:'Omni Parker House',       _issues:[]},
+  {res_id:'OMN-284702',guest:'James Rodriguez',   email:'j.rodriguez@gmail.com', phone:'312-555-0198',cin:'2026-04-08',cout:'2026-04-11',room:'Premier Suite',   rate:549, loyalty:'Select Guest',property:'Omni Chicago Hotel',      _issues:[]},
+  {res_id:'OMN-284703',guest:'',                  email:'walk.in@na',            phone:'',             cin:'2026-04-11',cout:'2026-04-12',room:'Standard Queen',  rate:199, loyalty:'',            property:'Omni Nashville Hotel',    _issues:['guest','email','phone','loyalty']},
+  {res_id:'OMN-284704',guest:'Sarah Mitchell',    email:'s.mitchell@amex.com',   phone:'214-555-0267',cin:'2026-04-12',cout:'2026-04-09',room:'Deluxe King',    rate:319, loyalty:'Gold',          property:'Omni Dallas Hotel',       _issues:['cout']},
+  {res_id:'OMN-284705',guest:'Robert Kim',        email:'r.kim@jpmorgan.com',    phone:'415-555-0334',cin:'2026-04-09',cout:'2026-04-13',room:'Presidential',    rate:2850,loyalty:'Platinum',      property:'Omni San Francisco',      _issues:['rate']},
+  {res_id:'OMN-284701',guest:'Margaret Chen',     email:'m.chen@deloitte.com',   phone:'617-555-0142',cin:'2026-04-10',cout:'2026-04-12',room:'Deluxe King',    rate:289, loyalty:'Select Guest',property:'Omni Parker House',       _issues:['res_id']},
+  {res_id:'OMN-284707',guest:'Patricia Alvarez',  email:'p.alvarez@',            phone:'404-555-0411',cin:'2026-04-11',cout:'2026-04-14',room:'Club Level',      rate:429, loyalty:'Gold',          property:'Omni CNN Center',         _issues:['email']},
+  {res_id:'OMN-284708',guest:'William Foster',    email:'w.foster@microsoft.com',phone:'858-555-0156',cin:'2027-12-25',cout:'2027-12-28',room:'Oceanfront King', rate:479, loyalty:'Platinum',      property:'Omni La Costa Resort',    _issues:['cin']},
+  {res_id:'OMN-284709',guest:'Lisa Nakamura',     email:'l.nakamura@sony.com',   phone:'512-555-0289',cin:'2026-04-07',cout:'2026-04-10',room:'Deluxe Double',   rate:0,   loyalty:'Select Guest',property:'Omni Barton Creek',       _issues:['rate']},
+  {res_id:'OMN-284710',guest:'David Thompson',    email:'d.thompson@ge.com',     phone:'202-555-0373',cin:'2026-04-13',cout:'2026-04-15',room:'Standard King',   rate:259, loyalty:'Gold',          property:'Omni Shoreham DC',        _issues:[]}
 ];
-
-/* ═══════════════════════════════════════════════════════════════
-   VALIDATION RULES — Great Expectations-style
-   8 rules covering all 5 quality dimensions:
-   Completeness, Validity, Uniqueness, Timeliness, Consistency
-   ═══════════════════════════════════════════════════════════════ */
-var RULES = [
-  {col:'res_id', desc:'expect_column_values_to_be_unique', param:'—', type:'UNIQUE',
-    check: function(data){ var seen={}; return data.filter(function(r){if(seen[r.res_id])return true;seen[r.res_id]=1;return false;}).length; }},
-  {col:'guest_name', desc:'expect_column_values_to_not_be_null', param:'—', type:'NOT NULL',
-    check: function(data){ return data.filter(function(r){return !r.guest||r.guest.trim()==='';}).length; }},
-  {col:'email', desc:'expect_column_values_to_match_regex', param:'/^[\\w.+-]+@[\\w-]+\\.[\\w.]+$/', type:'REGEX',
-    check: function(data){ return data.filter(function(r){return !r.email||!/^[\w.+-]+@[\w-]+\.[\w.]+$/.test(r.email);}).length; }},
-  {col:'phone', desc:'expect_column_values_to_not_be_null', param:'—', type:'NOT NULL',
-    check: function(data){ return data.filter(function(r){return !r.phone||r.phone.trim()==='';}).length; }},
-  {col:'rate', desc:'expect_column_values_to_be_between', param:'$89 – $1,500/night', type:'RANGE',
-    check: function(data){ return data.filter(function(r){return r.rate<89||r.rate>1500;}).length; }},
-  {col:'check_out', desc:'expect_checkout_after_checkin', param:'check_out > check_in', type:'CONSISTENCY',
-    check: function(data){ return data.filter(function(r){return new Date(r.cout)<=new Date(r.cin);}).length; }},
-  {col:'check_in', desc:'expect_column_values_to_be_in_the_past', param:'≤ today (in extract)', type:'DATE PAST',
-    check: function(data){ var cut=new Date('2026-04-15'); return data.filter(function(r){return new Date(r.cin)>cut;}).length; }},
-  {col:'loyalty', desc:'expect_column_values_to_be_in_set', param:'{Select Guest, Gold, Platinum}', type:'SET',
-    check: function(data){ var valid=['Select Guest','Gold','Platinum']; return data.filter(function(r){return !r.loyalty||valid.indexOf(r.loyalty)<0;}).length; }},
+var RULES=[
+  {col:'res_id',desc:'expect_column_values_to_be_unique',param:'\u2014',type:'UNIQUE',
+   check:function(data){var seen={};return data.filter(function(r){if(seen[r.res_id])return true;seen[r.res_id]=1;return false;}).length;}},
+  {col:'guest_name',desc:'expect_column_values_to_not_be_null',param:'\u2014',type:'NOT NULL',
+   check:function(data){return data.filter(function(r){return !r.guest||r.guest.trim()==='';}).length;}},
+  {col:'email',desc:'expect_column_values_to_match_regex',param:'/^[\\w.+-]+@[\\w-]+\\.[\\w.]+$/',type:'REGEX',
+   check:function(data){return data.filter(function(r){return !r.email||!/^[\w.+-]+@[\w-]+\.[\w.]+$/.test(r.email);}).length;}},
+  {col:'phone',desc:'expect_column_values_to_not_be_null',param:'\u2014',type:'NOT NULL',
+   check:function(data){return data.filter(function(r){return !r.phone||r.phone.trim()==='';}).length;}},
+  {col:'rate',desc:'expect_column_values_to_be_between',param:'$89 \u2013 $1,500/night',type:'RANGE',
+   check:function(data){return data.filter(function(r){return r.rate<89||r.rate>1500;}).length;}},
+  {col:'check_out',desc:'expect_checkout_after_checkin',param:'check_out > check_in',type:'CONSISTENCY',
+   check:function(data){return data.filter(function(r){return new Date(r.cout)<=new Date(r.cin);}).length;}},
+  {col:'check_in',desc:'expect_column_values_to_be_in_the_past',param:'\u2264 today (in extract)',type:'DATE PAST',
+   check:function(data){var cut=new Date('2026-04-15');return data.filter(function(r){return new Date(r.cin)>cut;}).length;}},
+  {col:'loyalty',desc:'expect_column_values_to_be_in_set',param:'{Select Guest, Gold, Platinum}',type:'SET',
+   check:function(data){var valid=['Select Guest','Gold','Platinum'];return data.filter(function(r){return !r.loyalty||valid.indexOf(r.loyalty)<0;}).length;}}
 ];
-
-/* ─── Render data table ─── */
 var COLS=['res_id','guest','email','phone','cin','cout','room','rate','loyalty','property'];
-var HDRS=['res_id','guest_name','email','phone','check_in','check_out','room_type','rate','loyalty','property'];
 var tbody=document.getElementById('dqDataBody');
 DATA.forEach(function(row){
   var tr=document.createElement('tr');
@@ -222,16 +736,14 @@ DATA.forEach(function(row){
   COLS.forEach(function(col){
     var td=document.createElement('td');
     var val=row[col];
-    if(col==='rate' && val!==0 && val) td.textContent='$'+val;
-    else if(val===''||val===null||val===undefined||val===0) { td.textContent=(col==='rate')?'$0':'NULL'; td.style.opacity='.4'; }
+    if(col==='rate'&&val!==0&&val) td.textContent='$'+val;
+    else if(val===''||val===null||val===undefined||val===0){td.textContent=(col==='rate')?'$0':'NULL';td.style.opacity='.4';}
     else td.textContent=val;
     if(issues.indexOf(col)>-1) td.className=issues.length>1?'dq-cell--err':'dq-cell--warn';
     tr.appendChild(td);
   });
   tbody.appendChild(tr);
 });
-
-/* ─── Render rules table ─── */
 var rulesBody=document.getElementById('dqRulesBody');
 RULES.forEach(function(rule,idx){
   var tr=document.createElement('tr');
@@ -239,58 +751,49 @@ RULES.forEach(function(rule,idx){
   tr.innerHTML='<td style="font-weight:700">'+rule.col+'</td>'
     +'<td style="font-size:.6rem;opacity:.7">'+rule.desc+'</td>'
     +'<td><code style="font-size:.58rem">'+rule.param+'</code></td>'
-    +'<td id="dq-fail-'+idx+'" style="font-size:.66rem;opacity:.45">—</td>'
-    +'<td><span class="dq-rule-status dq-rule-status--pending" id="dq-status-'+idx+'">·</span></td>';
+    +'<td id="dq-fail-'+idx+'" style="font-size:.66rem;opacity:.45">\u2014</td>'
+    +'<td><span class="dq-rule-status dq-rule-status--pending" id="dq-status-'+idx+'">\u00B7</span></td>';
   rulesBody.appendChild(tr);
 });
-
-/* ─── Run suite ─── */
-document.getElementById('dqRunBtn').addEventListener('click', function(){
+document.getElementById('dqRunBtn').addEventListener('click',function(){
   this.disabled=true;
-  this.innerHTML='<i class="fas fa-spinner fa-spin"></i> Running…';
+  this.innerHTML='<i class="fas fa-spinner fa-spin"></i> Running\u2026';
   var self=this;
   var results=[];
   function runNext(idx){
     if(idx>=RULES.length){
-      setTimeout(function(){showReport(results); self.innerHTML='<i class="fas fa-redo"></i> Re-run Suite'; self.disabled=false;},400);
+      setTimeout(function(){showReport(results);self.innerHTML='<i class="fas fa-redo"></i> Re-run Suite';self.disabled=false;},400);
       return;
     }
     var statusEl=document.getElementById('dq-status-'+idx);
     statusEl.className='dq-rule-status dq-rule-status--running';
-    statusEl.textContent='↻';
+    statusEl.textContent='\u21BB';
     setTimeout(function(){
-      try {
+      try{
         var failures=RULES[idx].check(DATA);
         results.push({rule:RULES[idx],failures:failures});
         document.getElementById('dq-fail-'+idx).textContent=failures>0?failures+' row'+(failures>1?'s':''):'0 rows';
         document.getElementById('dq-fail-'+idx).style.color=failures>0?'#ef4444':'#10b981';
         document.getElementById('dq-fail-'+idx).style.opacity='1';
         statusEl.className='dq-rule-status '+(failures===0?'dq-rule-status--pass':'dq-rule-status--fail');
-        statusEl.textContent=failures===0?'✓':'✕';
-      } catch(e){}
+        statusEl.textContent=failures===0?'\u2713':'\u2715';
+      }catch(e){}
       runNext(idx+1);
-    }, 500);
+    },500);
   }
   runNext(0);
 });
-
-/* ─── Show report ─── */
 function showReport(results){
   var panel=document.getElementById('dqScorePanel');
   panel.style.display='block';
   panel.scrollIntoView({behavior:'smooth',block:'start'});
-
   var passing=results.filter(function(r){return r.failures===0;}).length;
   var score=Math.round(passing/results.length*100);
-
-  /* Ring */
   var circumference=251.2;
   var offset=circumference*(1-score/100);
   document.getElementById('dqRingPath').style.strokeDashoffset=offset;
   document.getElementById('dqRingPath').style.stroke=score>=80?'#10b981':score>=60?'#f59e0b':'#ef4444';
   setTimeout(function(){document.getElementById('dqScoreNum').textContent=score+'%';},200);
-
-  /* Per-column badges */
   var colGrid=document.getElementById('dqColGrid');
   colGrid.innerHTML='';
   var colResults={};
@@ -299,11 +802,9 @@ function showReport(results){
     var fail=colResults[col]>0;
     var badge=document.createElement('div');
     badge.className='dq-col-badge'+(fail?' dq-col-badge--fail':'');
-    badge.innerHTML='<div class="dq-col-badge-name">'+col+'</div><div class="dq-col-badge-stat">'+(fail?'<span style="color:#ef4444">✕</span> '+colResults[col]+' issue'+(colResults[col]>1?'s':''):'<span style="color:#10b981">✓</span> OK')+'</div>';
+    badge.innerHTML='<div class="dq-col-badge-name">'+col+'</div><div class="dq-col-badge-stat">'+(fail?'<span style="color:#ef4444">\u2715</span> '+colResults[col]+' issue'+(colResults[col]>1?'s':''):'<span style="color:#10b981">\u2713</span> OK')+'</div>';
     colGrid.appendChild(badge);
   });
-
-  /* Dimensions — mapped to hospitality-specific concerns */
   var dims=[
     {name:'Completeness',pass:results.filter(function(r){return r.rule.type==='NOT NULL'&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='NOT NULL';}).length},
     {name:'Validity',pass:results.filter(function(r){return (r.rule.type==='RANGE'||r.rule.type==='REGEX'||r.rule.type==='SET')&&r.failures===0;}).length,total:results.filter(function(r){return r.rule.type==='RANGE'||r.rule.type==='REGEX'||r.rule.type==='SET';}).length},
@@ -321,6 +822,8 @@ function showReport(results){
     dimGrid.appendChild(div);
   });
 }
+
+dqInitNav();
 }());
 </script>
-{% endblock %}
+{% endblock extra_js %}
