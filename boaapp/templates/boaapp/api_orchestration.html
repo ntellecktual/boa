@@ -245,42 +245,42 @@
   </div>
   <div class="ao-story-steps">
     <div class="ao-story-step">
-      <div class="ao-story-num" style="background:rgba(99,102,241,.1)">\ud83d\udd10</div>
+      <div class="ao-story-num" style="background:rgba(99,102,241,.1)">🔐</div>
       <div class="ao-story-body">
         <h4>You Click "Buy Now" — API Gateway Receives It</h4>
         <p>Your HTTPS POST hits Amazon's API Gateway. In milliseconds: JWT validated, idempotency key issued (so a network retry never double-charges you), rate limit checked (you're at 3 of 1000 rpm), all 23 circuit breakers verified closed. The saga starts.</p>
       </div>
     </div>
     <div class="ao-story-step">
-      <div class="ao-story-num" style="background:rgba(59,130,246,.1)">\ud83d\udcb3</div>
+      <div class="ao-story-num" style="background:rgba(59,130,246,.1)">💳</div>
       <div class="ao-story-body">
         <h4>Stripe Authorizes — But Does Not Charge — Your Card</h4>
         <p>Stripe runs 300+ fraud signals in 800ms. Your card is authorized (funds ring-fenced) but NOT yet captured. If the warehouse is out of stock, Amazon voids the authorization — you never see a pending charge.</p>
       </div>
     </div>
     <div class="ao-story-step">
-      <div class="ao-story-num" style="background:rgba(16,185,129,.1)">\ud83d\udce6</div>
+      <div class="ao-story-num" style="background:rgba(16,185,129,.1)">📦</div>
       <div class="ao-story-body">
         <h4>Phoenix Warehouse PHX7 Reserves Your Stock</h4>
         <p>The nearest fulfillment center decrements the MacBook Pro counter atomically. If this saga fails later, a compensation fires: inventory.release(sku, qty). Stock is restored — Amazon can't oversell an item.</p>
       </div>
     </div>
     <div class="ao-story-step">
-      <div class="ao-story-num" style="background:rgba(245,158,11,.1)">\ud83d\ude9a</div>
+      <div class="ao-story-num" style="background:rgba(245,158,11,.1)">🚚</div>
       <div class="ao-story-body">
         <h4>FedEx Label Created (UPS Fallback if FedEx Times Out)</h4>
         <p>FedEx API generates a tracking number. Timeout? Exponential backoff: retry at 1s, 2s, 4s with ±30% jitter. After 3 failures, the circuit breaker opens — Amazon's gateway auto-routes to UPS. You never know it happened.</p>
       </div>
     </div>
     <div class="ao-story-step">
-      <div class="ao-story-num" style="background:rgba(6,182,212,.1)">\ud83d\udcb0</div>
+      <div class="ao-story-num" style="background:rgba(6,182,212,.1)">💰</div>
       <div class="ao-story-body">
         <h4>Now Stripe Captures the Payment</h4>
         <p>Only after inventory is reserved and a shipping label exists does Stripe capture your card. Authorize-then-capture: you're never charged for an order Amazon can't fulfill. The saga commits all 6 steps atomically.</p>
       </div>
     </div>
     <div class="ao-story-step">
-      <div class="ao-story-num" style="background:rgba(139,92,246,.1)">\u2705</div>
+      <div class="ao-story-num" style="background:rgba(139,92,246,.1)">✅</div>
       <div class="ao-story-body">
         <h4>23 Notifications Fire in Parallel</h4>
         <p>Confirmation email (SES), push notification (SNS), #orders Slack webhook, your registered endpoint — fired in parallel via async tasks. OpenTelemetry traces the full saga: 23 spans across 6 services, under 100ms total.</p>
