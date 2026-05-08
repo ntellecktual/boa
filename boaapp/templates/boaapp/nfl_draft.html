@@ -1203,6 +1203,13 @@ function ndRunELI5(){
       var score=p.rankScore*w;
       if((posHave[p.pos]||0)<(posNeeds[p.pos]||1))score*=1.15;
       else score*=0.35;
+      /* ADP urgency: prevent elite players from falling past their expected round.
+         adpRound = what round this player should go in (ADP 1-12 = round 1, etc.).
+         roundLag  = how many rounds later than expected this pick would be.
+         Exponential penalty prevents a top-4 RB like Saquon from appearing in R6+. */
+      var adpRound=Math.max(1,Math.ceil(p.adp/12));
+      var roundLag=rnd-adpRound;
+      if(roundLag>2)score*=Math.max(0.05,1.0-(roundLag-2)*0.4);
       score*=(0.92+Math.random()*0.16);
       if(score>bestScore){best=p;bestScore=score;bestIdx=i;}
     }
@@ -1370,7 +1377,8 @@ var RAW=[
 ["Jahmyr Gibbs",'RB','DET',5,10,2,1000,9,60,510,3],
 ["Malik Nabers",'WR','NYG',8,11,2,100,1350,11,25,0],
 ["Marvin Harrison Jr.",'WR','ARI',11,12,2,95,1300,12,15,0],
-["Drake London",'WR','ATL',12,13,2,98,1280,9,20,0],
+["Tyreek Hill",'WR','MIA',6,13,2,88,1200,9,25,0],
+["Drake London",'WR','ATL',12,14,2,98,1280,9,20,0],
 ["Jonathan Taylor",'RB','IND',14,14,2,1200,10,40,320,2],
 ["Nico Collins",'WR','HOU',14,15,2,88,1340,10,10,0],
 ["Kyren Williams",'RB','LAR',5,16,2,1150,11,42,300,2],
@@ -1378,7 +1386,8 @@ var RAW=[
 ["Garrett Wilson",'WR','NYJ',12,18,2,93,1220,8,20,0],
 ["A.J. Brown",'WR','PHI',5,19,3,85,1250,9,15,0],
 ["Josh Jacobs",'RB','GB',10,20,3,1180,10,38,280,1],
-["Derrick Henry",'RB','BAL',8,21,3,1350,13,25,180,0],
+["Christian McCaffrey",'RB','SF',9,21,3,1100,10,58,460,3],
+["Derrick Henry",'RB','BAL',8,22,3,1350,13,25,180,0],
 ["Chris Olave",'WR','NO',8,22,3,90,1180,8,10,0],
 ["DeVonta Smith",'WR','PHI',5,23,3,87,1150,7,15,0],
 ["Kenneth Walker III",'RB','SEA',10,24,3,1120,9,32,240,1],
@@ -1403,7 +1412,7 @@ var RAW=[
 ["Patrick Mahomes",'QB','KC',6,43,4,4600,33,10,350,3],
 ["Courtland Sutton",'WR','DEN',14,44,4,76,980,7,5,0],
 ["Alvin Kamara",'RB','NO',8,45,4,750,6,68,550,3],
-["Travis Kelce",'TE','KC',6,46,4,78,850,5,0,0],
+["Travis Kelce",'TE','KC',6,35,3,78,850,5,0,0],
 ["Christian Watson",'WR','GB',10,47,4,65,1020,9,20,0],
 ["Terry McLaurin",'WR','WAS',14,48,4,75,980,7,10,0],
 ["Joe Burrow",'QB','CIN',7,49,4,4500,34,9,150,2],
@@ -1743,7 +1752,8 @@ function aiPick(teamIdx){
   var roster=teamRosters[teamIdx];
   var posCts={QB:0,RB:0,WR:0,TE:0,K:0,DST:0};
   roster.forEach(function(p){posCts[p.pos]++});
-  var needs={QB:3,RB:5,WR:5,TE:2,K:2,DST:2};
+  var currentRound=draftQueue[draftCursor]?draftQueue[draftCursor].round:0;
+  var needs={QB:2,RB:5,WR:5,TE:2,K:2,DST:2};
   var bestIdx=0,bestVal=-Infinity;
   var scanLen=Math.min(available.length,60);
   for(var i=0;i<scanLen;i++){
@@ -1751,6 +1761,10 @@ function aiPick(teamIdx){
     var val=p.vor*(w[p.pos]||1);
     if(posCts[p.pos]<needs[p.pos])val*=1.15;
     if(posCts[p.pos]>=needs[p.pos])val*=0.45;
+    /* QB anti-stack: no rational drafter takes a 2nd QB before round 9.
+       Apply near-zero multiplier to prevent back-to-back QB selections. */
+    if(p.pos==='QB'&&posCts.QB>=1&&currentRound<9)val*=0.04;
+    if(p.pos==='QB'&&posCts.QB>=2)val*=0.02;
     var rem=0;for(var j=0;j<Math.min(available.length,40);j++){if(available[j].pos===p.pos)rem++}
     if(rem<=3)val*=1.35;else if(rem<=6)val*=1.12;
     var overallPick=allPicks.length+1;
