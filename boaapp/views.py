@@ -276,6 +276,11 @@ def health_check(request):
     return JsonResponse(status, status=http_status)
 
 
+def recruiter_landing(request):
+    """Recruiter-focused landing page — optimized for hiring managers and recruiters."""
+    return render(request, 'boaapp/recruiter_landing.html', {'page_id': 'recruiter_landing'})
+
+
 def home_view(request):
     """Authenticated dashboard, or public landing page for guests."""
     # TEMP: always show dashboard for public demo (login disabled)

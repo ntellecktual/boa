@@ -15,6 +15,8 @@ urlpatterns = [
     path('api/v1/', ninja_api.urls),
     # Social Auth (allauth)
     path('accounts/', include('allauth.urls')),
+    # Recruiter Landing
+    path('hire/', boaapp_views.recruiter_landing, name='recruiter_landing'),
     # Auth
     path('register/', boaapp_views.register, name='register'),
     path('login/', boaapp_views.login_view, name='login'),

@@ -1,0 +1,813 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}Kieth — Platform & Data Engineer | thenumerix{% endblock %}
+{% block meta_description %}Platform Engineer, Data Engineer, AI Systems. Cloud-native architecture, data pipelines, and business automation. Open to opportunities.{% endblock %}
+{% block og_title %}Kieth — Platform & Data Engineer{% endblock %}
+{% block og_description %}Cloud-native systems, data pipelines, MLOps, AI automation. 7+ years building production infrastructure.{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ═══════════════════════════════════════════════════
+   RECRUITER LANDING — Conversion-focused design
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  --r-bg: #f9fafb;
+  --r-surface: #fff;
+  --r-border: rgba(0, 0, 0, 0.08);
+  --r-text: #1a1a1a;
+  --r-text-muted: #666;
+  --r-accent: #3b82f6;
+  --r-accent-light: #dbeafe;
+  --r-success: #10b981;
+  --r-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --r-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] {
+  --r-bg: #0f1117;
+  --r-surface: #1a1d2e;
+  --r-border: rgba(255, 255, 255, 0.1);
+  --r-text: #e2e8f0;
+  --r-text-muted: #94a3b8;
+  --r-accent: #3b82f6;
+  --r-accent-light: rgba(59, 130, 246, 0.1);
+  --r-success: #10b981;
+  --r-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  --r-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+body.recruiter_landing {
+  background: var(--r-bg);
+  color: var(--r-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.r-hide-sidebar {
+  --sidebar-width: 0;
+}
+
+.r-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
+}
+
+/* ── Hero Section ── */
+.r-hero {
+  padding: 3.5rem 0 2.5rem;
+  text-align: center;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.r-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: var(--r-accent-light);
+  color: var(--r-accent);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.r-hero-badge i {
+  font-size: 0.8rem;
+}
+
+.r-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  margin: 0.5rem 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.r-hero-title-highlight {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.r-hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--r-text-muted);
+  margin: 1rem 0 1.5rem;
+  max-width: 600px;
+  line-height: 1.6;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.r-hero-roles {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.r-role-badge {
+  padding: 0.35rem 0.8rem;
+  background: var(--r-surface);
+  border: 1px solid var(--r-border);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--r-text);
+}
+
+.r-role-badge.primary {
+  background: var(--r-accent);
+  color: white;
+  border-color: var(--r-accent);
+}
+
+/* ── CTA Section ── */
+.r-cta-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.r-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.r-btn-primary {
+  background: var(--r-accent);
+  color: white;
+  box-shadow: var(--r-shadow);
+}
+
+.r-btn-primary:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: var(--r-shadow-lg);
+  text-decoration: none;
+  color: white;
+}
+
+.r-btn-secondary {
+  background: var(--r-surface);
+  color: var(--r-text);
+  border: 1.5px solid var(--r-border);
+}
+
+.r-btn-secondary:hover {
+  border-color: var(--r-accent);
+  color: var(--r-accent);
+  text-decoration: none;
+  background: var(--r-accent-light);
+}
+
+/* ── Status Bar ── */
+.r-status-bar {
+  background: var(--r-surface);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  box-shadow: var(--r-shadow);
+}
+
+.r-status-item {
+  text-align: center;
+}
+
+.r-status-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--r-text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.r-status-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--r-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.r-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--r-success);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ── Divider ── */
+.r-divider {
+  height: 1px;
+  background: var(--r-border);
+  margin: 3rem 0;
+}
+
+/* ── Value Props ── */
+.r-section-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.r-value-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.r-value-card {
+  background: var(--r-surface);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s;
+  box-shadow: var(--r-shadow);
+}
+
+.r-value-card:hover {
+  border-color: var(--r-accent);
+  transform: translateY(-4px);
+  box-shadow: var(--r-shadow-lg);
+}
+
+.r-value-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--r-accent);
+}
+
+.r-value-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--r-text);
+}
+
+.r-value-desc {
+  font-size: 0.9rem;
+  color: var(--r-text-muted);
+  line-height: 1.5;
+}
+
+/* ── Work Samples ── */
+.r-work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.r-work-card {
+  background: var(--r-surface);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s;
+  box-shadow: var(--r-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.r-work-card:hover {
+  border-color: var(--r-accent);
+  transform: translateY(-4px);
+  box-shadow: var(--r-shadow-lg);
+}
+
+.r-work-thumb {
+  height: 140px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+}
+
+.r-work-card:nth-child(2) .r-work-thumb {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.r-work-card:nth-child(3) .r-work-thumb {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.r-work-card:nth-child(4) .r-work-thumb {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.r-work-body {
+  padding: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.r-work-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--r-text);
+}
+
+.r-work-summary {
+  font-size: 0.85rem;
+  color: var(--r-text-muted);
+  margin-bottom: 1rem;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.r-work-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.r-tag {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  background: var(--r-accent-light);
+  color: var(--r-accent);
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* ── Stack ── */
+.r-stack-section {
+  background: var(--r-surface);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: var(--r-shadow);
+}
+
+.r-stack-subtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--r-text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 1.2rem;
+}
+
+.r-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.r-stack-item {
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--r-bg);
+  border: 1px solid var(--r-border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--r-text);
+  transition: all 0.2s;
+}
+
+.r-stack-item:hover {
+  border-color: var(--r-accent);
+  background: var(--r-accent-light);
+  color: var(--r-accent);
+}
+
+/* ── Contact Section ── */
+.r-contact-section {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 2.5rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  box-shadow: var(--r-shadow);
+}
+
+.r-contact-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--r-text);
+}
+
+.r-contact-subtitle {
+  font-size: 0.95rem;
+  color: var(--r-text-muted);
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.r-contact-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.r-contact-btn {
+  padding: 0.65rem 1.2rem;
+  background: var(--r-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.r-contact-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  text-decoration: none;
+  color: white;
+}
+
+.r-contact-btn.secondary {
+  background: var(--r-surface);
+  color: var(--r-accent);
+  border: 1.5px solid var(--r-accent);
+}
+
+.r-contact-btn.secondary:hover {
+  background: var(--r-accent-light);
+}
+
+/* ── Footer ── */
+.r-footer {
+  text-align: center;
+  padding: 2rem 0;
+  border-top: 1px solid var(--r-border);
+  color: var(--r-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.r-section-title {
+  animation: fadeInUp 0.5s ease-out 0.1s both;
+}
+
+.r-value-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.r-value-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.r-value-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.r-work-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.r-work-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.r-work-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.r-work-card:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .r-hero {
+    padding: 2.5rem 0 1.5rem;
+  }
+
+  .r-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .r-status-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .r-value-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .r-work-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .r-cta-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .r-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .r-contact-buttons {
+    flex-direction: column;
+  }
+
+  .r-contact-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+</style>
+{% endblock %}
+
+{% block body_class %}recruiter_landing has-no-sidebar{% endblock %}
+
+<div class="r-hide-sidebar">
+  <div class="r-container">
+    <!-- ── Hero ── -->
+    <section class="r-hero">
+      <div class="r-hero-badge">
+        <i class="fas fa-circle-check"></i>
+        <span>Open to Opportunities</span>
+      </div>
+
+      <h1>
+        Kieth<br />
+        <span class="r-hero-title-highlight">Platform Engineer & Data Systems Builder</span>
+      </h1>
+
+      <p class="r-hero-subtitle">
+        I design and scale cloud-native systems, data pipelines, and AI-enabled automation.
+        <br />
+        Production-grade infrastructure, not proof-of-concepts.
+      </p>
+
+      <div class="r-hero-roles">
+        <span class="r-role-badge primary">Platform Engineer</span>
+        <span class="r-role-badge">Data Engineer</span>
+        <span class="r-role-badge">ML Systems</span>
+      </div>
+
+      <div class="r-cta-group">
+        <a href="{% url 'portfolio_showcase' %}" class="r-btn r-btn-primary">
+          <i class="fas fa-briefcase"></i>
+          View Work
+        </a>
+        <a href="https://github.com/ntellecktual" target="_blank" rel="noopener noreferrer" class="r-btn r-btn-secondary">
+          <i class="fab fa-github"></i>
+          GitHub
+        </a>
+        <a href="mailto:hello@thenumerix.dev" class="r-btn r-btn-secondary">
+          <i class="fas fa-envelope"></i>
+          Email
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Status Bar ── -->
+    <section class="r-status-bar">
+      <div class="r-status-item">
+        <div class="r-status-label">Current Focus</div>
+        <div class="r-status-value">
+          Platform & Data
+        </div>
+      </div>
+      <div class="r-status-item">
+        <div class="r-status-label">Availability</div>
+        <div class="r-status-value">
+          <span class="r-status-badge">
+            <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+            Available
+          </span>
+        </div>
+      </div>
+      <div class="r-status-item">
+        <div class="r-status-label">Remote</div>
+        <div class="r-status-value">Anywhere</div>
+      </div>
+      <div class="r-status-item">
+        <div class="r-status-label">Visa</div>
+        <div class="r-status-value">US Citizen</div>
+      </div>
+    </section>
+
+    <div class="r-divider"></div>
+
+    <!-- ── Value Props ── -->
+    <section>
+      <h2 class="r-section-title">What I Build</h2>
+
+      <div class="r-value-grid">
+        <div class="r-value-card">
+          <div class="r-value-icon">☁️</div>
+          <div class="r-value-title">Cloud-Native Architecture</div>
+          <div class="r-value-desc">
+            Scalable, resilient infrastructure on Azure, AWS, GCP. DevOps, CI/CD, infrastructure-as-code.
+          </div>
+        </div>
+
+        <div class="r-value-card">
+          <div class="r-value-icon">📊</div>
+          <div class="r-value-title">Data Pipelines & Orchestration</div>
+          <div class="r-value-desc">
+            ETL, streaming, data quality. Kafka, Spark, Airflow. From raw data to business intelligence.
+          </div>
+        </div>
+
+        <div class="r-value-card">
+          <div class="r-value-icon">🤖</div>
+          <div class="r-value-title">AI & Automation</div>
+          <div class="r-value-desc">
+            LLM workflows, document intelligence, business process automation. Productionized AI systems.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="r-divider"></div>
+
+    <!-- ── Work Samples ── -->
+    <section>
+      <h2 class="r-section-title">Featured Work</h2>
+
+      <div class="r-work-grid">
+        <div class="r-work-card">
+          <div class="r-work-thumb">🏗️</div>
+          <div class="r-work-body">
+            <div class="r-work-title">Platform Engineering</div>
+            <div class="r-work-summary">
+              Azure DevOps pipelines, Databricks automation, Entra ID integration. NFL partner case study.
+            </div>
+            <div class="r-work-tags">
+              <span class="r-tag">Azure</span>
+              <span class="r-tag">DevOps</span>
+              <span class="r-tag">Databricks</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="r-work-card">
+          <div class="r-work-thumb">📈</div>
+          <div class="r-work-body">
+            <div class="r-work-title">MLOps Lifecycle</div>
+            <div class="r-work-summary">
+              Model training, MLflow, blue-green deployment on AKS. MLB partner case study.
+            </div>
+            <div class="r-work-tags">
+              <span class="r-tag">MLOps</span>
+              <span class="r-tag">AKS</span>
+              <span class="r-tag">MLflow</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="r-work-card">
+          <div class="r-work-thumb">⚡</div>
+          <div class="r-work-body">
+            <div class="r-work-title">Streaming Architecture</div>
+            <div class="r-work-summary">
+              Real-time event processing with Kafka, Flink. Netflix-scale patterns and designs.
+            </div>
+            <div class="r-work-tags">
+              <span class="r-tag">Kafka</span>
+              <span class="r-tag">Flink</span>
+              <span class="r-tag">Streaming</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="r-work-card">
+          <div class="r-work-thumb">🔌</div>
+          <div class="r-work-body">
+            <div class="r-work-title">AI Process Automation</div>
+            <div class="r-work-summary">
+              End-to-end RAG pipelines, LLM workflows, document processing. Oracle Finance integration.
+            </div>
+            <div class="r-work-tags">
+              <span class="r-tag">LLM</span>
+              <span class="r-tag">RAG</span>
+              <span class="r-tag">Python</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="{% url 'portfolio_showcase' %}" class="r-btn r-btn-secondary">
+          <i class="fas fa-arrow-right"></i>
+          View All Projects
+        </a>
+      </div>
+    </section>
+
+    <div class="r-divider"></div>
+
+    <!-- ── Tech Stack ── -->
+    <section class="r-stack-section">
+      <div class="r-stack-subtitle">🛠️ Tech Stack</div>
+
+      <div class="r-stack-grid">
+        <div class="r-stack-item">Python</div>
+        <div class="r-stack-item">Django</div>
+        <div class="r-stack-item">PostgreSQL</div>
+        <div class="r-stack-item">Azure</div>
+        <div class="r-stack-item">AWS</div>
+        <div class="r-stack-item">Kubernetes</div>
+        <div class="r-stack-item">Kafka</div>
+        <div class="r-stack-item">Spark</div>
+        <div class="r-stack-item">Docker</div>
+        <div class="r-stack-item">CI/CD</div>
+        <div class="r-stack-item">Terraform</div>
+        <div class="r-stack-item">LLMs</div>
+      </div>
+    </section>
+
+    <!-- ── Contact Section ── -->
+    <section class="r-contact-section">
+      <h2 class="r-contact-title">Let's Talk</h2>
+      <p class="r-contact-subtitle">
+        Whether you're looking for help with platform engineering, data infrastructure, or AI automation, I'm excited to explore opportunities where I can make an impact.
+      </p>
+
+      <div class="r-contact-buttons">
+        <a href="mailto:hello@thenumerix.dev" class="r-contact-btn">
+          <i class="fas fa-envelope"></i>
+          Email Me
+        </a>
+        <a href="https://www.linkedin.com/in/kieth/" target="_blank" rel="noopener noreferrer" class="r-contact-btn secondary">
+          <i class="fab fa-linkedin"></i>
+          LinkedIn
+        </a>
+        <a href="https://github.com/ntellecktual" target="_blank" rel="noopener noreferrer" class="r-contact-btn secondary">
+          <i class="fab fa-github"></i>
+          GitHub
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer class="r-footer">
+      <p>thenumerix.dev | Platform Engineer, Data Systems Builder</p>
+      <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+        <a href="{% url 'home' %}" style="color: var(--r-text-muted); text-decoration: none;">Full Portfolio</a> •
+        <a href="{% url 'education_details' %}" style="color: var(--r-text-muted); text-decoration: none;">Education</a> •
+        <a href="https://github.com/ntellecktual/boa" target="_blank" rel="noopener noreferrer" style="color: var(--r-text-muted); text-decoration: none;">This Site</a>
+      </p>
+    </footer>
+  </div>
+</div>
