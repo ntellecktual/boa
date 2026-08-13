@@ -960,6 +960,25 @@
 
 </div><!-- /pt-detail -->
 
+<!-- ════════════════════════════════════════════════════════
+     FOOTER CTA — Link to Demos
+════════════════════════════════════════════════════════ -->
+<div style="text-align:center;margin-top:3rem;padding:3rem 1rem;border-top:1px solid var(--c-border);background:var(--c-card)">
+  <h3 style="font-size:1.3rem;font-weight:800;color:var(--c-text);margin-bottom:.5rem">
+    Ready to Explore the Technical Details?
+  </h3>
+  <p style="font-size:.95rem;color:var(--c-muted);max-width:600px;margin:0 auto 1.5rem;line-height:1.6">
+    These production systems are powered by comprehensive technical architectures. Discover interactive demos 
+    showcasing CI/CD pipelines, data engineering, ML systems, and cloud platform engineering.
+  </p>
+  <a href="{% url 'demos_hub' %}" style="display:inline-flex;align-items:center;gap:.5rem;
+    padding:.7rem 1.8rem;border-radius:14px;background:var(--c-blue);color:#fff;
+    text-decoration:none;font-weight:700;font-size:.9rem;transition:all .2s;
+    box-shadow:0 4px 15px rgba(59,130,246,.3)">
+    <i class="fas fa-rocket"></i> Explore Demos Hub
+  </a>
+</div>
+
 {% endblock content %}
 
 {% block extra_js %}

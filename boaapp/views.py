@@ -305,6 +305,159 @@ def home_view(request):
     return render(request, 'boaapp/home.html')
 
 
+def demos_hub(request):
+    """Central hub showcasing all technical demos and interactive projects."""
+    demos = [
+        {
+            'id': 'platform-engineering',
+            'name': 'CI/CD Platform Engineering',
+            'description': 'Enterprise-grade DevOps automation with three production pipelines.',
+            'long_description': 'Explore end-to-end CI/CD automation, GitHub Actions + Databricks orchestration, and Entra ID RBAC management.',
+            'icon': '🚀',
+            'tags': ['Azure', 'DevOps', 'CI/CD', 'IaC'],
+            'difficulty': 'Intermediate',
+            'time': '8-12 min',
+            'url': 'platform_engineering',
+            'path': 'Platform Engineer Path',
+        },
+        {
+            'id': 'mlops-lifecycle',
+            'name': 'MLOps Lifecycle',
+            'description': 'End-to-end ML pipeline: training, registry, versioning, deployment.',
+            'long_description': 'Build and deploy an ML model with MLflow, including model registry, automated retraining, and prediction.',
+            'icon': '🧠',
+            'tags': ['ML', 'MLflow', 'Python', 'Data'],
+            'difficulty': 'Intermediate',
+            'time': '10-15 min',
+            'url': 'mlops_lifecycle',
+            'path': 'AI Systems Path',
+        },
+        {
+            'id': 'streaming-architecture',
+            'name': 'Healthcare MDM - Streaming',
+            'description': 'Real-time data unification with Kafka for 40M healthcare records.',
+            'long_description': 'Process streaming data with sub-100ms latency using Kafka, Delta Lake, and Spark.',
+            'icon': '📊',
+            'tags': ['Kafka', 'Spark', 'Data', 'Streaming'],
+            'difficulty': 'Advanced',
+            'time': '12-15 min',
+            'url': 'streaming_architecture',
+            'path': 'Data Engineer Path',
+        },
+        {
+            'id': 'api-orchestration',
+            'name': 'API Orchestration & Rate Limiting',
+            'description': 'Multi-API aggregation with intelligent rate limiting and caching.',
+            'long_description': 'Orchestrate multiple external APIs with smart rate limiting, circuit breakers, and response caching.',
+            'icon': '🔗',
+            'tags': ['APIs', 'Python', 'Rate Limiting', 'Integration'],
+            'difficulty': 'Beginner',
+            'time': '5-8 min',
+            'url': 'api_orchestration',
+            'path': 'Platform Engineer Path',
+        },
+        {
+            'id': 'idp-demo',
+            'name': 'Intelligent Document Processing',
+            'description': 'Extract, classify, and process documents with AI.',
+            'long_description': 'Use Computer Vision and LLMs to automatically extract data from PDFs and forms.',
+            'icon': '📄',
+            'tags': ['Document AI', 'Vision', 'LLM', 'Automation'],
+            'difficulty': 'Intermediate',
+            'time': '8-10 min',
+            'url': 'idp_demo',
+            'path': 'AI Systems Path',
+        },
+        {
+            'id': 'feature-store',
+            'name': 'Feature Store & ML Registry',
+            'description': 'Centralized feature management for ML models.',
+            'long_description': 'Manage features, versioning, and artifacts for reproducible ML workflows.',
+            'icon': '🏪',
+            'tags': ['ML', 'Feature Engineering', 'Data', 'Registry'],
+            'difficulty': 'Advanced',
+            'time': '10-12 min',
+            'url': 'feature_store',
+            'path': 'AI Systems Path',
+        },
+        {
+            'id': 'data-quality',
+            'name': 'Data Quality & Validation',
+            'description': 'Monitor and validate data pipelines for quality and compliance.',
+            'long_description': 'Implement automated data quality checks, profiling, and anomaly detection.',
+            'icon': '✓',
+            'tags': ['Data', 'Validation', 'Quality', 'Monitoring'],
+            'difficulty': 'Intermediate',
+            'time': '8-10 min',
+            'url': 'data_quality',
+            'path': 'Data Engineer Path',
+        },
+        {
+            'id': 'anomaly-detection',
+            'name': 'Anomaly Detection & Alerting',
+            'description': 'Detect unusual patterns in data with ML-based monitoring.',
+            'long_description': 'Build real-time anomaly detection systems with automated alerting.',
+            'icon': '🚨',
+            'tags': ['ML', 'Monitoring', 'Alerting', 'Analytics'],
+            'difficulty': 'Advanced',
+            'time': '10-12 min',
+            'url': 'anomaly_detection',
+            'path': 'AI Systems Path',
+        },
+        {
+            'id': 'supply-chain',
+            'name': 'Supply Chain Analytics',
+            'description': 'Real-time supply chain visibility and optimization.',
+            'long_description': 'Track and optimize supply chain operations with data analytics.',
+            'icon': '🏭',
+            'tags': ['Analytics', 'Business', 'Data', 'Optimization'],
+            'difficulty': 'Intermediate',
+            'time': '10-12 min',
+            'url': 'supply_chain',
+            'path': 'Data Engineer Path',
+        },
+        {
+            'id': 'multi-agent',
+            'name': 'Multi-Agent Systems',
+            'description': 'Orchestrate multiple AI agents for complex workflows.',
+            'long_description': 'Build autonomous agent systems that collaborate to solve complex problems.',
+            'icon': '🤖',
+            'tags': ['AI', 'Agents', 'LLM', 'Orchestration'],
+            'difficulty': 'Advanced',
+            'time': '12-15 min',
+            'url': 'multi_agent',
+            'path': 'AI Systems Path',
+        },
+        {
+            'id': 'humana-mdm',
+            'name': 'Healthcare MDM - Data Architecture',
+            'description': 'Master data management for 40M healthcare records.',
+            'long_description': 'Design and implement a robust MDM solution for healthcare data.',
+            'icon': '🏥',
+            'tags': ['Healthcare', 'Data', 'Architecture', 'MDM'],
+            'difficulty': 'Advanced',
+            'time': '12-15 min',
+            'url': 'humana_mdm',
+            'path': 'Data Engineer Path',
+        },
+    ]
+
+    # Group by skill path
+    paths = {}
+    for demo in demos:
+        path = demo['path']
+        if path not in paths:
+            paths[path] = []
+        paths[path].append(demo)
+
+    context = {
+        'demos': demos,
+        'paths': paths,
+        'total_demos': len(demos),
+    }
+    return render(request, 'boaapp/demos_hub.html', context)
+
+
 @login_required
 def profile_view(request):
     """View and update user profile (name, email)."""

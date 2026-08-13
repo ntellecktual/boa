@@ -84,6 +84,8 @@ urlpatterns = [
     path('data_start/', boaapp_views.data_start, name='data_start'),
     path('data_project/', boaapp_views.data_project, name='data_project'),
     path('live_demos/', boaapp_views.live_demos, name='live_demos'),
+    # Demos Hub - Central directory of all technical demos
+    path('demos/', boaapp_views.demos_hub, name='demos_hub'),
     # Demo Showcase Pages
     path('platform_engineering/', boaapp_views.platform_engineering, name='platform_engineering'),
     path('humana_mdm/', boaapp_views.humana_mdm, name='humana_mdm'),

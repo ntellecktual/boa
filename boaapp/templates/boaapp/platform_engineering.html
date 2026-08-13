@@ -208,6 +208,32 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
 .nd-decisions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:940px;margin:0 auto}
 @media(max-width:700px){.nd-decisions{grid-template-columns:1fr}}
 
+/* -- What You'll Learn Section -- */
+.nd-learn{max-width:960px;margin:2rem auto;padding:1.5rem 1.2rem;border-radius:16px;
+  border:1px solid var(--nd-border);background:var(--nd-surface);backdrop-filter:blur(12px);
+  box-shadow:var(--nd-shadow)}
+.nd-learn-title{font-size:.95rem;font-weight:800;margin-bottom:1rem;color:var(--nd-blue);
+  display:flex;align-items:center;gap:.5rem}
+.nd-learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1rem}
+.nd-learn-item{display:flex;gap:.6rem;padding:.7rem;border-radius:12px;background:rgba(59,130,246,.04);
+  border:1px solid rgba(59,130,246,.1)}
+.nd-learn-item-icon{font-size:1.3rem;min-width:28px;text-align:center}
+.nd-learn-item-text{flex:1}
+.nd-learn-item-label{font-size:.8rem;font-weight:700;margin-bottom:.15rem}
+.nd-learn-item-desc{font-size:.72rem;opacity:.7;line-height:1.4}
+.nd-learn-quickstart{border-top:1px solid var(--nd-border);padding-top:1rem}
+.nd-learn-quickstart-title{font-size:.82rem;font-weight:800;margin-bottom:.6rem}
+.nd-learn-steps{display:flex;flex-direction:column;gap:.5rem}
+.nd-learn-step{display:flex;gap:.6rem;font-size:.75rem}
+.nd-learn-step-num{font-weight:800;width:20px;height:20px;border-radius:50%;background:var(--nd-blue);
+  color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nd-learn-step-text{opacity:.75;line-height:1.5}
+.nd-learn-cta{display:inline-flex;align-items:center;gap:.4rem;margin-top:.8rem;
+  padding:.5rem .9rem;border-radius:10px;background:var(--nd-blue);color:#fff;
+  text-decoration:none;font-size:.78rem;font-weight:700;transition:all .2s}
+.nd-learn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,.3)}
+
+
 /* -- Production Implementation blocks -- */
 .nd-impl{max-width:940px;margin:0 auto}
 .nd-impl details{border-radius:14px;border:1px solid var(--nd-border);background:var(--nd-card);margin-bottom:.8rem;overflow:hidden}
@@ -242,6 +268,81 @@ pre.nd-code{margin:0;font-family:'Courier New',monospace;font-size:.72rem;line-h
     </div>
   </div>
 </section>
+
+<!-- ════════════════════════════════════════════════════════
+     WHAT YOU'LL LEARN — Quick Orientation
+════════════════════════════════════════════════════════ -->
+<div class="nd-learn">
+  <div class="nd-learn-title">
+    <i class="fas fa-star" style="color:var(--nd-emerald)"></i>
+    What You'll Explore
+  </div>
+  
+  <div class="nd-learn-grid">
+    <div class="nd-learn-item">
+      <div class="nd-learn-item-icon">🚀</div>
+      <div class="nd-learn-item-text">
+        <div class="nd-learn-item-label">CI/CD Automation</div>
+        <div class="nd-learn-item-desc">GitHub Actions + Azure DevOps orchestration for enterprise deployments</div>
+      </div>
+    </div>
+    
+    <div class="nd-learn-item">
+      <div class="nd-learn-item-icon">📊</div>
+      <div class="nd-learn-item-text">
+        <div class="nd-learn-item-label">Data Platform Ops</div>
+        <div class="nd-learn-item-desc">Databricks clusters, job scheduling, and production workflows</div>
+      </div>
+    </div>
+    
+    <div class="nd-learn-item">
+      <div class="nd-learn-item-icon">🔐</div>
+      <div class="nd-learn-item-text">
+        <div class="nd-learn-item-label">Identity & Access</div>
+        <div class="nd-learn-item-desc">Entra ID RBAC, service principals, and privilege management</div>
+      </div>
+    </div>
+    
+    <div class="nd-learn-item">
+      <div class="nd-learn-item-icon">⚙️</div>
+      <div class="nd-learn-item-text">
+        <div class="nd-learn-item-label">IaC & Configuration</div>
+        <div class="nd-learn-item-desc">Infrastructure as Code patterns and deployment strategies</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nd-learn-quickstart">
+    <div class="nd-learn-quickstart-title">
+      <i class="fas fa-rocket" style="margin-right:.3rem;color:var(--nd-blue)"></i>
+      Quick Start (3 steps)
+    </div>
+    <div class="nd-learn-steps">
+      <div class="nd-learn-step">
+        <div class="nd-learn-step-num">1</div>
+        <div class="nd-learn-step-text">
+          Click a tab above to explore a pipeline demo (Azure DevOps, Databricks, or Entra ID)
+        </div>
+      </div>
+      <div class="nd-learn-step">
+        <div class="nd-learn-step-num">2</div>
+        <div class="nd-learn-step-text">
+          Watch the interactive animation showing real deployment steps and status transitions
+        </div>
+      </div>
+      <div class="nd-learn-step">
+        <div class="nd-learn-step-num">3</div>
+        <div class="nd-learn-step-text">
+          Review the production YAML configs and RBAC matrix to understand the real implementation
+        </div>
+      </div>
+    </div>
+    
+    <a href="{% url 'demos_hub' %}" class="nd-learn-cta">
+      <i class="fas fa-chalkboard"></i> Back to Demos Hub
+    </a>
+  </div>
+</div>
 
 <!-- ============================================================
      PANEL 1 &mdash; AZURE DEVOPS: Casino Gaming App Deployment
