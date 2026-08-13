@@ -1,102 +1,209 @@
 {% extends 'boaapp/base_generic.html' %} {% load static %}
 
-{% block title %}thenumerix | Home{% endblock %}
+{% block title %}Kieth | Cloud & Platform Engineer{% endblock %}
 
 {% block extra_head %}
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.1.0/dist/typed.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════════════
-   HOME DASHBOARD — Framer/Spline-inspired layout
+   RECRUITER-FOCUSED HOMEPAGE
+   Fast scanning: 8 key questions answered in 10 seconds
    ══════════════════════════════════════════════════════ */
 :root{
-  --dash-bg:#f4f5f7;
-  --dash-surface:#fff;
-  --dash-border:rgba(0,0,0,.07);
-  --dash-text:#1a1a2e;
-  --dash-muted:#6b7280;
-  --dash-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
-  --dash-shadow-lg:0 8px 32px rgba(0,0,0,.10);
-  --dash-radius:14px;
+  --rec-bg:#f9fafb;
+  --rec-surface:#fff;
+  --rec-text:#111827;
+  --rec-text-muted:#6b7280;
+  --rec-border:#e5e7eb;
+  --rec-shadow:0 1px 3px rgba(0,0,0,.08);
+  --rec-shadow-lg:0 10px 25px rgba(0,0,0,.08);
+  --rec-radius:12px;
+  --rec-blue:#2563eb;
+  --rec-blue-light:#eff6ff;
+  --rec-emerald:#059669;
+  --rec-amber:#d97706;
 }
 [data-theme="dark"]{
-  --dash-bg:#0f1117;
-  --dash-surface:#1a1d2e;
-  --dash-border:rgba(255,255,255,.08);
-  --dash-text:#e2e8f0;
-  --dash-muted:#94a3b8;
-  --dash-shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
-  --dash-shadow-lg:0 8px 32px rgba(0,0,0,.4);
+  --rec-bg:#0f172a;
+  --rec-surface:#1e293b;
+  --rec-text:#f1f5f9;
+  --rec-text-muted:#94a3b8;
+  --rec-border:#334155;
+  --rec-shadow:0 1px 3px rgba(0,0,0,.3);
+  --rec-shadow-lg:0 10px 25px rgba(0,0,0,.3);
+  --rec-blue-light:#082f49;
 }
 @keyframes dashFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.rec-container{max-width:1120px;margin:0 auto;padding:2rem clamp(1rem,4vw,2.5rem)}
 
-.dash-full{padding:0 clamp(1.2rem,4vw,3rem);box-sizing:border-box}
-
-.dash-hero{
-  text-align:left;padding:2rem 0 .5rem;
-  animation:dashFadeUp .4s ease both;
-  display:flex;align-items:center;gap:1rem;
+/* ── OPEN TO OPPORTUNITIES BANNER ── */
+.rec-opp-banner{
+  background:linear-gradient(135deg,var(--rec-blue),#1d4ed8);
+  color:#fff;padding:1.2rem 1.5rem;border-radius:var(--rec-radius);
+  margin-bottom:2rem;box-shadow:var(--rec-shadow-lg);
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  animation:dashFadeUp .5s ease both;
 }
-.dash-hero-logo{height:48px;width:48px;border-radius:14px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0}
-.dash-hero-text h2{font-size:1.35rem;font-weight:800;margin:0;color:var(--dash-text)}
-.dash-hero-text h2 span{font-weight:400;opacity:.6}
-.dash-hero-text p{font-size:.78rem;color:var(--dash-muted);margin:0}
+.rec-opp-text{font-weight:600;font-size:.95rem;margin:0}
+.rec-opp-sub{font-size:.85rem;opacity:.9;margin:0.25rem 0 0}
+.rec-opp-actions{display:flex;gap:.75rem;align-items:center}
+.rec-opp-actions a, .rec-opp-actions button{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.45rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;
+  text-decoration:none;border:none;cursor:pointer;transition:all .2s;
+}
+.rec-opp-primary{background:#fff;color:var(--rec-blue)}
+.rec-opp-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.rec-opp-secondary{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.rec-opp-secondary:hover{background:rgba(255,255,255,.25)}
 
-.dash-section{margin-bottom:1.8rem;animation:dashFadeUp .4s ease both}
-.dash-section:nth-child(2){animation-delay:.05s}
-.dash-section:nth-child(3){animation-delay:.1s}
-.dash-section-hd{display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:1px solid var(--dash-border)}
-.dash-section-lbl{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dash-muted);white-space:nowrap}
-.dash-section-count{font-size:.65rem;color:var(--dash-muted);opacity:.5}
+/* ── HERO SECTION ── */
+.rec-hero{margin-bottom:2.5rem;animation:dashFadeUp .5s ease both;animation-delay:.1s}
+.rec-hero h1{
+  font-size:clamp(1.8rem,6vw,2.5rem);font-weight:900;margin:0 0 .5rem;
+  color:var(--rec-text);line-height:1.15;
+}
+.rec-hero .rec-subtitle{
+  font-size:1.1rem;color:var(--rec-text-muted);margin:0 0 1rem;line-height:1.6;
+  max-width:680px;
+}
+.rec-role-badges{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0}
+.rec-role-badge{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.5rem .9rem;border-radius:999px;font-size:.8rem;font-weight:700;
+  border:2px solid var(--rec-border);background:var(--rec-surface);
+  color:var(--rec-text);transition:all .2s;cursor:pointer;text-decoration:none;
+}
+.rec-role-badge:hover{border-color:var(--rec-blue);color:var(--rec-blue);background:var(--rec-blue-light)}
+.rec-role-badge i{font-size:.9rem}
 
-.profile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
-@media(max-width:768px){.profile-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.profile-grid{grid-template-columns:1fr}}
+/* ── HERO ACTIONS ── */
+.rec-hero-actions{
+  display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem;
+}
+.rec-btn{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.65rem 1.4rem;border-radius:8px;font-weight:700;font-size:.9rem;
+  text-decoration:none;border:none;cursor:pointer;transition:all .2s;
+  text-align:center;white-space:nowrap;
+}
+.rec-btn-primary{background:var(--rec-blue);color:#fff}
+.rec-btn-primary:hover{background:#1d4ed8;transform:translateY(-2px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.rec-btn-secondary{background:var(--rec-surface);color:var(--rec-text);border:2px solid var(--rec-border)}
+.rec-btn-secondary:hover{border-color:var(--rec-blue);color:var(--rec-blue);background:var(--rec-blue-light)}
 
-.profile-card{display:flex;align-items:center;gap:.75rem;padding:.9rem 1rem;border-radius:var(--dash-radius);border:1px solid var(--dash-border);background:var(--dash-surface);box-shadow:var(--dash-shadow);text-decoration:none;color:var(--dash-text);transition:transform .2s,box-shadow .2s}
-.profile-card:hover{transform:translateY(-2px);box-shadow:var(--dash-shadow-lg);color:var(--dash-text);text-decoration:none}
-.profile-card .p-icon{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;color:#fff}
-.profile-card .p-text{min-width:0}
-.profile-card .p-title{font-size:.82rem;font-weight:700;margin:0;line-height:1.25}
-.profile-card .p-sub{font-size:.68rem;color:var(--dash-muted);margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ── TECH STACK PILLS ── */
+.rec-stack{margin:1.5rem 0;padding:1rem;border-radius:var(--rec-radius);background:var(--rec-surface);border:1px solid var(--rec-border)}
+.rec-stack-label{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--rec-text-muted);margin-bottom:.5rem;display:block}
+.rec-pills{display:flex;gap:.5rem;flex-wrap:wrap}
+.rec-pill{
+  display:inline-flex;align-items:center;gap:.3rem;
+  padding:.25rem .6rem;border-radius:6px;font-size:.7rem;font-weight:600;
+  border:1px solid var(--rec-border);background:var(--rec-blue-light);color:var(--rec-blue);
+}
 
-/* ── Skill Chips ── */
-.dash-skills{display:flex;flex-wrap:wrap;gap:.4rem;padding:.5rem 0 1.2rem;animation:dashFadeUp .4s ease both;animation-delay:.07s}
-.dash-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .65rem;border-radius:999px;font-size:.68rem;font-weight:600;border:1px solid var(--dash-border);background:var(--dash-surface);color:var(--dash-muted);white-space:nowrap;transition:border-color .2s,color .2s}
-.dash-chip:hover{border-color:rgba(59,130,246,.35);color:#3b82f6}
-.dash-chip i{font-size:.62rem;opacity:.7}
+/* ── 3 VALUE PILLARS ── */
+.rec-pillars{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;
+  margin:2rem 0;animation:dashFadeUp .5s ease both;animation-delay:.15s;
+}
+@media(max-width:768px){.rec-pillars{grid-template-columns:1fr}}
+.rec-pillar{
+  padding:1.5rem;border-radius:var(--rec-radius);border:1px solid var(--rec-border);
+  background:var(--rec-surface);box-shadow:var(--rec-shadow);
+  transition:all .2s;
+}
+.rec-pillar:hover{border-color:var(--rec-blue);box-shadow:var(--rec-shadow-lg);transform:translateY(-2px)}
+.rec-pillar-icon{
+  font-size:1.8rem;margin-bottom:.5rem;
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;background:var(--rec-blue-light);color:var(--rec-blue);
+}
+.rec-pillar h3{font-size:.95rem;font-weight:800;margin:.5rem 0;color:var(--rec-text)}
+.rec-pillar p{font-size:.85rem;color:var(--rec-text-muted);margin:0;line-height:1.5}
 
-.demo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
-@media(max-width:1024px){.demo-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:768px){.demo-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.demo-grid{grid-template-columns:1fr}}
+/* ── FEATURED PROJECTS ── */
+.rec-projects-title{
+  font-size:1.4rem;font-weight:800;margin:2.5rem 0 1rem;
+  color:var(--rec-text);
+}
+.rec-projects-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;
+  margin-bottom:2.5rem;animation:dashFadeUp .5s ease both;animation-delay:.2s;
+}
+@media(max-width:1024px){.rec-projects-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.rec-projects-grid{grid-template-columns:1fr}}
 
-.demo-card{display:flex;flex-direction:column;border-radius:var(--dash-radius);border:1px solid var(--dash-border);background:var(--dash-surface);box-shadow:var(--dash-shadow);text-decoration:none;color:var(--dash-text);overflow:hidden;transition:transform .2s,box-shadow .2s}
-.demo-card:hover{transform:translateY(-3px);box-shadow:var(--dash-shadow-lg);color:var(--dash-text);text-decoration:none}
-.demo-card .demo-thumb{height:110px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.demo-card .demo-thumb .demo-bg-icon{font-size:2.2rem;color:rgba(255,255,255,.85);z-index:1}
-.demo-card .demo-thumb img{position:absolute;bottom:10px;right:12px;height:28px;width:auto;max-width:90px;object-fit:contain;opacity:.9;z-index:1;filter:drop-shadow(0 1px 4px rgba(0,0,0,.2))}
-.demo-card .demo-body{padding:.75rem .85rem .85rem}
-.demo-card .demo-title{font-size:.82rem;font-weight:700;margin:0 0 .15rem;display:flex;align-items:center;gap:.35rem}
-.demo-card .demo-sub{font-size:.68rem;color:var(--dash-muted);margin:0}
-.dash-badge{display:inline-block;padding:.1rem .4rem;border-radius:5px;font-size:.55rem;font-weight:700}
-.dash-badge--live{background:#fef3c7;color:#92400e}
-.dash-badge--new{background:#d1fae5;color:#065f46}
-[data-theme="dark"] .dash-badge--live{background:rgba(245,158,11,.15);color:#fbbf24}
-[data-theme="dark"] .dash-badge--new{background:rgba(16,185,129,.15);color:#34d399}
+.rec-project-card{
+  border-radius:var(--rec-radius);border:1px solid var(--rec-border);
+  background:var(--rec-surface);overflow:hidden;transition:all .2s;
+  box-shadow:var(--rec-shadow);text-decoration:none;color:inherit;
+}
+.rec-project-card:hover{
+  border-color:var(--rec-blue);box-shadow:var(--rec-shadow-lg);
+  transform:translateY(-3px);
+}
+.rec-project-thumb{
+  height:120px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#e0e7ff 0%,#fce7f3 100%);
+  position:relative;font-size:2.2rem;color:var(--rec-blue);
+}
+.rec-project-thumb.blue{background:linear-gradient(135deg,#e0e7ff 0%,#dbeafe 100%);color:#2563eb}
+.rec-project-thumb.emerald{background:linear-gradient(135deg,#d1fae5 0%,#a7f3d0 100%);color:var(--rec-emerald)}
+.rec-project-thumb.amber{background:linear-gradient(135deg,#fef3c7 0%,#fed7aa 100%);color:var(--rec-amber)}
+.rec-project-body{padding:1rem}
+.rec-project-title{font-size:.85rem;font-weight:800;margin:0 0 .3rem;color:var(--rec-text)}
+.rec-project-desc{font-size:.8rem;color:var(--rec-text-muted);margin:0 0 .5rem;line-height:1.4}
+.rec-project-meta{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+.rec-project-tag{
+  display:inline-flex;align-items:center;gap:.2rem;
+  font-size:.7rem;padding:.15rem .4rem;border-radius:4px;
+  background:var(--rec-blue-light);color:var(--rec-blue);font-weight:600;
+}
 
-.learn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
-@media(max-width:768px){.learn-grid{grid-template-columns:repeat(2,1fr)}}
+/* ── AVAILABILITY SECTION ── */
+.rec-availability{
+  background:var(--rec-surface);border:2px solid var(--rec-emerald);
+  border-radius:var(--rec-radius);padding:1.5rem;margin:2rem 0;
+  animation:dashFadeUp .5s ease both;animation-delay:.25s;
+}
+.rec-avail-title{font-weight:800;font-size:1rem;color:var(--rec-text);margin:0 0 .75rem}
+.rec-avail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1rem}
+@media(max-width:640px){.rec-avail-grid{grid-template-columns:1fr}}
+.rec-avail-item{display:flex;align-items:center;gap:.75rem}
+.rec-avail-icon{
+  width:40px;height:40px;border-radius:8px;background:var(--rec-blue-light);
+  color:var(--rec-blue);display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:1rem;flex-shrink:0;
+}
+.rec-avail-content h4{font-size:.8rem;font-weight:800;margin:0;color:var(--rec-text)}
+.rec-avail-content p{font-size:.75rem;color:var(--rec-text-muted);margin:0.2rem 0 0}
 
-.dash-panel{border-radius:var(--dash-radius);border:1px solid var(--dash-border);background:var(--dash-surface);box-shadow:var(--dash-shadow-lg);margin-bottom:1.5rem}
-.dash-panel-header{display:flex;align-items:center;gap:.8rem;padding:.8rem 1rem;border-bottom:1px solid var(--dash-border);position:sticky;top:0;background:var(--dash-surface);border-radius:var(--dash-radius) var(--dash-radius) 0 0;z-index:10}
-.dash-panel-back{display:flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:700;padding:.3rem .65rem;border-radius:8px;border:1px solid var(--dash-border);background:transparent;cursor:pointer;transition:background .2s;color:inherit}
-.dash-panel-back:hover{background:rgba(59,130,246,.07)}
-.dash-panel-title{font-weight:800;font-size:.88rem;flex:1}
-.dash-panel-ext{opacity:.4;font-size:.8rem;transition:opacity .2s}
-.dash-panel-ext:hover{opacity:1}
-.dash-panel-body{padding:0}
-.dash-panel-loading{text-align:center;padding:2.5rem;opacity:.5;font-size:.85rem}
+/* ── CONTACT / CTA SECTION ── */
+.rec-contact-section{
+  background:linear-gradient(135deg,var(--rec-blue-light),#f0fdf4);
+  border-radius:var(--rec-radius);padding:2rem;margin:2.5rem 0;
+  text-align:center;animation:dashFadeUp .5s ease both;animation-delay:.3s;
+  border:2px solid var(--rec-border);
+}
+[data-theme="dark"] .rec-contact-section{background:linear-gradient(135deg,var(--rec-blue-light),rgba(16,185,129,.1))}
+.rec-contact-title{font-size:1.2rem;font-weight:900;margin:0 0 .5rem;color:var(--rec-text)}
+.rec-contact-subtitle{font-size:.9rem;color:var(--rec-text-muted);margin:0 0 1.5rem}
+.rec-contact-actions{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.rec-contact-actions a{text-decoration:none}
+
+/* ── RESPONSIVE MOBILE ── */
+@media(max-width:640px){
+  .rec-opp-banner{padding:.9rem 1rem;gap:.5rem}
+  .rec-opp-banner .rec-opp-text{font-size:.85rem}
+  .rec-opp-actions{flex-direction:column;width:100%}
+  .rec-opp-actions a{width:100%;justify-content:center}
+  .rec-hero h1{font-size:1.5rem;margin-bottom:.75rem}
+  .rec-hero .rec-subtitle{font-size:.95rem}
+  .rec-hero-actions{flex-direction:column}
+  .rec-hero-actions .rec-btn{width:100%;justify-content:center}
+  .rec-contact-actions{flex-direction:column}
+  .rec-contact-actions .rec-btn{width:100%;justify-content:center}
+}
 </style>
 {% endblock %}
 
@@ -104,459 +211,249 @@
 
 {% block content %}
 
-<div class="dash-full" id="homeNavGrid">
+<div class="rec-container">
 
-  <div class="dash-hero">
-    <img src="{% static 'logo.png' %}" alt="thenumerix" class="dash-hero-logo" />
-    <div class="dash-hero-text">
-      <h2>Welcome<span>{% if user.is_authenticated %} back, {{ user.username }}{% endif %}</span></h2>
-      <p><span id="homeTyped"></span></p>
+  <!-- ═══════════════════════════════════════════════════════════════
+       QUESTION 1-2: WHO? WHAT WORK?
+       "Open to Opportunities" + Primary Call-to-Action
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="rec-opp-banner">
+    <div>
+      <p class="rec-opp-text"><i class="fas fa-briefcase" style="margin-right:0.35rem"></i> Open to Opportunities</p>
+      <p class="rec-opp-sub">Available for Platform Engineer, Data Engineer, and AI Systems roles</p>
+    </div>
+    <div class="rec-opp-actions">
+      <a href="#contact" class="rec-opp-primary">
+        <i class="fas fa-envelope"></i> Let's Talk
+      </a>
+      <a href="/media/resumes/Kieth_Echols_Resume.pdf" class="rec-opp-secondary" download>
+        <i class="fas fa-file-pdf"></i> Resume
+      </a>
     </div>
   </div>
 
-  <!-- ── SKILL CHIPS ── -->
-  <div class="dash-skills">
-    <span class="dash-chip"><i class="fab fa-microsoft"></i> Azure</span>
-    <span class="dash-chip"><i class="fab fa-python"></i> Python</span>
-    <span class="dash-chip"><i class="fas fa-fire"></i> Django</span>
-    <span class="dash-chip"><i class="fas fa-stream"></i> Kafka</span>
-    <span class="dash-chip"><i class="fas fa-database"></i> Databricks</span>
-    <span class="dash-chip"><i class="fas fa-brain"></i> MLOps</span>
-    <span class="dash-chip"><i class="fas fa-bolt"></i> Spark</span>
-    <span class="dash-chip"><i class="fas fa-server"></i> PostgreSQL</span>
-    <span class="dash-chip"><i class="fas fa-memory"></i> Redis</span>
-    <span class="dash-chip"><i class="fab fa-docker"></i> Docker</span>
-    <span class="dash-chip"><i class="fas fa-infinity"></i> DevOps</span>
-    <span class="dash-chip"><i class="fas fa-robot"></i> Gen AI</span>
-  </div>
+  <!-- ═══════════════════════════════════════════════════════════════
+       HERO: Q1-4: WHO? WHAT WORK? DOMAINS? TECH STACK?
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="rec-hero">
+    <h1>Cloud & Platform Engineer</h1>
+    <p class="rec-subtitle">
+      I design and build scalable cloud systems, data platforms, and AI-powered workflows.
+      8+ years building cloud infrastructure, CI/CD automation, and production systems at scale.
+    </p>
 
-  <!-- ── SKILLS PROFICIENCY ── -->
-  <div class="dash-section">
-    <div class="dash-section-hd">
-      <span class="dash-section-lbl"><i class="fas fa-chart-bar"></i>&nbsp; Skills Proficiency</span>
-    </div>
-
-    <style>
-    .sk-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start}
-    @media(max-width:768px){.sk-wrap{grid-template-columns:1fr}}
-    .sk-tabs{display:flex;gap:.35rem;margin-bottom:.8rem;flex-wrap:wrap}
-    .sk-tab{padding:.3rem .7rem;border-radius:8px;font-size:.68rem;font-weight:700;border:1px solid var(--dash-border);background:transparent;color:var(--dash-muted);cursor:pointer;transition:all .2s}
-    .sk-tab.active{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:transparent}
-    .sk-tab:hover:not(.active){border-color:rgba(59,130,246,.4);color:#3b82f6}
-    .sk-cat{display:none}.sk-cat.active{display:block}
-    .sk-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem}
-    .sk-name{width:110px;flex-shrink:0;font-size:.72rem;font-weight:600;color:var(--dash-text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .sk-track{flex:1;height:20px;background:var(--dash-border);border-radius:10px;overflow:hidden;position:relative}
-    .sk-fill{height:100%;border-radius:10px;position:relative;width:0;transition:width 1s cubic-bezier(.22,1,.36,1)}
-    .sk-fill::after{content:attr(data-pct);position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.6rem;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
-    .sk-fill--blue{background:linear-gradient(90deg,#3b82f6,#1d4ed8)}
-    .sk-fill--purple{background:linear-gradient(90deg,#8b5cf6,#6d28d9)}
-    .sk-fill--cyan{background:linear-gradient(90deg,#06b6d4,#0891b2)}
-    .sk-fill--amber{background:linear-gradient(90deg,#f59e0b,#d97706)}
-    .sk-fill--emerald{background:linear-gradient(90deg,#10b981,#059669)}
-    .sk-fill--rose{background:linear-gradient(90deg,#f43f5e,#e11d48)}
-    .sk-yrs{width:44px;flex-shrink:0;font-size:.6rem;color:var(--dash-muted);text-align:left;white-space:nowrap}
-    .sk-radar-wrap{max-width:380px;margin:0 auto;width:100%;aspect-ratio:1;position:relative}
-    .sk-summary{margin-top:.6rem;display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
-    .sk-stat{text-align:center;padding:.55rem .3rem;border-radius:10px;border:1px solid var(--dash-border);background:var(--dash-surface)}
-    .sk-stat-num{font-size:1.15rem;font-weight:800;color:var(--dash-text)}
-    .sk-stat-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--dash-muted)}
-    </style>
-
-    <div class="sk-wrap">
-      <!-- Left: Tabbed bar chart -->
-      <div>
-        <div class="sk-tabs" id="skTabs">
-          <button class="sk-tab active" data-cat="cloud">Cloud & Infra</button>
-          <button class="sk-tab" data-cat="data">Data & ML</button>
-          <button class="sk-tab" data-cat="dev">Development</button>
-          <button class="sk-tab" data-cat="devops">DevOps & CI/CD</button>
-          <button class="sk-tab" data-cat="ai">AI & Gen AI</button>
-        </div>
-
-        <div id="skCats">
-          <div class="sk-cat active" data-cat="cloud">
-            <div class="sk-row"><span class="sk-name">Azure</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="96" data-pct="96%"></div></div><span class="sk-yrs">8+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Entra ID</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="93" data-pct="93%"></div></div><span class="sk-yrs">6+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Kubernetes</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="88" data-pct="88%"></div></div><span class="sk-yrs">5+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Terraform</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="85" data-pct="85%"></div></div><span class="sk-yrs">4+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Docker</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="92" data-pct="92%"></div></div><span class="sk-yrs">7+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Networking</span><div class="sk-track"><div class="sk-fill sk-fill--blue" data-val="82" data-pct="82%"></div></div><span class="sk-yrs">8+ yrs</span></div>
-          </div>
-
-          <div class="sk-cat" data-cat="data">
-            <div class="sk-row"><span class="sk-name">Databricks</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="94" data-pct="94%"></div></div><span class="sk-yrs">5+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Spark</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="90" data-pct="90%"></div></div><span class="sk-yrs">5+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Kafka</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="87" data-pct="87%"></div></div><span class="sk-yrs">4+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">PostgreSQL</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="91" data-pct="91%"></div></div><span class="sk-yrs">6+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Delta Lake</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="88" data-pct="88%"></div></div><span class="sk-yrs">4+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Redis</span><div class="sk-track"><div class="sk-fill sk-fill--cyan" data-val="84" data-pct="84%"></div></div><span class="sk-yrs">5+ yrs</span></div>
-          </div>
-
-          <div class="sk-cat" data-cat="dev">
-            <div class="sk-row"><span class="sk-name">Python</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="95" data-pct="95%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
-            <div class="sk-row"><span class="sk-name">Django</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="93" data-pct="93%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
-            <div class="sk-row"><span class="sk-name">REST APIs</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="94" data-pct="94%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
-            <div class="sk-row"><span class="sk-name">JavaScript</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="82" data-pct="82%"></div></div><span class="sk-yrs">7+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">HTMX</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="86" data-pct="86%"></div></div><span class="sk-yrs">2+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">SQL</span><div class="sk-track"><div class="sk-fill sk-fill--emerald" data-val="92" data-pct="92%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
-          </div>
-
-          <div class="sk-cat" data-cat="devops">
-            <div class="sk-row"><span class="sk-name">Azure DevOps</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="96" data-pct="96%"></div></div><span class="sk-yrs">7+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">GitHub Actions</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="90" data-pct="90%"></div></div><span class="sk-yrs">4+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">CI/CD Pipelines</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="95" data-pct="95%"></div></div><span class="sk-yrs">8+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">IaC</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="88" data-pct="88%"></div></div><span class="sk-yrs">5+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Monitoring</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="87" data-pct="87%"></div></div><span class="sk-yrs">6+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Git</span><div class="sk-track"><div class="sk-fill sk-fill--amber" data-val="94" data-pct="94%"></div></div><span class="sk-yrs" data-start="2018"></span></div>
-          </div>
-
-          <div class="sk-cat" data-cat="ai">
-            <div class="sk-row"><span class="sk-name">MLOps</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="92" data-pct="92%"></div></div><span class="sk-yrs">4+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">MLflow</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="89" data-pct="89%"></div></div><span class="sk-yrs">3+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">LLM / RAG</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="86" data-pct="86%"></div></div><span class="sk-yrs">2+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Embeddings</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="83" data-pct="83%"></div></div><span class="sk-yrs">2+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Azure ML</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="88" data-pct="88%"></div></div><span class="sk-yrs">4+ yrs</span></div>
-            <div class="sk-row"><span class="sk-name">Model Deploy</span><div class="sk-track"><div class="sk-fill sk-fill--purple" data-val="85" data-pct="85%"></div></div><span class="sk-yrs">3+ yrs</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: Radar chart + summary stats -->
-      <div>
-        <div class="sk-radar-wrap">
-          <canvas id="skillsRadar"></canvas>
-        </div>
-        <div class="sk-summary">
-          <div class="sk-stat"><div class="sk-stat-num">30+</div><div class="sk-stat-lbl">Technologies</div></div>
-          <div class="sk-stat"><div class="sk-stat-num">8+</div><div class="sk-stat-lbl">Yrs Experience</div></div>
-        </div>
+    <!-- Q3-4: ROLE BUCKETS + TECH FOCUS -->
+    <div>
+      <p style="font-size:0.85rem;color:var(--rec-text-muted);margin:0 0 0.75rem;font-weight:600">Primary Roles</p>
+      <div class="rec-role-badges">
+        <a href="{% url 'recruiter_landing_platform_engineer' %}" class="rec-role-badge">
+          <i class="fas fa-rocket"></i> Platform Engineer
+        </a>
+        <a href="{% url 'recruiter_landing_data_engineer' %}" class="rec-role-badge">
+          <i class="fas fa-database"></i> Data Engineer
+        </a>
+        <a href="{% url 'recruiter_landing_ml_engineer' %}" class="rec-role-badge">
+          <i class="fas fa-brain"></i> AI Systems
+        </a>
       </div>
     </div>
-  </div>
 
-  <!-- ── LIVE DEMOS & PROJECTS ── -->
-  <div class="dash-section">
-    <div class="dash-section-hd">
-      <span class="dash-section-lbl"><i class="fas fa-flask"></i>&nbsp; Live Demos &amp; Projects</span>
+    <!-- TECH STACK: Q4 ANSWERED -->
+    <div class="rec-stack">
+      <span class="rec-stack-label">Core Technologies</span>
+      <div class="rec-pills">
+        <span class="rec-pill"><i class="fab fa-microsoft"></i> Azure</span>
+        <span class="rec-pill"><i class="fas fa-cube"></i> Kubernetes</span>
+        <span class="rec-pill"><i class="fab fa-python"></i> Python</span>
+        <span class="rec-pill"><i class="fas fa-fire"></i> Kafka</span>
+        <span class="rec-pill"><i class="fas fa-database"></i> PostgreSQL</span>
+        <span class="rec-pill"><i class="fab fa-docker"></i> Docker</span>
+        <span class="rec-pill"><i class="fas fa-code-branch"></i> CI/CD</span>
+        <span class="rec-pill"><i class="fas fa-infinity"></i> IaC</span>
+      </div>
     </div>
-    <div class="demo-grid">
-      <a href="{% url 'process_flows' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#d97706,#f59e0b)">
-          <i class="fas fa-arrows-spin demo-bg-icon"></i>
-          <img src="{% static 'css/img/oracle.png' %}" alt="Oracle">
-        </div>
-        <div class="demo-body"><p class="demo-title">AI Process Flows <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Finance &amp; Accounting automation with AI</p></div>
+
+    <!-- PRIMARY CTA -->
+    <div class="rec-hero-actions">
+      <a href="#projects" class="rec-btn rec-btn-primary">
+        <i class="fas fa-arrow-right"></i> View Work
       </a>
-      <a href="{% url 'platform_engineering' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#004578,#0078d4)">
-          <i class="fas fa-code-branch demo-bg-icon"></i>
-        </div>
-        <div class="demo-body"><p class="demo-title">Platform Engineering <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Azure DevOps, Databricks &amp; Entra ID pipelines</p></div>
-      </a>
-      <a href="{% url 'mlops_lifecycle' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">
-          <i class="fas fa-brain demo-bg-icon"></i>
-          <img src="{% static 'css/img/mlb.png' %}" alt="MLB">
-        </div>
-        <div class="demo-body"><p class="demo-title">MLOps Lifecycle <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Model training, registry &amp; deployment</p></div>
-      </a>
-      <a href="{% url 'streaming_architecture' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">
-          <i class="fas fa-bolt demo-bg-icon"></i>
-          <img src="{% static 'css/img/netlfix.png' %}" alt="Netflix">
-        </div>
-        <div class="demo-body"><p class="demo-title">Streaming Architecture <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Real-time event processing &amp; Kafka</p></div>
-      </a>
-      <a href="{% url 'api_orchestration' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#4338ca,#6366f1)"><i class="fas fa-project-diagram demo-bg-icon"></i></div>
-        <div class="demo-body"><p class="demo-title">API Orchestration <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">Gateway, sagas &amp; circuit breakers</p></div>
-      </a>
-      <a href="{% url 'idp_demo' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#0d9488,#14b8a6)"><i class="fas fa-file-alt demo-bg-icon"></i></div>
-        <div class="demo-body"><p class="demo-title">Document Processing <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">AI-powered OCR, extraction &amp; validation</p></div>
-      </a>
-      <a href="{% url 'nfl_draft' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#013369,#d50a0a)">
-          <i class="fas fa-football-ball demo-bg-icon"></i>
-          <img src="{% static 'css/img/nfl.png' %}" alt="NFL">
-        </div>
-        <div class="demo-body"><p class="demo-title">NFL Draft Simulator <span class="dash-badge dash-badge--live">NEW</span></p><p class="demo-sub">300-player pool, VOR algorithm &amp; snake draft ML engine</p></div>
-      </a>
-      <a href="{% url 'anomaly_detection' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#164e63,#06b6d4)">
-          <i class="fas fa-wave-square demo-bg-icon"></i>
-        </div>
-        <div class="demo-body"><p class="demo-title">Anomaly Detection <span class="dash-badge dash-badge--live">NEW</span></p><p class="demo-sub">Live sensor stream with Z-score, EWMA &amp; CUSUM detection algorithms</p></div>
-      </a>
-      <a href="{% url 'multi_agent' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#1e1b4b,#6366f1)">
-          <i class="fas fa-robot demo-bg-icon"></i>
-        </div>
-        <div class="demo-body"><p class="demo-title">Multi-Agent AI <span class="dash-badge dash-badge--live">NEW</span></p><p class="demo-sub">5-agent orchestration: Planner → Researcher → Calculator → Critic → Synthesizer</p></div>
-      </a>
-      <a href="{% url 'data_quality' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#064e3b,#10b981)">
-          <i class="fas fa-shield-check demo-bg-icon"></i>
-          <img src="{% static 'css/img/omni_hotel.png' %}" alt="Omni Hotels">
-        </div>
-        <div class="demo-body"><p class="demo-title">Data Quality Framework <span class="dash-badge dash-badge--live">NEW</span></p><p class="demo-sub">Animated rule validation suite with automated quality score reports</p></div>
-      </a>
-      <a href="{% url 'feature_store' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#00175a,#006fcf)">
-          <i class="fas fa-warehouse demo-bg-icon"></i>
-          <img src="{% static 'css/img/american_express.png' %}" alt="American Express">
-        </div>
-        <div class="demo-body"><p class="demo-title">Feature Store — Amex <span class="dash-badge dash-badge--live">NEW</span></p><p class="demo-sub">Real-time fraud scoring feature store for American Express card authorization</p></div>
-      </a>
-      <a href="{% url 'supply_chain' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#92400e,#f59e0b)">
-          <i class="fas fa-boxes-stacked demo-bg-icon"></i>
-          <img src="{% static 'css/img/amazon_fc.webp' %}" alt="Amazon">
-        </div>
-        <div class="demo-body"><p class="demo-title">Supply Chain — Amazon FC <span class="dash-badge dash-badge--live">NEW</span></p><p class="demo-sub">Amazon Fulfillment Center inventory optimization with EOQ modeling &amp; Prime SLA tracking</p></div>
-      </a>
-      <a href="{% url 'job_match' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">
-          <i class="fas fa-crosshairs demo-bg-icon"></i>
-        </div>
-        <div class="demo-body"><p class="demo-title">Job Match Analyzer <span class="dash-badge dash-badge--live">Live</span></p><p class="demo-sub">AI-powered job description match analysis, skill gaps &amp; interview talking points</p></div>
-      </a>
-      <a href="{% url 'schema_registry' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#4c0519,#f43f5e)">
-          <i class="fas fa-file-code demo-bg-icon"></i>
-        </div>
-        <div class="demo-body"><p class="demo-title">Schema Registry <span class="dash-badge dash-badge--live">NEW</span></p><p class="demo-sub">Schema evolution with backward/forward/full compatibility checking for Kafka producers &amp; consumers</p></div>
-      </a>
-      <a href="{% url 'humana_mdm' %}" class="demo-card">
-        <div class="demo-thumb" style="background:linear-gradient(135deg,#003e6e,#0078d4)">
-          <i class="fas fa-heartbeat demo-bg-icon"></i>
-          <img src="{% static 'css/img/databricks_Logo.png' %}" alt="Databricks">
-        </div>
-        <div class="demo-body"><p class="demo-title">Humana MDM <span class="dash-badge dash-badge--live">NEW</span></p><p class="demo-sub">Healthcare MDM — Azure Databricks, Kafka &amp; Delta Lake unifying 40M member records</p></div>
+      <a href="{% url 'recruiter_landing_platform_engineer' %}" class="rec-btn rec-btn-secondary">
+        <i class="fas fa-briefcase"></i> Platform Engineer Focus
       </a>
     </div>
   </div>
 
-
-
-</div>
-
-<!-- In-page content panel -->
-<div class="dash-full">
-  <div class="dash-panel" id="homeSectionPanel" style="display:none;">
-    <div class="dash-panel-header">
-      <button class="dash-panel-back" id="homePanelBack" type="button"><i class="fas fa-arrow-left"></i> Back</button>
-      <span class="dash-panel-title" id="homePanelTitle"></span>
-      <a class="dash-panel-ext" id="homePanelOpenLink" href="#" target="_blank" title="Open full page"><i class="fas fa-external-link-alt"></i></a>
+  <!-- ═══════════════════════════════════════════════════════════════
+       QUESTION 5: PROOF OF IMPACT
+       3 Value Pillars demonstrating capability
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="rec-pillars">
+    <div class="rec-pillar">
+      <div class="rec-pillar-icon" style="background:linear-gradient(135deg,#fef3c7,#fed7aa);color:var(--rec-amber)">
+        <i class="fas fa-cloud-upload-alt"></i>
+      </div>
+      <h3>Cloud-Native Systems</h3>
+      <p>Azure infrastructure, Kubernetes orchestration, IaC pipelines, and multi-region failover patterns. Reduced deployment time from hours to minutes.</p>
     </div>
-    <div class="dash-panel-body" id="homePanelBody"></div>
+    <div class="rec-pillar">
+      <div class="rec-pillar-icon" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:var(--rec-emerald)">
+        <i class="fas fa-stream"></i>
+      </div>
+      <h3>Data Pipelines</h3>
+      <p>ETL orchestration, streaming architecture (Kafka), data quality validation, and real-time analytics. Built 40M-record MDM unifying healthcare data.</p>
+    </div>
+    <div class="rec-pillar">
+      <div class="rec-pillar-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:var(--rec-blue)">
+        <i class="fas fa-robot"></i>
+      </div>
+      <h3>AI Automation</h3>
+      <p>LLM workflows, document intelligence, MLOps pipelines, and production model deployment. Delivered AI-powered automation for enterprise finance teams.</p>
+    </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FEATURED PROJECTS: PROOF WITH METRICS
+       ═══════════════════════════════════════════════════════════════ -->
+  <div id="projects">
+    <h2 class="rec-projects-title">Featured Case Studies</h2>
+    <div class="rec-projects-grid">
+      <!-- Project 1: Platform Engineering -->
+      <a href="{% url 'platform_engineering' %}" class="rec-project-card">
+        <div class="rec-project-thumb blue">
+          <i class="fas fa-code-branch"></i>
+        </div>
+        <div class="rec-project-body">
+          <p class="rec-project-title">Azure CI/CD Pipeline</p>
+          <p class="rec-project-desc">Enterprise DevOps automation reducing deployment time 10x. GitHub Actions + Databricks orchestration.</p>
+          <div class="rec-project-meta">
+            <span class="rec-project-tag"><i class="fas fa-check"></i> Azure</span>
+            <span class="rec-project-tag"><i class="fas fa-check"></i> CI/CD</span>
+            <span class="rec-project-tag"><i class="fas fa-check"></i> IaC</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Project 2: MLOps -->
+      <a href="{% url 'mlops_lifecycle' %}" class="rec-project-card">
+        <div class="rec-project-thumb" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#2563eb">
+          <i class="fas fa-brain"></i>
+        </div>
+        <div class="rec-project-body">
+          <p class="rec-project-title">MLB Draft ML Pipeline</p>
+          <p class="rec-project-desc">End-to-end MLOps: model training, registry, versioning, and automated retraining. Prediction accuracy 87%.</p>
+          <div class="rec-project-meta">
+            <span class="rec-project-tag"><i class="fas fa-check"></i> MLflow</span>
+            <span class="rec-project-tag"><i class="fas fa-check"></i> Python</span>
+            <span class="rec-project-tag"><i class="fas fa-check"></i> ML</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Project 3: Data Pipeline -->
+      <a href="{% url 'streaming_architecture' %}" class="rec-project-card">
+        <div class="rec-project-thumb emerald">
+          <i class="fas fa-stream"></i>
+        </div>
+        <div class="rec-project-body">
+          <p class="rec-project-title">Healthcare MDM — Kafka Streaming</p>
+          <p class="rec-project-desc">Real-time data unification for 40M healthcare records. Sub-100ms latency event processing.</p>
+          <div class="rec-project-meta">
+            <span class="rec-project-tag"><i class="fas fa-check"></i> Kafka</span>
+            <span class="rec-project-tag"><i class="fas fa-check"></i> Delta Lake</span>
+            <span class="rec-project-tag"><i class="fas fa-check"></i> Spark</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       QUESTION 6-7: AVAILABILITY + LOCATION + WORK AUTH
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="rec-availability">
+    <p class="rec-avail-title"><i class="fas fa-check-circle" style="margin-right:0.5rem;color:var(--rec-emerald)"></i> Ready to Hire</p>
+    <div class="rec-avail-grid">
+      <div class="rec-avail-item">
+        <div class="rec-avail-icon">📍</div>
+        <div class="rec-avail-content">
+          <h4>Location</h4>
+          <p>Nashville, TN — Remote OK</p>
+        </div>
+      </div>
+      <div class="rec-avail-item">
+        <div class="rec-avail-icon">⏱️</div>
+        <div class="rec-avail-content">
+          <h4>Availability</h4>
+          <p>Immediate</p>
+        </div>
+      </div>
+      <div class="rec-avail-item">
+        <div class="rec-avail-icon">✓</div>
+        <div class="rec-avail-content">
+          <h4>Work Authorization</h4>
+          <p>US Citizen</p>
+        </div>
+      </div>
+      <div class="rec-avail-item">
+        <div class="rec-avail-icon">🌍</div>
+        <div class="rec-avail-content">
+          <h4>Visa Support</h4>
+          <p>Not required</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       QUESTION 8: HOW TO CONTACT
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="rec-contact-section" id="contact">
+    <h2 class="rec-contact-title">Let's Work Together</h2>
+    <p class="rec-contact-subtitle">
+      Interested in a Platform Engineer, Data Engineer, or AI Systems role? I'm actively interviewing.
+    </p>
+    <div class="rec-contact-actions">
+      <a href="mailto:kieth@thenumerix.com" class="rec-btn rec-btn-primary">
+        <i class="fas fa-envelope"></i> Email Me
+      </a>
+      <a href="https://linkedin.com/in/kiethbingham" target="_blank" class="rec-btn rec-btn-secondary">
+        <i class="fab fa-linkedin"></i> LinkedIn
+      </a>
+      <a href="https://github.com/ntellecktual" target="_blank" class="rec-btn rec-btn-secondary">
+        <i class="fab fa-github"></i> GitHub
+      </a>
+      <a href="/media/resumes/Kieth_Echols_Resume.pdf" class="rec-btn rec-btn-secondary" download>
+        <i class="fas fa-file-pdf"></i> Download Resume
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER LINK TO ALL DEMOS -->
+  <div style="text-align:center;margin:3rem 0 2rem;padding-top:2rem;border-top:1px solid var(--rec-border)">
+    <p style="color:var(--rec-text-muted);font-size:0.9rem;margin:0 0 1rem">
+      Want to explore more projects and technical depth?
+    </p>
+    <a href="{% url 'portfolio_showcase' %}" class="rec-btn rec-btn-secondary">
+      <i class="fas fa-flask"></i> All Projects &amp; Demos
+    </a>
+  </div>
+
 </div>
 
 {% endblock %}
 
 {% block extra_js %}{{ block.super }}
 <script>
-/* ── Typed.js Hero ── */
-new Typed('#homeTyped', {
-  strings: ['Platform Engineer.', 'MLOps Practitioner.', 'Azure Cloud Architect.', 'Data Engineer.', 'Full-Stack Developer.'],
-  typeSpeed: 55,
-  backSpeed: 30,
-  backDelay: 1800,
-  loop: true,
-  smartBackspace: true,
-  cursorChar: '|'
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 });
-</script>
-<script>
-/* ── Skills Tabbed Bars + Radar Chart ── */
-(function(){
-  /* Tab switching */
-  var tabs=document.querySelectorAll('#skTabs .sk-tab');
-  var cats=document.querySelectorAll('#skCats .sk-cat');
-  function animateBars(cat){
-    cat.querySelectorAll('.sk-fill').forEach(function(f){
-      f.style.width='0';
-      setTimeout(function(){f.style.width=f.getAttribute('data-val')+'%';},60);
-    });
-  }
-  tabs.forEach(function(tab){
-    tab.addEventListener('click',function(){
-      tabs.forEach(function(t){t.classList.remove('active');});
-      cats.forEach(function(c){c.classList.remove('active');});
-      tab.classList.add('active');
-      var target=tab.getAttribute('data-cat');
-      var cat=document.querySelector('.sk-cat[data-cat="'+target+'"]');
-      if(cat){cat.classList.add('active');animateBars(cat);}
-    });
-  });
-  /* Dynamic years from start date (auto-increments each year) */
-  (function(){
-    var now=new Date().getFullYear();
-    document.querySelectorAll('.sk-yrs[data-start]').forEach(function(el){
-      var yrs=now-parseInt(el.getAttribute('data-start'),10);
-      el.textContent=yrs+'+ yrs';
-    });
-  }());
-
-  /* Initial animation */
-  var first=document.querySelector('.sk-cat.active');
-  if(first){
-    var obs=new IntersectionObserver(function(entries){
-      if(entries[0].isIntersecting){animateBars(first);obs.disconnect();}
-    },{threshold:0.2});
-    obs.observe(first);
-  }
-
-  /* Radar chart */
-  var ctx=document.getElementById('skillsRadar');
-  if(!ctx||typeof Chart==='undefined')return;
-  var isDark=document.documentElement.getAttribute('data-theme')==='dark';
-  var gridColor=isDark?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)';
-  var labelColor=isDark?'#94a3b8':'#6b7280';
-  new Chart(ctx,{
-    type:'radar',
-    data:{
-      labels:['Cloud & Infra','Python','Data Eng.','DevOps','Azure','AI / ML','APIs','Streaming','Databases'],
-      datasets:[{
-        label:'Proficiency',
-        data:[93,95,91,93,96,87,94,87,91],
-        backgroundColor:isDark?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)',
-        borderColor:'rgba(59,130,246,.7)',
-        borderWidth:2,
-        pointBackgroundColor:'rgba(59,130,246,.9)',
-        pointRadius:4,pointHoverRadius:7
-      },{
-        label:'Years Active',
-        data:[80,100,60,80,80,40,80,40,60],
-        backgroundColor:isDark?'rgba(139,92,246,.1)':'rgba(139,92,246,.06)',
-        borderColor:'rgba(139,92,246,.5)',
-        borderWidth:1.5,borderDash:[4,3],
-        pointBackgroundColor:'rgba(139,92,246,.7)',
-        pointRadius:3,pointHoverRadius:6
-      }]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:true,
-      scales:{r:{beginAtZero:true,min:0,max:100,
-        ticks:{stepSize:25,color:labelColor,backdropColor:'transparent',font:{size:8}},
-        grid:{color:gridColor},angleLines:{color:gridColor},
-        pointLabels:{color:labelColor,font:{size:9,weight:'600'}}
-      }},
-      plugins:{
-        legend:{position:'bottom',labels:{boxWidth:10,padding:12,font:{size:10},color:labelColor}},
-        tooltip:{
-          backgroundColor:isDark?'#1e293b':'#fff',
-          titleColor:isDark?'#e2e8f0':'#1a1a2e',
-          bodyColor:isDark?'#94a3b8':'#6b7280',
-          borderColor:isDark?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)',
-          borderWidth:1,cornerRadius:8,padding:10
-        }
-      },
-      animation:{duration:1200,easing:'easeOutQuart'}
-    }
-  });
-}());
-</script>
-<script>
-(function () {
-    var grid       = document.getElementById('homeNavGrid');
-    var panel      = document.getElementById('homeSectionPanel');
-    var panelBody  = document.getElementById('homePanelBody');
-    var panelTitle = document.getElementById('homePanelTitle');
-    var openLink   = document.getElementById('homePanelOpenLink');
-    var backBtn    = document.getElementById('homePanelBack');
-    var cache      = {};
-    var isOpen     = false;
-    var DUR        = 240;
-
-    function css(el, props) { Object.assign(el.style, props); }
-    function reflow(el) { void el.offsetHeight; }
-
-    function fadeOut(el, toY, cb) {
-        css(el, { transition: 'opacity ' + DUR + 'ms ease, transform ' + DUR + 'ms ease' });
-        css(el, { opacity: '0', transform: 'translateY(' + toY + 'px)' });
-        setTimeout(cb, DUR);
-    }
-
-    function fadeIn(el, fromY) {
-        css(el, { transition: 'none', opacity: '0', transform: 'translateY(' + fromY + 'px)' });
-        reflow(el);
-        css(el, {
-            transition: 'opacity ' + DUR + 'ms ease, transform ' + DUR + 'ms ease',
-            opacity: '1',
-            transform: 'translateY(0)'
-        });
-    }
-
-    function loadPanel(url, title) {
-        if (isOpen) return;
-        isOpen = true;
-        panelTitle.textContent = title;
-        openLink.href = url;
-        panelBody.innerHTML = '<div class="dash-panel-loading"><i class="fas fa-spinner fa-spin me-2"></i>Loading\u2026</div>';
-
-        fadeOut(grid, -16, function () {
-            css(grid, { display: 'none' });
-            css(panel, { display: 'block' });
-            fadeIn(panel, 20);
-        });
-
-        if (cache[url]) {
-            setTimeout(function () { render(cache[url]); }, DUR + 60);
-            return;
-        }
-
-        fetch(url, { credentials: 'same-origin' })
-            .then(function (r) {
-                if (!r.ok) throw new Error(r.status);
-                return r.text();
-            })
-            .then(function (html) {
-                var doc = new DOMParser().parseFromString(html, 'text/html');
-                var container = doc.querySelector('.main-content .container') || doc.querySelector('.main-content');
-                cache[url] = container
-                    ? container.innerHTML
-                    : '<p class="text-danger mt-3">Content unavailable.</p>';
-                render(cache[url]);
-            })
-            .catch(function () {
-                panelBody.innerHTML = '<p class="text-danger mt-3">Failed to load. <a href="' + url + '">Open directly \u2192</a></p>';
-            });
-    }
-
-    function render(html) {
-        panelBody.innerHTML = html;
-        panelBody.querySelectorAll('.fade-in-up').forEach(function (el) {
-            el.classList.add('visible');
-        });
-        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function closePanel() {
-        if (!isOpen) return;
-        fadeOut(panel, 20, function () {
-            css(panel, { display: 'none' });
-            isOpen = false;
-            grid.style.removeProperty('display');
-            fadeIn(grid, -16);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
-
-    document.querySelectorAll('.home-panel-trigger').forEach(function (link) {
-        link.addEventListener('click', function (e) {
-            e.preventDefault();
-            loadPanel(this.dataset.panelUrl, this.dataset.panelTitle);
-        });
-    });
-
-    backBtn.addEventListener('click', closePanel);
-
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && isOpen) closePanel();
-    });
-}());
 </script>
 {% endblock %}

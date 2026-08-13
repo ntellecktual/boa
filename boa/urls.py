@@ -17,6 +17,9 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     # Recruiter Landing
     path('hire/', boaapp_views.recruiter_landing, name='recruiter_landing'),
+    path('hire/platform-engineer/', boaapp_views.recruiter_landing_platform_engineer, name='recruiter_landing_platform_engineer'),
+    path('hire/data-engineer/', boaapp_views.recruiter_landing_data_engineer, name='recruiter_landing_data_engineer'),
+    path('hire/ai-systems/', boaapp_views.recruiter_landing_ml_engineer, name='recruiter_landing_ml_engineer'),
     # Auth
     path('register/', boaapp_views.register, name='register'),
     path('login/', boaapp_views.login_view, name='login'),

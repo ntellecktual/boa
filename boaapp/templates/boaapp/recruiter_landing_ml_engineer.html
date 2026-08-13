@@ -1,0 +1,752 @@
+{% extends 'boaapp/base_generic.html' %}
+{% load static %}
+
+{% block title %}ML Engineer | Kieth | thenumerix{% endblock %}
+{% block meta_description %}ML Engineer specializing in MLOps, model training, LLMs, feature engineering, and machine learning systems. PyTorch, TensorFlow, Hugging Face expertise.{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ═══════════════════════════════════════════════════
+   ROLE-SPECIFIC RECRUITER LANDING — ML Engineer
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  --r-bg: #f9fafb;
+  --r-surface: #fff;
+  --r-border: rgba(0, 0, 0, 0.08);
+  --r-text: #1a1a1a;
+  --r-text-muted: #666;
+  --r-accent: #a855f7;
+  --r-accent-light: rgba(168, 85, 247, 0.1);
+  --r-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --r-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] {
+  --r-bg: #0f1117;
+  --r-surface: #1a1d2e;
+  --r-border: rgba(255, 255, 255, 0.1);
+  --r-text: #e2e8f0;
+  --r-text-muted: #94a3b8;
+  --r-accent-light: rgba(168, 85, 247, 0.15);
+  --r-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  --r-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+body.recruiter_landing {
+  background: var(--r-bg);
+  color: var(--r-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.r-hide-sidebar {
+  --sidebar-width: 0;
+}
+
+.r-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
+}
+
+/* ── Hero ── */
+.r-hero {
+  padding: 3.5rem 0 2.5rem;
+  text-align: center;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.r-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: var(--r-accent-light);
+  color: var(--r-accent);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.r-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  margin: 0.5rem 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.r-hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--r-text-muted);
+  margin: 1rem 0 1.5rem;
+  max-width: 600px;
+  line-height: 1.6;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.r-hero-focus {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(147, 51, 234, 0.15));
+  border: 1px solid var(--r-accent);
+  border-radius: 8px;
+  font-weight: 700;
+  color: var(--r-accent);
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.r-cta-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.r-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.r-btn-primary {
+  background: var(--r-accent);
+  color: white;
+  box-shadow: var(--r-shadow);
+}
+
+.r-btn-primary:hover {
+  background: #9333ea;
+  transform: translateY(-2px);
+  box-shadow: var(--r-shadow-lg);
+  text-decoration: none;
+  color: white;
+}
+
+.r-btn-secondary {
+  background: var(--r-surface);
+  color: var(--r-text);
+  border: 1.5px solid var(--r-border);
+}
+
+.r-btn-secondary:hover {
+  border-color: var(--r-accent);
+  color: var(--r-accent);
+  text-decoration: none;
+  background: var(--r-accent-light);
+}
+
+/* ── Expertise Grid ── */
+.r-section-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.r-expertise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.r-expertise-card {
+  background: var(--r-surface);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s;
+  box-shadow: var(--r-shadow);
+}
+
+.r-expertise-card:hover {
+  border-color: var(--r-accent);
+  transform: translateY(-4px);
+  box-shadow: var(--r-shadow-lg);
+}
+
+.r-expertise-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--r-accent);
+}
+
+.r-expertise-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--r-text);
+}
+
+.r-expertise-desc {
+  font-size: 0.9rem;
+  color: var(--r-text-muted);
+  line-height: 1.5;
+}
+
+/* ── Projects ── */
+.r-project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.r-project-card {
+  background: var(--r-surface);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s;
+  box-shadow: var(--r-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.r-project-card:hover {
+  border-color: var(--r-accent);
+  transform: translateY(-4px);
+  box-shadow: var(--r-shadow-lg);
+}
+
+.r-project-thumb {
+  height: 140px;
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+}
+
+.r-project-body {
+  padding: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.r-project-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--r-text);
+}
+
+.r-project-summary {
+  font-size: 0.85rem;
+  color: var(--r-text-muted);
+  margin-bottom: 1rem;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.r-project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.r-tag {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  background: var(--r-accent-light);
+  color: var(--r-accent);
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* ── Stack ── */
+.r-stack-section {
+  background: var(--r-surface);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: var(--r-shadow);
+}
+
+.r-stack-subtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--r-text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 1.2rem;
+}
+
+.r-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 1rem;
+}
+
+.r-stack-item {
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--r-bg);
+  border: 1px solid var(--r-border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--r-text);
+  transition: all 0.2s;
+}
+
+.r-stack-item:hover {
+  border-color: var(--r-accent);
+  background: var(--r-accent-light);
+  color: var(--r-accent);
+}
+
+/* ── Experience ── */
+.r-experience-section {
+  background: var(--r-surface);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: var(--r-shadow);
+}
+
+.r-experience-item {
+  margin-bottom: 1.5rem;
+}
+
+.r-experience-item:last-child {
+  margin-bottom: 0;
+}
+
+.r-exp-role {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--r-accent);
+  margin-bottom: 0.3rem;
+}
+
+.r-exp-company {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--r-text);
+  margin-bottom: 0.5rem;
+}
+
+.r-exp-desc {
+  font-size: 0.85rem;
+  color: var(--r-text-muted);
+  line-height: 1.6;
+}
+
+/* ── Contact ── */
+.r-contact-section {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(147, 51, 234, 0.1));
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 2.5rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  box-shadow: var(--r-shadow);
+}
+
+.r-contact-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--r-text);
+}
+
+.r-contact-subtitle {
+  font-size: 0.95rem;
+  color: var(--r-text-muted);
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.r-contact-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.r-contact-btn {
+  padding: 0.65rem 1.2rem;
+  background: var(--r-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.r-contact-btn:hover {
+  background: #9333ea;
+  transform: translateY(-2px);
+  text-decoration: none;
+  color: white;
+}
+
+/* ── Footer ── */
+.r-footer {
+  text-align: center;
+  padding: 2rem 0;
+  border-top: 1px solid var(--r-border);
+  color: var(--r-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ── Divider ── */
+.r-divider {
+  height: 1px;
+  background: var(--r-border);
+  margin: 3rem 0;
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.r-section-title {
+  animation: fadeInUp 0.5s ease-out 0.1s both;
+}
+
+.r-expertise-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.r-expertise-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.r-expertise-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.r-project-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.r-project-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.r-project-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .r-hero {
+    padding: 2.5rem 0 1.5rem;
+  }
+
+  .r-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .r-expertise-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .r-project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .r-cta-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .r-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .r-contact-buttons {
+    flex-direction: column;
+  }
+
+  .r-contact-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .r-stack-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+</style>
+{% endblock %}
+
+{% block body_class %}recruiter_landing has-no-sidebar{% endblock %}
+
+<div class="r-hide-sidebar">
+  <div class="r-container">
+    <!-- ── Hero ── -->
+    <section class="r-hero">
+      <div class="r-hero-badge">
+        <i class="fas fa-circle-check"></i>
+        <span>Open to Opportunities</span>
+      </div>
+
+      <h1>
+        ML Engineer<br />
+        <span style="color: var(--r-accent);">MLOps & AI Systems</span>
+      </h1>
+
+      <div class="r-hero-focus">
+        🤖 MLOps | Model Training | LLMs | Feature Engineering | Production ML
+      </div>
+
+      <p class="r-hero-subtitle">
+        I build production machine learning systems. From training pipelines to model serving, I help organizations deploy AI that scales and iterates.
+      </p>
+
+      <div class="r-cta-group">
+        <a href="{% url 'mlops_lifecycle' %}" class="r-btn r-btn-primary">
+          <i class="fas fa-briefcase"></i>
+          View MLOps Demo
+        </a>
+        <a href="mailto:hello@thenumerix.dev" class="r-btn r-btn-secondary">
+          <i class="fas fa-envelope"></i>
+          Email Me
+        </a>
+      </div>
+    </section>
+
+    <div class="r-divider"></div>
+
+    <!-- ── Core Expertise ── -->
+    <section>
+      <h2 class="r-section-title">Core Expertise</h2>
+
+      <div class="r-expertise-grid">
+        <div class="r-expertise-card">
+          <div class="r-expertise-icon">🧠</div>
+          <div class="r-expertise-title">Model Training</div>
+          <div class="r-expertise-desc">
+            PyTorch, TensorFlow, scikit-learn, hyperparameter tuning, distributed training, experiment tracking.
+          </div>
+        </div>
+
+        <div class="r-expertise-card">
+          <div class="r-expertise-icon">🤗</div>
+          <div class="r-expertise-title">LLMs & Transformers</div>
+          <div class="r-expertise-desc">
+            Hugging Face, fine-tuning, prompt engineering, RAG systems, vector embeddings, semantic search.
+          </div>
+        </div>
+
+        <div class="r-expertise-card">
+          <div class="r-expertise-icon">⚙️</div>
+          <div class="r-expertise-title">MLOps Pipelines</div>
+          <div class="r-expertise-desc">
+            Model versioning (DVC, MLflow), CI/CD for ML, automated retraining, A/B testing, feature stores.
+          </div>
+        </div>
+
+        <div class="r-expertise-card">
+          <div class="r-expertise-icon">📊</div>
+          <div class="r-expertise-title">Feature Engineering</div>
+          <div class="r-expertise-desc">
+            Data preparation, statistical validation, feature selection, temporal features, cross-validation.
+          </div>
+        </div>
+
+        <div class="r-expertise-card">
+          <div class="r-expertise-icon">🚀</div>
+          <div class="r-expertise-title">Model Deployment</div>
+          <div class="r-expertise-desc">
+            Docker containerization, Kubernetes, FastAPI/Flask serving, batch inference, edge deployment.
+          </div>
+        </div>
+
+        <div class="r-expertise-card">
+          <div class="r-expertise-icon">📈</div>
+          <div class="r-expertise-title">Model Monitoring</div>
+          <div class="r-expertise-desc">
+            Performance tracking, drift detection, prediction explanations, custom dashboards, alerting.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="r-divider"></div>
+
+    <!-- ── Featured Projects ── -->
+    <section>
+      <h2 class="r-section-title">Featured ML Projects</h2>
+
+      <div class="r-project-grid">
+        <div class="r-project-card">
+          <div class="r-project-thumb">⚾</div>
+          <div class="r-project-body">
+            <div class="r-project-title">MLB Draft Prediction Pipeline</div>
+            <div class="r-project-summary">
+              Trained ensemble models predicting draft outcomes from college stats. Feature engineering on 20+ years of data, MLflow experiment tracking, Kubernetes serving via AKS.
+            </div>
+            <div class="r-project-tags">
+              <span class="r-tag">PyTorch</span>
+              <span class="r-tag">MLflow</span>
+              <span class="r-tag">AKS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="r-project-card">
+          <div class="r-project-thumb">📄</div>
+          <div class="r-project-body">
+            <div class="r-project-title">Document Intelligence System</div>
+            <div class="r-project-summary">
+              Built RAG pipeline with Hugging Face transformers for document classification and extraction. Fine-tuned models on domain data, vector embeddings via Chroma DB, production-grade inference API.
+            </div>
+            <div class="r-project-tags">
+              <span class="r-tag">Hugging Face</span>
+              <span class="r-tag">RAG</span>
+              <span class="r-tag">FastAPI</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="r-project-card">
+          <div class="r-project-thumb">🏦</div>
+          <div class="r-project-body">
+            <div class="r-project-title">Financial Risk Scoring Model</div>
+            <div class="r-project-summary">
+              Developed XGBoost credit risk classifier for banking platform. Cross-validation pipeline, feature store integration, model drift monitoring via Application Insights, automated retraining.
+            </div>
+            <div class="r-project-tags">
+              <span class="r-tag">XGBoost</span>
+              <span class="r-tag">DVC</span>
+              <span class="r-tag">Azure ML</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="{% url 'recruiter_landing' %}" class="r-btn r-btn-secondary">
+          <i class="fas fa-arrow-left"></i>
+          Back to Main Profile
+        </a>
+      </div>
+    </section>
+
+    <div class="r-divider"></div>
+
+    <!-- ── Tech Stack ── -->
+    <section class="r-stack-section">
+      <div class="r-stack-subtitle">🛠️ Technology Stack</div>
+
+      <div class="r-stack-grid">
+        <div class="r-stack-item">PyTorch</div>
+        <div class="r-stack-item">TensorFlow</div>
+        <div class="r-stack-item">Hugging Face</div>
+        <div class="r-stack-item">scikit-learn</div>
+        <div class="r-stack-item">XGBoost</div>
+        <div class="r-stack-item">MLflow</div>
+        <div class="r-stack-item">DVC</div>
+        <div class="r-stack-item">FastAPI</div>
+        <div class="r-stack-item">Docker</div>
+        <div class="r-stack-item">Kubernetes</div>
+        <div class="r-stack-item">Python</div>
+        <div class="r-stack-item">SQL</div>
+      </div>
+    </section>
+
+    <!-- ── Experience Summary ── -->
+    <section class="r-experience-section">
+      <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--r-text);">
+        ML Engineering Experience
+      </h2>
+
+      <div class="r-experience-item">
+        <div class="r-exp-role">ML Engineer | Sports Analytics</div>
+        <div class="r-exp-company">MLB Partner Project</div>
+        <div class="r-exp-desc">
+          Built end-to-end ML pipeline for draft prediction. Engineered features from college performance data, trained ensemble models with PyTorch, deployed to production on Kubernetes with monitoring via Application Insights.
+        </div>
+      </div>
+
+      <div class="r-experience-item">
+        <div class="r-exp-role">ML Systems Engineer | Financial Services</div>
+        <div class="r-exp-company">Western Alliance Bank</div>
+        <div class="r-exp-desc">
+          Developed XGBoost credit risk models with automated retraining pipelines. Integrated MLflow for experiment tracking, DVC for data versioning, built feature store for reproducible ML.
+        </div>
+      </div>
+
+      <div class="r-experience-item">
+        <div class="r-exp-role">Data Scientist → ML Engineer | Document AI</div>
+        <div class="r-exp-company">Cross-Functional Project</div>
+        <div class="r-exp-desc">
+          Transitioned from research to production. Fine-tuned Hugging Face transformers, built RAG pipelines with vector databases, deployed inference API on FastAPI with Docker + Kubernetes orchestration.
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Contact Section ── -->
+    <section class="r-contact-section">
+      <h2 class="r-contact-title">Let's Build ML Systems Together</h2>
+      <p class="r-contact-subtitle">
+        Looking for an ML Engineer to scale your models from research to production? I'm ready to help your team ship AI that works.
+      </p>
+
+      <div class="r-contact-buttons">
+        <a href="mailto:hello@thenumerix.dev" class="r-contact-btn">
+          <i class="fas fa-envelope"></i>
+          Email Me
+        </a>
+        <a href="https://www.linkedin.com/in/kieth/" target="_blank" rel="noopener noreferrer" class="r-contact-btn" style="background: transparent; border: 1.5px solid white;">
+          <i class="fab fa-linkedin"></i>
+          LinkedIn
+        </a>
+        <a href="https://github.com/ntellecktual" target="_blank" rel="noopener noreferrer" class="r-contact-btn" style="background: transparent; border: 1.5px solid white;">
+          <i class="fab fa-github"></i>
+          GitHub
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer class="r-footer">
+      <p>ML Engineer specializing in MLOps, model training, and production AI systems</p>
+      <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+        <a href="{% url 'recruiter_landing' %}" style="color: var(--r-text-muted); text-decoration: none;">Back to Main Profile</a> •
+        <a href="{% url 'home' %}" style="color: var(--r-text-muted); text-decoration: none;">Full Portfolio</a> •
+        <a href="https://github.com/ntellecktual/boa" target="_blank" rel="noopener noreferrer" style="color: var(--r-text-muted); text-decoration: none;">Source Code</a>
+      </p>
+    </footer>
+  </div>
+</div>

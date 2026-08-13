@@ -281,6 +281,21 @@ def recruiter_landing(request):
     return render(request, 'boaapp/recruiter_landing.html', {'page_id': 'recruiter_landing'})
 
 
+def recruiter_landing_platform_engineer(request):
+    """Role-specific recruiter landing page for Platform Engineer."""
+    return render(request, 'boaapp/recruiter_landing_platform_engineer.html', {'page_id': 'recruiter_landing_platform_engineer'})
+
+
+def recruiter_landing_data_engineer(request):
+    """Role-specific recruiter landing page for Data Engineer."""
+    return render(request, 'boaapp/recruiter_landing_data_engineer.html', {'page_id': 'recruiter_landing_data_engineer'})
+
+
+def recruiter_landing_ml_engineer(request):
+    """Role-specific recruiter landing page for AI Systems Engineer."""
+    return render(request, 'boaapp/recruiter_landing_ml_engineer.html', {'page_id': 'recruiter_landing_ml_engineer'})
+
+
 def home_view(request):
     """Authenticated dashboard, or public landing page for guests."""
     # TEMP: always show dashboard for public demo (login disabled)
