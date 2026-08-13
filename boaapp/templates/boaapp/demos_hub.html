@@ -136,7 +136,8 @@
   <!-- ════════════════════════════════════════════════════════
        PLATFORM ENGINEER PATH
   ════════════════════════════════════════════════════════ -->
-  {% if paths.Platform\ Engineer\ Path %}
+  {% with platform_path=paths.platform_engineer %}
+  {% if platform_path %}
   <div class="hub-path-section">
     <div class="hub-path-header">
       <div class="hub-path-icon path-platform">🚀</div>
@@ -146,7 +147,7 @@
       </div>
     </div>
     <div class="hub-grid">
-      {% for demo in paths.Platform\ Engineer\ Path %}
+      {% for demo in platform_path %}
       <a href="{% url demo.url %}" class="hub-card">
         <div class="hub-card-head">
           <span class="hub-card-icon">{{ demo.icon }}</span>
@@ -174,11 +175,13 @@
     </div>
   </div>
   {% endif %}
+  {% endwith %}
 
   <!-- ════════════════════════════════════════════════════════
        DATA ENGINEER PATH
   ════════════════════════════════════════════════════════ -->
-  {% if paths.Data\ Engineer\ Path %}
+  {% with data_path=paths.data_engineer %}
+  {% if data_path %}
   <div class="hub-path-section">
     <div class="hub-path-header">
       <div class="hub-path-icon path-data">📊</div>
@@ -188,7 +191,7 @@
       </div>
     </div>
     <div class="hub-grid">
-      {% for demo in paths.Data\ Engineer\ Path %}
+      {% for demo in data_path %}
       <a href="{% url demo.url %}" class="hub-card">
         <div class="hub-card-head">
           <span class="hub-card-icon">{{ demo.icon }}</span>
@@ -216,11 +219,13 @@
     </div>
   </div>
   {% endif %}
+  {% endwith %}
 
   <!-- ════════════════════════════════════════════════════════
        AI SYSTEMS PATH
   ════════════════════════════════════════════════════════ -->
-  {% if paths.AI\ Systems\ Path %}
+  {% with ai_path=paths.ai_systems %}
+  {% if ai_path %}
   <div class="hub-path-section">
     <div class="hub-path-header">
       <div class="hub-path-icon path-ai">🤖</div>
@@ -230,7 +235,7 @@
       </div>
     </div>
     <div class="hub-grid">
-      {% for demo in paths.AI\ Systems\ Path %}
+      {% for demo in ai_path %}
       <a href="{% url demo.url %}" class="hub-card">
         <div class="hub-card-head">
           <span class="hub-card-icon">{{ demo.icon }}</span>
@@ -258,6 +263,7 @@
     </div>
   </div>
   {% endif %}
+  {% endwith %}
 
   <!-- ════════════════════════════════════════════════════════
        FOOTER CTA

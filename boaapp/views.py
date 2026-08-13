@@ -318,7 +318,7 @@ def demos_hub(request):
             'difficulty': 'Intermediate',
             'time': '8-12 min',
             'url': 'platform_engineering',
-            'path': 'Platform Engineer Path',
+            'path': 'platform_engineer',
         },
         {
             'id': 'mlops-lifecycle',
@@ -330,7 +330,7 @@ def demos_hub(request):
             'difficulty': 'Intermediate',
             'time': '10-15 min',
             'url': 'mlops_lifecycle',
-            'path': 'AI Systems Path',
+            'path': 'ai_systems',
         },
         {
             'id': 'streaming-architecture',
@@ -342,7 +342,7 @@ def demos_hub(request):
             'difficulty': 'Advanced',
             'time': '12-15 min',
             'url': 'streaming_architecture',
-            'path': 'Data Engineer Path',
+            'path': 'data_engineer',
         },
         {
             'id': 'api-orchestration',
@@ -354,7 +354,7 @@ def demos_hub(request):
             'difficulty': 'Beginner',
             'time': '5-8 min',
             'url': 'api_orchestration',
-            'path': 'Platform Engineer Path',
+            'path': 'platform_engineer',
         },
         {
             'id': 'idp-demo',
@@ -366,7 +366,7 @@ def demos_hub(request):
             'difficulty': 'Intermediate',
             'time': '8-10 min',
             'url': 'idp_demo',
-            'path': 'AI Systems Path',
+            'path': 'ai_systems',
         },
         {
             'id': 'feature-store',
@@ -378,7 +378,7 @@ def demos_hub(request):
             'difficulty': 'Advanced',
             'time': '10-12 min',
             'url': 'feature_store',
-            'path': 'AI Systems Path',
+            'path': 'ai_systems',
         },
         {
             'id': 'data-quality',
@@ -390,7 +390,7 @@ def demos_hub(request):
             'difficulty': 'Intermediate',
             'time': '8-10 min',
             'url': 'data_quality',
-            'path': 'Data Engineer Path',
+            'path': 'data_engineer',
         },
         {
             'id': 'anomaly-detection',
@@ -402,7 +402,7 @@ def demos_hub(request):
             'difficulty': 'Advanced',
             'time': '10-12 min',
             'url': 'anomaly_detection',
-            'path': 'AI Systems Path',
+            'path': 'ai_systems',
         },
         {
             'id': 'supply-chain',
@@ -414,7 +414,7 @@ def demos_hub(request):
             'difficulty': 'Intermediate',
             'time': '10-12 min',
             'url': 'supply_chain',
-            'path': 'Data Engineer Path',
+            'path': 'data_engineer',
         },
         {
             'id': 'multi-agent',
@@ -426,7 +426,7 @@ def demos_hub(request):
             'difficulty': 'Advanced',
             'time': '12-15 min',
             'url': 'multi_agent',
-            'path': 'AI Systems Path',
+            'path': 'ai_systems',
         },
         {
             'id': 'humana-mdm',
@@ -438,17 +438,20 @@ def demos_hub(request):
             'difficulty': 'Advanced',
             'time': '12-15 min',
             'url': 'humana_mdm',
-            'path': 'Data Engineer Path',
+            'path': 'data_engineer',
         },
     ]
 
-    # Group by skill path
-    paths = {}
+    # Group by skill path using simple keys
+    paths = {
+        'platform_engineer': [],
+        'data_engineer': [],
+        'ai_systems': [],
+    }
     for demo in demos:
-        path = demo['path']
-        if path not in paths:
-            paths[path] = []
-        paths[path].append(demo)
+        path_key = demo['path']
+        if path_key in paths:
+            paths[path_key].append(demo)
 
     context = {
         'demos': demos,
